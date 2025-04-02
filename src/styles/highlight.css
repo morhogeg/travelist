@@ -1,0 +1,23 @@
+
+.highlight-recommendation {
+  animation: highlight-pulse 2s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    box-shadow: none;
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.3);
+    transform: scale(1.02);
+  }
+}
+
+:root {
+  --primary-rgb: 33, 150, 243; /* Default blue, will inherit from your theme */
+}
+
+.dark {
+  --primary-rgb: 79, 195, 247; /* Lighter blue for dark mode */
+}
