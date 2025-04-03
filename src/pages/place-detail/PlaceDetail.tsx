@@ -1,16 +1,20 @@
+
+
+// FILE: src/pages/place-detail/PlaceDetail.tsx
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import Layout from "@/components/layout/Layout";
 import { useToast } from "@/hooks/use-toast";
-import PlaceLayout from "@/components/place/PlaceLayout";
 import PlaceActions from "@/components/place/PlaceActions";
 import CategoryResults from "@/components/home/CategoryResults";
-import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
+import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
+import SearchHeader from "@/components/home/search/SearchHeader";
 
 interface Place {
   id: string;
@@ -88,21 +92,14 @@ const PlaceDetail = () => {
 
   return (
     <Layout>
-      <PlaceLayout
-        name={`${place?.name || ""}, ${place?.country || ""}`}
-        onBack={() => navigate(-1)}
-        actions={
-          <PlaceActions
-            placeName={place?.name || ""}
-            onAddClick={() => setIsDrawerOpen(true)}
-          />
-        }
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-          <CategoriesScrollbar />
-          <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
-        </div>
+      <SearchHeader heading={`${place?.name || "City"}`} />
 
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-6 sm:px-8 mt-4">
+        <CategoriesScrollbar />
+        <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
+      </div>
+
+      <div className="px-6 sm:px-8">
         <CategoryResults
           category={selectedCategory}
           groupedRecommendations={groupedRecommendations}
@@ -114,9 +111,9 @@ const PlaceDetail = () => {
           toggleViewMode={toggleViewMode}
           hideCityHeader
           hideCountryHeader
-          showToggle={false} // ✅ Don't render extra toggle in this context
+          showToggle={false}
         />
-      </PlaceLayout>
+      </div>
 
       <RecommendationDrawer
         isDrawerOpen={isDrawerOpen}
@@ -129,3 +126,4 @@ const PlaceDetail = () => {
 };
 
 export default PlaceDetail;
+

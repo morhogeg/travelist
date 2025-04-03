@@ -1,18 +1,39 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import { SearchResult, SearchHeaderProps } from "./types";
 import SearchInput from "./SearchInput";
 import SearchResults from "./SearchResults";
 
-const SearchHeader = ({ heading = "Discover" }: SearchHeaderProps) => {
+const SearchHeader = ({ heading }: SearchHeaderProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [cityName, setCityName] = useState<string | null>(null);
+  const [countryName, setCountryName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const match = location.pathname.match(/\/place\/(.+)/);
+    if (match) {
+      const placeId = match[1];
+      const allPlaces = getUserPlaces();
+      const allRecs = getRecommendations();
+      const matchPlace = allPlaces.find(p => p.id === placeId);
+      const matchRec = allRecs.find(r => r.id === placeId || r.cityId === placeId);
+      const city = matchPlace?.name || matchRec?.city;
+      const country = matchPlace?.country || matchRec?.country;
+      setCityName(city || null);
+      setCountryName(country || null);
+    } else {
+      setCityName(null);
+      setCountryName(null);
+    }
+  }, [location]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -35,7 +56,6 @@ const SearchHeader = ({ heading = "Discover" }: SearchHeaderProps) => {
       const places = getUserPlaces();
       const recommendations = getRecommendations();
       
-      // Filter places by term
       const filteredPlaces = places
         .filter(place => 
           place.name.toLowerCase().includes(term.toLowerCase()) ||
@@ -47,13 +67,10 @@ const SearchHeader = ({ heading = "Discover" }: SearchHeaderProps) => {
           country: place.country,
           type: 'place' as const
         }));
-      
-      // Filter recommendations by term
+
       const filteredRecommendations = recommendations.flatMap(rec => {
-        // Check if city name matches
         const cityMatches = rec.city.toLowerCase().includes(term.toLowerCase());
-        
-        // Filter places within this recommendation
+
         return rec.places
           .filter(place => 
             place.name.toLowerCase().includes(term.toLowerCase()) || cityMatches
@@ -68,7 +85,7 @@ const SearchHeader = ({ heading = "Discover" }: SearchHeaderProps) => {
             type: 'recommendation' as const
           }));
       });
-      
+
       setSearchResults([...filteredPlaces, ...filteredRecommendations]);
       setShowResults(true);
     } else {
@@ -78,39 +95,27 @@ const SearchHeader = ({ heading = "Discover" }: SearchHeaderProps) => {
   };
 
   const handleResultClick = (result: SearchResult) => {
-    console.log("Navigating to result:", result);
-    
     if (result.type === 'place') {
       if (result.id) {
-        console.log(`Navigating to place/${result.id}`);
         navigate(`/place/${result.id}`);
-      } else {
-        console.error("Cannot navigate: place has no ID");
       }
     } else if (result.type === 'recommendation' && result.cityId) {
-      console.log(`Navigating to place/${result.cityId}`);
       navigate(`/place/${result.cityId}`);
-      
-      // Scroll to specific recommendation if needed
+
       setTimeout(() => {
         if (result.id) {
           const placeElement = document.getElementById(`rec-${result.id}`);
           if (placeElement) {
             placeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             placeElement.classList.add('highlight-recommendation');
-            
             setTimeout(() => {
               placeElement.classList.remove('highlight-recommendation');
             }, 2000);
-          } else {
-            console.warn(`Could not find element with id rec-${result.id}`);
           }
         }
       }, 500);
-    } else {
-      console.error("Cannot navigate: insufficient information", result);
     }
-    
+
     setSearchTerm("");
     setShowResults(false);
   };
@@ -130,8 +135,17 @@ const SearchHeader = ({ heading = "Discover" }: SearchHeaderProps) => {
     >
       <div className="flex items-center gap-4">
         <div className="flex-1">
-          <h1 className="text-2xl font-bold tracking-tight">{heading}</h1>
-          <p className="text-muted-foreground">Find your next destination</p>
+          {cityName && countryName ? (
+            <h1 className="text-2xl font-bold tracking-tight">
+              <span className="mr-2">📍</span>
+              {cityName}, {countryName}
+            </h1>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold tracking-tight">{heading}</h1>
+              <p className="text-muted-foreground">Find your next destination</p>
+            </>
+          )}
         </div>
       </div>
       <div ref={searchContainerRef} className="mt-6 relative">
@@ -140,7 +154,6 @@ const SearchHeader = ({ heading = "Discover" }: SearchHeaderProps) => {
           onChange={handleSearch} 
           onClear={clearSearch} 
         />
-        
         <SearchResults 
           results={searchResults}
           searchTerm={searchTerm}

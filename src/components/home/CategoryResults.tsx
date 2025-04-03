@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import CountryGroup from "./category/CountryGroup";
 import EmptyCategoryState from "./category/EmptyCategoryState";
-import ViewModeToggle from "./category/ViewModeToggle";
 import CategoriesScrollbar from "./CategoriesScrollbar";
 
 interface CategoryResultsProps {
@@ -17,7 +16,7 @@ interface CategoryResultsProps {
   onCategorySelect?: (category: string | string[]) => void;
   hideCityHeader?: boolean;
   hideCountryHeader?: boolean;
-  showToggle?: boolean; // ✅ NEW toggle control
+  showToggle?: boolean;
 }
 
 const CategoryResults: React.FC<CategoryResultsProps> = ({
@@ -32,7 +31,7 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
   onCategorySelect,
   hideCityHeader = false,
   hideCountryHeader = false,
-  showToggle = true, // ✅ default to true
+  showToggle = true,
 }) => {
   useEffect(() => {
     const handler = (e: Event) => {
@@ -64,7 +63,6 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
       {showToggle && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
           <CategoriesScrollbar />
-          <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
         </div>
       )}
 

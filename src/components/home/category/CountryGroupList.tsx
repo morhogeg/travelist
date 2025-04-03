@@ -1,6 +1,5 @@
 import React from "react";
 import CountryGroup from "./CountryGroup";
-import ViewModeToggle from "./ViewModeToggle";
 import type { GroupedRecommendation } from "@/utils/recommendation/types";
 
 interface CountryGroupListProps {
@@ -22,7 +21,6 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
   onCityClick,
   onRefresh,
   viewMode = "grid",
-  toggleViewMode,
 }) => {
   if (!groupedRecommendations || groupedRecommendations.length === 0) return null;
 
@@ -44,11 +42,6 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
 
   return (
     <div className="mt-2 space-y-10">
-      {toggleViewMode && (
-        <div className="flex justify-end mb-2">
-          <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
-        </div>
-      )}
       {sortedCountries.map((country) => (
         <CountryGroup
           key={country}

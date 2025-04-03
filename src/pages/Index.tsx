@@ -1,10 +1,10 @@
-// FILE: src/pages/Index.tsx
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import SearchHeader from "@/components/home/SearchHeader";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
+import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -100,7 +100,12 @@ const Index: React.FC = () => {
         className="pb-16"
       >
         <SearchHeader heading="Alisa Travels" />
-        <CategoriesScrollbar />
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 px-6 sm:px-8">
+          <CategoriesScrollbar />
+          <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
+        </div>
+
         <CountryGroupList
           groupedRecommendations={groupedRecommendations}
           onToggleVisited={handleToggleVisited}
@@ -108,8 +113,9 @@ const Index: React.FC = () => {
           onEditClick={handleEditClick}
           onCityClick={handleCityClick}
           viewMode={viewMode}
-          toggleViewMode={toggleViewMode} // ✅ added this prop
+          toggleViewMode={toggleViewMode}
         />
+
         <RecommendationDrawer
           isDrawerOpen={isDrawerOpen}
           setIsDrawerOpen={setIsDrawerOpen}
@@ -118,6 +124,7 @@ const Index: React.FC = () => {
           editRecommendation={selectedRecommendation}
         />
       </motion.div>
+
       <Button
         className="fixed bottom-20 right-4 rounded-full w-12 h-12 shadow-lg z-[100] hover:bg-primary/80 transform hover:scale-105 transition-all"
         size="icon"

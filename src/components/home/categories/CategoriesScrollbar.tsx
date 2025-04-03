@@ -1,3 +1,5 @@
+// FILE: src/components/home/categories/CategoriesScrollbar.tsx
+
 import React, { useState } from "react";
 import { Compass } from "lucide-react";
 import { getCategoryIcon } from "@/components/recommendations/utils/category-data";
@@ -5,18 +7,8 @@ import CategoryList from "./CategoryList";
 import CategoriesScrollContainer from "./CategoriesScrollContainer";
 import { useUserCategories, dispatchCategorySelectedEvent } from "./category-utils";
 import type { CategoryItem } from "./category-utils";
-import ViewModeToggle from "../category/ViewModeToggle"; // ✅ import toggle
-import type { ViewModeToggleProps } from "../category/ViewModeToggle";
 
-interface CategoriesScrollbarProps {
-  viewMode: "grid" | "list";
-  onToggleViewMode: () => void;
-}
-
-const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({
-  viewMode,
-  onToggleViewMode
-}) => {
+const CategoriesScrollbar: React.FC = () => {
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const userCategories = useUserCategories();
 
@@ -24,8 +16,8 @@ const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({
     { id: "all", label: "All", icon: <Compass className="h-4 w-4" /> },
     ...userCategories.map(cat => ({
       ...cat,
-      icon: getCategoryIcon(cat.id)
-    }))
+      icon: getCategoryIcon(cat.id),
+    })),
   ];
 
   const handleCategoryToggle = (categoryId: string) => {
@@ -48,15 +40,14 @@ const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({
   const resolvedActive = activeCategories.length === 0 ? ["all"] : activeCategories;
 
   return (
-    <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
+    <div className="w-full overflow-x-auto">
       <CategoriesScrollContainer>
-        <CategoryList 
+        <CategoryList
           categories={allCategories}
           activeCategories={resolvedActive}
           onCategoryToggle={handleCategoryToggle}
         />
       </CategoriesScrollContainer>
-      <ViewModeToggle viewMode={viewMode} onToggleViewMode={onToggleViewMode} />
     </div>
   );
 };
