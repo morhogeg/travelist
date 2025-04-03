@@ -15,6 +15,9 @@ interface CategoryResultsProps {
   viewMode: "grid" | "list";
   toggleViewMode: () => void;
   onCategorySelect?: (category: string | string[]) => void;
+  hideCityHeader?: boolean;
+  hideCountryHeader?: boolean;
+  showToggle?: boolean; // ✅ NEW toggle control
 }
 
 const CategoryResults: React.FC<CategoryResultsProps> = ({
@@ -27,6 +30,9 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
   viewMode,
   toggleViewMode,
   onCategorySelect,
+  hideCityHeader = false,
+  hideCountryHeader = false,
+  showToggle = true, // ✅ default to true
 }) => {
   useEffect(() => {
     const handler = (e: Event) => {
@@ -38,11 +44,6 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
     window.addEventListener("categorySelected", handler);
     return () => window.removeEventListener("categorySelected", handler);
   }, [onCategorySelect]);
-
-  if (groupedRecommendations.length === 0) {
-    if (category === "all") return null;
-    return <EmptyCategoryState category={category} />;
-  }
 
   const groupedByCountry: Record<string, any[]> = {};
   groupedRecommendations.forEach((rec) => {
@@ -60,24 +61,32 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
       transition={{ duration: 0.5 }}
       className="px-6 pt-2 pb-4"
     >
-      <div className="flex items-center justify-between mb-2 mt-4">
-        <div />
-        <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
-      </div>
+      {showToggle && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+          <CategoriesScrollbar />
+          <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
+        </div>
+      )}
 
       <div className="mt-2">
-        {Object.entries(groupedByCountry).map(([country, groups]) => (
-          <CountryGroup
-            key={country}
-            country={country}
-            groups={groups} // ✅ FIXED: pass as "groups"
-            onToggleVisited={onToggleVisited}
-            onDeleteRecommendation={onDeleteRecommendation}
-            onCityClick={onCityClick}
-            onEditClick={onEditClick}
-            viewMode={viewMode}
-          />
-        ))}
+        {groupedRecommendations.length === 0 ? (
+          <EmptyCategoryState category={category} />
+        ) : (
+          Object.entries(groupedByCountry).map(([country, groups]) => (
+            <CountryGroup
+              key={country}
+              country={country}
+              groups={groups}
+              onToggleVisited={onToggleVisited}
+              onDeleteRecommendation={onDeleteRecommendation}
+              onCityClick={onCityClick}
+              onEditClick={onEditClick}
+              viewMode={viewMode}
+              hideCityHeader={hideCityHeader}
+              hideCountryHeader={hideCountryHeader}
+            />
+          ))
+        )}
       </div>
     </motion.section>
   );

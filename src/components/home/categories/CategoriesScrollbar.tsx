@@ -5,8 +5,18 @@ import CategoryList from "./CategoryList";
 import CategoriesScrollContainer from "./CategoriesScrollContainer";
 import { useUserCategories, dispatchCategorySelectedEvent } from "./category-utils";
 import type { CategoryItem } from "./category-utils";
+import ViewModeToggle from "../category/ViewModeToggle"; // ✅ import toggle
+import type { ViewModeToggleProps } from "../category/ViewModeToggle";
 
-const CategoriesScrollbar: React.FC = () => {
+interface CategoriesScrollbarProps {
+  viewMode: "grid" | "list";
+  onToggleViewMode: () => void;
+}
+
+const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({
+  viewMode,
+  onToggleViewMode
+}) => {
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const userCategories = useUserCategories();
 
@@ -38,13 +48,16 @@ const CategoriesScrollbar: React.FC = () => {
   const resolvedActive = activeCategories.length === 0 ? ["all"] : activeCategories;
 
   return (
-    <CategoriesScrollContainer>
-      <CategoryList 
-        categories={allCategories}
-        activeCategories={resolvedActive}
-        onCategoryToggle={handleCategoryToggle}
-      />
-    </CategoriesScrollContainer>
+    <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
+      <CategoriesScrollContainer>
+        <CategoryList 
+          categories={allCategories}
+          activeCategories={resolvedActive}
+          onCategoryToggle={handleCategoryToggle}
+        />
+      </CategoriesScrollContainer>
+      <ViewModeToggle viewMode={viewMode} onToggleViewMode={onToggleViewMode} />
+    </div>
   );
 };
 

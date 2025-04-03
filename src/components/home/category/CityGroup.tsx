@@ -9,7 +9,11 @@ import GridView from "./GridView";
 import ListView from "./ListView";
 import type { CityGroupProps } from "./types";
 
-const CityGroup: React.FC<CityGroupProps> = ({
+interface Props extends CityGroupProps {
+  hideCityHeader?: boolean; // ✅ NEW
+}
+
+const CityGroup: React.FC<Props> = ({
   cityId,
   cityName,
   cityImage,
@@ -20,7 +24,8 @@ const CityGroup: React.FC<CityGroupProps> = ({
   onDeleteRecommendation,
   onCityClick,
   onRefresh,
-  viewMode = "grid"
+  viewMode = "grid",
+  hideCityHeader = false // ✅ default false
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -90,11 +95,13 @@ const CityGroup: React.FC<CityGroupProps> = ({
       exit={{ opacity: 0 }}
       className="mb-10 px-6 sm:px-8"
     >
-      <CityHeader
-        cityName={cityName}
-        cityId={cityId}
-        onCityClick={handleCityClickInternal}
-      />
+      {!hideCityHeader && (
+        <CityHeader
+          cityName={cityName}
+          cityId={cityId}
+          onCityClick={handleCityClickInternal}
+        />
+      )}
 
       <div className="mt-4">
         {viewMode === "grid" ? (

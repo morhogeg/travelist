@@ -1,5 +1,3 @@
-// FILE: src/components/home/category/CountryGroup.tsx
-
 import React from "react";
 import CityGroup from "./CityGroup";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +19,8 @@ interface CountryGroupProps {
   onCityClick?: (cityId: string) => void;
   onRefresh?: () => void;
   viewMode?: "grid" | "list";
+  hideCityHeader?: boolean;
+  hideCountryHeader?: boolean; // ✅ NEW PROP
 }
 
 const CountryGroup: React.FC<CountryGroupProps> = ({
@@ -32,6 +32,8 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   onCityClick,
   onRefresh,
   viewMode = "grid",
+  hideCityHeader = false,
+  hideCountryHeader = false // ✅ default false
 }) => {
   if (!groups || groups.length === 0) return null;
 
@@ -44,13 +46,15 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
 
   return (
     <div className="mb-8 px-6 sm:px-8">
-      <h2
-        className="text-xl font-bold text-primary mb-3 ml-1 sm:ml-0 cursor-pointer"
-        onClick={handleCountryClick}
-        style={{ textDecoration: "none" }} // ✅ disable underline
-      >
-        <span className="mr-2">{flag}</span>{country}
-      </h2>
+      {!hideCountryHeader && (
+        <h2
+          className="text-xl font-bold text-primary mb-3 ml-1 sm:ml-0 cursor-pointer"
+          onClick={handleCountryClick}
+          style={{ textDecoration: "none" }}
+        >
+          <span className="mr-2">{flag}</span>{country}
+        </h2>
+      )}
       <div className="space-y-8">
         {groups.map((group, index) => (
           <div key={group.cityId} className="pl-[2px] sm:pl-0">
@@ -66,6 +70,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
               onCityClick={onCityClick}
               onRefresh={onRefresh}
               viewMode={viewMode}
+              hideCityHeader={hideCityHeader}
             />
           </div>
         ))}

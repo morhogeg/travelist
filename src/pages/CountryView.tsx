@@ -1,11 +1,10 @@
-// FILE: src/pages/CountryView.tsx
-
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import PlaceLayout from "@/components/place/PlaceLayout";
 import PlaceActions from "@/components/place/PlaceActions";
 import CategoryResults from "@/components/home/CategoryResults";
+import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
@@ -16,7 +15,7 @@ const CountryView: React.FC = () => {
   const navigate = useNavigate();
 
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -27,13 +26,22 @@ const CountryView: React.FC = () => {
 
   useEffect(() => {
     loadCountryData();
+    window.addEventListener("recommendationAdded", loadCountryData);
+    return () => window.removeEventListener("recommendationAdded", loadCountryData);
   }, [loadCountryData]);
 
   useEffect(() => {
-    const handler = () => loadCountryData();
-    window.addEventListener("recommendationAdded", handler);
-    return () => window.removeEventListener("recommendationAdded", handler);
-  }, [loadCountryData]);
+    const categoryHandler = (e: Event) => {
+      const customEvent = e as CustomEvent<string | string[]>;
+      if (typeof customEvent.detail === "string") {
+        setSelectedCategory("all");
+      } else if (Array.isArray(customEvent.detail)) {
+        setSelectedCategory(customEvent.detail);
+      }
+    };
+    window.addEventListener("categorySelected", categoryHandler);
+    return () => window.removeEventListener("categorySelected", categoryHandler);
+  }, []);
 
   const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
     markRecommendationVisited(id, name, !currentVisited);
@@ -44,6 +52,8 @@ const CountryView: React.FC = () => {
     deleteRecommendation(id);
     loadCountryData();
   };
+
+  const handleEditClick = () => {};
 
   const handleCityClick = (cityId: string) => {
     if (!cityId) return;
@@ -58,10 +68,6 @@ const CountryView: React.FC = () => {
     setIsDrawerOpen(true);
   };
 
-  const handleCategorySelect = (category: string | string[]) => {
-    setSelectedCategory(category);
-  };
-
   return (
     <Layout>
       <PlaceLayout
@@ -74,16 +80,18 @@ const CountryView: React.FC = () => {
           />
         }
       >
+        <CategoriesScrollbar />
         <CategoryResults
           category={selectedCategory}
-          onCategorySelect={handleCategorySelect} // ✅ NEW
           groupedRecommendations={groupedRecommendations}
           onToggleVisited={handleToggleVisited}
           onDeleteRecommendation={handleDeleteRecommendation}
-          onEditClick={() => {}}
+          onEditClick={handleEditClick}
           onCityClick={handleCityClick}
           viewMode={viewMode}
           toggleViewMode={toggleViewMode}
+          hideCityHeader={false}
+          hideCountryHeader={true}
         />
       </PlaceLayout>
 
