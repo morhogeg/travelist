@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import ItemImage from "./ItemImage";
 import ItemHeader from "./ItemHeader";
 import ItemActions from "./ItemActions";
-import ItemFooter from "./ItemFooter";
 import { RecommendationItemProps } from "./types";
 import { ExternalLink, Calendar, MapPin } from "lucide-react";
 import { formatUrl } from "@/utils/link-helpers";
@@ -69,14 +68,14 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           <p className="text-sm text-muted-foreground">{item.description}</p>
         )}
 
+        <ItemHeader item={item} />
+
         <ItemActions 
-          item={item} 
-          onDelete={onDelete} 
+          item={item}
+          onDelete={onDelete}
           onToggleVisited={onToggleVisited}
           onEditClick={onEditClick}
         />
-
-        <ItemFooter item={item} onCityClick={onCityClick} />
       </div>
     </motion.div>
   );

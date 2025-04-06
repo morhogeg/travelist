@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MapPin, Calendar, Globe } from "lucide-react";
 import { generateMapLink } from "@/utils/link-helpers";
@@ -14,19 +13,10 @@ const ItemHeader: React.FC<ItemHeaderProps> = ({ item, visited }) => {
 
   return (
     <div>
-      <a 
-        href={mapUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`text-lg font-medium line-clamp-1 hover:text-primary hover:underline ${visited ? 'text-muted-foreground' : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {item.name}
-      </a>
       <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
         <MapPin className="h-4 w-4" />
         <span>{item.location}</span>
-        
+
         {item.country && (
           <span className="flex items-center ml-2">
             <Globe className="h-3.5 w-3.5 mr-1" />
@@ -34,7 +24,7 @@ const ItemHeader: React.FC<ItemHeaderProps> = ({ item, visited }) => {
           </span>
         )}
       </div>
-      
+
       {item.dateAdded && (
         <div className="flex items-center text-xs text-muted-foreground mt-1">
           <Calendar className="h-3 w-3 mr-1" />

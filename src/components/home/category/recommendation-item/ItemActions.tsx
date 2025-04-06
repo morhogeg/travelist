@@ -1,8 +1,9 @@
 import React from "react";
-import { Edit } from "lucide-react";
+import { Edit, Navigation } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RecommendationItemProps } from "./types";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
+import { generateMapLink } from "@/utils/link-helpers";
 
 type ItemActionsProps = {
   item: RecommendationItemProps["item"];
@@ -52,6 +53,8 @@ const ItemActions: React.FC<ItemActionsProps> = ({
     onToggleVisited(idToUse, item.name, !!item.visited);
   };
 
+  const mapUrl = generateMapLink(item.name, item.location);
+
   return (
     <div className="flex items-center gap-2">
       <div className="flex items-center space-x-2 relative">
@@ -69,6 +72,18 @@ const ItemActions: React.FC<ItemActionsProps> = ({
           </span>
         )}
       </div>
+
+      {/* Google Maps Button */}
+      <a
+        href={mapUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-full hover:bg-muted/60"
+        onClick={(e) => e.stopPropagation()}
+        aria-label="Open in Google Maps"
+      >
+        <Navigation className="h-4 w-4" />
+      </a>
 
       {onEditClick && (
         <button 
