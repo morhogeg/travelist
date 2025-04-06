@@ -1,5 +1,3 @@
-
-
 // FILE: src/pages/place-detail/PlaceDetail.tsx
 
 import React, { useEffect, useState } from "react";
@@ -15,6 +13,8 @@ import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchHeader from "@/components/home/search/SearchHeader";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Place {
   id: string;
@@ -115,6 +115,17 @@ const PlaceDetail = () => {
         />
       </div>
 
+      {/* ✅ FAB button */}
+      <Button
+        className="fixed bottom-20 right-4 rounded-full w-12 h-12 shadow-lg z-[100] hover:bg-primary/80 transform hover:scale-105 transition-all"
+        size="icon"
+        variant="default"
+        aria-label="Add recommendation"
+        onClick={() => setIsDrawerOpen(true)}
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
+
       <RecommendationDrawer
         isDrawerOpen={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
@@ -126,4 +137,3 @@ const PlaceDetail = () => {
 };
 
 export default PlaceDetail;
-

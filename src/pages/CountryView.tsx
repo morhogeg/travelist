@@ -1,14 +1,19 @@
+// FILE: src/pages/CountryView.tsx
+
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
-import PlaceLayout from "@/components/place/PlaceLayout";
-import PlaceActions from "@/components/place/PlaceActions";
+import SearchHeader from "@/components/home/search/SearchHeader";
 import CategoryResults from "@/components/home/CategoryResults";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
+import ViewModeToggle from "@/components/home/category/ViewModeToggle";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
+import countryToCode from "@/utils/flags/countryToCode";
 
 const CountryView: React.FC = () => {
   const { countryName } = useParams<{ countryName: string }>();
@@ -68,19 +73,20 @@ const CountryView: React.FC = () => {
     setIsDrawerOpen(true);
   };
 
+  const flagEmoji = countryName && countryToCode[countryName]
+    ? String.fromCodePoint(...[...countryToCode[countryName].toUpperCase()].map(c => 127397 + c.charCodeAt(0)))
+    : "";
+
   return (
     <Layout>
-      <PlaceLayout
-        name={countryName || "Unknown Country"}
-        onBack={() => navigate(-1)}
-        actions={
-          <PlaceActions
-            placeName={countryName || ""}
-            onAddClick={handleAddClick}
-          />
-        }
-      >
+      <SearchHeader heading={`📍${flagEmoji} ${countryName}`} />
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-6 sm:px-8 mt-2">
         <CategoriesScrollbar />
+        <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
+      </div>
+
+      <div className="px-6 sm:px-8">
         <CategoryResults
           category={selectedCategory}
           groupedRecommendations={groupedRecommendations}
@@ -92,14 +98,25 @@ const CountryView: React.FC = () => {
           toggleViewMode={toggleViewMode}
           hideCityHeader={false}
           hideCountryHeader={true}
+          showToggle={false}
         />
-      </PlaceLayout>
+      </div>
 
       <RecommendationDrawer
         isDrawerOpen={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
         initialCountry={countryName}
       />
+
+      <Button
+        className="fixed bottom-20 right-4 rounded-full w-12 h-12 shadow-lg z-[100] hover:bg-primary/80 transform hover:scale-105 transition-all"
+        size="icon"
+        variant="default"
+        aria-label="Add recommendation"
+        onClick={handleAddClick}
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
     </Layout>
   );
 };
