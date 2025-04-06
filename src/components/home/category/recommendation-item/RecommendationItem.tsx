@@ -4,7 +4,7 @@ import ItemImage from "./ItemImage";
 import ItemHeader from "./ItemHeader";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
-import { ExternalLink, Calendar, MapPin } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { formatUrl } from "@/utils/link-helpers";
 
 const RecommendationItem: React.FC<RecommendationItemProps> = ({
@@ -46,23 +46,6 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
 
       <div className="px-4 py-3 space-y-2">
         <h3 className="text-base font-semibold leading-tight">{item.name}</h3>
-
-        {(item.city || item.date) && (
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            {item.city && (
-              <div className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                <span>{item.city}</span>
-              </div>
-            )}
-            {item.date && (
-              <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                <span>{item.date}</span>
-              </div>
-            )}
-          </div>
-        )}
 
         {item.description && (
           <p className="text-sm text-muted-foreground">{item.description}</p>
