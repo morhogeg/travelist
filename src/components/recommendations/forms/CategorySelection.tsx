@@ -1,6 +1,11 @@
-
 import React from "react";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { categories } from "../utils/category-data";
 import CategoryPill from "@/components/ui/CategoryPill";
@@ -11,18 +16,17 @@ interface CategorySelectionProps {
 }
 
 const CategorySelection: React.FC<CategorySelectionProps> = ({ form }) => {
-  // Set category value without automatically submitting the form
+  const selected = form.watch("category");
+
   const handleCategorySelect = (categoryId: string) => {
-    form.setValue("category", categoryId, {
-      shouldValidate: true
-    });
+    form.setValue("category", categoryId, { shouldValidate: true });
   };
 
   return (
     <FormField
       control={form.control}
       name="category"
-      render={({ field }) => (
+      render={() => (
         <FormItem>
           <FormLabel>Category</FormLabel>
           <FormControl>
@@ -32,9 +36,8 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ form }) => {
                   key={category.id}
                   label={category.label}
                   icon={category.icon}
-                  isActive={field.value === category.id}
+                  isActive={selected?.toLowerCase() === category.id.toLowerCase()}
                   onClick={(e) => {
-                    // Stop propagation to prevent drawer from closing
                     e.preventDefault();
                     e.stopPropagation();
                     handleCategorySelect(category.id);

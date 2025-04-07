@@ -1,5 +1,3 @@
-// FILE: src/pages/place-detail/PlaceDetail.tsx
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
@@ -30,6 +28,7 @@ const PlaceDetail = () => {
   const [place, setPlace] = useState<Place | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editRecommendation, setEditRecommendation] = useState<any>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
@@ -90,6 +89,11 @@ const PlaceDetail = () => {
     setViewMode(prev => (prev === "grid" ? "list" : "grid"));
   };
 
+  const handleEditClick = (recommendation: any) => {
+    setEditRecommendation(recommendation);
+    setIsDrawerOpen(true);
+  };
+
   return (
     <Layout>
       <SearchHeader heading={`${place?.name || "City"}`} />
@@ -105,7 +109,7 @@ const PlaceDetail = () => {
           groupedRecommendations={groupedRecommendations}
           onToggleVisited={() => {}}
           onDeleteRecommendation={() => {}}
-          onEditClick={() => {}}
+          onEditClick={handleEditClick}
           onCityClick={() => {}}
           viewMode={viewMode}
           toggleViewMode={toggleViewMode}
@@ -115,13 +119,15 @@ const PlaceDetail = () => {
         />
       </div>
 
-      {/* ✅ FAB button */}
       <Button
         className="fixed bottom-20 right-4 rounded-full w-12 h-12 shadow-lg z-[100] hover:bg-primary/80 transform hover:scale-105 transition-all"
         size="icon"
         variant="default"
         aria-label="Add recommendation"
-        onClick={() => setIsDrawerOpen(true)}
+        onClick={() => {
+          setEditRecommendation(null);
+          setIsDrawerOpen(true);
+        }}
       >
         <Plus className="h-6 w-6" />
       </Button>
@@ -131,6 +137,7 @@ const PlaceDetail = () => {
         setIsDrawerOpen={setIsDrawerOpen}
         initialCity={place?.name}
         initialCountry={place?.country || ""}
+        editRecommendation={editRecommendation}
       />
     </Layout>
   );

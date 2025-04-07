@@ -40,27 +40,36 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: editRecommendation?.name || "",
-      category: editRecommendation?.category || "",
-      city: editRecommendation?.city || initialCity,
-      country: editRecommendation?.country || initialCountry,
-      description: editRecommendation?.description || "",
-      website: editRecommendation?.website || "",
+      name: "",
+      category: "",
+      city: "",
+      country: "",
+      description: "",
+      website: "",
     },
   });
 
   useEffect(() => {
-    if (editRecommendation) {
-      form.reset({
-        name: editRecommendation.name || "",
-        category: editRecommendation.category || "",
-        city: editRecommendation.city || initialCity,
-        country: editRecommendation.country || initialCountry,
-        description: editRecommendation.description || "",
-        website: editRecommendation.website || "",
-      });
-    }
-  }, [editRecommendation, form, initialCity, initialCountry]);
+    const values = editRecommendation
+      ? {
+          name: editRecommendation.name || "",
+          category: editRecommendation.category || "",
+          city: editRecommendation.city || initialCity,
+          country: editRecommendation.country || initialCountry,
+          description: editRecommendation.description || "",
+          website: editRecommendation.website || "",
+        }
+      : {
+          name: "",
+          category: "",
+          city: initialCity,
+          country: initialCountry,
+          description: "",
+          website: "",
+        };
+
+    form.reset(values);
+  }, [editRecommendation, initialCity, initialCountry, form]);
 
   const handleSubmit = (values: FormValues) => {
     if (values.website) {

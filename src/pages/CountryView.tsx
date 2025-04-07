@@ -1,5 +1,3 @@
-// FILE: src/pages/CountryView.tsx
-
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -8,12 +6,12 @@ import CategoryResults from "@/components/home/CategoryResults";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import ViewModeToggle from "@/components/home/category/ViewModeToggle";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import countryToCode from "@/utils/flags/countryToCode";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const CountryView: React.FC = () => {
   const { countryName } = useParams<{ countryName: string }>();
@@ -23,6 +21,7 @@ const CountryView: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editRecommendation, setEditRecommendation] = useState<any>(null);
 
   const loadCountryData = useCallback(async () => {
     const filtered = await getFilteredRecommendations(selectedCategory, countryName);
@@ -58,7 +57,10 @@ const CountryView: React.FC = () => {
     loadCountryData();
   };
 
-  const handleEditClick = () => {};
+  const handleEditClick = (recommendation: any) => {
+    setEditRecommendation(recommendation);
+    setIsDrawerOpen(true);
+  };
 
   const handleCityClick = (cityId: string) => {
     if (!cityId) return;
@@ -70,6 +72,7 @@ const CountryView: React.FC = () => {
   };
 
   const handleAddClick = () => {
+    setEditRecommendation(null);
     setIsDrawerOpen(true);
   };
 
@@ -102,12 +105,6 @@ const CountryView: React.FC = () => {
         />
       </div>
 
-      <RecommendationDrawer
-        isDrawerOpen={isDrawerOpen}
-        setIsDrawerOpen={setIsDrawerOpen}
-        initialCountry={countryName}
-      />
-
       <Button
         className="fixed bottom-20 right-4 rounded-full w-12 h-12 shadow-lg z-[100] hover:bg-primary/80 transform hover:scale-105 transition-all"
         size="icon"
@@ -117,6 +114,13 @@ const CountryView: React.FC = () => {
       >
         <Plus className="h-6 w-6" />
       </Button>
+
+      <RecommendationDrawer
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
+        initialCountry={countryName}
+        editRecommendation={editRecommendation}
+      />
     </Layout>
   );
 };

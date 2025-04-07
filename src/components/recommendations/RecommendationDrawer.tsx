@@ -23,8 +23,8 @@ const RecommendationDrawer = ({
   editRecommendation = null
 }: RecommendationDrawerProps) => {
   const [mode, setMode] = useState<"structured" | "freetext">("structured");
-  const [selectedCity, setSelectedCity] = useState(initialCity);
-  const [selectedCountry, setSelectedCountry] = useState(initialCountry);
+  const [localEditRecommendation, setLocalEditRecommendation] = useState<any>(null);
+
   const { toast } = useToast();
   const { 
     isLoading,
@@ -33,25 +33,22 @@ const RecommendationDrawer = ({
   } = useRecommendationSubmit();
 
   useEffect(() => {
-    if (initialCity) setSelectedCity(initialCity);
-  }, [initialCity]);
-
-  useEffect(() => {
-    if (initialCountry) setSelectedCountry(initialCountry);
-  }, [initialCountry]);
-
-  useEffect(() => {
-    if (editRecommendation) setMode("structured");
-  }, [editRecommendation]);
+    if (editRecommendation && isDrawerOpen) {
+      setMode("structured");
+      setLocalEditRecommendation(editRecommendation);
+    } else if (!isDrawerOpen) {
+      setLocalEditRecommendation(null);
+    }
+  }, [editRecommendation, isDrawerOpen]);
 
   const handleSubmitStructured = async (values: any) => {
-    const recId = editRecommendation?.recId || editRecommendation?.id;
+    const recId = localEditRecommendation?.recId || localEditRecommendation?.id;
     const success = await submitStructuredRecommendation(values, recId);
 
     if (success) {
       toast({
-        title: editRecommendation ? "Recommendation updated!" : "Recommendation added!",
-        description: `Your recommendation has been successfully ${editRecommendation ? 'updated' : 'added'}.`,
+        title: localEditRecommendation ? "Recommendation updated!" : "Recommendation added!",
+        description: `Your recommendation has been successfully ${localEditRecommendation ? 'updated' : 'added'}.`,
       });
       setIsDrawerOpen(false);
     }
@@ -72,16 +69,16 @@ const RecommendationDrawer = ({
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
       <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border">
         <DrawerHeader>
-          <DrawerTitle>{editRecommendation ? "Edit Recommendation" : "Add a Recommendation"}</DrawerTitle>
+          <DrawerTitle>{localEditRecommendation ? "Edit Recommendation" : "Add a Recommendation"}</DrawerTitle>
           <DrawerDescription>
-            {editRecommendation 
+            {localEditRecommendation 
               ? "Update the details of your recommendation." 
               : "Choose how you'd like to add your recommendation."}
           </DrawerDescription>
         </DrawerHeader>
 
         <div className="px-6 space-y-4">
-          {!editRecommendation && (
+          {!localEditRecommendation && (
             <div className="flex items-center space-x-2">
               <Button
                 variant={mode === "structured" ? "default" : "outline"}
@@ -103,10 +100,10 @@ const RecommendationDrawer = ({
           {mode === "structured" ? (
             <StructuredInputForm 
               onSubmit={handleSubmitStructured} 
-              initialCity={selectedCity}
-              initialCountry={selectedCountry}
+              initialCity={localEditRecommendation?.location || initialCity}
+              initialCountry={localEditRecommendation?.country || initialCountry}
               isAnalyzing={isLoading}
-              editRecommendation={editRecommendation}
+              editRecommendation={localEditRecommendation}
             />
           ) : (
             <FreeTextForm onSubmit={handleSubmitFreeText} isAnalyzing={isLoading} />
