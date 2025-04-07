@@ -12,9 +12,11 @@ import Index from "./pages/Index";
 import Saved from "./pages/Settings";
 import Settings from "./pages/Settings";
 import PlaceDetail from "./pages/place-detail/PlaceDetail";
-import CountryView from "./pages/CountryView"; // ✅ New Country route
+import CountryView from "./pages/CountryView";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import CollectionsTab from "@/components/collections/CollectionsTab"; // ✅ new
+import CollectionDetailPage from "@/pages/collections/CollectionDetailPage";
 
 // Declare global window interface
 declare global {
@@ -52,7 +54,9 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/place/:id" element={<PlaceDetail />} />
-            <Route path="/country/:countryName" element={<CountryView />} /> {/* ✅ NEW */}
+            <Route path="/country/:countryName" element={<CountryView />} />
+            <Route path="/collections" element={<CollectionsTab />} /> {/* ✅ New route */}
+            <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ New route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,10 +8,12 @@ import CategorySelection from "./CategorySelection";
 import CityInput from "./CityInput";
 import CountrySelect from "./CountrySelect";
 import RecommendationFields from "./RecommendationFields";
+import AddToCollectionPicker from "./AddToCollectionPicker";
 import { FormValues } from "./types";
 import { Loader2 } from "lucide-react";
 import { formatWebsiteUrl } from "@/utils/countries";
 import { addToUserPlaces } from "@/utils/recommendation/user-places";
+import { addPlaceToCollection } from "@/utils/collections/collectionStore";
 
 const formSchema = z.object({
   name: z.string().min(1, "Please enter a name"),
@@ -49,6 +51,8 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
     },
   });
 
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
+
   useEffect(() => {
     const values = editRecommendation
       ? {
@@ -75,10 +79,18 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
     if (values.website) {
       values.website = formatWebsiteUrl(values.website);
     }
+
     if (values.city) {
       addToUserPlaces(values.city.trim(), values.country);
     }
+
     onSubmit(values);
+
+    // Only add to collection if it's a new recommendation
+    if (!editRecommendation && selectedCollectionId) {
+      const generatedId = crypto.randomUUID(); // Must match saved rec id
+      addPlaceToCollection(selectedCollectionId, generatedId);
+    }
   };
 
   return (
@@ -90,6 +102,11 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
         <RecommendationFields form={form} onlyWebsite />
         <CityInput form={form} initialCity={initialCity} />
         <CountrySelect form={form} initialCountry={initialCountry} />
+        {!editRecommendation && (
+          <AddToCollectionPicker
+            onSelect={(id) => setSelectedCollectionId(id)}
+          />
+        )}
         <Button
           type="submit"
           className="w-full"

@@ -1,13 +1,12 @@
-// FILE: src/components/layout/Navbar.tsx
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Bookmark, UserCircle } from "lucide-react";
+import { Home, Folder, UserCircle } from "lucide-react"; // Changed Bookmark → Folder
 import { motion } from "framer-motion";
 
 const Navbar = () => {
   const navItems = [
     { path: "/", label: "Home", icon: <Home className="h-5 w-5" /> },
-    { path: "/saved", label: "Places", icon: <Bookmark className="h-5 w-5" /> },
+    { path: "/collections", label: "Collections", icon: <Folder className="h-5 w-5" /> },
     { path: "/profile", label: "Profile", icon: <UserCircle className="h-5 w-5" /> },
   ];
 
