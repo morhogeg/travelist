@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
-import SearchHeader from "@/components/home/search/SearchHeader";
 import CategoryResults from "@/components/home/CategoryResults";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import ViewModeToggle from "@/components/home/category/ViewModeToggle";
+import SearchInput from "@/components/home/search/SearchInput";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import countryToCode from "@/utils/flags/countryToCode";
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const CountryView: React.FC = () => {
@@ -22,6 +22,7 @@ const CountryView: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editRecommendation, setEditRecommendation] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadCountryData = useCallback(async () => {
     const filtered = await getFilteredRecommendations(selectedCategory, countryName);
@@ -76,13 +77,43 @@ const CountryView: React.FC = () => {
     setIsDrawerOpen(true);
   };
 
+  const handleClearSearch = () => setSearchTerm("");
+
   const flagEmoji = countryName && countryToCode[countryName]
     ? String.fromCodePoint(...[...countryToCode[countryName].toUpperCase()].map(c => 127397 + c.charCodeAt(0)))
     : "";
 
+  const filteredGroups = groupedRecommendations.map(group => ({
+    ...group,
+    places: Array.isArray(group.places)
+      ? group.places.filter(place =>
+          place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+        )
+      : []
+  })).filter(group => group.places.length > 0);
+
   return (
     <Layout>
-      <SearchHeader heading={`📍${flagEmoji} ${countryName}`} />
+      <div className="flex items-center gap-2 px-6 sm:px-8 mt-4">
+        <Button
+          onClick={() => navigate(-1)}
+          variant="ghost"
+          size="sm"
+          className="p-1 h-auto text-muted-foreground"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-xl font-semibold">{flagEmoji} {countryName}</h1>
+      </div>
+
+      <div className="px-6 sm:px-8 mt-4">
+        <SearchInput
+          searchTerm={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onClear={handleClearSearch}
+        />
+      </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-6 sm:px-8 mt-2">
         <CategoriesScrollbar />
@@ -92,7 +123,7 @@ const CountryView: React.FC = () => {
       <div className="px-6 sm:px-8">
         <CategoryResults
           category={selectedCategory}
-          groupedRecommendations={groupedRecommendations}
+          groupedRecommendations={filteredGroups}
           onToggleVisited={handleToggleVisited}
           onDeleteRecommendation={handleDeleteRecommendation}
           onEditClick={handleEditClick}

@@ -12,7 +12,7 @@ import AddToCollectionPicker from "./AddToCollectionPicker";
 import { FormValues } from "./types";
 import { Loader2 } from "lucide-react";
 import { formatWebsiteUrl } from "@/utils/countries";
-import { addToUserPlaces } from "@/utils/recommendation/user-places";
+import { addToUserPlaces, getUserPlaces } from "@/utils/recommendation/user-places";
 import { addPlaceToCollection } from "@/utils/collections/collectionStore";
 
 const formSchema = z.object({
@@ -86,10 +86,12 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
 
     onSubmit(values);
 
-    // Only add to collection if it's a new recommendation
+    // Fix: add real saved place to collection
     if (!editRecommendation && selectedCollectionId) {
-      const generatedId = crypto.randomUUID(); // Must match saved rec id
-      addPlaceToCollection(selectedCollectionId, generatedId);
+      const latest = getUserPlaces().at(-1); // last added
+      if (latest) {
+        addPlaceToCollection(selectedCollectionId, latest.id);
+      }
     }
   };
 

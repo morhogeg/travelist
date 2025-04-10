@@ -1,17 +1,18 @@
+// FILE: src/pages/place-detail/PlaceDetail.tsx
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import Layout from "@/components/layout/Layout";
 import { useToast } from "@/hooks/use-toast";
-import PlaceActions from "@/components/place/PlaceActions";
 import CategoryResults from "@/components/home/CategoryResults";
 import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
-import SearchHeader from "@/components/home/search/SearchHeader";
-import { Plus } from "lucide-react";
+import SearchInput from "@/components/home/search/SearchInput";
+import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Place {
@@ -32,6 +33,7 @@ const PlaceDetail = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -45,7 +47,7 @@ const PlaceDetail = () => {
         currentPlace = {
           id: recWithThisId.cityId || recWithThisId.id,
           name: recWithThisId.city,
-          image: recWithThisId.places[0]?.image || "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&w=800&q=80",
+          image: recWithThisId.places?.[0]?.image || "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&w=800&q=80",
           country: recWithThisId.country
         };
       }
@@ -63,14 +65,17 @@ const PlaceDetail = () => {
     setLoading(false);
   }, [id, toast]);
 
-  const loadRecommendations = async () => {
-    if (!place?.name) return;
-    const results = await getFilteredRecommendations(selectedCategory);
-    const filtered = results.filter(group => group.cityName.toLowerCase() === place.name.toLowerCase());
-    setGroupedRecommendations(filtered);
-  };
-
   useEffect(() => {
+    if (!place) return;
+
+    const loadRecommendations = async () => {
+      const results = await getFilteredRecommendations(selectedCategory);
+      const filtered = results.filter(group =>
+        group.cityId === place.id
+      );
+      setGroupedRecommendations(filtered);
+    };
+
     loadRecommendations();
     window.addEventListener("recommendationAdded", loadRecommendations);
     return () => window.removeEventListener("recommendationAdded", loadRecommendations);
@@ -94,9 +99,52 @@ const PlaceDetail = () => {
     setIsDrawerOpen(true);
   };
 
+  const handleSearchClear = () => setSearchTerm("");
+
+  const filteredGroups = groupedRecommendations.map(group => ({
+    ...group,
+    items: (group.items ?? []).filter(place =>
+      place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+    )
+  })).filter(group => group.items.length > 0);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="p-6 text-center text-muted-foreground">Loading city...</div>
+      </Layout>
+    );
+  }
+
+  if (!place) return null;
+
   return (
     <Layout>
-      <SearchHeader heading={`${place?.name || "City"}`} />
+      <div className="flex items-center gap-2 px-6 sm:px-8 mt-4">
+        <Button
+          onClick={() => navigate(-1)}
+          variant="ghost"
+          size="sm"
+          className="p-1 h-auto text-muted-foreground"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-xl font-semibold">{place.name}</h1>
+          {place.country && (
+            <p className="text-sm text-muted-foreground">{place.country}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="px-6 sm:px-8 mt-4">
+        <SearchInput
+          searchTerm={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onClear={handleSearchClear}
+        />
+      </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-6 sm:px-8 mt-4">
         <CategoriesScrollbar />
@@ -106,7 +154,7 @@ const PlaceDetail = () => {
       <div className="px-6 sm:px-8">
         <CategoryResults
           category={selectedCategory}
-          groupedRecommendations={groupedRecommendations}
+          groupedRecommendations={filteredGroups}
           onToggleVisited={() => {}}
           onDeleteRecommendation={() => {}}
           onEditClick={handleEditClick}
@@ -135,8 +183,8 @@ const PlaceDetail = () => {
       <RecommendationDrawer
         isDrawerOpen={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
-        initialCity={place?.name}
-        initialCountry={place?.country || ""}
+        initialCity={place.name}
+        initialCountry={place.country || ""}
         editRecommendation={editRecommendation}
       />
     </Layout>
