@@ -14,6 +14,7 @@ import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchInput from "@/components/home/search/SearchInput";
 import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import countryToCode from "@/utils/flags/countryToCode"; // ✅ NEW
 
 interface Place {
   id: string;
@@ -109,6 +110,12 @@ const PlaceDetail = () => {
     )
   })).filter(group => group.items.length > 0);
 
+  // ✅ Generate country flag
+  const flagEmoji =
+    place?.country && countryToCode[place.country]
+      ? String.fromCodePoint(...[...countryToCode[place.country]].map(c => 127397 + c.charCodeAt(0)))
+      : "";
+
   if (loading) {
     return (
       <Layout>
@@ -133,7 +140,7 @@ const PlaceDetail = () => {
         <div>
           <h1 className="text-xl font-semibold">{place.name}</h1>
           {place.country && (
-            <p className="text-sm text-muted-foreground">{place.country}</p>
+            <p className="text-sm text-muted-foreground">{flagEmoji} {place.country}</p>
           )}
         </div>
       </div>
@@ -151,7 +158,7 @@ const PlaceDetail = () => {
         <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
       </div>
 
-      <div className="px-6 sm:px-8">
+      <div>
         <CategoryResults
           category={selectedCategory}
           groupedRecommendations={filteredGroups}
@@ -164,6 +171,7 @@ const PlaceDetail = () => {
           hideCityHeader
           hideCountryHeader
           showToggle={false}
+          noSidePadding={true}
         />
       </div>
 

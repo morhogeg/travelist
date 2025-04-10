@@ -17,6 +17,7 @@ interface CategoryResultsProps {
   hideCityHeader?: boolean;
   hideCountryHeader?: boolean;
   showToggle?: boolean;
+  noSidePadding?: boolean; // ✅ NEW
 }
 
 const CategoryResults: React.FC<CategoryResultsProps> = ({
@@ -32,6 +33,7 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
   hideCityHeader = false,
   hideCountryHeader = false,
   showToggle = true,
+  noSidePadding = false, // ✅ NEW
 }) => {
   useEffect(() => {
     const handler = (e: Event) => {
@@ -58,7 +60,7 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="px-6 pt-2 pb-4"
+      className={`${noSidePadding ? "" : "px-6"} pt-2 pb-4`} // ✅ Dynamic padding
     >
       {showToggle && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">

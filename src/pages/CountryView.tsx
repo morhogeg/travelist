@@ -1,3 +1,5 @@
+// FILE: src/pages/CountryView.tsx
+
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -85,13 +87,13 @@ const CountryView: React.FC = () => {
 
   const filteredGroups = groupedRecommendations.map(group => ({
     ...group,
-    places: Array.isArray(group.places)
-      ? group.places.filter(place =>
+    items: Array.isArray(group.items)
+      ? group.items.filter(place =>
           place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
         )
       : []
-  })).filter(group => group.places.length > 0);
+  })).filter(group => group.items.length > 0);
 
   return (
     <Layout>
@@ -120,7 +122,7 @@ const CountryView: React.FC = () => {
         <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
       </div>
 
-      <div className="px-6 sm:px-8">
+      <div>
         <CategoryResults
           category={selectedCategory}
           groupedRecommendations={filteredGroups}
@@ -133,6 +135,7 @@ const CountryView: React.FC = () => {
           hideCityHeader={false}
           hideCountryHeader={true}
           showToggle={false}
+          noSidePadding={true}
         />
       </div>
 
