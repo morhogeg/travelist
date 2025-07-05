@@ -21,9 +21,14 @@ Thumbs.db
 # Reports and output
 steve_report_*.md
 steve_real_analysis_*.md
+steve_analysis_*.md
+*_report_*.md
 
-# Test files
+# Development files
 test_*.py
+*_test.py
+debug_*.py
+temp_*.py
 
 # Backup files
 *.backup

@@ -92,20 +92,28 @@ python3 real_steve.py --mode full_review
 
 ```
 steve/
-├── real_steve.py              # Main analysis runner
-├── crew_steve.py              # Full CrewAI implementation  
-├── simple_crew.py             # Simplified version
+├── real_steve.py              # 🎯 Main analysis runner (START HERE)
+├── crew_steve.py              # Full CrewAI multi-agent implementation  
+├── simple_crew.py             # Simplified version for learning
 ├── config/
-│   ├── principles.yaml        # Your strategic vision
-│   ├── agents.yaml           # AI agent configurations
-│   └── settings.yaml         # System settings
+│   ├── principles.yaml        # 📋 Your strategic vision
+│   ├── agents.yaml           # 🤖 AI agent configurations
+│   └── settings.yaml         # ⚙️ System settings
 ├── core/
-│   ├── schemas.py            # Data models
-│   └── jira_client.py        # Jira integration
-├── agents/                   # Individual AI agents
+│   ├── schemas.py            # 📊 Data models
+│   ├── jira_client.py        # 🔗 Jira integration
+│   └── orchestrator.py       # 🎵 Agent orchestration
+├── agents/                   # 🤖 Individual AI agents
+│   ├── ticket_ingestor.py    # 📥 Jira ticket harvester
+│   ├── alignment_evaluator.py # 📊 Strategic scoring
+│   ├── rewrite_strategist.py # ✍️ Ticket improvement
+│   ├── theme_synthesizer.py  # 📈 Pattern detection
+│   └── founder_voice.py      # 💼 Executive summaries
 ├── utils/
-│   └── logger.py            # Rich console logging
-└── requirements.txt
+│   └── logger.py            # 🖥️ Rich console logging
+├── data_collector.py         # 📡 Data aggregation
+├── llm_config.py            # 🧠 LLM configuration
+└── requirements.txt          # 📦 Dependencies
 ```
 
 ## 🎯 Example: AI Strategy Brief Generator
