@@ -2,8 +2,8 @@ from typing import List, Dict, Optional
 import yaml
 from crewai import Agent, Task
 
-from ..core.schemas import TicketSchema, AlignmentResult, AlignmentCategory, TicketRewrite
-from ..utils.logger import get_logger
+from core.schemas import TicketSchema, AlignmentResult, AlignmentCategory, TicketRewrite
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -5,8 +5,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from crewai import Agent, Task
 
-from ..core.schemas import TicketSchema, AlignmentResult, AlignmentCategory
-from ..utils.logger import get_logger
+from core.schemas import TicketSchema, AlignmentResult, AlignmentCategory
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

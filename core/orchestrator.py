@@ -4,12 +4,12 @@ from crewai import Crew
 
 from .schemas import ReviewMode
 from .jira_client import JiraClient
-from ..agents.ticket_ingestor import TicketIngestorAgent
-from ..agents.alignment_evaluator import AlignmentEvaluatorAgent
-from ..agents.rewrite_strategist import RewriteStrategistAgent
-from ..agents.theme_synthesizer import ThemeSynthesizerAgent
-from ..agents.founder_voice import FounderVoiceAgent
-from ..utils.logger import get_logger
+from agents.ticket_ingestor import TicketIngestorAgent
+from agents.alignment_evaluator import AlignmentEvaluatorAgent
+from agents.rewrite_strategist import RewriteStrategistAgent
+from agents.theme_synthesizer import ThemeSynthesizerAgent
+from agents.founder_voice import FounderVoiceAgent
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

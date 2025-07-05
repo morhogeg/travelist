@@ -3,11 +3,11 @@ import yaml
 from collections import Counter
 from crewai import Agent, Task
 
-from ..core.schemas import (
+from core.schemas import (
     TicketSchema, AlignmentResult, AlignmentCategory, 
     SprintSummarySchema
 )
-from ..utils.logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

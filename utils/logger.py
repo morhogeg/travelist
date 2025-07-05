@@ -11,7 +11,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 from rich import box
 
-from ..core.schemas import AlignmentCategory, AlignmentResult
+from core.schemas import AlignmentCategory, AlignmentResult
 
 
 class SteveLogger:

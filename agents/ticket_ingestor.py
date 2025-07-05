@@ -3,9 +3,9 @@ import yaml
 from crewai import Agent, Task
 from crewai.tools import Tool
 
-from ..core.schemas import TicketSchema, ReviewMode
-from ..core.jira_client import JiraClient
-from ..utils.logger import get_logger
+from core.schemas import TicketSchema, ReviewMode
+from core.jira_client import JiraClient
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
