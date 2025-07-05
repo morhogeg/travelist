@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "steve"
+version = "0.1.0"
+description = "Strategic Ticket Evaluation & Vision Enforcer - A Jira alignment guard"
+authors = ["Steve Team"]
+readme = "README.md"
+python = "^3.12"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+crewai = "^0.9.0"
+jira = "^3.8.0"
+python-dotenv = "^1.0.0"
+pydantic = "^2.0.0"
+rich = "^13.0.0"
+click = "^8.1.0"
+PyYAML = "^6.0"
+numpy = "^1.26.0"
+scikit-learn = "^1.3.0"
+httpx = "^0.25.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+black = "^23.0.0"
+flake8 = "^6.0.0"
+mypy = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true

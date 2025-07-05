@@ -1,0 +1,69 @@
+# Steve System Settings
+# General configuration for the Strategic Alignment Guard
+
+system:
+  name: "Steve - Strategic Alignment Guard"
+  version: "0.1.0"
+  
+jira:
+  # Custom field names (will be created if they don't exist)
+  custom_fields:
+    alignment_score: "Steve Alignment Score"
+    strategic_category: "Steve Category"
+    alignment_rationale: "Steve Rationale"
+  
+  # Label prefixes
+  label_prefix: "SAG:"
+  labels:
+    core_value: "SAG:core-value"
+    strategic_enabler: "SAG:strategic-enabler"
+    drift: "SAG:drift"
+    distraction: "SAG:distraction"
+    
+  # Comment settings
+  comment_signature: "🎯 **Strategic Alignment Guard**"
+  add_comments: true
+  update_fields: true
+  add_labels: true
+  
+logging:
+  # Rich console settings
+  console:
+    show_time: true
+    show_path: false
+    theme: "monokai"
+  
+  # Log sections
+  sections:
+    - "INGEST"
+    - "ANALYZE"
+    - "REWRITE"
+    - "ACTION"
+    - "SUMMARY"
+    - "ERROR"
+    
+  # Colors for alignment categories
+  colors:
+    core_value: "green"
+    strategic_enabler: "blue"
+    drift: "yellow"
+    distraction: "red"
+    
+# Processing settings
+processing:
+  batch_size: 50  # Process tickets in batches
+  parallel_agents: false  # Run agents sequentially for now
+  cache_ttl: 3600  # Cache results for 1 hour
+  
+# Output formats
+output:
+  console: true
+  file: true
+  html_report: true
+  json_export: true
+  
+# Test mode settings
+test:
+  sample_tickets: 10  # How many tickets to process in test mode
+  mock_jira: false  # Use mock data instead of real Jira
+  verbose: true

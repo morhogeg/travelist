@@ -1,0 +1,30 @@
+# Environment and secrets
+.env
+*.log
+steve-env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Reports and output
+steve_report_*.md
+steve_real_analysis_*.md
+
+# Test files
+test_*.py
+
+# Backup files
+*.backup
+.env.secure
