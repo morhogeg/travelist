@@ -500,13 +500,37 @@ def update_jira_tickets(jira_client: JiraClient, results: Dict[str, Any], dry_ru
 *Powered by 5 AI Agents: Data Detective • Strategic Oracle • Strategic Alchemist • Strategic Prophet • Strategic Storyteller*
 """
             
-            # Update the ticket in Jira
-            jira_client.update_ticket(
-                ticket_key=ticket_key,
-                alignment_result=alignment,
-                rewrite=rewrite,
-                comment=comment_text
-            )
+            # Update the ticket in Jira by adding comment directly
+            jira_client.jira.add_comment(ticket_key, comment_text)
+            
+            # Also try to update custom fields if they exist
+            try:
+                issue = jira_client.jira.issue(ticket_key)
+                
+                # Get custom field IDs
+                fields = jira_client.jira.fields()
+                steve_score_field = None
+                steve_category_field = None
+                
+                for field in fields:
+                    if field['name'] == "Steve Alignment Score":
+                        steve_score_field = field['id']
+                    elif field['name'] == "Steve Category":
+                        steve_category_field = field['id']
+                
+                # Update custom fields if they exist
+                updates = {}
+                if steve_score_field:
+                    updates[steve_score_field] = score
+                if steve_category_field:
+                    updates[steve_category_field] = category.replace('_', ' ').title()
+                
+                if updates:
+                    issue.update(fields=updates)
+                    logger.steve.info(f"📊 Updated custom fields for {ticket_key}")
+                    
+            except Exception as field_error:
+                logger.steve.warning(f"⚠️ Could not update custom fields for {ticket_key}: {field_error}")
             
             logger.steve.success(f"✅ Updated {ticket_key} with strategic analysis")
             
