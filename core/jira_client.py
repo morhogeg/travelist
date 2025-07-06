@@ -130,17 +130,64 @@ class JiraClient:
     
     def _update_custom_fields(self, issue: Issue, result: AlignmentResult):
         """Update custom fields with alignment data"""
-        # This would need to be configured based on actual Jira instance
-        # Custom field IDs vary by installation
         updates = {}
         
-        # Example custom fields - these would need to be discovered/configured
-        # updates['customfield_10100'] = result.alignment_score
-        # updates['customfield_10101'] = result.category.value
-        # updates['customfield_10102'] = result.rationale
+        # Get custom field IDs
+        steve_score_field = self._get_custom_field_id("Steve Alignment Score")
+        steve_category_field = self._get_custom_field_id("Steve Category")
+        
+        if steve_score_field:
+            updates[steve_score_field] = result.alignment_score
+        
+        if steve_category_field:
+            updates[steve_category_field] = result.category.value.replace('_', ' ').title()
         
         if updates:
-            issue.update(fields=updates)
+            try:
+                issue.update(fields=updates)
+                logger.info(f"Updated custom fields for {issue.key}")
+            except Exception as e:
+                logger.warning(f"Could not update custom fields for {issue.key}: {e}")
+    
+    def _get_custom_field_id(self, field_name: str) -> Optional[str]:
+        """Get custom field ID by name"""
+        try:
+            fields = self.jira.fields()
+            for field in fields:
+                if field['name'] == field_name:
+                    return field['id']
+        except Exception as e:
+            logger.warning(f"Could not get custom field ID for {field_name}: {e}")
+        return None
+    
+    def create_steve_custom_fields(self):
+        """Create Steve custom fields if they don't exist"""
+        if self.test_mode or self.dry_run:
+            logger.info("[DRY RUN] Would create Steve custom fields")
+            return
+        
+        logger.info("Checking for Steve custom fields...")
+        
+        # Check if Steve Score field exists
+        steve_score_field = self._get_custom_field_id("Steve Alignment Score")
+        if not steve_score_field:
+            logger.info("Steve Alignment Score field not found. Please create it manually in Jira:")
+            logger.info("1. Go to Jira Settings > Issues > Custom Fields")
+            logger.info("2. Create a new Number field named 'Steve Alignment Score'")
+            logger.info("3. Add it to the appropriate screens")
+            logger.info("4. This field will allow sorting tickets by Steve score")
+        else:
+            logger.info("✅ Steve Alignment Score field found")
+        
+        # Check if Steve Category field exists
+        steve_category_field = self._get_custom_field_id("Steve Category")
+        if not steve_category_field:
+            logger.info("Steve Category field not found. Please create it manually in Jira:")
+            logger.info("1. Go to Jira Settings > Issues > Custom Fields")
+            logger.info("2. Create a new Text field named 'Steve Category'")
+            logger.info("3. Add it to the appropriate screens")
+        else:
+            logger.info("✅ Steve Category field found")
     
     def _generate_test_tickets(self) -> List[TicketSchema]:
         """Generate test tickets for development"""
