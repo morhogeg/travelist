@@ -1,17 +1,17 @@
-# Steve - Strategic Ticket Evaluation & Vision Enforcer
+# STEVE - Strategic Ticket Evaluation & Vision Enforcer
 
 > 🎯 **A Multi-Agent AI System for Strategic Alignment in Jira**
 
-Steve ensures every ticket in your backlog aligns with your company's strategic vision. Using advanced AI agents, Steve scores, categorizes, and suggests improvements for misaligned work - preventing strategic drift before it happens.
+STEVE ensures every ticket in your backlog aligns with your company's strategic vision. Using advanced AI agents, STEVE scores, categorizes, and suggests improvements for misaligned work - preventing strategic drift before it happens.
 
-## 🚀 What Steve Does
+## 🚀 What STEVE Does
 
 - **📊 Scores Tickets**: Evaluates each Jira ticket against your strategic principles (0-100)
 - **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
 - **✍️ Strategic Rewrites**: Suggests improvements for misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
 - **💬 Jira Integration**: Adds analysis directly to your tickets as comments
-- **🔢 Custom Fields**: Updates Steve Alignment Score and Steve Category fields for Jira sorting
+- **🔢 Custom Fields**: Updates STEVE Alignment Score and STEVE Category fields for Jira sorting
 - **📋 Priority Lists**: Generates sorted strategic priority views with recommended actions
 
 ## 🎯 Example Output
@@ -43,7 +43,7 @@ Steve ensures every ticket in your backlog aligns with your company's strategic 
 
 ## 🏗️ Architecture
 
-Steve uses **5 Sequential AI Agents** powered by CrewAI:
+STEVE uses **5 Sequential AI Agents** powered by CrewAI:
 
 1. **Ticket Ingestor** - Pulls tickets from Jira based on review mode
 2. **Alignment Evaluator** - Scores tickets against strategic principles  
@@ -79,7 +79,7 @@ principles:
     weight: 1.5
 ```
 
-### 4. Run Steve
+### 4. Run STEVE
 ```bash
 # Test with mock data
 python3 real_steve.py --mode execution --dry-run
@@ -147,7 +147,7 @@ This implementation is configured for an **AI Strategy Brief Generator** with th
 
 ## 🔍 Strategic Intelligence Reports
 
-Steve generates detailed analysis reports:
+STEVE generates detailed analysis reports:
 
 ```
 🎯 STRATEGIC ALIGNMENT SUMMARY
@@ -162,20 +162,20 @@ Strategic Drift: 27%
 
 ### 🔢 Jira Custom Fields Setup
 
-Steve can update custom fields for native Jira sorting:
+STEVE can update custom fields for native Jira sorting:
 
 1. **Create Custom Fields** in Jira Settings > Issues > Custom Fields:
-   - `Steve Alignment Score` (Number field, 0-100)
-   - `Steve Category` (Text field)
+   - `STEVE Alignment Score` (Number field, 0-100)
+   - `STEVE Category` (Text field)
 
 2. **Add to Screens**: Configure these fields on your issue screens
 
 3. **Sort in Jira**: 
-   - Use JQL: `project = PROJ ORDER BY "Steve Alignment Score" DESC`
-   - Save as filter "Steve Strategic View"
+   - Use JQL: `project = PROJ ORDER BY "STEVE Alignment Score" DESC`
+   - Save as filter "STEVE Strategic View"
    - Sort boards by clicking column headers
 
-## 🛡️ What Steve Prevents
+## 🛡️ What STEVE Prevents
 
 - **Feature Creep**: Identifies tickets that don't serve strategic goals
 - **Strategic Drift**: Catches teams working on misaligned priorities  
@@ -184,7 +184,7 @@ Steve can update custom fields for native Jira sorting:
 
 ## 🔄 Workflow Integration
 
-1. **Daily Checks**: Run Steve on sprint tickets before standup
+1. **Daily Checks**: Run STEVE on sprint tickets before standup
 2. **Sprint Planning**: Analyze backlog items before committing  
 3. **Epic Reviews**: Evaluate large initiatives against strategy
 4. **Quarterly Reviews**: Full project analysis for strategic planning
@@ -198,11 +198,11 @@ Steve can update custom fields for native Jira sorting:
 - **Rich Logging**: Beautiful console output with progress tracking
 - **Detailed Rationales**: Explains exactly why tickets scored low (missing keywords, principles)
 - **Sorted Views**: Strategic priority lists with recommended actions (--sorted flag)
-- **Jira Field Updates**: Automatic Steve Score and Category field population for sorting
+- **Jira Field Updates**: Automatic STEVE Score and Category field population for sorting
 
-## 🤖 How Steve Works
+## 🤖 How STEVE Works
 
-Steve uses a straightforward scoring algorithm:
+STEVE uses a straightforward scoring algorithm:
 - **Keyword Matching**: Checks for strategic keywords in tickets
 - **Weighted Scoring**: Applies principle weights to calculate alignment
 - **Category Distribution**: Tracks patterns across ticket categories
@@ -210,7 +210,7 @@ Steve uses a straightforward scoring algorithm:
 
 ## 📊 Success Metrics
 
-Teams using Steve report:
+Teams using STEVE report:
 - **40% reduction** in strategic drift
 - **60% faster** sprint planning decisions
 - **85% improvement** in strategic focus clarity
@@ -221,11 +221,11 @@ Teams using Steve report:
 - **Local Processing**: Your data never leaves your infrastructure
 - **Secure APIs**: All integrations use proper authentication
 - **Audit Trail**: Complete logging of all decisions and changes
-- **No Telemetry**: Steve doesn't phone home
+- **No Telemetry**: STEVE doesn't phone home
 
 ## 🛠️ Customization
 
-Steve is highly customizable:
+STEVE is highly customizable:
 
 - **Principles**: Define any strategic framework
 - **Scoring**: Adjust weights and thresholds
@@ -235,25 +235,23 @@ Steve is highly customizable:
 
 ## 📈 Roadmap
 
-- [x] **Jira Custom Fields**: Sort tickets by Steve Score directly in Jira
+- [x] **Jira Custom Fields**: Sort tickets by STEVE Score directly in Jira
 - [x] **Priority Lists**: Sorted strategic views with actions
 - [x] **Detailed Feedback**: Explain why tickets score low
-- [ ] **GitHub Integration**: Analyze PRs and issues
-- [ ] **Slack Bot**: Interactive strategic consultations  
 - [ ] **Trend Analysis**: Long-term strategic drift detection
 - [ ] **Team Insights**: Per-developer alignment scoring
 - [ ] **Integration Hub**: Asana, Linear, Monday.com support
 
 ## 🤝 Contributing
 
-Steve was built for the AI Strategy Brief Generator but is designed to be adaptable. While this specific configuration isn't meant to be forked directly, the architecture and approach can inspire your own strategic alignment systems.
+STEVE was built for the AI Strategy Brief Generator but is designed to be adaptable. While this specific configuration isn't meant to be forked directly, the architecture and approach can inspire your own strategic alignment systems.
 
 ## 📄 License
 
-MIT License - Use Steve's concepts to build your own strategic intelligence system.
+MIT License - Use STEVE's concepts to build your own strategic intelligence system.
 
 ---
 
-> **"Are we building what matters?"** - Steve's constant question to keep teams focused on strategic value
+> **"Are we building what matters?"** - STEVE's constant question to keep teams focused on strategic value
 
-🎯 **Steve**: Because every ticket should advance your vision.
+🎯 **STEVE**: Because every ticket should advance your vision.
