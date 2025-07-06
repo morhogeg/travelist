@@ -200,13 +200,13 @@ Steve can update custom fields for native Jira sorting:
 - **Sorted Views**: Strategic priority lists with recommended actions (--sorted flag)
 - **Jira Field Updates**: Automatic Steve Score and Category field population for sorting
 
-## 🤖 AI-Powered Intelligence
+## 🤖 How Steve Works
 
-Steve uses advanced NLP to understand:
-- **Semantic Alignment**: Goes beyond keyword matching
-- **Strategic Intent**: Understands business value vs busy work
-- **Context Awareness**: Considers project phase and priorities
-- **Pattern Recognition**: Spots trends across tickets and sprints
+Steve uses a straightforward scoring algorithm:
+- **Keyword Matching**: Checks for strategic keywords in tickets
+- **Weighted Scoring**: Applies principle weights to calculate alignment
+- **Category Distribution**: Tracks patterns across ticket categories
+- **Multi-Agent Analysis**: Optional CrewAI agents for deeper insights (crew_steve.py)
 
 ## 📊 Success Metrics
 
