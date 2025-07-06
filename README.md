@@ -1,8 +1,17 @@
+```
+███████╗████████╗███████╗██╗   ██╗███████╗
+██╔════╝╚══██╔══╝██╔════╝██║   ██║██╔════╝
+███████╗   ██║   █████╗  ██║   ██║█████╗  
+╚════██║   ██║   ██╔══╝  ╚██╗ ██╔╝██╔══╝  
+███████║   ██║   ███████╗ ╚████╔╝ ███████╗
+╚══════╝   ╚═╝   ╚══════╝  ╚═══╝  ╚══════╝
+```
+
 # STEVE - Strategic Ticket Evaluation & Vision Enforcer
 
 > 🎯 **A Multi-Agent AI System for Strategic Alignment in Jira**
 
-STEVE ensures every ticket in your backlog aligns with your company's strategic vision. Using advanced AI agents, STEVE scores, categorizes, and suggests improvements for misaligned work - preventing strategic drift before it happens.
+STEVE ensures every ticket in your backlog aligns with your product's strategic vision. Using advanced AI agents, STEVE scores, categorizes, and suggests improvements for misaligned work - preventing strategic drift before it happens.
 
 ## 🚀 What STEVE Does
 
@@ -68,15 +77,46 @@ cp .env.example .env
 # Edit .env with your Jira credentials and API keys
 ```
 
-### 3. Define Your Strategy
-Edit `config/principles.yaml` with your company's strategic vision:
+### 3. Configure Your Product Vision
 
+STEVE needs to understand your product's strategic vision. Edit these files:
+
+#### `config/principles.yaml` - Your Strategic Principles
 ```yaml
 principles:
   - name: "Customer Obsession"
     description: "Every feature should improve customer experience"
-    keywords: ["customer", "user", "experience"]
-    weight: 1.5
+    keywords: ["customer", "user", "experience", "UX", "usability"]
+    weight: 1.5  # Higher weight = more important
+  
+  - name: "Technical Excellence"
+    description: "Maintain high code quality and performance"
+    keywords: ["performance", "quality", "scalable", "maintainable"]
+    weight: 1.2
+
+thresholds:
+  core_value: 80      # 80-100 score = Core Value
+  strategic_enabler: 60  # 60-79 = Strategic Enabler
+  drift: 40           # 40-59 = Drift
+  # 0-39 = Distraction
+```
+
+#### `config/agents.yaml` - Agent Personalities (Optional)
+Customize how agents analyze tickets:
+```yaml
+agents:
+  alignment_evaluator:
+    temperature: 0.7  # Creativity level (0-1)
+    max_principles_to_match: 5
+```
+
+#### `.env` - Your Jira Configuration
+```bash
+JIRA_URL=https://yourcompany.atlassian.net
+JIRA_EMAIL=your.email@company.com
+JIRA_API_TOKEN=your_api_token_here
+JIRA_PROJECT_KEY=PROJ  # Your project key
+OPENAI_API_KEY=sk-...  # Or use OPENROUTER_API_KEY
 ```
 
 ### 4. Run STEVE
