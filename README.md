@@ -1,3 +1,5 @@
+<div align="center">
+
 ```
 ███████╗████████╗███████╗██╗   ██╗███████╗
 ██╔════╝╚══██╔══╝██╔════╝██║   ██║██╔════╝
@@ -6,6 +8,8 @@
 ███████║   ██║   ███████╗ ╚████╔╝ ███████╗
 ╚══════╝   ╚═╝   ╚══════╝  ╚═══╝  ╚══════╝
 ```
+
+</div>
 
 # STEVE - Strategic Ticket Evaluation & Vision Enforcer
 
@@ -17,11 +21,15 @@ STEVE ensures every ticket in your backlog aligns with your product's strategic 
 
 - **📊 Scores Tickets**: Evaluates each Jira ticket against your strategic principles (0-100)
 - **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
-- **✍️ Strategic Rewrites**: Suggests improvements for misaligned tickets
-- **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
+- **💭 Detailed Feedback**: Explains exactly why tickets scored low (missing keywords, principles)
 - **💬 Jira Integration**: Adds analysis directly to your tickets as comments
 - **🔢 Custom Fields**: Updates STEVE Alignment Score and STEVE Category fields for Jira sorting
 - **📋 Priority Lists**: Generates sorted strategic priority views with recommended actions
+
+### 🤖 Advanced Multi-Agent Features (crew_steve.py)
+- **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
+- **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
+- **💼 Executive Summaries**: Founder-voice strategic communications
 
 ## 🎯 Example Output
 
@@ -52,7 +60,15 @@ STEVE ensures every ticket in your backlog aligns with your product's strategic 
 
 ## 🏗️ Architecture
 
-STEVE uses **5 Sequential AI Agents** powered by CrewAI:
+STEVE offers two implementations:
+
+### 📊 **Core Implementation** (`real_steve.py`)
+- **Direct Scoring**: Fast keyword-based alignment scoring
+- **Jira Integration**: Updates tickets with scores and categories
+- **Priority Views**: Sorted lists with strategic recommendations
+
+### 🤖 **Multi-Agent Implementation** (`crew_steve.py`)
+Uses **5 Sequential AI Agents** powered by CrewAI:
 
 1. **Ticket Ingestor** - Pulls tickets from Jira based on review mode
 2. **Alignment Evaluator** - Scores tickets against strategic principles  
@@ -120,6 +136,8 @@ OPENAI_API_KEY=sk-...  # Or use OPENROUTER_API_KEY
 ```
 
 ### 4. Run STEVE
+
+#### Core Implementation (Recommended for most users)
 ```bash
 # Test with mock data
 python3 real_steve.py --mode execution --dry-run
@@ -132,6 +150,14 @@ python3 real_steve.py --mode full_review
 
 # Display sorted strategic priority list
 python3 real_steve.py --sorted
+```
+
+#### Multi-Agent Implementation (Advanced features)
+```bash
+# Run full CrewAI multi-agent analysis
+python3 crew_steve.py
+
+# Includes strategic rewrites and executive summaries
 ```
 
 ## 🔧 Configuration
@@ -231,22 +257,31 @@ STEVE can update custom fields for native Jira sorting:
 
 ## 🚀 Advanced Features
 
-- **Multi-LLM Support**: OpenAI, OpenRouter, or local Ollama
+### Core Features (`real_steve.py`)
 - **Custom Scoring**: Adjust thresholds and weights per principle
 - **Batch Processing**: Analyze hundreds of tickets efficiently
-- **Executive Summaries**: Founder-voice strategic communications
 - **Rich Logging**: Beautiful console output with progress tracking
 - **Detailed Rationales**: Explains exactly why tickets scored low (missing keywords, principles)
 - **Sorted Views**: Strategic priority lists with recommended actions (--sorted flag)
 - **Jira Field Updates**: Automatic STEVE Score and Category field population for sorting
 
+### Multi-Agent Features (`crew_steve.py`)
+- **Multi-LLM Support**: OpenAI, OpenRouter, or local Ollama
+- **Strategic Rewrites**: AI-powered ticket improvement suggestions
+- **Executive Summaries**: Founder-voice strategic communications
+- **Pattern Detection**: Deep analysis of alignment trends
+
 ## 🤖 How STEVE Works
 
-STEVE uses a straightforward scoring algorithm:
+### Core Algorithm (`real_steve.py`)
 - **Keyword Matching**: Checks for strategic keywords in tickets
 - **Weighted Scoring**: Applies principle weights to calculate alignment
 - **Category Distribution**: Tracks patterns across ticket categories
-- **Multi-Agent Analysis**: Optional CrewAI agents for deeper insights (crew_steve.py)
+
+### Multi-Agent System (`crew_steve.py`)
+- **AI-Powered Analysis**: CrewAI agents provide deeper strategic insights
+- **Natural Language Processing**: Advanced understanding of ticket context
+- **Collaborative Intelligence**: Agents work together for comprehensive analysis
 
 ## 📊 Success Metrics
 
