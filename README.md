@@ -11,6 +11,8 @@ Steve ensures every ticket in your backlog aligns with your company's strategic 
 - **✍️ Strategic Rewrites**: Suggests improvements for misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
 - **💬 Jira Integration**: Adds analysis directly to your tickets as comments
+- **🔢 Custom Fields**: Updates Steve Alignment Score and Steve Category fields for Jira sorting
+- **📋 Priority Lists**: Generates sorted strategic priority views with recommended actions
 
 ## 🎯 Example Output
 
@@ -23,6 +25,20 @@ Steve ensures every ticket in your backlog aligns with your company's strategic 
 📊 PROJ-124: 25/100 (Distraction)  
    📝 Add animated GIF support to chat
    💭 Limited strategic alignment. Consider deprioritizing.
+   💭 Issues: No alignment with: Builder-First Value, AI Agent Excellence
+```
+
+### 📊 Sorted Priority View (--sorted flag)
+```
+┏━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ Rank ┃ Score  ┃ Ticket   ┃ Category       ┃ Summary                        ┃ Action             ┃
+┡━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│ #1   │ 100/100│ PROJ-23  │ Core Value     │ Add CrewAI tutorial generator...│ ✅ Keep prioritized │
+│ #2   │ 82.5/100│ PROJ-37 │ Core Value     │ Create mobile app for reading...│ ✅ Keep prioritized │
+│ #3   │ 60/100 │ PROJ-29  │ Strategic En...│ Add email digest feature...    │ 📈 Consider promoting│
+│ #4   │ 52.5/100│ PROJ-34 │ Drift          │ Implement comments system...   │ ⚠️ Needs realignment │
+│ #5   │ 30/100 │ PROJ-2   │ Distraction    │ Go-To-Market Planning          │ ❌ Consider removing │
+└━━━━━┴━━━━━━━━┴━━━━━━━━━━┴━━━━━━━━━━━━━━━━┴━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┴━━━━━━━━━━━━━━━━━━━━┘
 ```
 
 ## 🏗️ Architecture
@@ -73,6 +89,9 @@ python3 real_steve.py --mode execution
 
 # Full project review
 python3 real_steve.py --mode full_review
+
+# Display sorted strategic priority list
+python3 real_steve.py --sorted
 ```
 
 ## 🔧 Configuration
@@ -141,6 +160,21 @@ Strategic Drift: 27%
   ✅ Strong strategic alignment - maintain current priorities
 ```
 
+### 🔢 Jira Custom Fields Setup
+
+Steve can update custom fields for native Jira sorting:
+
+1. **Create Custom Fields** in Jira Settings > Issues > Custom Fields:
+   - `Steve Alignment Score` (Number field, 0-100)
+   - `Steve Category` (Text field)
+
+2. **Add to Screens**: Configure these fields on your issue screens
+
+3. **Sort in Jira**: 
+   - Use JQL: `project = PROJ ORDER BY "Steve Alignment Score" DESC`
+   - Save as filter "Steve Strategic View"
+   - Sort boards by clicking column headers
+
 ## 🛡️ What Steve Prevents
 
 - **Feature Creep**: Identifies tickets that don't serve strategic goals
@@ -162,6 +196,9 @@ Strategic Drift: 27%
 - **Batch Processing**: Analyze hundreds of tickets efficiently
 - **Executive Summaries**: Founder-voice strategic communications
 - **Rich Logging**: Beautiful console output with progress tracking
+- **Detailed Rationales**: Explains exactly why tickets scored low (missing keywords, principles)
+- **Sorted Views**: Strategic priority lists with recommended actions (--sorted flag)
+- **Jira Field Updates**: Automatic Steve Score and Category field population for sorting
 
 ## 🤖 AI-Powered Intelligence
 
@@ -198,6 +235,9 @@ Steve is highly customizable:
 
 ## 📈 Roadmap
 
+- [x] **Jira Custom Fields**: Sort tickets by Steve Score directly in Jira
+- [x] **Priority Lists**: Sorted strategic views with actions
+- [x] **Detailed Feedback**: Explain why tickets score low
 - [ ] **GitHub Integration**: Analyze PRs and issues
 - [ ] **Slack Bot**: Interactive strategic consultations  
 - [ ] **Trend Analysis**: Long-term strategic drift detection
