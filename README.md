@@ -62,21 +62,19 @@ STEVE ensures every ticket in your backlog aligns with your product's strategic 
 
 ## 🏗️ Architecture
 
-STEVE offers two implementations:
-
-### 📊 **Core Implementation** (`real_steve.py`)
-- **Direct Scoring**: Fast keyword-based alignment scoring
-- **Jira Integration**: Updates tickets with scores and categories
-- **Priority Views**: Sorted lists with strategic recommendations
-
-### 🤖 **Multi-Agent Implementation** (`crew_steve.py`)
-Uses **5 Sequential AI Agents** powered by CrewAI:
+STEVE is built as a **Multi-Agent AI System** powered by CrewAI with **5 Sequential Agents**:
 
 1. **Ticket Ingestor** - Pulls tickets from Jira based on review mode
 2. **Alignment Evaluator** - Scores tickets against strategic principles  
 3. **Rewrite Strategist** - Improves misaligned tickets
 4. **Theme Synthesizer** - Detects patterns and blind spots
 5. **Founder Voice** - Creates executive summaries (optional)
+
+### 🔗 **Jira Integration** (`real_steve.py`)
+- **Direct Connection**: Connects to your actual Jira instance
+- **Custom Fields**: Updates STEVE Alignment Score and Category fields
+- **Wrapper Script**: Provides CLI interface to the multi-agent system
+- **Real-time Updates**: Adds analysis directly to your tickets
 
 ## ⚡ Quick Start
 
@@ -149,24 +147,9 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 ### 4. Run STEVE
 
-#### Core Implementation (Recommended for most users)
+#### Main Multi-Agent System
 ```bash
-# Test with mock data
-python3 real_steve.py --mode execution --dry-run
-
-# Analyze real tickets
-python3 real_steve.py --mode execution
-
-# Full project review
-python3 real_steve.py --mode full_review
-
-# Display sorted strategic priority list
-python3 real_steve.py --sorted
-```
-
-#### Multi-Agent Implementation (Advanced features)
-```bash
-# Run full CrewAI multi-agent analysis
+# Run full strategic analysis
 python3 crew_steve.py
 
 # Test with mock data
@@ -174,8 +157,21 @@ python3 crew_steve.py --test
 
 # Run with specific project
 python3 crew_steve.py --project MYPROJ
+```
 
-# Includes strategic rewrites and executive summaries
+#### Direct Jira Integration (Updates your actual tickets)
+```bash
+# Test with mock data (safe - no Jira updates)
+python3 real_steve.py --mode execution --dry-run
+
+# Analyze and update real Jira tickets
+python3 real_steve.py --mode execution
+
+# Full project review
+python3 real_steve.py --mode full_review
+
+# Display sorted strategic priority list
+python3 real_steve.py --sorted
 ```
 
 ## 🔧 Configuration
@@ -302,31 +298,33 @@ STEVE can update custom fields for native Jira sorting:
 
 ## 🚀 Advanced Features
 
-### Core Features (`real_steve.py`)
-- **Custom Scoring**: Adjust thresholds and weights per principle
-- **Batch Processing**: Analyze hundreds of tickets efficiently
-- **Rich Logging**: Beautiful console output with progress tracking
-- **Detailed Rationales**: Explains exactly why tickets scored low (missing keywords, principles)
-- **Sorted Views**: Strategic priority lists with recommended actions (--sorted flag)
-- **Jira Field Updates**: Automatic STEVE Score and Category field population for sorting
-
-### Multi-Agent Features (`crew_steve.py`)
+### Multi-Agent AI System (`crew_steve.py`)
 - **Multi-LLM Support**: OpenAI, OpenRouter, or local Ollama
 - **Strategic Rewrites**: AI-powered ticket improvement suggestions
-- **Executive Summaries**: Founder-voice strategic communications
+- **Executive Summaries**: Constructive, motivating strategic communications
 - **Pattern Detection**: Deep analysis of alignment trends
+- **Tone Control**: Configurable messaging for positive team impact
+- **Category Definitions**: Clear explanations in every report
+
+### Jira Integration (`real_steve.py`)
+- **Direct Connection**: Updates your actual Jira tickets
+- **Custom Fields**: Automatic STEVE Score and Category field population
+- **Rich Logging**: Beautiful console output with progress tracking
+- **Sorted Views**: Strategic priority lists with recommended actions (--sorted flag)
+- **Safe Testing**: Dry-run mode to test without making changes
 
 ## 🤖 How STEVE Works
 
-### Core Algorithm (`real_steve.py`)
-- **Keyword Matching**: Checks for strategic keywords in tickets
-- **Weighted Scoring**: Applies principle weights to calculate alignment
-- **Category Distribution**: Tracks patterns across ticket categories
-
-### Multi-Agent System (`crew_steve.py`)
-- **AI-Powered Analysis**: CrewAI agents provide deeper strategic insights
+### Multi-Agent AI System (`crew_steve.py`)
+- **Sequential Agent Processing**: 5 specialized AI agents work together
+- **AI-Powered Analysis**: CrewAI agents provide deep strategic insights
 - **Natural Language Processing**: Advanced understanding of ticket context
-- **Collaborative Intelligence**: Agents work together for comprehensive analysis
+- **Collaborative Intelligence**: Agents build on each other's work for comprehensive analysis
+
+### Jira Integration Layer (`real_steve.py`)
+- **API Connection**: Direct integration with your Jira instance
+- **Field Updates**: Populates custom fields with analysis results
+- **Safe Operations**: Dry-run mode and comprehensive error handling
 
 ## 📊 Success Metrics
 
