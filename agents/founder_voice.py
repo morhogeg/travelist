@@ -51,13 +51,23 @@ class FounderVoiceAgent:
             
             Write in a tone that is: {self.config['tone']}
             
-            Structure:
-            1. Open with a sharp observation about the sprint's strategic health
-            2. Highlight what's working (if anything)
-            3. Call out what needs immediate attention
-            4. End with: "{self.config['signature']}"
+            TONE GUIDELINES:
+            - {' '.join(self.config.get('tone_guidelines', {}).get('constructive_approach', []))}
+            - AVOID phrases like: {', '.join(self.config.get('tone_guidelines', {}).get('avoid_phrases', []))}
+            - PREFER phrases like: {', '.join(self.config.get('tone_guidelines', {}).get('prefer_phrases', []))}
             
-            Make it punchy, memorable, and actionable.
+            Structure:
+            1. Acknowledge the team's momentum and effort
+            2. Highlight what's working strategically
+            3. After the Alignment Analysis, include a "🗂️ Strategic Category Definitions" section with:
+               - Core Value: {self.config.get('category_definitions', {}).get('core_value', 'High-impact work directly advancing core mission')}
+               - Strategic Enabler: {self.config.get('category_definitions', {}).get('strategic_enabler', 'Foundational infrastructure unlocking future value')}
+               - Drift: {self.config.get('category_definitions', {}).get('drift', 'Well-intentioned work lacking clear strategic connection')}
+               - Distraction: {self.config.get('category_definitions', {}).get('distraction', 'Work carrying opportunity cost that should be reframed')}
+            4. Suggest pivots for misaligned work (without blame)
+            5. End with a motivating, clarity-driven call to action
+            
+            Make it constructive, motivating, and solution-focused.
             """,
             expected_output=f"Executive summary in founder voice ({self.config['max_words']} words)",
             agent=self.agent
