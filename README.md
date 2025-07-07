@@ -19,12 +19,15 @@ STEVE ensures every ticket in your backlog aligns with your product's strategic 
 
 ## 🚀 What STEVE Does
 
+**One Command. Complete Strategic Intelligence.**
+
+- **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
 - **📊 Scores Tickets**: Evaluates each Jira ticket against your strategic principles (0-100)
 - **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
-- **💭 Detailed Feedback**: Explains exactly why tickets scored low (missing keywords, principles)
-- **💬 Jira Integration**: Adds analysis directly to your tickets as comments
-- **🔢 Custom Fields**: Updates STEVE Alignment Score and STEVE Category fields for Jira sorting
-- **📋 Priority Lists**: Generates sorted strategic priority views with recommended actions
+- **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
+- **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
+- **📋 Priority Lists**: Sorted strategic views with actionable next steps
+- **🗂️ Category Definitions**: Clear explanations of what each strategic category means
 
 ### 🤖 Advanced Multi-Agent Features (crew_steve.py)
 - **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
@@ -147,31 +150,34 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 ### 4. Run STEVE
 
-#### Main Multi-Agent System
+#### One Command Does Everything
 ```bash
-# Run full strategic analysis
-python3 crew_steve.py
+# Complete strategic analysis (multi-agent AI + Jira updates + executive summary)
+python3 steve.py --mode execution
 
-# Test with mock data
-python3 crew_steve.py --test
+# Test with mock data (safe - no Jira updates)
+python3 steve.py --mode execution --test
 
-# Run with specific project
-python3 crew_steve.py --project MYPROJ
+# Full project strategic review
+python3 steve.py --mode full_review --project MYPROJ
+
+# Analysis only (skip Jira updates)
+python3 steve.py --mode execution --analysis-only
+
+# Include sorted priority list
+python3 steve.py --mode execution --sorted
+
+# Dry run (analyze but don't update Jira)
+python3 steve.py --mode execution --dry-run
 ```
 
-#### Direct Jira Integration (Updates your actual tickets)
+#### Legacy Commands (Still Available)
 ```bash
-# Test with mock data (safe - no Jira updates)
+# Multi-agent analysis only
+python3 crew_steve.py --test
+
+# Direct Jira integration only  
 python3 real_steve.py --mode execution --dry-run
-
-# Analyze and update real Jira tickets
-python3 real_steve.py --mode execution
-
-# Full project review
-python3 real_steve.py --mode full_review
-
-# Display sorted strategic priority list
-python3 real_steve.py --sorted
 ```
 
 ## 🔧 Configuration
@@ -191,8 +197,9 @@ python3 real_steve.py --sorted
 
 ```
 steve/
-├── real_steve.py              # 🎯 Main analysis runner (START HERE)
-├── crew_steve.py              # Full CrewAI multi-agent implementation  
+├── steve.py                   # 🎯 UNIFIED COMMAND (START HERE)
+├── crew_steve.py              # Multi-agent AI system (legacy)
+├── real_steve.py              # Jira integration layer (legacy)
 ├── crew_steve_showcase.py     # Demo/showcase version
 ├── simple_crew.py             # Simplified version for learning
 ├── cleanup_duplicates.py      # Utility for cleaning duplicate entries
