@@ -29,7 +29,9 @@ STEVE ensures every ticket in your backlog aligns with your product's strategic 
 ### 🤖 Advanced Multi-Agent Features (crew_steve.py)
 - **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
-- **💼 Executive Summaries**: Founder-voice strategic communications
+- **💼 Executive Summaries**: Constructive, motivating strategic communications
+- **🗂️ Category Definitions**: Clear explanations of Core Value, Strategic Enabler, Drift, and Distraction
+- **🎯 Tone Control**: Configurable tone guidelines for positive, solution-focused messaging
 
 ## 🎯 Example Output
 
@@ -117,13 +119,22 @@ thresholds:
   # 0-39 = Distraction
 ```
 
-#### `config/agents.yaml` - Agent Personalities (Optional)
-Customize how agents analyze tickets:
+#### `config/agents.yaml` - Agent Personalities & Tone
+Customize how agents analyze tickets and communicate:
 ```yaml
 agents:
   alignment_evaluator:
-    temperature: 0.7  # Creativity level (0-1)
-    max_principles_to_match: 5
+    temperature: 0.3  # Creativity level (0-1)
+    
+  founder_voice:
+    tone: "constructive, motivating, clarity-driven"
+    tone_guidelines:
+      prefer_phrases:
+        - "Let's redirect energy toward what matters"
+        - "Time to close the gap between effort and impact"
+    category_definitions:
+      core_value: "High-impact work that directly advances our mission"
+      drift: "Well-intentioned work lacking clear strategic connection"
 ```
 
 #### `.env` - Your Jira Configuration
@@ -133,6 +144,7 @@ JIRA_EMAIL=your.email@company.com
 JIRA_API_TOKEN=your_api_token_here
 JIRA_PROJECT_KEY=PROJ  # Your project key
 OPENAI_API_KEY=sk-...  # Or use OPENROUTER_API_KEY
+USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 ```
 
 ### 4. Run STEVE
@@ -157,6 +169,12 @@ python3 real_steve.py --sorted
 # Run full CrewAI multi-agent analysis
 python3 crew_steve.py
 
+# Test with mock data
+python3 crew_steve.py --test
+
+# Run with specific project
+python3 crew_steve.py --project MYPROJ
+
 # Includes strategic rewrites and executive summaries
 ```
 
@@ -179,10 +197,12 @@ python3 crew_steve.py
 steve/
 ├── real_steve.py              # 🎯 Main analysis runner (START HERE)
 ├── crew_steve.py              # Full CrewAI multi-agent implementation  
+├── crew_steve_showcase.py     # Demo/showcase version
 ├── simple_crew.py             # Simplified version for learning
+├── cleanup_duplicates.py      # Utility for cleaning duplicate entries
 ├── config/
 │   ├── principles.yaml        # 📋 Your strategic vision
-│   ├── agents.yaml           # 🤖 AI agent configurations
+│   ├── agents.yaml           # 🤖 AI agent configurations & tone
 │   └── settings.yaml         # ⚙️ System settings
 ├── core/
 │   ├── schemas.py            # 📊 Data models
@@ -198,6 +218,9 @@ steve/
 │   └── logger.py            # 🖥️ Rich console logging
 ├── data_collector.py         # 📡 Data aggregation
 ├── llm_config.py            # 🧠 LLM configuration
+├── example_executive_summary.md     # 📄 Example output
+├── example_executive_summary_sprint_25.md # 📄 Success story example
+├── pyproject.toml           # 🐍 Python project config
 └── requirements.txt          # 📦 Dependencies
 ```
 
@@ -213,18 +236,34 @@ This implementation is configured for an **AI Strategy Brief Generator** with th
 
 ## 🔍 Strategic Intelligence Reports
 
-STEVE generates detailed analysis reports:
+STEVE generates detailed analysis reports with constructive, motivating tone:
 
+### Executive Summary Features
+- **🗂️ Strategic Category Definitions**: Clear explanations of what each category means
+- **📊 Color-coded Scorecards**: Visual priority ranking with emojis (🟢🟡🟠🔴)
+- **💡 Constructive Recommendations**: Solution-focused guidance without blame
+- **🎯 Motivating Bottom Lines**: "Let's redirect energy toward what matters" vs accusatory language
+
+### Example Summary Output
 ```
 🎯 STRATEGIC ALIGNMENT SUMMARY
-Total Tickets: 15
-Average Alignment: 79.0/100  
-Strategic Drift: 27%
+Total Tickets: 22
+Average Alignment: 71.2/100 - Significant improvement!
+Core Value: 50% (Target: 60%+ — almost there!)
+
+📊 Top Performers:
+  🟢 PROJ-201: Multi-agent workflow orchestrator (98/100)
+  🟢 PROJ-203: Real-time AI research aggregator (96/100)
 
 💡 Recommendations:
-  🎯 Focus more on core value initiatives
-  ✅ Strong strategic alignment - maintain current priorities
+  ✅ Amplify AI Excellence - Build on CrewAI momentum
+  📈 Transform Maintenance into Innovation - Redirect drift energy
+  🎯 Push for 60%+ Core Value - Just 3 tickets away!
+
+Bottom Line: We're shipping fast AND shipping smart. Let's keep this momentum rolling!
 ```
+
+See `example_executive_summary.md` and `example_executive_summary_sprint_25.md` for full examples.
 
 ### 🔢 Jira Custom Fields Setup
 
@@ -254,6 +293,12 @@ STEVE can update custom fields for native Jira sorting:
 2. **Sprint Planning**: Analyze backlog items before committing  
 3. **Epic Reviews**: Evaluate large initiatives against strategy
 4. **Quarterly Reviews**: Full project analysis for strategic planning
+
+## 🛠️ Utility Scripts
+
+- **`crew_steve_showcase.py`**: Demo version for showcasing STEVE's capabilities
+- **`cleanup_duplicates.py`**: Remove duplicate entries from analysis results
+- **`simple_crew.py`**: Simplified implementation for learning CrewAI concepts
 
 ## 🚀 Advanced Features
 
