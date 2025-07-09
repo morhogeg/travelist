@@ -33,41 +33,34 @@ class FounderVoiceAgent:
         """Transform sprint summary into founder voice"""
         task = Task(
             description=f"""
-            Transform this sprint analysis into a {self.config['max_words']}-word executive message.
+            Generate a professional executive summary with the following data:
             
-            Data:
+            **Metrics:**
             - Total tickets: {sprint_summary.total_tickets}
             - Average alignment: {sprint_summary.average_alignment_score:.0f}/100
             - Drift percentage: {sprint_summary.drift_percentage:.0f}%
             - Core value tickets: {sprint_summary.alignment_breakdown.get('core_value', 0)}
             - Distraction tickets: {sprint_summary.alignment_breakdown.get('distraction', 0)}
             
-            Key insights:
-            - Over-indexed: {', '.join(sprint_summary.over_indexed_areas) or 'None'}
-            - Neglected: {', '.join(sprint_summary.neglected_principles) or 'None'}
+            **Analysis:**
+            - Over-indexed areas: {', '.join(sprint_summary.over_indexed_areas) or 'None'}
+            - Neglected principles: {', '.join(sprint_summary.neglected_principles) or 'None'}
             
-            Recommendations:
+            **Recommendations:**
             {chr(10).join('- ' + r for r in sprint_summary.recommendations)}
             
-            Write in a tone that is: {self.config['tone']}
-            
-            TONE GUIDELINES:
-            - {' '.join(self.config.get('tone_guidelines', {}).get('constructive_approach', []))}
-            - AVOID phrases like: {', '.join(self.config.get('tone_guidelines', {}).get('avoid_phrases', []))}
-            - PREFER phrases like: {', '.join(self.config.get('tone_guidelines', {}).get('prefer_phrases', []))}
-            
-            Structure:
-            1. Acknowledge the team's momentum and effort
-            2. Highlight what's working strategically
-            3. After the Alignment Analysis, include a "🗂️ Strategic Category Definitions" section with:
+            **Required Structure:**
+            1. Executive Summary (key metrics and findings)
+            2. Strategic Scorecard (alignment distribution)
+            3. Category Definitions:
                - Core Value: {self.config.get('category_definitions', {}).get('core_value', 'High-impact work directly advancing core mission')}
                - Strategic Enabler: {self.config.get('category_definitions', {}).get('strategic_enabler', 'Foundational infrastructure unlocking future value')}
                - Drift: {self.config.get('category_definitions', {}).get('drift', 'Well-intentioned work lacking clear strategic connection')}
                - Distraction: {self.config.get('category_definitions', {}).get('distraction', 'Work carrying opportunity cost that should be reframed')}
-            4. Suggest pivots for misaligned work (without blame)
-            5. End with a motivating, clarity-driven call to action
+            4. Recommendations (prioritized actions)
+            5. Next Steps (concrete actions)
             
-            Make it constructive, motivating, and solution-focused.
+            Tone: {self.config['tone']}
             """,
             expected_output=f"Executive summary in founder voice ({self.config['max_words']} words)",
             agent=self.agent
@@ -94,8 +87,8 @@ class FounderVoiceAgent:
         # Add bold formatting for emphasis
         formatted = text.replace("**", "*")  # Slack uses single * for bold
         
-        # Add emoji header
-        formatted = "🎯 *Strategic Alignment Report* 🎯\n\n" + formatted
+        # Add professional header
+        formatted = "*Strategic Alignment Report*\n\n" + formatted
         
         # Ensure signature is on its own line
         if self.config['signature'] in formatted:

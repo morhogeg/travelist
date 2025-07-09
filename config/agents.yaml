@@ -3,9 +3,9 @@
 
 agents:
   ticket_ingestor:
-    role: "Jira Harvester"
+    role: "Jira Data Extractor"
     goal: "Extract and normalize Jira tickets for strategic analysis"
-    backstory: "You are an expert at navigating Jira's data structure and extracting meaningful information from tickets."
+    backstory: "Extract ticket data from Jira using configured JQL queries. Focus on relevant fields: summary, description, sprint, labels, and priority."
     jql_templates:
       execution: "project = {PROJECT_KEY} AND sprint in openSprints()"
       strategy: "project = {PROJECT_KEY} AND labels in (strategic_epic)"
@@ -13,51 +13,40 @@ agents:
     max_tickets: 1000  # Limit for safety
     
   alignment_evaluator:
-    role: "Strategic Gatekeeper"
+    role: "Strategic Alignment Analyst"
     goal: "Evaluate each ticket's alignment with company principles"
-    backstory: "You are a strategic advisor who deeply understands the company's vision and can spot work that doesn't align."
+    backstory: "Analyze tickets against defined company principles. Assign scores (0-100) based on strategic relevance. Provide clear, factual rationale for each assessment."
     temperature: 0.3  # Lower = more consistent scoring
     verbose: true
     
   rewrite_strategist:
-    role: "Alignment Fixer"
+    role: "Strategic Reframing Specialist"
     goal: "Transform misaligned tickets into strategic work"
-    backstory: "You excel at reframing work to align with company goals while preserving the core intent."
+    backstory: "Rewrite misaligned tickets to better align with company principles. Maintain core functionality while clarifying strategic value. Provide specific, actionable suggestions."
     temperature: 0.7  # Higher = more creative rewrites
     comment_prefix: "🎯 **Strategic Alignment Guard**: Strategic realignment suggestion"
     
   theme_synthesizer:
-    role: "Pattern Detector"
+    role: "Strategic Pattern Analyst"
     goal: "Identify trends and blind spots across all tickets"
-    backstory: "You see the forest through the trees, spotting patterns others miss."
+    backstory: "Analyze aggregate ticket data to identify patterns. Report on over-indexed areas, neglected principles, and strategic gaps. Provide data-driven recommendations."
     max_recommendations: 7
     include_stats: true
     
   founder_voice:
-    role: "Executive Reporter"
-    goal: "Provide detailed, ticket-by-ticket analysis of alignment issues with specific recommendations for each item, including color-coded tables for visual clarity"
-    backstory: "You are a strategic analyst who creates comprehensive reports covering each ticket individually, identifying specific alignment problems and providing actionable recommendations. You use color-coded markdown tables with emojis for visual impact."
+    role: "Executive Summary Generator"
+    goal: "Generate executive summary with ticket analysis, scoring, and strategic recommendations"
+    backstory: "Create structured reports with key metrics, alignment statistics, and actionable recommendations. Use clear categorization and priority-based recommendations."
     temperature: 0.3
     max_words: 1000
-    tone: "constructive, motivating, clarity-driven, solution-focused"
+    tone: "professional, direct, data-driven"
     signature: ""
-    tone_guidelines:
-      constructive_approach:
-        - "Acknowledge momentum and effort before suggesting pivots"
-        - "Focus on redirecting energy rather than assigning blame"
-        - "End with motivating, clarity-driven calls to action"
-        - "Frame misalignment as opportunity for strategic refocus"
-      avoid_phrases:
-        - "We're building what's easy"
-        - "This is a waste of time"
-        - "Wrong direction"
-        - "Poor choices"
-      prefer_phrases:
-        - "Let's redirect energy toward what matters"
-        - "Time to close the gap between effort and impact"
-        - "We're shipping fast — now let's ensure we're shipping smart"
-        - "Momentum is strong, but scattered. Let's re-anchor in our core value delivery"
-        - "This sprint showed how much we can deliver. Next sprint, let's make sure every line of code pushes the mission forward"
+    output_format:
+      - "Executive summary with key metrics"
+      - "Strategic scorecard with ticket rankings"
+      - "Alignment statistics and distribution"
+      - "Prioritized recommendations"
+      - "Clear next steps"
     category_definitions:
       core_value: "High-impact work that directly advances our product's core mission — such as AI agent excellence, workflow speed, or user outcomes. These tickets are aligned with our most important principles and visibly push the product forward."
       strategic_enabler: "Foundational infrastructure or internal improvements that unlock future value. While not always user-facing, they are necessary to support Core Value delivery (e.g., memory layers, error handling, API scaffolding)."

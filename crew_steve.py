@@ -370,44 +370,29 @@ def create_tasks(context_data: Dict[str, str], review_mode: ReviewMode, dry_run:
     task5 = None
     if os.getenv("USE_FOUNDER_VOICE", "false").lower() == "true":
         task5 = Task(
-            description="""MISSION: Craft a strategic narrative that transforms complex analysis into a compelling story of choices and consequences
+            description="""Generate a professional executive summary report.
             
-            YOUR STORYTELLING MASTERY:
+            **Required Structure:**
+            1. Executive Summary (key metrics and strategic health)
+            2. Strategic Scorecard (alignment breakdown by category)
+            3. Detailed Analysis (ticket-by-ticket findings)
+            4. Recommendations (prioritized action items)
+            5. Next Steps (concrete actions)
             
-            1. NARRATIVE ARCHITECTURE (~350 words):
-               - HOOK: Open with a provocative insight that demands attention
-               - CURRENT STATE: Paint the strategic reality with vivid clarity
-               - STAKES: Quantify what we win or lose based on our choices
-               - CALL TO ACTION: Channel urgency into specific next steps
-               - SIGNATURE CLOSE: "Are we building what matters?"
+            **Tone Requirements:**
+            - Professional and direct
+            - Data-driven analysis
+            - Clear and concise
+            - No narratives or storytelling
+            - Focus on actionable insights
             
-            2. VOICE & TONE MASTERY:
-               - EXECUTIVE PRESENCE: Speak as someone who sees the bigger picture
-               - STRATEGIC BREVITY: Every word earns its place
-               - EMOTIONAL RESONANCE: Make strategy feel personal and urgent
-               - MEMORABLE METAPHORS: Create mental models that stick
-            
-            3. STRATEGIC STORYTELLING ELEMENTS:
-               - Lead with the most consequential insight from the analysis
-               - Use specific numbers to make abstract strategy concrete
-               - Frame choices as destiny-shaping moments
-               - Connect daily work to long-term competitive advantage
-               - Make team members feel like strategic heroes or warn of drift
-            
-            4. NARRATIVE POWER TECHNIQUES:
-               - "What if..." scenarios that show alternative futures
-               - "The cost of..." frameworks that quantify strategic drift
-               - "While our competitors..." comparisons that create urgency
-               - "Six months from now..." future-casting that motivates action
-            
-            5. SIGNATURE STORYTELLING STYLE:
-               - Start with insight that reframes everything
-               - Build tension around strategic choices
-               - Provide clear resolution through recommended actions
-               - End with the haunting question that drives strategic thinking
-            
-            TRANSFORMATION GOAL: Turn spreadsheet analysis into a story that board members share, teams remember, and leaders act upon. Make strategy feel like destiny in motion.""",
-            expected_output="Compelling strategic narrative that transforms complex analysis into an unforgettable story of strategic choices, consequences, and the urgent question that haunts leaders: 'Are we building what matters?'",
+            **Content Guidelines:**
+            - Lead with key metrics and findings
+            - Use specific numbers and percentages
+            - Categorize tickets clearly
+            - Provide concrete recommendations
+            - Avoid dramatic language or metaphors""",
+            expected_output="Professional executive summary report with clear metrics, analysis, and recommendations",
             agent=founder_voice,
             context=[task1, task2, task3, task4]
         )
@@ -906,9 +891,14 @@ def save_report(results: Dict[str, Any]):
         low_performers = breakdown['distraction'] + breakdown['drift']
         
         f.write(f"This analysis covers **{total_tickets} tickets** with an average strategic alignment of **{avg_score:.1f}/100**. ")
-        f.write(f"Our strategic health shows **{drift_pct:.0f}% drift**, indicating significant misalignment with core principles. ")
-        f.write(f"While **{high_performers} tickets ({(high_performers/total_tickets*100):.0f}%)** demonstrate strong strategic value, ")
-        f.write(f"**{low_performers} tickets ({(low_performers/total_tickets*100):.0f}%)** require immediate realignment or deprioritization.\n\n")
+        
+        if total_tickets > 0:
+            f.write(f"Our strategic health shows **{drift_pct:.0f}% drift**, indicating significant misalignment with core principles. ")
+            f.write(f"While **{high_performers} tickets ({(high_performers/total_tickets*100):.0f}%)** demonstrate strong strategic value, ")
+            f.write(f"**{low_performers} tickets ({(low_performers/total_tickets*100):.0f}%)** require immediate realignment or deprioritization.\n\n")
+        else:
+            f.write(f"This analysis was performed in test mode with mock data. ")
+            f.write(f"In a real analysis, this would show strategic health metrics and alignment percentages.\n\n")
         
         # Key insights
         f.write(f"### Key Strategic Insights\n")
