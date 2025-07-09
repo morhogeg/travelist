@@ -389,6 +389,67 @@ class NotionManager:
             }
         })
         
+        # NEW: Summary Metrics Sidebar
+        blocks.append({
+            "object": "block",
+            "type": "callout",
+            "callout": {
+                "rich_text": [
+                    {"type": "text", "text": {"content": "📊 Quick Metrics\n"}, "annotations": {"bold": True}},
+                    {"type": "text", "text": {"content": f"🎯 Avg Score: {data['avg_score']:.1f}/100\n"}},
+                    {"type": "text", "text": {"content": f"🟢 Core Value Coverage: {data['category_breakdown']['core_value']['percentage']}%\n"}},
+                    {"type": "text", "text": {"content": f"🔴 Distraction Load: {data['category_breakdown']['distraction']['percentage']}%\n"}},
+                    {"type": "text", "text": {"content": f"⏱ Drift Velocity: {'High' if data['drift_pct'] > 40 else 'Medium' if data['drift_pct'] > 20 else 'Low'}"}}
+                ],
+                "icon": {"emoji": "📈"},
+                "color": "blue_background"
+            }
+        })
+        
+        # NEW: Strategic Narrative
+        cv_pct = data['category_breakdown']['core_value']['percentage']
+        dist_pct = data['category_breakdown']['distraction']['percentage']
+        drift_pct = data['drift_pct']
+        
+        # Get top tickets for narrative
+        top_tickets = []
+        if data['scorecard_rows']:
+            top_tickets = [row for row in data['scorecard_rows'] if 'Core Value' in row['category']][:2]
+        
+        narrative = ""
+        if cv_pct < 30 and dist_pct > 50:
+            narrative = f"We're facing high strategic drift this sprint: only {cv_pct}% of tickets qualify as Core Value, while {dist_pct}% fall into Distraction. "
+            if top_tickets:
+                narrative += f"The strongest aligned initiatives are {' and '.join([t['ticket'] for t in top_tickets])}. "
+            narrative += f"Without correction, this trend risks derailing momentum in Q3 builder-first initiatives."
+        elif cv_pct > 60:
+            narrative = f"Strong strategic alignment this sprint with {cv_pct}% Core Value work. "
+            if top_tickets:
+                narrative += f"Leading initiatives {' and '.join([t['ticket'] for t in top_tickets])} exemplify our strategic vision. "
+            narrative += "Maintain this focus to accelerate product-market fit."
+        else:
+            narrative = f"Mixed strategic alignment: {cv_pct}% Core Value work shows room for improvement. "
+            if dist_pct > 30:
+                narrative += f"With {dist_pct}% in Distraction category, we need to rebalance priorities. "
+            narrative += "Focus on elevating Strategic Enablers to Core Value through clearer principle alignment."
+        
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [
+                    {"type": "text", "text": {"content": narrative}, "annotations": {"italic": True}}
+                ]
+            }
+        })
+        
+        # Divider after narrative
+        blocks.append({
+            "object": "block",
+            "type": "divider",
+            "divider": {}
+        })
+        
         # 1. Strategic Alignment Health Diagnosis
         cv_pct = data['category_breakdown']['core_value']['percentage']
         dist_pct = data['category_breakdown']['distraction']['percentage']
@@ -637,7 +698,7 @@ class NotionManager:
                     }
                 })
                 
-                for row in top_5:
+                for i, row in enumerate(top_5):
                     score_clean = re.sub(r'[^\d.]', '', row['score'])
                     try:
                         score_num = float(score_clean)
@@ -654,18 +715,56 @@ class NotionManager:
                         color = "gray_background"
                         icon = "📋"
                     
-                    blocks.append({
-                        "object": "block",
-                        "type": "callout",
-                        "callout": {
-                            "rich_text": [
-                                {"type": "text", "text": {"content": f"#{row['rank']} {row['ticket']} - {row['score']}"}, "annotations": {"bold": True}},
-                                {"type": "text", "text": {"content": f"\nCategory: {row['category']}\nFocus: {row['focus']}"}}
-                            ],
-                            "icon": {"emoji": icon},
-                            "color": color
-                        }
-                    })
+                    # Make the top ticket extra prominent
+                    if i == 0 and score_num >= 90:
+                        blocks.append({
+                            "object": "block",
+                            "type": "callout",
+                            "callout": {
+                                "rich_text": [
+                                    {"type": "text", "text": {"content": f"⭐ #{row['rank']} {row['ticket']} - {row['score']} "}, "annotations": {"bold": True}},
+                                    {"type": "text", "text": {"content": "(HIGHEST IMPACT)"}, "annotations": {"bold": True, "italic": True}},
+                                    {"type": "text", "text": {"content": f"\nCategory: {row['category']}\nFocus: {row['focus']}\n💡 This exemplifies strategic alignment"}}
+                                ],
+                                "icon": {"emoji": "⭐"},
+                                "color": "green_background"
+                            }
+                        })
+                    else:
+                        blocks.append({
+                            "object": "block",
+                            "type": "callout",
+                            "callout": {
+                                "rich_text": [
+                                    {"type": "text", "text": {"content": f"#{row['rank']} {row['ticket']} - {row['score']}"}, "annotations": {"bold": True}},
+                                    {"type": "text", "text": {"content": f"\nCategory: {row['category']}\nFocus: {row['focus']}"}}
+                                ],
+                                "icon": {"emoji": icon},
+                                "color": color
+                            }
+                        })
+            
+            # NEW: Ticket of the Sprint - Highlight the highest scoring ticket
+            if top_5 and float(re.sub(r'[^\d.]', '', top_5[0]['score'])) >= 80:
+                top_ticket = top_5[0]
+                blocks.append({
+                    "object": "block",
+                    "type": "divider",
+                    "divider": {}
+                })
+                
+                blocks.append({
+                    "object": "block",
+                    "type": "callout",
+                    "callout": {
+                        "rich_text": [
+                            {"type": "text", "text": {"content": f"🏆 Ticket of the Sprint: {top_ticket['ticket']}\n"}, "annotations": {"bold": True}},
+                            {"type": "text", "text": {"content": f"This ticket delivers on multiple strategic principles and represents the clearest signal of product vision execution this sprint. It's the work that exemplifies where we're headed."}}
+                        ],
+                        "icon": {"emoji": "🏆"},
+                        "color": "purple_background"
+                    }
+                })
             
             # Bottom Performers (if more than 5 tickets)
             if len(data['scorecard_rows']) > 5:
@@ -691,6 +790,50 @@ class NotionManager:
                             "color": "red_background"
                         }
                     })
+        
+        # Divider
+        blocks.append({
+            "object": "block",
+            "type": "divider",
+            "divider": {}
+        })
+        
+        # NEW: Strategic Blind Spots
+        blocks.append({
+            "object": "block",
+            "type": "heading_2",
+            "heading_2": {
+                "rich_text": [{"type": "text", "text": {"content": "🔍 Strategic Blind Spots"}}]
+            }
+        })
+        
+        # Analyze which principles are underrepresented
+        # This is a simplified version - in a real implementation, you'd analyze against actual principles
+        blind_spots = []
+        
+        # Check for common blind spots based on low representation
+        if not any('fresh' in str(row).lower() or 'intelligence' in str(row).lower() for row in data['scorecard_rows']):
+            blind_spots.append("No tickets this sprint advance Fresh Intelligence through real-time data integration or RAG implementation. Consider injecting a scoped agent for automated intelligence gathering.")
+        
+        if not any('premium' in str(row).lower() or 'source' in str(row).lower() or 'curation' in str(row).lower() for row in data['scorecard_rows']):
+            blind_spots.append("Premium Source Curation is completely absent from current work. We're missing opportunities to differentiate through high-quality data sources.")
+        
+        if data['category_breakdown']['core_value']['count'] == 0:
+            blind_spots.append("Zero Core Value tickets signals complete strategic misalignment. This is a critical gap requiring immediate intervention.")
+        
+        if not blind_spots:
+            blind_spots.append("Good principle coverage this sprint. Continue monitoring for gaps in future sprints.")
+        
+        for blind_spot in blind_spots:
+            blocks.append({
+                "object": "block",
+                "type": "callout",
+                "callout": {
+                    "rich_text": [{"type": "text", "text": {"content": blind_spot}}],
+                    "icon": {"emoji": "🔍"},
+                    "color": "gray_background"
+                }
+            })
         
         # Divider
         blocks.append({
