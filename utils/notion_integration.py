@@ -433,7 +433,7 @@ class NotionManager:
             }
         })
         
-        # NEW: Strategic Narrative
+        # 1. Combined Strategic Health & Narrative Section
         cv_pct = data['category_breakdown']['core_value']['percentage']
         dist_pct = data['category_breakdown']['distraction']['percentage']
         drift_pct = data['drift_pct']
@@ -443,80 +443,50 @@ class NotionManager:
         if data['scorecard_rows']:
             top_tickets = [row for row in data['scorecard_rows'] if 'Core Value' in row['category']][:2]
         
-        narrative = ""
-        if cv_pct < 30 and dist_pct > 50:
-            narrative = f"We're facing high strategic drift this sprint: only {cv_pct}% of tickets qualify as Core Value, while {dist_pct}% fall into Distraction. "
-            if top_tickets:
-                narrative += f"The strongest aligned initiatives are {' and '.join([t['ticket'] for t in top_tickets])}. "
-            narrative += f"Without correction, this trend risks derailing momentum in Q3 builder-first initiatives."
-        elif cv_pct > 60:
-            narrative = f"Strong strategic alignment this sprint with {cv_pct}% Core Value work. "
-            if top_tickets:
-                narrative += f"Leading initiatives {' and '.join([t['ticket'] for t in top_tickets])} exemplify our strategic vision. "
-            narrative += "Maintain this focus to accelerate product-market fit."
-        else:
-            narrative = f"Mixed strategic alignment: {cv_pct}% Core Value work shows room for improvement. "
-            if dist_pct > 30:
-                narrative += f"With {dist_pct}% in Distraction category, we need to rebalance priorities. "
-            narrative += "Focus on elevating Strategic Enablers to Core Value through clearer principle alignment."
-        
-        blocks.append({
-            "object": "block",
-            "type": "paragraph",
-            "paragraph": {
-                "rich_text": [
-                    {"type": "text", "text": {"content": narrative}, "annotations": {"italic": True}}
-                ]
-            }
-        })
-        
-        # Divider after narrative
-        blocks.append({
-            "object": "block",
-            "type": "divider",
-            "divider": {}
-        })
-        
-        # Add spacing
-        blocks.append({
-            "object": "block",
-            "type": "paragraph",
-            "paragraph": {
-                "rich_text": [{"type": "text", "text": {"content": " "}}]
-            }
-        })
-        
-        # 1. Strategic Alignment Health Diagnosis - Simple status indicator
-        cv_pct = data['category_breakdown']['core_value']['percentage']
-        dist_pct = data['category_breakdown']['distraction']['percentage']
-        
+        # Determine health status and create narrative
         health_status = ""
+        health_subtitle = ""
         health_color = "blue_background"
         health_icon = "📊"
+        narrative = ""
         
         if cv_pct >= 60:
             health_status = "STRONG ALIGNMENT"
             health_subtitle = "On track with strategic priorities"
             health_color = "green_background"
             health_icon = "✅"
+            narrative = f"Strong strategic alignment this sprint with {cv_pct}% Core Value work. "
+            if top_tickets:
+                narrative += f"Leading initiatives {' and '.join([t['ticket'] for t in top_tickets])} exemplify our strategic vision. "
+            narrative += "Maintain this focus to accelerate product-market fit."
         elif cv_pct >= 40:
             health_status = "MODERATE ALIGNMENT"
             health_subtitle = "Some drift detected - monitor closely"
             health_color = "yellow_background"
             health_icon = "⚠️"
+            narrative = f"Mixed strategic alignment: {cv_pct}% Core Value work shows room for improvement. "
+            if dist_pct > 30:
+                narrative += f"With {dist_pct}% in Distraction category, we need to rebalance priorities. "
+            narrative += "Focus on elevating Strategic Enablers to Core Value through clearer principle alignment."
         else:
             health_status = "HIGH STRATEGIC DRIFT"
             health_subtitle = "Immediate course correction required"
             health_color = "red_background"
             health_icon = "🚨"
+            narrative = f"We're facing high strategic drift this sprint: only {cv_pct}% of tickets qualify as Core Value, while {dist_pct}% fall into Distraction. "
+            if top_tickets:
+                narrative += f"The strongest aligned initiatives are {' and '.join([t['ticket'] for t in top_tickets])}. "
+            narrative += f"Without correction, this trend risks derailing momentum in Q3 builder-first initiatives."
         
+        # Create the combined callout with health status as heading and narrative as body
         blocks.append({
             "object": "block",
             "type": "callout",
             "callout": {
                 "rich_text": [
                     {"type": "text", "text": {"content": f"{health_status}"}, "annotations": {"bold": True}},
-                    {"type": "text", "text": {"content": f"\n{health_subtitle}"}}
+                    {"type": "text", "text": {"content": f"\n{health_subtitle}\n\n"}, "annotations": {"italic": True}},
+                    {"type": "text", "text": {"content": narrative}}
                 ],
                 "icon": {"emoji": health_icon},
                 "color": health_color
