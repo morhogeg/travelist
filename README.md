@@ -105,6 +105,37 @@ STEVE automatically updates your actual Jira tickets:
 - **Analysis Comments**: Adds detailed strategic feedback to each ticket
 - **Safe Operation**: Dry-run mode available for testing
 
+#### **Enhanced Jira Comment Format** 💬
+Each ticket receives a comprehensive strategic analysis comment with:
+
+```
+⸻
+📦 *Ticket Type*: Platform Infra (non-user-facing)
+🧭 *Strategic Role*: Unlocks builder capabilities in downstream sprint
+⸻
+🎯 *Strategic Alignment Summary*
+*Score*: 75/100 — Strategic Enabler
+*Matched Principles*: Seamless Integration
+Solid principle alignment positions this as strategic infrastructure.
+⸻
+🧠 *Why This Aligns*
+This infrastructure work lays critical groundwork by establishing 
+the data flow needed for agent responsiveness.
+⸻
+🧭 *Recommendation*
+• ✅ *Action*: Schedule for next sprint with clear success criteria
+• 💡 *Rationale*: Future agent features depend on this foundation
+• 🔄 *Reframe Tip*: Add "enables real-time agent response" to description
+⸻
+```
+
+**Key Features**:
+- **Ticket Type & Role**: Immediate context about work category and strategic purpose
+- **Specific Explanations**: No generic templates - each comment is tailored to the ticket
+- **Actionable Recommendations**: Concrete next steps with timelines and metrics
+- **Reframe Tips**: Suggestions for improving strategic alignment (60-79 scores)
+- **Data-Driven Insights**: References specific impacts like "enables 80% of builders"
+
 ### **Phase 3: Strategic Reporting** 📊
 STEVE generates executive-ready intelligence:
 
@@ -229,8 +260,8 @@ python3 real_steve.py --mode execution --dry-run
 - **`full_review`**: All project tickets
 
 ### Alignment Scoring
-- **80-100**: Core Value (directly advances strategy)
-- **60-79**: Strategic Enabler (supports goals)
+- **90-100**: Core Value (directly advances strategy)
+- **60-89**: Strategic Enabler (supports goals)
 - **40-59**: Drift (weak strategic connection)
 - **0-39**: Distraction (misaligned work)
 
