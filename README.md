@@ -15,7 +15,9 @@
 
 > 🎯 **One Command. Complete Strategic Intelligence.**
 
-STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Run one simple command to get AI-powered strategic analysis, automatic Jira updates, and executive-ready reports - preventing strategic drift before it happens.
+STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Run one simple command to get AI-powered strategic analysis, automatic Jira updates, and **interactive Notion reports** - preventing strategic drift before it happens.
+
+> 📝 **Executive summaries are automatically published to Notion** with interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
 
 ## ⚡ Quick Start
 
@@ -34,7 +36,7 @@ python3 steve.py --mode execution --test
 python3 steve.py --mode execution
 ```
 
-**That's it!** STEVE will analyze your tickets, update Jira, and generate executive summaries.
+**That's it!** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
 
 ## 🚀 What STEVE Does
 
