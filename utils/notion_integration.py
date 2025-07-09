@@ -486,7 +486,7 @@ class NotionManager:
             }
         })
         
-        # 1. Strategic Alignment Health Diagnosis
+        # 1. Strategic Alignment Health Diagnosis - Simple status indicator
         cv_pct = data['category_breakdown']['core_value']['percentage']
         dist_pct = data['category_breakdown']['distraction']['percentage']
         
@@ -495,17 +495,18 @@ class NotionManager:
         health_icon = "📊"
         
         if cv_pct >= 60:
-            health_status = f"Strong strategic focus with {cv_pct}% Core Value work."
+            health_status = "STRONG ALIGNMENT"
+            health_subtitle = "On track with strategic priorities"
             health_color = "green_background"
             health_icon = "✅"
         elif cv_pct >= 40:
-            health_status = f"Moderate alignment with {cv_pct}% Core Value work. Room for improvement."
+            health_status = "MODERATE ALIGNMENT"
+            health_subtitle = "Some drift detected - monitor closely"
             health_color = "yellow_background"
             health_icon = "⚠️"
         else:
-            health_status = f"Only {cv_pct}% of current work qualifies as Core Value."
-            if dist_pct > 40:
-                health_status += f" Over {dist_pct}% falls into the Distraction category, signaling high strategic drift. Immediate course correction required."
+            health_status = "HIGH STRATEGIC DRIFT"
+            health_subtitle = "Immediate course correction required"
             health_color = "red_background"
             health_icon = "🚨"
         
@@ -513,7 +514,10 @@ class NotionManager:
             "object": "block",
             "type": "callout",
             "callout": {
-                "rich_text": [{"type": "text", "text": {"content": f"Strategic Alignment Health: {health_status}"}}],
+                "rich_text": [
+                    {"type": "text", "text": {"content": f"{health_status}"}, "annotations": {"bold": True}},
+                    {"type": "text", "text": {"content": f"\n{health_subtitle}"}}
+                ],
                 "icon": {"emoji": health_icon},
                 "color": health_color
             }
