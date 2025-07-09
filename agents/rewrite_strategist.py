@@ -78,9 +78,7 @@ class RewriteStrategistAgent:
         revised_summary = self._extract_summary(result)
         revised_description = self._extract_description(result)
         
-        # Create Jira comment
-        jira_comment = f"{self.config['comment_prefix']}: This ticket could better align with our '{target_principle['name']}' principle. Consider reframing to emphasize {target_principle['keywords'][0]}."
-        
+        # Create rewrite without separate comment (main formatting handles this now)
         rewrite = TicketRewrite(
             original_key=ticket.key,
             original_summary=ticket.summary,
@@ -88,7 +86,7 @@ class RewriteStrategistAgent:
             revised_description=revised_description,
             alignment_improvement=20.0,  # Estimated improvement
             targeted_principle=target_principle['name'],
-            jira_comment=jira_comment
+            jira_comment=""  # Empty - handled by main comment formatter
         )
         
         logger.steve.section("REWRITE", f"Suggested realignment for {ticket.key} toward {target_principle['name']}")
