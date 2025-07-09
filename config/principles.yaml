@@ -78,7 +78,7 @@ principles:
 
 # Alignment thresholds
 thresholds:
-  core_value: 80      # Directly advances our builder-first mission
+  core_value: 90      # Directly advances our builder-first mission
   strategic_enabler: 60  # Supports our goals but not core
   drift: 40          # Some value but losing focus
   # anything below 40 is distraction from our mission

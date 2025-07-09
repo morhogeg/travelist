@@ -57,7 +57,7 @@ class AlignmentResult(BaseModel):
     
     @classmethod
     def score_to_category(cls, score: float) -> AlignmentCategory:
-        if score >= 80:
+        if score >= 90:
             return AlignmentCategory.CORE_VALUE
         elif score >= 60:
             return AlignmentCategory.STRATEGIC_ENABLER

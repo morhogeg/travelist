@@ -430,18 +430,143 @@ def update_jira_tickets(jira_client: JiraClient, results: Dict[str, Any], dry_ru
             # Create comprehensive strategic analysis comment
             matched_principles = ', '.join(alignment.get('matched_principles', [])) or 'None'
             
+            # Get score explanation - use distinctive language for each range
+            if score >= 90:
+                if matched_principles != 'None' and len(matched_principles.split(', ')) > 1:
+                    score_explanation = f"Multiple strategic principles converge here — {matched_principles} — creating compound value. This is what mission-critical work looks like."
+                elif 'Builder-First Value' in matched_principles:
+                    score_explanation = "Direct hit on our highest-weighted principle. This ticket exemplifies builder empowerment with immediate, practical impact."
+                elif 'AI Agent Excellence' in matched_principles:
+                    score_explanation = "Pure strategic gold — advancing our AI agent capabilities exactly as our principles demand. Ship this yesterday."
+                else:
+                    score_explanation = "Textbook strategic alignment. Every element of this ticket reinforces our core mission. This is the work that matters."
+            elif score >= 60:
+                principle_count = len(matched_principles.split(', ')) if matched_principles != 'None' else 0
+                if principle_count > 0:
+                    score_explanation = f"Solid principle alignment ({matched_principles}) positions this as strategic infrastructure. Not flashy, but necessary."
+                elif 'performance' in rationale.lower() or 'infrastructure' in rationale.lower():
+                    score_explanation = "Foundation-building work that enables future strategic wins. The alignment is indirect but real — this greases the wheels."
+                else:
+                    score_explanation = "Strategic support work that amplifies core initiatives. Think of it as the drumbeat that keeps the band in rhythm."
+            elif score >= 40:
+                if matched_principles != 'None':
+                    score_explanation = f"Weak signal on {matched_principles}. The strategic thread exists but it's thin — needs strengthening to avoid drift."
+                else:
+                    score_explanation = "Strategic alignment barely registers. This work has wandered from our north star and needs course correction."
+            else:
+                if score < 20:
+                    score_explanation = "Complete strategic void. No principles touched, no keywords matched, no mission advanced. This is noise, not signal."
+                else:
+                    score_explanation = "Strategic blindness — this work exists in a parallel universe from our principles. The disconnect is total."
+            
+            # Infer ticket type from content
+            ticket_text = (ticket_key + " " + rationale).lower()
+            if any(word in ticket_text for word in ['ui', 'interface', 'design', 'ux', 'frontend', 'style', 'css', 'visual']):
+                ticket_type = "UI/UX"
+            elif any(word in ticket_text for word in ['agent', 'ai', 'automation', 'pipeline', 'orchestration', 'multi-agent']):
+                ticket_type = "agent architecture"
+            elif any(word in ticket_text for word in ['api', 'backend', 'database', 'infrastructure', 'infra', 'performance', 'integration']):
+                ticket_type = "infrastructure"
+            elif any(word in ticket_text for word in ['marketing', 'branding', 'content', 'campaign', 'brand']):
+                ticket_type = "marketing"
+            elif any(word in ticket_text for word in ['bug', 'fix', 'error', 'issue', 'problem', 'critical']):
+                ticket_type = "bug fix"
+            elif any(word in ticket_text for word in ['feature', 'enhancement', 'improvement', 'implement']):
+                ticket_type = "feature"
+            else:
+                ticket_type = "development"
+            
+            # Expand rationale with strategic context - be specific and avoid repetition
+            if score >= 90:
+                # Core Value - be specific about HOW it advances mission
+                if 'agent' in ticket_type.lower() or 'ai' in ticket_text:
+                    expanded_rationale = f"{rationale} This {ticket_type} work operationalizes our multi-agent strategy in user-accessible form. It turns theoretical capability into shipped product — the clearest signal of mission execution."
+                elif 'builder' in ticket_text or 'developer' in ticket_text:
+                    expanded_rationale = f"{rationale} This directly empowers builders with {ticket_type} capabilities they can implement in 30-60 minutes. Every developer touched by this becomes a strategic force multiplier."
+                elif 'integration' in ticket_text or 'api' in ticket_text:
+                    expanded_rationale = f"{rationale} This {ticket_type} work creates compound value — each integration point becomes a new surface for builder innovation. The network effects will accelerate adoption."
+                else:
+                    expanded_rationale = f"{rationale} This {ticket_type} initiative transforms abstract strategy into concrete value. It's not just aligned — it's exactly what our principles describe."
+            elif score >= 60:
+                # Strategic Enabler - explain WHAT it enables specifically
+                if 'infrastructure' in ticket_type.lower() or 'performance' in ticket_text:
+                    expanded_rationale = f"{rationale} This {ticket_type} work lays critical groundwork by establishing the data flow and performance baseline needed for agent responsiveness. Without this, future AI features would feel sluggish."
+                elif 'ui' in ticket_type.lower() or 'ux' in ticket_text:
+                    expanded_rationale = f"{rationale} While not directly AI-focused, this {ticket_type} work reduces cognitive load for builders navigating complex agent configurations. Clear UI = faster implementation = more builders succeeding."
+                elif 'bug' in ticket_type.lower():
+                    expanded_rationale = f"{rationale} This {ticket_type} resolution maintains system trust — a prerequisite for builders to confidently deploy AI agents. Reliability enables experimentation."
+                else:
+                    expanded_rationale = f"{rationale} This {ticket_type} work unblocks future builder-first value delivery by removing friction in the development pipeline. It's the grease that keeps strategic initiatives moving."
+            elif score >= 40:
+                # Drift - be specific about what's missing
+                if 'ui' in ticket_type.lower() or 'design' in ticket_text:
+                    expanded_rationale = f"{rationale} This {ticket_type} work focuses on aesthetics without connecting to builder productivity or agent capabilities. The gap: no clear path from 'looks nice' to 'builds faster'."
+                elif 'feature' in ticket_type.lower():
+                    expanded_rationale = f"{rationale} This {ticket_type} adds functionality without considering builder workflows or AI integration points. It solves a problem, but not a strategic one."
+                else:
+                    expanded_rationale = f"{rationale} This {ticket_type} work operates in isolation from our core principles. It may have local value but lacks the multiplier effect of strategic alignment."
+            else:
+                # Distraction - be direct about opportunity cost
+                if 'marketing' in ticket_type.lower() or 'brand' in ticket_text:
+                    expanded_rationale = f"{rationale} This {ticket_type} work diverts energy from product excellence to surface-level concerns. Every hour here is an hour not spent on builder empowerment."
+                elif 'cosmetic' in ticket_text or 'polish' in ticket_text:
+                    expanded_rationale = f"{rationale} This {ticket_type} work represents pure opportunity cost — cosmetic improvements while core builder needs go unmet. The mismatch with priorities is stark."
+                else:
+                    expanded_rationale = f"{rationale} This {ticket_type} work actively pulls the team away from strategic objectives. It's not neutral — it's negative ROI when measured against our principles."
+            
+            # Determine strategic role based on score and type
+            if score >= 90:
+                if 'agent' in ticket_type.lower() or 'ai' in ticket_text:
+                    strategic_role = "Core AI capability delivery"
+                elif 'builder' in ticket_text or 'developer' in ticket_text:
+                    strategic_role = "Direct builder empowerment"
+                elif 'integration' in ticket_text:
+                    strategic_role = "Strategic ecosystem expansion"
+                else:
+                    strategic_role = "Mission-critical advancement"
+            elif score >= 60:
+                if 'infrastructure' in ticket_type.lower():
+                    strategic_role = "Unlocks builder capabilities in downstream sprint"
+                elif 'ui' in ticket_type.lower():
+                    strategic_role = "Reduces friction for builder adoption"
+                elif 'bug' in ticket_type.lower():
+                    strategic_role = "Maintains trust for builder confidence"
+                else:
+                    strategic_role = "Enables future strategic wins"
+            elif score >= 40:
+                strategic_role = "Needs reframing to unlock value"
+            else:
+                strategic_role = "No strategic value identified"
+            
+            # Format ticket type for display
+            ticket_type_display = ticket_type.title()
+            if 'infrastructure' in ticket_type.lower():
+                ticket_type_display = "Platform Infra (non-user-facing)"
+            elif 'ui' in ticket_type.lower() and score < 80:
+                ticket_type_display = "UI/UX (cosmetic focus)"
+            elif 'agent' in ticket_type.lower():
+                ticket_type_display = "AI/Agent Architecture"
+            elif 'bug' in ticket_type.lower():
+                ticket_type_display = "Bug Fix/Reliability"
+            elif 'feature' in ticket_type.lower():
+                ticket_type_display = "Feature Addition"
+            
             comment_text = f"""⸻
 
-🎯 **Strategic Alignment Summary**
-
-**Score**: {score}/100 — {category.replace('_', ' ').title()}
-**Matched Principles**: {matched_principles}
+📦 *Ticket Type*: {ticket_type_display}
+🧭 *Strategic Role*: {strategic_role}
 
 ⸻
 
-🧠 **Why This {"Aligns" if score >= 60 else "Doesn't Align"}**
+🎯 *Strategic Alignment Summary*
+*Score*: {score}/100 — {category.replace('_', ' ').title()}
+*Matched Principles*: {matched_principles}
+{score_explanation}
 
-{rationale}
+⸻
+
+🧠 *Why This {"Aligns" if score >= 60 else "Doesn't Align"}*
+{expanded_rationale}
 
 ⸻
 """
@@ -450,32 +575,71 @@ def update_jira_tickets(jira_client: JiraClient, results: Dict[str, Any], dry_ru
             # Add suggested reframe for low alignment tickets
             if score < 60 and rewrite:
                 comment_text += f"""
-🔁 **Suggested Reframe**
+🔁 *Suggested Reframe*
 
-**New Title**: {rewrite['new_summary']}
-**Reason**: {rewrite['jira_comment']}
+*New Title*: {rewrite['new_summary']}
+*Reason*: {rewrite['jira_comment']}
 
 ⸻
 """
             
-            # Add recommendation
-            if score >= 80:
-                recommendation = "✅ Prioritize this initiative — strong mission alignment and high impact"
+            # Add recommendation with detailed structure - be specific and actionable
+            if score >= 90:
+                # Core Value - give concrete next steps
+                if 'agent' in ticket_type.lower() or 'ai' in ticket_text:
+                    recommendation = """• ✅ *Action*: Fast-track to current sprint and assign senior engineers
+• 💡 *Rationale*: This unlocks 3-5 downstream agent features. Ship within 2 weeks to maintain momentum
+• 📊 *Impact*: Enables agentic experiences for ~80% of active builders"""
+                elif 'integration' in ticket_text:
+                    recommendation = """• ✅ *Action*: Prioritize immediately and create integration cookbook
+• 💡 *Rationale*: Each integration multiplies builder possibilities. Document patterns for reuse
+• 🎯 *Success Metric*: 10+ builders using this integration within first month"""
+                else:
+                    recommendation = """• ✅ *Action*: Make this the sprint's north star
+• 💡 *Rationale*: Direct mission advancement deserves focused execution. Clear other blockers
+• ⚡ *Velocity*: This single ticket can move our strategic score +5-10 points"""
             elif score >= 60:
-                recommendation = "✅ Proceed with this work — aligns with strategic goals"
-            elif rewrite:
-                recommendation = "✅ Consider reframing this ticket to reflect builder impact and align with strategic goals"
+                # Strategic Enabler - explain dependencies and add reframe hook
+                if 'infrastructure' in ticket_type.lower():
+                    recommendation = """• ✅ *Action*: Schedule for next sprint with clear success criteria
+• 💡 *Rationale*: Future agent features depend on this foundation. Define performance benchmarks upfront
+• 🔄 *Reframe Tip*: Add 'enables real-time agent response' to description for clearer strategic link"""
+                elif 'ui' in ticket_type.lower():
+                    recommendation = """• ✅ *Action*: Bundle with related builder experience improvements
+• 💡 *Rationale*: UI clarity directly impacts builder adoption rates. Group for maximum impact
+• 🔄 *Reframe Tip*: Emphasize how this reduces time-to-first-agent-deployment"""
+                else:
+                    recommendation = """• ✅ *Action*: Keep in roadmap but link to specific Core Value work
+• 💡 *Rationale*: This enables future builder capabilities. Make dependencies explicit
+• 🔄 *Reframe Tip*: Connect to specific agent/builder features this unblocks"""
+            elif score >= 40:
+                # Drift - specific reframing guidance
+                recommendation = """• 🚧 *Action*: Pause work and reframe before proceeding
+• 💡 *Rationale*: Current framing misses strategic value. 2 hours of reframing saves 20 hours of misaligned work"""
+                if rewrite:
+                    recommendation += f"\n• ✏️ *Suggested Reframe*: \"{rewrite['new_summary']}\""
+                    recommendation += "\n• 📝 *Next Step*: Update ticket description with builder impact and AI integration points"
+                else:
+                    recommendation += "\n• ✏️ *Reframe Focus*: How does this help builders? What agent capabilities does it enable?"
+                    recommendation += "\n• 💭 *Questions*: Can this integrate with our AI pipeline? Does it reduce builder friction?"
             else:
-                recommendation = "✅ Evaluate if this work is essential or can be deprioritized"
+                # Distraction - clear deprioritization with data
+                recommendation = """• 🚫 *Action*: Move to backlog immediately
+• 💡 *Rationale*: Zero strategic alignment = negative ROI. Team capacity is finite
+• 📊 *Opportunity Cost*: Every sprint on this delays 2-3 strategic initiatives"""
+                if rewrite and score > 20:  # Only suggest reframe if there's some hope
+                    recommendation += f"\n• ✏️ *Last Resort*: Radical reframe as \"{rewrite['new_summary']}\" or archive"
+                else:
+                    recommendation += "\n• 🗑️ *Recommendation*: Archive unless business case emerges"
             
             comment_text += f"""
-🧭 **Recommendation**
+🧭 *Recommendation*
 
 {recommendation}
 
 ⸻
 
-*Generated by STEVE — Strategic Ticket Evaluation & Vision Enforcer*
+_Generated by STEVE — Strategic Ticket Evaluation & Vision Enforcer_
 
 ⸻"""
             
@@ -647,15 +811,46 @@ def calculate_ticket_alignment_scores(context_data: Dict[str, str]) -> List[Dict
         else:
             category = 'distraction'
         
-        # Generate rationale
+        # Generate more specific rationale based on content
+        summary_lower = ticket['summary'].lower()
+        desc_lower = ticket['description'].lower()
+        
         if max_score >= 80:
-            rationale = "Strongly aligns with strategic principles and directly advances core goals."
+            if 'agent' in text or 'ai' in text or 'multi-agent' in text:
+                rationale = "Directly implements AI agent capabilities that empower builders."
+            elif 'integration' in text or 'api' in text:
+                rationale = "Creates strategic integration points that multiply builder possibilities."
+            elif 'builder' in text or 'developer' in text:
+                rationale = "Explicitly targets builder productivity and empowerment."
+            elif 'real-time' in text or 'automation' in text:
+                rationale = "Delivers automation capabilities aligned with our AI-first vision."
+            else:
+                rationale = "Strongly aligns with strategic principles and directly advances core goals."
         elif max_score >= 60:
-            rationale = "Supports strategic objectives with clear connection to principles."
+            if 'performance' in text or 'optimization' in text:
+                rationale = "Strengthens platform performance to support AI workloads."
+            elif 'infrastructure' in text or 'foundation' in text:
+                rationale = "Builds essential infrastructure for future strategic features."
+            elif 'bug' in text or 'fix' in text:
+                rationale = "Maintains system reliability that builders depend on."
+            elif 'ui' in text or 'ux' in text:
+                rationale = "Improves builder experience through interface enhancements."
+            else:
+                rationale = "Supports strategic objectives with clear connection to principles."
         elif max_score >= 40:
-            rationale = "Has some strategic value but connection to core principles is weak."
+            if 'ui' in text or 'design' in text:
+                rationale = "UI work with unclear connection to builder productivity."
+            elif 'feature' in text:
+                rationale = "Adds functionality without clear strategic alignment."
+            else:
+                rationale = "Has some strategic value but connection to core principles is weak."
         else:
-            rationale = "Limited strategic alignment. Consider deprioritizing or reframing."
+            if 'marketing' in text or 'brand' in text:
+                rationale = "Marketing focus diverges from product excellence priorities."
+            elif 'cosmetic' in text or 'style' in text:
+                rationale = "Cosmetic changes with no builder or AI impact."
+            else:
+                rationale = "Limited strategic alignment. Consider deprioritizing or reframing."
         
         alignment = {
             'ticket_key': ticket_key,
@@ -973,7 +1168,7 @@ def save_report(results: Dict[str, Any]):
         for alignment in sorted(results['alignments'], key=lambda x: x['score'], reverse=True):
             f.write(f"### {alignment['ticket_key']}: {alignment['score']}/100\n")
             f.write(f"- **Category**: {alignment['category']}\n")
-            f.write(f"- **Rationale**: {alignment['rationale']}\n")
+            f.write(f"- *Rationale*: {alignment['rationale']}\n")
             f.write(f"- **Matched Principles**: {', '.join(alignment.get('matched_principles', []))}\n")
             f.write(f"- **Strategic Depth**: {alignment.get('strategic_depth', 'Standard')}\n")
             

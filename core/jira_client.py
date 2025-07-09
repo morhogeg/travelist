@@ -122,13 +122,13 @@ class JiraClient:
         # Strategic Alignment Summary
         comment += "🎯 **Strategic Alignment Summary**\n"
         category_display = result.category.value.replace('_', ' ').title()
-        comment += f"Score: {result.alignment_score}/100 — {category_display}\n"
+        comment += f"**Score**: {result.alignment_score}/100 — {category_display}\n"
         
         # Matched principles
         if result.matched_principles:
-            comment += f"Matched Principles: {', '.join(result.matched_principles)}\n"
+            comment += f"**Matched Principles**: {', '.join(result.matched_principles)}\n"
         else:
-            comment += "Matched Principles: None\n"
+            comment += "**Matched Principles**: None\n"
         
         # Add explanation of score calculation
         comment += self._get_score_explanation(result)
@@ -159,28 +159,40 @@ class JiraClient:
         score = result.alignment_score
         
         if score >= 90:
-            return "This ticket directly accelerates our core mission with strong representation of top-tier principles."
+            keyword_mention = "with strong keyword matches and direct principle alignment" if result.matched_principles else "through its core impact on our mission"
+            return f"This ticket directly accelerates our core mission {keyword_mention}. All top-tier principles are strongly represented."
         elif score >= 60:
-            return "This work supports strategic objectives with clear connections to our principles."
+            keyword_mention = "with clear keyword presence" if result.matched_principles else "through supporting infrastructure"
+            return f"This work supports strategic objectives {keyword_mention}. It provides necessary enablement for core value delivery."
         elif score >= 40:
-            return "The alignment with strategic principles is weak, showing limited keyword matches and unclear value creation."
+            return "The alignment with strategic principles is weak, showing limited keyword matches and unclear value creation. Connection to mission is ambiguous."
         else:
-            return "No meaningful alignment detected with our strategic principles. This work lacks connection to our mission."
+            return "No meaningful alignment detected with our strategic principles. Absence of relevant keywords and no clear connection to mission or value creation."
     
     def _expand_rationale(self, result: AlignmentResult) -> str:
         """Expand the rationale with more strategic context"""
         # Start with the original rationale
         expanded = result.rationale
         
-        # Add strategic context based on score category
+        # Add strategic context based on score category and infer ticket type
+        ticket_type = self._infer_ticket_type(result)
+        
         if result.alignment_score >= 90:
-            expanded += " This work represents a direct advancement of our core strategic objectives and should be fast-tracked."
+            expanded += f" This {ticket_type} work represents a direct advancement of our core strategic objectives. "
+            expanded += "It introduces technical leverage and reinforces our market differentiation. "
+            expanded += "The impact on product vision is immediate and measurable."
         elif result.alignment_score >= 60:
-            expanded += " While not directly mission-critical, this provides necessary infrastructure or support for future core value delivery."
+            expanded += f" While this {ticket_type} work is not directly mission-critical, it provides necessary infrastructure for future core value delivery. "
+            expanded += "It complements our strategic initiatives and enables stronger execution capabilities. "
+            expanded += "The foundational nature of this work supports long-term strategic goals."
         elif result.alignment_score >= 40:
-            expanded += " The strategic connection is unclear and would benefit from reframing to better align with our principles."
+            expanded += f" This {ticket_type} work appears well-intentioned but lacks clear strategic connection. "
+            expanded += "The impact on our product vision is unclear, and the value creation pathway is ambiguous. "
+            expanded += "Without reframing, this work risks becoming a resource drain with limited strategic return."
         else:
-            expanded += " This work pulls resources away from mission-critical objectives without clear strategic benefit."
+            expanded += f" This {ticket_type} work provides no identifiable connection to any strategic principle. "
+            expanded += "It carries significant opportunity cost that may slow progress on mission-critical objectives. "
+            expanded += "There is no clear benefit to builders, no integration leverage, and no enhancement to our core systems."
         
         return expanded
     
@@ -192,25 +204,49 @@ class JiraClient:
         if score >= 90:
             # Core Value
             recommendation += "• ✅ **Action**: Prioritize and fast-track to execution\n"
-            recommendation += "• 💡 **Rationale**: This creates foundational infrastructure with clear ROI in both product value and strategic momentum."
+            recommendation += "• 💡 **Rationale**: This creates foundational infrastructure with clear ROI in both product value and strategic momentum"
         elif score >= 60:
             # Strategic Enabler
             recommendation += "• ✅ **Action**: Keep in roadmap and schedule soon\n"
-            recommendation += "• 💡 **Rationale**: Enables stronger Core Value delivery down the line. Ensure this is framed as platform-enabling, not standalone."
+            recommendation += "• 💡 **Rationale**: Enables stronger Core Value delivery down the line. Ensure this is framed and communicated internally as platform-enabling, not standalone"
         elif score >= 40:
             # Drift
             recommendation += "• 🚧 **Action**: Reframe to improve strategic connection\n"
-            recommendation += "• 💡 **Rationale**: If reframed to emphasize strategic principles, this could rise to Strategic Enabler level.\n"
-            if rewrite:
+            recommendation += "• 💡 **Rationale**: If reframed to emphasize how this work enables builders or supports agent architecture, it could rise to Strategic Enabler level\n"
+            if rewrite and 'revised_summary' in rewrite:
                 recommendation += f"• ✏️ **Suggested Title**: \"{rewrite['revised_summary']}\""
+            else:
+                recommendation += "• ✏️ **Suggestion**: Reframe to emphasize builder enablement or agent capabilities"
         else:
             # Distraction
             recommendation += "• 🚫 **Action**: Deprioritize or archive\n"
-            recommendation += "• 💡 **Rationale**: Completing this work would consume capacity with no strategic return. Unless reframed toward strategic value, it should not proceed.\n"
-            if rewrite:
-                recommendation += f"• ✏️ **Optional**: Consider reframing as \"{rewrite['revised_summary']}\" to add strategic value."
+            recommendation += "• 💡 **Rationale**: Completing this work would consume capacity with no return. Unless reframed toward strategic value, it should not proceed\n"
+            if rewrite and 'revised_summary' in rewrite:
+                recommendation += f"• ✏️ **Optional**: Consider reframing as \"{rewrite['revised_summary']}\" to add strategic value"
+            else:
+                recommendation += "• ✏️ **Optional**: Reconsider if this can enhance builder experience — if not, discard"
         
         return recommendation
+    
+    def _infer_ticket_type(self, result: AlignmentResult) -> str:
+        """Infer the type of ticket based on its content and metadata"""
+        # Use rationale and matched principles to infer type
+        text = (result.ticket_key + " " + result.rationale).lower()
+        
+        if any(word in text for word in ['ui', 'interface', 'design', 'ux', 'frontend', 'style', 'css', 'visual']):
+            return "UI/UX"
+        elif any(word in text for word in ['agent', 'ai', 'automation', 'pipeline', 'orchestration', 'multi-agent']):
+            return "agent architecture"
+        elif any(word in text for word in ['api', 'backend', 'database', 'infrastructure', 'infra', 'performance', 'integration']):
+            return "infrastructure"
+        elif any(word in text for word in ['marketing', 'branding', 'content', 'campaign', 'brand']):
+            return "marketing"
+        elif any(word in text for word in ['bug', 'fix', 'error', 'issue', 'problem', 'critical']):
+            return "bug fix"
+        elif any(word in text for word in ['feature', 'enhancement', 'improvement', 'implement']):
+            return "feature"
+        else:
+            return "development"
     
     def _update_custom_fields(self, issue: Issue, result: AlignmentResult):
         """Update custom fields with alignment data"""
