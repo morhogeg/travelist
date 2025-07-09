@@ -49,7 +49,7 @@ python3 steve.py --mode execution
 - **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
 - **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
 - **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
-- **📄 Google Docs Export**: Automatically saves timestamped executive summaries with sprint names
+- **📄 Notion Integration**: Beautiful, interactive executive summaries with visual formatting
 - **📋 Priority Lists**: Sorted strategic views with actionable next steps
 - **🗂️ Category Definitions**: Clear explanations of what each strategic category means
 - **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
@@ -232,19 +232,29 @@ python3 real_steve.py --mode execution --dry-run
 - **40-59**: Drift (weak strategic connection)
 - **0-39**: Distraction (misaligned work)
 
-### Google Docs Integration
-STEVE automatically saves executive summaries to Google Docs with timestamped file names:
+### Notion Integration
+STEVE automatically saves executive summaries to Notion with interactive formatting and visual elements:
 
-**File Format**: `STEVE_Executive_Summary_{PROJECT}_{SPRINT}_{TIMESTAMP}`
-- Example: `STEVE_Executive_Summary_PROJ_Sprint-42_2024-01-15_14-30-45`
+**Features**:
+- **Interactive Score Distribution**: Toggle blocks showing ticket details by score ranges
+- **Visual Category Breakdown**: Color-coded callouts with alignment percentages
+- **Strategic Health Diagnosis**: Automated assessment with contextual recommendations
+- **Quick Guide**: Collapsible scoring system explanation for team reference
+- **Professional Formatting**: Clean layout with dividers, emojis, and structured sections
+- **Actionable Next Steps**: Checkbox-style todo items for immediate follow-up
 
-**Setup**: See `GOOGLE_DOCS_SETUP.md` for configuration instructions.
+**Setup**: Add these environment variables to your `.env` file:
+```bash
+NOTION_TOKEN=secret_your_integration_token_here
+NOTION_DATABASE_ID=your_database_id_here
+```
 
 **Benefits**:
-- Permanent record of strategic decisions
-- Easy sharing with stakeholders
-- Searchable history of team alignment
-- Professional formatting for presentations
+- **Interactive Analysis**: Team members can explore score distributions and ticket details
+- **Visual Clarity**: Color-coded categories and strategic health indicators
+- **Permanent Record**: Timestamped strategic decisions with searchable history
+- **Team Collaboration**: Shared workspace for strategic discussions and planning
+- **Professional Presentation**: Executive-ready formatting for stakeholder reviews
 
 ## 📁 Project Structure
 
@@ -272,12 +282,12 @@ steve/
 │   └── founder_voice.py      # 💼 Executive summaries
 ├── utils/
 │   ├── logger.py            # 🖥️ Rich console logging
-│   └── google_docs.py       # 📄 Google Docs integration
+│   └── notion_integration.py # 📄 Notion integration with interactive formatting
 ├── data_collector.py         # 📡 Data aggregation
 ├── llm_config.py            # 🧠 LLM configuration
 ├── example_executive_summary.md     # 📄 Example output
 ├── example_executive_summary_sprint_25.md # 📄 Success story example
-├── GOOGLE_DOCS_SETUP.md     # 📄 Google Docs setup instructions
+├── NOTION_SETUP.md          # 📄 Notion integration setup instructions
 ├── pyproject.toml           # 🐍 Python project config
 └── requirements.txt          # 📦 Dependencies
 ```
@@ -393,7 +403,7 @@ python3 steve.py [OPTIONS]
 **Output Control:**
 - `--sorted` - Include strategic priority ranking
 - `--analysis-only` - Skip Jira updates, analysis only
-- `--no-google-docs` - Skip saving executive summary to Google Docs
+- `--no-notion` - Skip saving executive summary to Notion
 
 **Multi-Agent AI Features:**
 - **Multi-LLM Support**: OpenAI, OpenRouter, or local Ollama
