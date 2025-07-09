@@ -422,21 +422,6 @@ python3 steve.py [OPTIONS]
 - **Safe Operations**: Comprehensive error handling and dry-run capabilities
 
 
-## 📊 Success Metrics
-
-Teams using STEVE report:
-- **40% reduction** in strategic drift
-- **60% faster** sprint planning decisions
-- **85% improvement** in strategic focus clarity
-- **Zero wasted sprints** on misaligned work
-
-## 🔒 Security & Privacy
-
-- **Local Processing**: Your data never leaves your infrastructure
-- **Secure APIs**: All integrations use proper authentication
-- **Audit Trail**: Complete logging of all decisions and changes
-- **No Telemetry**: STEVE doesn't phone home
-
 ## 🛠️ Customization
 
 STEVE is highly customizable:
@@ -446,15 +431,6 @@ STEVE is highly customizable:
 - **Agents**: Modify AI agent personalities and prompts
 - **Output**: Custom report formats and integrations
 - **Workflows**: Adapt to your team's processes
-
-## 📈 Roadmap
-
-- [x] **Jira Custom Fields**: Sort tickets by STEVE Score directly in Jira
-- [x] **Priority Lists**: Sorted strategic views with actions
-- [x] **Detailed Feedback**: Explain why tickets score low
-- [ ] **Trend Analysis**: Long-term strategic drift detection
-- [ ] **Team Insights**: Per-developer alignment scoring
-- [ ] **Integration Hub**: Asana, Linear, Monday.com support
 
 ## 🤝 Contributing
 
