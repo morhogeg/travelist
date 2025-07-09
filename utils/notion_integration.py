@@ -373,11 +373,29 @@ class NotionManager:
             }
         })
         
+        # Add spacing after toggle guide
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
+        })
+        
         # Divider
         blocks.append({
             "object": "block",
             "type": "divider",
             "divider": {}
+        })
+        
+        # Add spacing before title
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
         })
         
         # Title with visual emphasis
@@ -403,6 +421,15 @@ class NotionManager:
                 ],
                 "icon": {"emoji": "📈"},
                 "color": "blue_background"
+            }
+        })
+        
+        # Add spacing after metrics
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
             }
         })
         
@@ -450,6 +477,15 @@ class NotionManager:
             "divider": {}
         })
         
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
+        })
+        
         # 1. Strategic Alignment Health Diagnosis
         cv_pct = data['category_breakdown']['core_value']['percentage']
         dist_pct = data['category_breakdown']['distraction']['percentage']
@@ -488,6 +524,15 @@ class NotionManager:
             "object": "block",
             "type": "divider",
             "divider": {}
+        })
+        
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
         })
         
         # 2. Category Breakdown Table (using structured callouts)
@@ -530,7 +575,7 @@ class NotionManager:
             }
         ]
         
-        for cat in categories:
+        for i, cat in enumerate(categories):
             blocks.append({
                 "object": "block",
                 "type": "callout",
@@ -543,12 +588,31 @@ class NotionManager:
                     "color": cat['color']
                 }
             })
+            
+            # Add small spacing between category items (except after the last one)
+            if i < len(categories) - 1:
+                blocks.append({
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"type": "text", "text": {"content": ""}}]
+                    }
+                })
         
         # Divider
         blocks.append({
             "object": "block",
             "type": "divider",
             "divider": {}
+        })
+        
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
         })
         
         # 3. Score Distribution Visualization with Interactive Toggles
@@ -628,6 +692,15 @@ class NotionManager:
             "divider": {}
         })
         
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
+        })
+        
         # 4. Representative Commentary Section
         if data['ticket_examples']:
             blocks.append({
@@ -675,6 +748,15 @@ class NotionManager:
             "object": "block",
             "type": "divider",
             "divider": {}
+        })
+        
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
         })
         
         # 5. Strategic Scorecard (Top & Bottom Performers)
@@ -798,6 +880,15 @@ class NotionManager:
             "divider": {}
         })
         
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
+        })
+        
         # NEW: Strategic Blind Spots
         blocks.append({
             "object": "block",
@@ -842,6 +933,15 @@ class NotionManager:
             "divider": {}
         })
         
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
+        })
+        
         # 6. Improved Strategic Recommendations
         blocks.append({
             "object": "block",
@@ -877,6 +977,15 @@ class NotionManager:
             "object": "block",
             "type": "divider",
             "divider": {}
+        })
+        
+        # Add spacing
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": " "}}]
+            }
         })
         
         # 7. Next Steps (with checkboxes)
