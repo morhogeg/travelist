@@ -15,14 +15,33 @@
 
 > 🎯 **One Command. Complete Strategic Intelligence.**
 
-STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Run one simple command to get AI-powered strategic analysis, automatic Jira updates, and **interactive Notion reports** - preventing strategic drift before it happens.
+STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
 
 > 📝 **Executive summaries are automatically published to Notion** with interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
 
+> 🌐 **Modern Web Interface** provides real-time strategic insights with color-coded score badges, interactive charts, and agent configuration - all in a beautiful dark/light theme dashboard.
+
 ## ⚡ Quick Start
 
+### 🌐 Web Dashboard (Recommended)
 ```bash
 # 1. Clone and install
+git clone https://github.com/morhogeg/STEVE.git && cd STEVE
+
+# 2. Launch complete STEVE system (backend + frontend)
+./run-steve-simple.sh
+```
+
+**That's it!** Open http://localhost:5173 to access the modern web interface with:
+- 🎯 **Real-time Strategic Dashboard** with color-coded score badges
+- 📊 **Interactive Charts** showing category distribution and score trends  
+- 🌙 **Dark/Light Mode** with glass morphism design
+- ⚙️ **Agent Configuration** to customize AI behavior
+- 📋 **Executive Summary** with copy/share functionality
+
+### 🖥️ Command Line Interface
+```bash
+# 1. Clone and install  
 git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 python -m venv steve-env && source steve-env/bin/activate
 pip install -r requirements.txt
@@ -36,7 +55,7 @@ python3 steve.py --mode execution --test
 python3 steve.py --mode execution
 ```
 
-**That's it!** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
+**CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
 
 ## 🚀 What STEVE Does
 
@@ -52,10 +71,13 @@ python3 steve.py --mode execution
 - **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
 - **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
 - **📄 Notion Integration**: Beautiful, interactive executive summaries with visual formatting
+- **🌐 Web Dashboard**: Modern React interface with real-time analysis and visualizations
+- **🎨 Color-Coded Scores**: Instant visual feedback (🟢 High, 🔵 Medium, 🟡 Low, 🔴 Critical)
 - **📋 Priority Lists**: Sorted strategic views with actionable next steps
 - **🗂️ Category Definitions**: Clear explanations of what each strategic category means
 - **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
+- **⚙️ Agent Configuration**: Customize AI agent instructions via web interface
 - **🎯 Constructive Tone**: Positive, solution-focused messaging that motivates teams
 
 ## 🎯 Example Output
@@ -289,40 +311,98 @@ NOTION_DATABASE_ID=your_database_id_here
 - **Team Collaboration**: Shared workspace for strategic discussions and planning
 - **Professional Presentation**: Executive-ready formatting for stakeholder reviews
 
+## 🌐 Web Interface Features
+
+The modern React frontend provides a premium interface for strategic analysis:
+
+### 🎯 **Strategic Dashboard**
+- **Real-time Metrics**: Health score, total tickets, core value count, attention needed
+- **Interactive Charts**: Pie chart for category distribution, bar chart for score ranges
+- **Hover Tooltips**: Show relevant tickets when hovering over chart segments
+- **Color-coded Scores**: 🟢 High (80-100), 🔵 Medium (60-79), 🟡 Low (40-59), 🔴 Critical (0-39)
+
+### 📊 **Ticket Analysis Grid**
+- **Smart Filtering**: Search by text, filter by category
+- **Flexible Sorting**: By score, ticket key, or category
+- **Expandable Details**: View full descriptions and AI suggestions
+- **Score Badges**: Instant visual feedback with gradient backgrounds
+
+### ⚙️ **Agent Configuration Panel**
+- **Live Customization**: Modify AI agent instructions in real-time
+- **Agent Profiles**: Configure personality, tone, and behavior for each agent
+- **Settings Persistence**: Automatically saves configurations locally
+- **Visual Indicators**: Icons and colors for easy agent identification
+
+### 🎨 **Modern Design System**
+- **Dark/Light Themes**: Complete theme switching with system preference detection
+- **Glass Morphism**: Translucent cards with backdrop blur effects
+- **Smooth Animations**: Framer Motion powered transitions and micro-interactions
+- **Responsive Layout**: Works perfectly on desktop, tablet, and mobile
+- **Accessibility**: Keyboard navigation and screen reader support
+
+### 📋 **Executive Summary**
+- **Rich Typography**: Premium fonts with drop caps and proper hierarchy
+- **Copy/Share Actions**: One-click copying and sharing of executive insights
+- **Interactive Formatting**: Collapsible sections and visual emphasis
+- **Export Options**: Download reports in multiple formats
+
+### 🚀 **Quick Actions**
+- **One-Click Analysis**: Start ticket analysis with visual progress tracking
+- **Theme Toggle**: Instant switching between light and dark modes
+- **Settings Access**: Quick configuration without leaving the main interface
+- **Real-time Updates**: Live data refresh and synchronization
+
+Access the web interface at **http://localhost:5173** after running `./run-steve-simple.sh`
+
 ## 📁 Project Structure
 
 ```
-steve/
-├── steve.py                   # 🎯 UNIFIED COMMAND (START HERE)
-├── crew_steve.py              # Multi-agent AI system (legacy)
-├── real_steve.py              # Jira integration layer (legacy)
-├── crew_steve_showcase.py     # Demo/showcase version
-├── simple_crew.py             # Simplified version for learning
-├── cleanup_duplicates.py      # Utility for cleaning duplicate entries
-├── config/
-│   ├── principles.yaml        # 📋 Your strategic vision
-│   ├── agents.yaml           # 🤖 AI agent configurations & tone
-│   └── settings.yaml         # ⚙️ System settings
-├── core/
-│   ├── schemas.py            # 📊 Data models
-│   ├── jira_client.py        # 🔗 Jira integration
-│   └── orchestrator.py       # 🎵 Agent orchestration
-├── agents/                   # 🤖 Individual AI agents
-│   ├── ticket_ingestor.py    # 📥 Jira ticket harvester
-│   ├── alignment_evaluator.py # 📊 Strategic scoring
-│   ├── rewrite_strategist.py # ✍️ Ticket improvement
-│   ├── theme_synthesizer.py  # 📈 Pattern detection
-│   └── founder_voice.py      # 💼 Executive summaries
-├── utils/
-│   ├── logger.py            # 🖥️ Rich console logging
-│   └── notion_integration.py # 📄 Notion integration with interactive formatting
-├── data_collector.py         # 📡 Data aggregation
-├── llm_config.py            # 🧠 LLM configuration
-├── example_executive_summary.md     # 📄 Example output
-├── example_executive_summary_sprint_25.md # 📄 Success story example
-├── NOTION_SETUP.md          # 📄 Notion integration setup instructions
-├── pyproject.toml           # 🐍 Python project config
-└── requirements.txt          # 📦 Dependencies
+STEVE/
+├── run-steve-simple.sh       # 🚀 ONE-COMMAND STARTUP (START HERE)
+├── steve/                    # 🧠 Python backend
+│   ├── steve.py             # 🎯 Unified command interface
+│   ├── crew_steve.py        # Multi-agent AI system (legacy)
+│   ├── real_steve.py        # Jira integration layer (legacy)
+│   ├── crew_steve_showcase.py # Demo/showcase version
+│   ├── simple_crew.py       # Simplified version for learning
+│   ├── cleanup_duplicates.py # Utility for cleaning duplicate entries
+│   ├── config/
+│   │   ├── principles.yaml  # 📋 Your strategic vision
+│   │   ├── agents.yaml     # 🤖 AI agent configurations & tone
+│   │   └── settings.yaml   # ⚙️ System settings
+│   ├── core/
+│   │   ├── schemas.py      # 📊 Data models
+│   │   ├── jira_client.py  # 🔗 Jira integration
+│   │   └── orchestrator.py # 🎵 Agent orchestration
+│   ├── agents/             # 🤖 Individual AI agents
+│   │   ├── ticket_ingestor.py    # 📥 Jira ticket harvester
+│   │   ├── alignment_evaluator.py # 📊 Strategic scoring
+│   │   ├── rewrite_strategist.py # ✍️ Ticket improvement
+│   │   ├── theme_synthesizer.py  # 📈 Pattern detection
+│   │   └── founder_voice.py      # 💼 Executive summaries
+│   ├── utils/
+│   │   ├── logger.py       # 🖥️ Rich console logging
+│   │   └── notion_integration.py # 📄 Notion integration
+│   ├── data_collector.py   # 📡 Data aggregation
+│   ├── llm_config.py      # 🧠 LLM configuration
+│   ├── example_executive_summary.md # 📄 Example output
+│   ├── NOTION_SETUP.md    # 📄 Notion integration setup
+│   ├── pyproject.toml     # 🐍 Python project config
+│   └── requirements.txt    # 📦 Backend dependencies
+├── steve-frontend-simple/   # 🌐 Modern web interface
+│   ├── src/
+│   │   ├── App.tsx         # 📱 Main React application
+│   │   ├── App.modern.css  # 🎨 Modern design system
+│   │   ├── App.darkmode-refined.css # 🌙 Dark theme
+│   │   ├── App.score-colors.css     # 🎯 Color-coded scores
+│   │   └── App.darkmode-final.css   # 🌃 Enhanced dark mode
+│   ├── package.json        # 📦 Frontend dependencies
+│   ├── tsconfig.json       # ⚙️ TypeScript configuration
+│   ├── vite.config.ts      # ⚡ Vite build configuration
+│   └── README.md           # 📖 Frontend documentation
+└── steve-frontend-api/      # 🔗 API bridge layer
+    ├── main_simple_real.py # 📡 FastAPI backend adapter
+    └── requirements.txt     # 📦 API dependencies
 ```
 
 ## 🎯 Example: AI Strategy Brief Generator
