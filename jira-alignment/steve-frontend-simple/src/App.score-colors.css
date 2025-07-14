@@ -1,0 +1,617 @@
+/* Score-based Color System for STEVE Frontend */
+
+/* Score range definitions and color mappings */
+:root {
+  /* Score thresholds */
+  --score-excellent: 90;
+  --score-high: 80;
+  --score-medium: 60;
+  --score-low: 40;
+  --score-critical: 0;
+  
+  /* Score color palette - Light mode */
+  --score-excellent-color: #059669;
+  --score-excellent-bg: rgba(5, 150, 105, 0.1);
+  --score-excellent-border: rgba(5, 150, 105, 0.3);
+  --score-excellent-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  
+  --score-high-color: #10b981;
+  --score-high-bg: rgba(16, 185, 129, 0.1);
+  --score-high-border: rgba(16, 185, 129, 0.3);
+  --score-high-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  
+  --score-medium-color: #3b82f6;
+  --score-medium-bg: rgba(59, 130, 246, 0.1);
+  --score-medium-border: rgba(59, 130, 246, 0.3);
+  --score-medium-gradient: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  
+  --score-low-color: #f59e0b;
+  --score-low-bg: rgba(245, 158, 11, 0.1);
+  --score-low-border: rgba(245, 158, 11, 0.3);
+  --score-low-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  
+  --score-critical-color: #ef4444;
+  --score-critical-bg: rgba(239, 68, 68, 0.1);
+  --score-critical-border: rgba(239, 68, 68, 0.3);
+  --score-critical-gradient: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  
+  /* Score glow effects */
+  --score-excellent-glow: 0 0 20px rgba(5, 150, 105, 0.4);
+  --score-high-glow: 0 0 20px rgba(16, 185, 129, 0.4);
+  --score-medium-glow: 0 0 20px rgba(59, 130, 246, 0.4);
+  --score-low-glow: 0 0 20px rgba(245, 158, 11, 0.4);
+  --score-critical-glow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+/* Dark mode score colors */
+[data-theme="dark"] {
+  /* Adjusted score colors for dark mode */
+  --score-excellent-color: #6ee7b7;
+  --score-excellent-bg: rgba(110, 231, 183, 0.12);
+  --score-excellent-border: rgba(110, 231, 183, 0.3);
+  --score-excellent-gradient: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  
+  --score-high-color: #34d399;
+  --score-high-bg: rgba(52, 211, 153, 0.12);
+  --score-high-border: rgba(52, 211, 153, 0.3);
+  --score-high-gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  
+  --score-medium-color: #60a5fa;
+  --score-medium-bg: rgba(96, 165, 250, 0.12);
+  --score-medium-border: rgba(96, 165, 250, 0.3);
+  --score-medium-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  
+  --score-low-color: #fbbf24;
+  --score-low-bg: rgba(251, 191, 36, 0.12);
+  --score-low-border: rgba(251, 191, 36, 0.3);
+  --score-low-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  
+  --score-critical-color: #f87171;
+  --score-critical-bg: rgba(248, 113, 113, 0.12);
+  --score-critical-border: rgba(248, 113, 113, 0.3);
+  --score-critical-gradient: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  
+  /* Enhanced glow effects for dark mode */
+  --score-excellent-glow: 0 0 30px rgba(110, 231, 183, 0.5);
+  --score-high-glow: 0 0 30px rgba(52, 211, 153, 0.5);
+  --score-medium-glow: 0 0 30px rgba(96, 165, 250, 0.5);
+  --score-low-glow: 0 0 30px rgba(251, 191, 36, 0.5);
+  --score-critical-glow: 0 0 30px rgba(248, 113, 113, 0.5);
+}
+
+/* Score badge base styling */
+.score-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.score-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.score-badge:hover::before {
+  opacity: 1;
+}
+
+/* Score badge variants */
+.score-badge.score-excellent {
+  background: var(--score-excellent-bg);
+  color: var(--score-excellent-color);
+  border-color: var(--score-excellent-border);
+}
+
+.score-badge.score-excellent::before {
+  background: var(--score-excellent-gradient);
+  box-shadow: var(--score-excellent-glow);
+}
+
+.score-badge.score-excellent:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--score-excellent-glow);
+}
+
+.score-badge.score-high {
+  background: var(--score-high-bg);
+  color: var(--score-high-color);
+  border-color: var(--score-high-border);
+}
+
+.score-badge.score-high::before {
+  background: var(--score-high-gradient);
+  box-shadow: var(--score-high-glow);
+}
+
+.score-badge.score-high:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--score-high-glow);
+}
+
+.score-badge.score-medium {
+  background: var(--score-medium-bg);
+  color: var(--score-medium-color);
+  border-color: var(--score-medium-border);
+}
+
+.score-badge.score-medium::before {
+  background: var(--score-medium-gradient);
+  box-shadow: var(--score-medium-glow);
+}
+
+.score-badge.score-medium:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--score-medium-glow);
+}
+
+.score-badge.score-low {
+  background: var(--score-low-bg);
+  color: var(--score-low-color);
+  border-color: var(--score-low-border);
+}
+
+.score-badge.score-low::before {
+  background: var(--score-low-gradient);
+  box-shadow: var(--score-low-glow);
+}
+
+.score-badge.score-low:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--score-low-glow);
+}
+
+.score-badge.score-critical {
+  background: var(--score-critical-bg);
+  color: var(--score-critical-color);
+  border-color: var(--score-critical-border);
+}
+
+.score-badge.score-critical::before {
+  background: var(--score-critical-gradient);
+  box-shadow: var(--score-critical-glow);
+}
+
+.score-badge.score-critical:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--score-critical-glow);
+}
+
+/* Score progress bar */
+.score-progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.score-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+  position: relative;
+}
+
+.score-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Score-based progress fill colors */
+.score-progress-fill.score-excellent {
+  background: var(--score-excellent-gradient);
+  box-shadow: var(--score-excellent-glow);
+}
+
+.score-progress-fill.score-high {
+  background: var(--score-high-gradient);
+  box-shadow: var(--score-high-glow);
+}
+
+.score-progress-fill.score-medium {
+  background: var(--score-medium-gradient);
+  box-shadow: var(--score-medium-glow);
+}
+
+.score-progress-fill.score-low {
+  background: var(--score-low-gradient);
+  box-shadow: var(--score-low-glow);
+}
+
+.score-progress-fill.score-critical {
+  background: var(--score-critical-gradient);
+  box-shadow: var(--score-critical-glow);
+}
+
+/* Score distribution chart colors */
+.score-chart-segment {
+  transition: all 0.3s ease;
+}
+
+.score-chart-segment.score-excellent {
+  fill: var(--score-excellent-color);
+  filter: drop-shadow(0 0 8px var(--score-excellent-color));
+}
+
+.score-chart-segment.score-high {
+  fill: var(--score-high-color);
+  filter: drop-shadow(0 0 8px var(--score-high-color));
+}
+
+.score-chart-segment.score-medium {
+  fill: var(--score-medium-color);
+  filter: drop-shadow(0 0 8px var(--score-medium-color));
+}
+
+.score-chart-segment.score-low {
+  fill: var(--score-low-color);
+  filter: drop-shadow(0 0 8px var(--score-low-color));
+}
+
+.score-chart-segment.score-critical {
+  fill: var(--score-critical-color);
+  filter: drop-shadow(0 0 8px var(--score-critical-color));
+}
+
+.score-chart-segment:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1) drop-shadow(0 0 12px currentColor);
+}
+
+/* Score legend */
+.score-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.score-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.score-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+}
+
+.score-legend-item.score-excellent .score-legend-dot {
+  background: var(--score-excellent-color);
+  border-color: var(--score-excellent-color);
+}
+
+.score-legend-item.score-high .score-legend-dot {
+  background: var(--score-high-color);
+  border-color: var(--score-high-color);
+}
+
+.score-legend-item.score-medium .score-legend-dot {
+  background: var(--score-medium-color);
+  border-color: var(--score-medium-color);
+}
+
+.score-legend-item.score-low .score-legend-dot {
+  background: var(--score-low-color);
+  border-color: var(--score-low-color);
+}
+
+.score-legend-item.score-critical .score-legend-dot {
+  background: var(--score-critical-color);
+  border-color: var(--score-critical-color);
+}
+
+/* Score-based metric card borders */
+.metric-card.score-excellent::before {
+  background: var(--score-excellent-gradient);
+}
+
+.metric-card.score-high::before {
+  background: var(--score-high-gradient);
+}
+
+.metric-card.score-medium::before {
+  background: var(--score-medium-gradient);
+}
+
+.metric-card.score-low::before {
+  background: var(--score-low-gradient);
+}
+
+.metric-card.score-critical::before {
+  background: var(--score-critical-gradient);
+}
+
+/* Score-based ticket card accents */
+.ticket-card.score-excellent {
+  border-left: 4px solid var(--score-excellent-color);
+}
+
+.ticket-card.score-high {
+  border-left: 4px solid var(--score-high-color);
+}
+
+.ticket-card.score-medium {
+  border-left: 4px solid var(--score-medium-color);
+}
+
+.ticket-card.score-low {
+  border-left: 4px solid var(--score-low-color);
+}
+
+.ticket-card.score-critical {
+  border-left: 4px solid var(--score-critical-color);
+}
+
+/* Score-based hover effects */
+.ticket-card.score-excellent:hover {
+  box-shadow: var(--shadow-lg), var(--score-excellent-glow);
+}
+
+.ticket-card.score-high:hover {
+  box-shadow: var(--shadow-lg), var(--score-high-glow);
+}
+
+.ticket-card.score-medium:hover {
+  box-shadow: var(--shadow-lg), var(--score-medium-glow);
+}
+
+.ticket-card.score-low:hover {
+  box-shadow: var(--shadow-lg), var(--score-low-glow);
+}
+
+.ticket-card.score-critical:hover {
+  box-shadow: var(--shadow-lg), var(--score-critical-glow);
+}
+
+/* Score number styling */
+.score-number {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 800;
+  position: relative;
+}
+
+.score-number::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+.score-number.score-excellent::after {
+  background: var(--score-excellent-gradient);
+}
+
+.score-number.score-high::after {
+  background: var(--score-high-gradient);
+}
+
+.score-number.score-medium::after {
+  background: var(--score-medium-gradient);
+}
+
+.score-number.score-low::after {
+  background: var(--score-low-gradient);
+}
+
+.score-number.score-critical::after {
+  background: var(--score-critical-gradient);
+}
+
+/* Score trend indicators */
+.score-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+.score-trend.trending-up {
+  background: var(--score-high-bg);
+  color: var(--score-high-color);
+}
+
+.score-trend.trending-down {
+  background: var(--score-critical-bg);
+  color: var(--score-critical-color);
+}
+
+.score-trend.trending-stable {
+  background: var(--score-medium-bg);
+  color: var(--score-medium-color);
+}
+
+/* Score filter pills */
+.score-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.score-filter.score-excellent {
+  background: var(--score-excellent-bg);
+  color: var(--score-excellent-color);
+  border-color: var(--score-excellent-border);
+}
+
+.score-filter.score-excellent:hover,
+.score-filter.score-excellent.active {
+  background: var(--score-excellent-color);
+  color: white;
+  box-shadow: var(--score-excellent-glow);
+}
+
+.score-filter.score-high {
+  background: var(--score-high-bg);
+  color: var(--score-high-color);
+  border-color: var(--score-high-border);
+}
+
+.score-filter.score-high:hover,
+.score-filter.score-high.active {
+  background: var(--score-high-color);
+  color: white;
+  box-shadow: var(--score-high-glow);
+}
+
+.score-filter.score-medium {
+  background: var(--score-medium-bg);
+  color: var(--score-medium-color);
+  border-color: var(--score-medium-border);
+}
+
+.score-filter.score-medium:hover,
+.score-filter.score-medium.active {
+  background: var(--score-medium-color);
+  color: white;
+  box-shadow: var(--score-medium-glow);
+}
+
+.score-filter.score-low {
+  background: var(--score-low-bg);
+  color: var(--score-low-color);
+  border-color: var(--score-low-border);
+}
+
+.score-filter.score-low:hover,
+.score-filter.score-low.active {
+  background: var(--score-low-color);
+  color: white;
+  box-shadow: var(--score-low-glow);
+}
+
+.score-filter.score-critical {
+  background: var(--score-critical-bg);
+  color: var(--score-critical-color);
+  border-color: var(--score-critical-border);
+}
+
+.score-filter.score-critical:hover,
+.score-filter.score-critical.active {
+  background: var(--score-critical-color);
+  color: white;
+  box-shadow: var(--score-critical-glow);
+}
+
+/* Score tooltip */
+.score-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.score-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--bg-primary);
+}
+
+.score-badge:hover .score-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Score animation utilities */
+.score-pulse {
+  animation: scorePulse 2s infinite;
+}
+
+@keyframes scorePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.score-glow {
+  animation: scoreGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes scoreGlow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.2) drop-shadow(0 0 8px currentColor); }
+}
+
+/* Responsive score adjustments */
+@media (max-width: 768px) {
+  .score-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .score-legend {
+    gap: 0.5rem;
+  }
+  
+  .score-legend-item {
+    font-size: 0.75rem;
+  }
+  
+  .score-number {
+    font-size: 1rem;
+  }
+}

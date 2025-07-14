@@ -1,0 +1,505 @@
+/* Enhanced Dark Mode CSS for STEVE Frontend */
+
+/* Dark mode root variables with refined color palette */
+[data-theme="dark"] {
+  /* Enhanced background colors */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #121212;
+  --bg-tertiary: #1a1a1a;
+  --bg-quaternary: #242424;
+  --bg-glass: rgba(10, 10, 10, 0.8);
+  --bg-glass-light: rgba(26, 26, 26, 0.9);
+  
+  /* Enhanced text colors */
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-tertiary: #b0b0b0;
+  --text-quaternary: #808080;
+  --text-muted: #666666;
+  
+  /* Enhanced border colors */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --border-focus: rgba(255, 255, 255, 0.16);
+  --border-active: rgba(255, 255, 255, 0.20);
+  
+  /* Enhanced shadows with more depth */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 10px 10px -5px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 60px rgba(139, 92, 246, 0.5);
+  --shadow-glow-green: 0 0 40px rgba(16, 185, 129, 0.3);
+  --shadow-glow-blue: 0 0 40px rgba(59, 130, 246, 0.3);
+  --shadow-glow-amber: 0 0 40px rgba(245, 158, 11, 0.3);
+  --shadow-glow-red: 0 0 40px rgba(239, 68, 68, 0.3);
+  
+  /* Enhanced gradients for dark mode */
+  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  --gradient-info: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  
+  /* Dark mode specific gradients */
+  --gradient-dark-primary: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  --gradient-dark-success: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+  --gradient-dark-warning: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+  --gradient-dark-danger: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+  --gradient-dark-info: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  
+  /* Enhanced category colors for dark mode */
+  --color-core: #34d399;
+  --color-strategic: #60a5fa;
+  --color-drift: #fbbf24;
+  --color-distraction: #f87171;
+  
+  /* Category background colors */
+  --color-core-bg: rgba(52, 211, 153, 0.1);
+  --color-strategic-bg: rgba(96, 165, 250, 0.1);
+  --color-drift-bg: rgba(251, 191, 36, 0.1);
+  --color-distraction-bg: rgba(248, 113, 113, 0.1);
+  
+  /* Category border colors */
+  --color-core-border: rgba(52, 211, 153, 0.3);
+  --color-strategic-border: rgba(96, 165, 250, 0.3);
+  --color-drift-border: rgba(251, 191, 36, 0.3);
+  --color-distraction-border: rgba(248, 113, 113, 0.3);
+  
+  /* Enhanced mesh gradient for dark mode */
+  --gradient-mesh: radial-gradient(at 40% 20%, hsla(280,100%,74%,0.1) 0px, transparent 60%),
+                   radial-gradient(at 80% 0%, hsla(189,100%,56%,0.1) 0px, transparent 60%),
+                   radial-gradient(at 0% 50%, hsla(355,100%,93%,0.05) 0px, transparent 60%),
+                   radial-gradient(at 80% 50%, hsla(340,100%,76%,0.08) 0px, transparent 60%),
+                   radial-gradient(at 0% 100%, hsla(22,100%,77%,0.06) 0px, transparent 60%),
+                   radial-gradient(at 80% 100%, hsla(242,100%,70%,0.12) 0px, transparent 60%),
+                   radial-gradient(at 0% 0%, hsla(343,100%,76%,0.08) 0px, transparent 60%);
+}
+
+/* Enhanced header styling for dark mode */
+[data-theme="dark"] .header {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .logo {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .logo-icon {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));
+}
+
+[data-theme="dark"] .theme-toggle {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  background: var(--bg-quaternary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .refresh-btn {
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .refresh-btn:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+/* Enhanced metric cards for dark mode */
+[data-theme="dark"] .metric-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .metric-card:hover {
+  background: var(--bg-secondary);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .metric-card.metric-card-success {
+  border-color: var(--color-core-border);
+}
+
+[data-theme="dark"] .metric-card.metric-card-success:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow-green);
+}
+
+[data-theme="dark"] .metric-card.metric-card-info {
+  border-color: var(--color-strategic-border);
+}
+
+[data-theme="dark"] .metric-card.metric-card-info:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow-blue);
+}
+
+[data-theme="dark"] .metric-card.metric-card-warning {
+  border-color: var(--color-drift-border);
+}
+
+[data-theme="dark"] .metric-card.metric-card-warning:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow-amber);
+}
+
+[data-theme="dark"] .metric-card.metric-card-danger {
+  border-color: var(--color-distraction-border);
+}
+
+[data-theme="dark"] .metric-card.metric-card-danger:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow-red);
+}
+
+[data-theme="dark"] .metric-title {
+  color: var(--text-tertiary);
+}
+
+[data-theme="dark"] .metric-value {
+  color: var(--text-primary);
+}
+
+/* Enhanced chart container for dark mode */
+[data-theme="dark"] .chart-container {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .chart-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .chart-control {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .chart-control:hover,
+[data-theme="dark"] .chart-control.active {
+  background: var(--bg-quaternary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* Enhanced executive summary for dark mode */
+[data-theme="dark"] .executive-summary {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .executive-summary h2 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .executive-summary p {
+  color: var(--text-secondary);
+}
+
+/* Enhanced ticket cards for dark mode */
+[data-theme="dark"] .ticket-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .ticket-card:hover {
+  background: var(--bg-secondary);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .ticket-key {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-tertiary);
+}
+
+[data-theme="dark"] .ticket-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ticket-description {
+  color: var(--text-secondary);
+}
+
+/* Enhanced score badges for dark mode */
+[data-theme="dark"] .score-badge.score-high {
+  background: var(--color-core-bg);
+  color: var(--color-core);
+  border-color: var(--color-core-border);
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.2);
+}
+
+[data-theme="dark"] .score-badge.score-medium {
+  background: var(--color-strategic-bg);
+  color: var(--color-strategic);
+  border-color: var(--color-strategic-border);
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
+}
+
+[data-theme="dark"] .score-badge.score-low {
+  background: var(--color-drift-bg);
+  color: var(--color-drift);
+  border-color: var(--color-drift-border);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+}
+
+[data-theme="dark"] .score-badge.score-critical {
+  background: var(--color-distraction-bg);
+  color: var(--color-distraction);
+  border-color: var(--color-distraction-border);
+  box-shadow: 0 0 20px rgba(248, 113, 113, 0.2);
+}
+
+/* Enhanced category badges for dark mode */
+[data-theme="dark"] .ticket-category.core-value {
+  background: var(--color-core-bg);
+  color: var(--color-core);
+}
+
+[data-theme="dark"] .ticket-category.strategic-enabler {
+  background: var(--color-strategic-bg);
+  color: var(--color-strategic);
+}
+
+[data-theme="dark"] .ticket-category.drift {
+  background: var(--color-drift-bg);
+  color: var(--color-drift);
+}
+
+[data-theme="dark"] .ticket-category.distraction {
+  background: var(--color-distraction-bg);
+  color: var(--color-distraction);
+}
+
+/* Enhanced actions for dark mode */
+[data-theme="dark"] .ticket-action {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ticket-action:hover {
+  background: var(--bg-quaternary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* Enhanced filter buttons for dark mode */
+[data-theme="dark"] .filter-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .filter-btn:hover,
+[data-theme="dark"] .filter-btn.active {
+  background: var(--bg-quaternary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* Enhanced section elements for dark mode */
+[data-theme="dark"] .section-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .section-count {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* Enhanced agent settings for dark mode */
+[data-theme="dark"] .agent-settings {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .agent-settings h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .setting-label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .setting-input {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .setting-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+[data-theme="dark"] .setting-select {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .setting-select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+[data-theme="dark"] .setting-toggle-slider {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .setting-toggle-slider::before {
+  background: var(--text-tertiary);
+}
+
+[data-theme="dark"] .setting-toggle input:checked + .setting-toggle-slider {
+  background: var(--color-core);
+  border-color: var(--color-core);
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+}
+
+[data-theme="dark"] .setting-toggle input:checked + .setting-toggle-slider::before {
+  background: var(--bg-primary);
+}
+
+/* Enhanced loading spinner for dark mode */
+[data-theme="dark"] .loading-spinner {
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--color-strategic);
+}
+
+/* Enhanced error and success states for dark mode */
+[data-theme="dark"] .error {
+  background: var(--color-distraction-bg);
+  border: 1px solid var(--color-distraction-border);
+  color: var(--color-distraction);
+}
+
+[data-theme="dark"] .success {
+  background: var(--color-core-bg);
+  border: 1px solid var(--color-core-border);
+  color: var(--color-core);
+}
+
+/* Enhanced scrollbar for dark mode */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Enhanced focus states for dark mode */
+[data-theme="dark"] button:focus,
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus {
+  outline: 2px solid var(--color-strategic);
+  outline-offset: 2px;
+}
+
+/* Glass effect enhancements for dark mode */
+[data-theme="dark"] .glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Special glow effects for interactive elements */
+[data-theme="dark"] .metric-card:hover .metric-value {
+  text-shadow: 0 0 10px currentColor;
+}
+
+[data-theme="dark"] .ticket-card:hover .ticket-title {
+  text-shadow: 0 0 5px var(--text-primary);
+}
+
+[data-theme="dark"] .score-badge:hover {
+  transform: scale(1.05);
+  transition: var(--transition-base);
+}
+
+/* Enhanced animations for dark mode */
+[data-theme="dark"] .fade-in {
+  animation: darkFadeIn 0.3s ease-out;
+}
+
+@keyframes darkFadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+[data-theme="dark"] .slide-in {
+  animation: darkSlideIn 0.3s ease-out;
+}
+
+@keyframes darkSlideIn {
+  from { 
+    opacity: 0; 
+    transform: translateX(-20px);
+    filter: blur(2px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+/* Particle effect for background */
+[data-theme="dark"] body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.05), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.08), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.03), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.06), transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  z-index: -1;
+  opacity: 0.3;
+  animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
