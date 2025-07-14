@@ -138,7 +138,7 @@ def generate_mock_data() -> AnalysisResult:
         )
     ]
     
-    executive_summary = \"\"\"**Strategic Health Assessment: 67/100**
+    executive_summary = """**Strategic Health Assessment: 67/100**
 
 Our current sprint shows mixed strategic alignment with several areas requiring immediate attention. While we have strong core value initiatives (3 tickets, 38%), we're also investing significant effort in distractions that don't serve our users.
 
@@ -154,7 +154,7 @@ Our current sprint shows mixed strategic alignment with several areas requiring 
 
 **Bottom Line**: We're building meaningful features but getting distracted by nice-to-haves. The team needs to recommit to user-centric outcomes over feature completeness.
 
-*Are we building what matters?*\"\"\"
+*Are we building what matters?*"""
 
     return AnalysisResult(
         status="completed",

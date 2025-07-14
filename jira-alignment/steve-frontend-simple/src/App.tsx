@@ -109,12 +109,13 @@ function App() {
   const [expandedTickets, setExpandedTickets] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-  const [chartTooltip, setChartTooltip] = useState<{ visible: boolean; x: number; y: number; tickets: Ticket[]; title: string }>({
+  const [chartTooltip, setChartTooltip] = useState<{ visible: boolean; x: number; y: number; tickets: Ticket[]; title: string; persistent?: boolean }>({
     visible: false,
     x: 0,
     y: 0,
     tickets: [],
-    title: ''
+    title: '',
+    persistent: false
   });
   const [copiedSummary, setCopiedSummary] = useState(false);
   const [showAgentSettings, setShowAgentSettings] = useState(false);
@@ -391,15 +392,6 @@ function App() {
               <span className="settings-indicator" />
             </motion.button>
             
-            <select 
-              className="mode-select glass"
-              value={mode}
-              onChange={(e) => setMode(e.target.value)}
-            >
-              <option value="execution">Execution Mode</option>
-              <option value="strategy">Strategy Mode</option>
-              <option value="full_review">Full Review</option>
-            </select>
             
             <motion.button
               className="analyze-button"
@@ -600,14 +592,14 @@ function App() {
                       </motion.button>
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={250}>
+                  <ResponsiveContainer width="100%" height={140}>
                     <PieChart>
                       <Pie
                         data={getCategoryData(result.tickets)}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        outerRadius={80}
+                        outerRadius={45}
                         fill="#8884d8"
                         dataKey="value"
                       >
@@ -630,7 +622,22 @@ function App() {
                             }}
                             onMouseLeave={() => {
                               setHoveredCategory(null);
-                              setChartTooltip({ ...chartTooltip, visible: false });
+                              if (!chartTooltip.persistent) {
+                                setChartTooltip({ ...chartTooltip, visible: false });
+                              }
+                            }}
+                            onClick={(e) => {
+                              console.log('Pie chart clicked!', entry.category);
+                              const categoryTickets = result.tickets.filter(t => t.category === entry.category);
+                              const rect = (e.target as any).getBoundingClientRect();
+                              setChartTooltip({
+                                visible: true,
+                                x: rect.right + 10,
+                                y: rect.top,
+                                tickets: categoryTickets.slice(0, 8),
+                                title: `${entry.name} (${categoryTickets.length} tickets)`,
+                                persistent: true
+                              });
                             }}
                           />
                         ))}
@@ -676,7 +683,7 @@ function App() {
                       </motion.button>
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={250}>
+                  <ResponsiveContainer width="100%" height={140}>
                     <BarChart data={getScoreDistribution(result.tickets)}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                       <XAxis dataKey="range" />
@@ -722,85 +729,6 @@ function App() {
                 </motion.div>
               </div>
 
-              {/* Executive Summary */}
-              <motion.div 
-                className="summary-card glass"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
-                whileHover={{ y: -2 }}
-              >
-                <div className="summary-header">
-                  <h2>Executive Summary</h2>
-                  <div className="summary-actions">
-                    <motion.button 
-                      className="summary-action-btn"
-                      onClick={copySummaryToClipboard}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {copiedSummary ? <Check style={{ width: 16, height: 16 }} /> : <Copy style={{ width: 16, height: 16 }} />}
-                    </motion.button>
-                    <motion.button 
-                      className="summary-action-btn"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Share2 style={{ width: 16, height: 16 }} />
-                    </motion.button>
-                    <motion.button 
-                      className="summary-action-btn"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Download style={{ width: 16, height: 16 }} />
-                    </motion.button>
-                  </div>
-                </div>
-                <div className="summary-content">
-                  {result.executiveSummary.split('\n').map((paragraph, index) => {
-                    if (paragraph.trim().startsWith('•')) {
-                      return (
-                        <motion.p 
-                          key={index} 
-                          className="summary-bullet"
-                          initial={{ x: -20, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ delay: 0.8 + index * 0.05 }}
-                        >
-                          {paragraph}
-                        </motion.p>
-                      );
-                    } else if (paragraph.trim().includes('Are we building what matters?')) {
-                      return (
-                        <motion.p 
-                          key={index} 
-                          className="summary-insight"
-                          initial={{ scale: 0.95, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.9 + index * 0.05 }}
-                        >
-                          {paragraph}
-                        </motion.p>
-                      );
-                    } else if (paragraph.trim()) {
-                      return (
-                        <motion.p 
-                          key={index} 
-                          className="summary-paragraph"
-                          initial={{ y: 10, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ delay: 0.8 + index * 0.05 }}
-                        >
-                          {paragraph}
-                        </motion.p>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              </motion.div>
-
               {/* Ticket Analysis */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
@@ -821,22 +749,25 @@ function App() {
                       />
                     </div>
                     
-                    <select 
-                      className="sort-select glass"
-                      value={`${sortBy}-${sortOrder}`}
-                      onChange={(e) => {
-                        const [newSortBy, newSortOrder] = e.target.value.split('-') as ['score' | 'key' | 'category', 'asc' | 'desc'];
-                        setSortBy(newSortBy);
-                        setSortOrder(newSortOrder);
-                      }}
-                    >
-                      <option value="score-desc">Score (High to Low)</option>
-                      <option value="score-asc">Score (Low to High)</option>
-                      <option value="key-asc">Key (A to Z)</option>
-                      <option value="key-desc">Key (Z to A)</option>
-                      <option value="category-desc">Category (Best First)</option>
-                      <option value="category-asc">Category (Worst First)</option>
-                    </select>
+                    <div className="modern-select-wrapper">
+                      <select 
+                        className="modern-select"
+                        value={`${sortBy}-${sortOrder}`}
+                        onChange={(e) => {
+                          const [newSortBy, newSortOrder] = e.target.value.split('-') as ['score' | 'key' | 'category', 'asc' | 'desc'];
+                          setSortBy(newSortBy);
+                          setSortOrder(newSortOrder);
+                        }}
+                      >
+                        <option value="score-desc">Score (High to Low)</option>
+                        <option value="score-asc">Score (Low to High)</option>
+                        <option value="key-asc">Key (A to Z)</option>
+                        <option value="key-desc">Key (Z to A)</option>
+                        <option value="category-desc">Category (Best First)</option>
+                        <option value="category-asc">Category (Worst First)</option>
+                      </select>
+                      <ChevronDown className="select-arrow" />
+                    </div>
                     
                     <motion.button
                       className="filter-button glass"
@@ -1009,6 +940,85 @@ function App() {
                   </AnimatePresence>
                 </div>
               </motion.div>
+
+              {/* Executive Summary */}
+              <motion.div 
+                className="summary-card glass"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
+                whileHover={{ y: -2 }}
+              >
+                <div className="summary-header">
+                  <h2>Executive Summary</h2>
+                  <div className="summary-actions">
+                    <motion.button 
+                      className="summary-action-btn"
+                      onClick={copySummaryToClipboard}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {copiedSummary ? <Check style={{ width: 16, height: 16 }} /> : <Copy style={{ width: 16, height: 16 }} />}
+                    </motion.button>
+                    <motion.button 
+                      className="summary-action-btn"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Share2 style={{ width: 16, height: 16 }} />
+                    </motion.button>
+                    <motion.button 
+                      className="summary-action-btn"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Download style={{ width: 16, height: 16 }} />
+                    </motion.button>
+                  </div>
+                </div>
+                <div className="summary-content">
+                  {result.executiveSummary.split('\n').map((paragraph, index) => {
+                    if (paragraph.trim().startsWith('•')) {
+                      return (
+                        <motion.p 
+                          key={index} 
+                          className="summary-bullet"
+                          initial={{ x: -20, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 1.0 + index * 0.05 }}
+                        >
+                          {paragraph}
+                        </motion.p>
+                      );
+                    } else if (paragraph.trim().includes('Are we building what matters?')) {
+                      return (
+                        <motion.p 
+                          key={index} 
+                          className="summary-insight"
+                          initial={{ scale: 0.95, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 1.1 + index * 0.05 }}
+                        >
+                          {paragraph}
+                        </motion.p>
+                      );
+                    } else if (paragraph.trim()) {
+                      return (
+                        <motion.p 
+                          key={index} 
+                          className="summary-paragraph"
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ delay: 1.0 + index * 0.05 }}
+                        >
+                          {paragraph}
+                        </motion.p>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1135,18 +1145,28 @@ function App() {
       {/* Chart Tooltip */}
       {chartTooltip.visible && (
         <motion.div
-          className="chart-tooltip"
+          className={`chart-tooltip ${chartTooltip.persistent ? 'persistent' : ''}`}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           style={{
             position: 'fixed',
             left: Math.min(chartTooltip.x, window.innerWidth - 320),
             top: Math.min(chartTooltip.y, window.innerHeight - 400),
-            pointerEvents: 'none'
+            pointerEvents: chartTooltip.persistent ? 'auto' : 'none'
           }}
         >
           <div className="chart-tooltip-header">
             {chartTooltip.title}
+            {chartTooltip.persistent && (
+              <motion.button
+                className="tooltip-close-btn"
+                onClick={() => setChartTooltip({ ...chartTooltip, visible: false, persistent: false })}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X style={{ width: 14, height: 14 }} />
+              </motion.button>
+            )}
           </div>
           <div className="chart-tooltip-tickets">
             {chartTooltip.tickets.map((ticket) => (
@@ -1155,9 +1175,9 @@ function App() {
                 <div className="tooltip-ticket-summary">{ticket.summary}</div>
               </div>
             ))}
-            {chartTooltip.tickets.length === 5 && (
+            {chartTooltip.tickets.length >= 5 && (
               <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.5rem' }}>
-                Showing top 5 tickets
+                {chartTooltip.persistent ? 'Showing top 8 tickets' : 'Showing top 5 tickets'}
               </div>
             )}
           </div>

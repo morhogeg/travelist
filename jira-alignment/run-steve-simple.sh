@@ -10,7 +10,7 @@ lsof -ti:5173 | xargs kill -9 2>/dev/null
 # Start backend with real STEVE integration
 echo "Starting backend API..."
 cd steve-frontend-api
-python main_simple_real.py &
+python3 main_simple_real.py &
 BACKEND_PID=$!
 
 # Wait for backend to start
