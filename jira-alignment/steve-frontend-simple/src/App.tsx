@@ -1107,12 +1107,12 @@ function App() {
                     // Check if this is a special paragraph (Bottom Line or intro)
                     const cleanParagraph = trimmed.replace(/\*\*/g, '');
                     const isBottomLine = trimmed.toLowerCase().includes('bottom line');
-                    const isHealthScore = trimmed.includes('Strategic Health Assessment:');
+                    const isHealthScore = trimmed.includes('Strategic Health Assessment');
                     const isIntro = (index === 0 && !isHealthScore) || (index === 1 && isHealthScore) || (index < 5 && !trimmed.includes(':') && !trimmed.startsWith('•') && !trimmed.startsWith('-') && !isHealthScore);
                     
                     // Handle Strategic Health Assessment combined with intro
                     if (isHealthScore) {
-                      const scoreMatch = trimmed.match(/Strategic Health Assessment:\s*(\d+)\/100/);
+                      const scoreMatch = trimmed.match(/Strategic Health Assessment:?\s*(\d+)\/100/);
                       const score = scoreMatch ? scoreMatch[1] : '0';
                       
                       // Get the next paragraph (intro text)
@@ -1140,13 +1140,26 @@ function App() {
                             <p>{introText}</p>
                           </motion.div>
                         );
+                      } else {
+                        // If no intro text found, just show the score as a heading
+                        return (
+                          <motion.h3 
+                            key={index}
+                            className="summary-heading"
+                            initial={{ y: 10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 1.0 + index * 0.05 }}
+                          >
+                            {cleanParagraph}
+                          </motion.h3>
+                        );
                       }
                     }
                     
                     // Skip the intro paragraph if it was already combined with health score
-                    if (index > 0 && result.executiveSummary.split('\n')[index - 1].includes('Strategic Health Assessment:')) {
+                    if (index > 0 && result.executiveSummary.split('\n')[index - 1].includes('Strategic Health Assessment')) {
                       const trimmedPrev = result.executiveSummary.split('\n')[index - 1].trim();
-                      if (trimmedPrev.includes('Strategic Health Assessment:') && isIntro) {
+                      if (trimmedPrev.includes('Strategic Health Assessment') && isIntro) {
                         return null;
                       }
                     }
