@@ -854,6 +854,8 @@ def calculate_ticket_alignment_scores(context_data: Dict[str, str]) -> List[Dict
         
         alignment = {
             'ticket_key': ticket_key,
+            'summary': ticket['summary'],  # Add ticket summary for frontend display
+            'description': ticket['description'],  # Add description too
             'score': round(max_score, 1),
             'category': category,
             'rationale': rationale,
