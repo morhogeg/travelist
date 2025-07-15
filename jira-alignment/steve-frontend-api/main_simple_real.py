@@ -8,23 +8,37 @@ import os
 import sys
 import json
 import asyncio
+import subprocess
 from datetime import datetime
 from typing import Dict, List, Optional
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+from dotenv import load_dotenv
 
 # Add the steve directory to the Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'steve'))
+steve_dir = os.path.join(os.path.dirname(__file__), '..', 'steve')
+sys.path.append(steve_dir)
+
+# Change working directory to steve so config files can be found
+os.chdir(steve_dir)
+
+# Load environment variables from steve/.env
+load_dotenv('.env')
 
 try:
-    from steve_main import run_steve_analysis
-    from config.config import Config
+    from crew_steve import run_steve as crew_main
+    from core.schemas import ReviewMode
+    from core.jira_client import JiraClient
+    from utils.logger import get_logger
+    logger = get_logger(__name__)
+    STEVE_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Could not import STEVE backend: {e}")
     print("Running in mock mode...")
-    run_steve_analysis = None
+    STEVE_AVAILABLE = False
+    logger = None
 
 app = FastAPI(title="STEVE Frontend API", version="1.0.0")
 
@@ -165,46 +179,167 @@ Our current sprint shows mixed strategic alignment with several areas requiring 
     )
 
 async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
-    """Run real STEVE analysis if backend is available"""
-    if run_steve_analysis is None:
+    """Run real STEVE analysis using the crew_steve backend"""
+    if not STEVE_AVAILABLE:
         # Fallback to mock data if backend unavailable
+        print("STEVE backend not available, using mock data")
         return generate_mock_data()
     
     try:
-        # Configure STEVE based on request
-        config = Config()
-        config.MODE = request.mode
-        if request.project:
-            config.PROJECT_KEY = request.project
-            
-        # Run STEVE analysis
+        # Get project key from env or request
+        project_key = request.project or os.getenv("JIRA_PROJECT_KEY", "PROJ")
+        
+        print(f"Running real STEVE analysis for project: {project_key}, mode: {request.mode}")
+        
+        # Run STEVE analysis using crew_steve
         result = await asyncio.get_event_loop().run_in_executor(
-            None, run_steve_analysis, config
+            None, 
+            lambda: crew_main(
+                review_mode=request.mode,
+                project_key=project_key,
+                test_mode=False,
+                dry_run=True  # Don't update Jira from the web interface
+            )
         )
         
         # Convert STEVE result to frontend format
         tickets = []
-        for ticket_data in result.get('tickets', []):
+        
+        # Extract alignments from the result
+        alignments = result.get('alignments', [])
+        for alignment in alignments:
+            ticket_key = alignment.get('ticket_key', '')
+            score = alignment.get('score', 0)
+            
+            # Determine category based on score
+            if score >= 90:
+                category = "core_value"
+            elif score >= 60:
+                category = "strategic_enabler"
+            elif score >= 40:
+                category = "drift"
+            else:
+                category = "distraction"
+            
             tickets.append(Ticket(
-                key=ticket_data.get('key', ''),
-                summary=ticket_data.get('summary', ''),
-                description=ticket_data.get('description', ''),
-                alignmentScore=ticket_data.get('alignment_score', 0),
-                category=ticket_data.get('category', 'drift'),
-                rationale=ticket_data.get('rationale', ''),
-                suggestedSummary=ticket_data.get('suggested_summary'),
-                suggestedDescription=ticket_data.get('suggested_description')
+                key=ticket_key,
+                summary=alignment.get('summary', ''),
+                description=alignment.get('description', ''),
+                alignmentScore=int(score),
+                category=category,
+                rationale=alignment.get('rationale', ''),
+                suggestedSummary=alignment.get('suggested_summary'),
+                suggestedDescription=alignment.get('suggested_description')
             ))
+        
+        # Extract executive summary
+        executive_summary = result.get('executive_narrative', '')
+        
+        # If no executive narrative, build a comprehensive summary
+        if not executive_summary:
+            summary_data = result.get('summary', {})
+            total_tickets = summary_data.get('total_tickets', len(alignments))
+            avg_score = summary_data.get('average_alignment_score', 0)
+            breakdown = summary_data.get('alignment_breakdown', {})
+            recommendations = summary_data.get('recommendations', [])
+            
+            # Calculate percentages
+            core_value_pct = (breakdown.get('core_value', 0) / total_tickets * 100) if total_tickets > 0 else 0
+            strategic_pct = (breakdown.get('strategic_enabler', 0) / total_tickets * 100) if total_tickets > 0 else 0
+            drift_pct = (breakdown.get('drift', 0) / total_tickets * 100) if total_tickets > 0 else 0
+            distraction_pct = (breakdown.get('distraction', 0) / total_tickets * 100) if total_tickets > 0 else 0
+            
+            # Determine health status
+            if avg_score >= 75:
+                health_status = "Strong Strategic Alignment"
+                health_emoji = "🟢"
+            elif avg_score >= 60:
+                health_status = "Moderate Alignment - Attention Needed"
+                health_emoji = "🟡"
+            elif avg_score >= 40:
+                health_status = "Significant Drift Detected"
+                health_emoji = "🟠"
+            else:
+                health_status = "Critical Misalignment"
+                health_emoji = "🔴"
+            
+            executive_summary = f"""**Strategic Health Assessment: {avg_score:.0f}/100 {health_emoji}**
+
+Our current sprint analysis of {total_tickets} tickets reveals {health_status.lower()}.
+
+**Key Insights:**
+• **Core Value Focus**: {core_value_pct:.0f}% of work directly advances strategic goals ({breakdown.get('core_value', 0)} tickets)
+• **Strategic Support**: {strategic_pct:.0f}% provides foundational value ({breakdown.get('strategic_enabler', 0)} tickets)
+• **Drift Warning**: {drift_pct:.0f}% lacks clear strategic connection ({breakdown.get('drift', 0)} tickets)
+• **Distraction Alert**: {distraction_pct:.0f}% actively diverts from priorities ({breakdown.get('distraction', 0)} tickets)
+
+**Performance Highlights:**
+
+• Average alignment score of {avg_score:.0f}/100 {"exceeds" if avg_score >= 70 else "falls below"} target threshold
+• {"Strong" if core_value_pct >= 60 else "Weak"} concentration on high-impact initiatives
+• {"Minimal" if distraction_pct <= 15 else "Concerning level of"} resource allocation to non-strategic work
+
+**Immediate Recommendations:**
+
+"""
+            
+            # Add recommendations if available
+            if recommendations:
+                count = 0
+                for rec in recommendations:
+                    # Skip recommendation if it looks like a header (ends with colon or contains numbered subheading)
+                    rec_clean = rec.strip()
+                    
+                    # Skip headers and numbered items
+                    if (rec_clean.endswith(':') or 
+                        'Sprint:' in rec_clean or
+                        rec_clean.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.'))):
+                        continue
+                    
+                    # Remove any leading numbers/bullets
+                    rec_clean = rec_clean.lstrip('0123456789.-• ')
+                    
+                    executive_summary += f"• {rec_clean}\n"
+                    count += 1
+                    if count >= 5:  # Show up to 5 recommendations
+                        break
+            else:
+                # Default recommendations based on scores
+                if avg_score < 60:
+                    executive_summary += "• Refocus sprint planning on core strategic principles\n"
+                    executive_summary += "• Review and realign drift tickets with business objectives\n"
+                    executive_summary += "• Consider deferring or removing distraction items\n"
+                    executive_summary += "• Establish weekly alignment reviews to catch drift early\n"
+                    executive_summary += "• Create strategic principle cheat sheet for ticket creation\n"
+                elif avg_score < 75:
+                    executive_summary += "• Elevate strategic enablers to core value status where possible\n"
+                    executive_summary += "• Clarify strategic connections for drift tickets\n"
+                    executive_summary += "• Maintain momentum on high-scoring initiatives\n"
+                    executive_summary += "• Share alignment best practices from top performers\n"
+                    executive_summary += "• Consider strategic value in sprint planning discussions\n"
+                else:
+                    executive_summary += "• Scale successful patterns across more tickets\n"
+                    executive_summary += "• Document strategic wins for team learning\n"
+                    executive_summary += "• Continue excellence in strategic alignment\n"
+                    executive_summary += "• Mentor other teams on alignment best practices\n"
+                    executive_summary += "• Celebrate and showcase high-scoring initiatives\n"
+            
+            executive_summary += f"""
+**Bottom Line**: {"We're on track with strong strategic focus. Keep this momentum!" if avg_score >= 70 else "Time to realign our efforts with what truly matters for our users and business."}"""
             
         return AnalysisResult(
             status="completed",
             progress=100,
             tickets=tickets,
-            executiveSummary=result.get('executive_summary', ''),
+            executiveSummary=executive_summary,
             timestamp=datetime.now().isoformat()
         )
         
     except Exception as e:
+        print(f"Analysis error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
         return AnalysisResult(
             status="error",
             progress=0,
@@ -220,7 +355,8 @@ async def root():
     return {
         "message": "STEVE Frontend API is running",
         "version": "1.0.0",
-        "backend_available": run_steve_analysis is not None
+        "backend_available": STEVE_AVAILABLE,
+        "jira_project": os.getenv("JIRA_PROJECT_KEY", "Not configured")
     }
 
 @app.post("/analyze", response_model=AnalysisResult)

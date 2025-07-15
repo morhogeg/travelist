@@ -25,11 +25,11 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ### 🌐 Web Dashboard (Recommended)
 ```bash
-# 1. Clone and install
+# 1. Clone the repository
 git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
-# 2. Launch complete STEVE system (backend + frontend)
-./run-steve-simple.sh
+# 2. Launch the web interface
+./run-web.sh
 ```
 
 **That's it!** Open http://localhost:5173 to access the modern web interface with:
@@ -41,18 +41,28 @@ git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
 ### 🖥️ Command Line Interface
 ```bash
-# 1. Clone and install  
+# 1. Clone the repository (if not already done)
 git clone https://github.com/morhogeg/STEVE.git && cd STEVE
-python -m venv steve-env && source steve-env/bin/activate
-pip install -r requirements.txt
 
-# 2. Test with mock data (safe)
-python3 steve.py --mode execution --test
+# 2. Configure your .env file with Jira credentials (see Configuration section)
 
-# 3. Configure your .env file with Jira credentials
+# 3. Run CLI analysis
+./run-cli.sh --mode execution
+```
 
-# 4. Run complete strategic analysis
-python3 steve.py --mode execution
+**Quick CLI Examples:**
+```bash
+# Test with mock data (no Jira connection needed)
+./run-cli.sh --test
+
+# Analyze current sprint and update Jira
+./run-cli.sh --mode execution
+
+# Full project review with sorted results
+./run-cli.sh --mode full_review --sorted
+
+# Dry run without updating Jira
+./run-cli.sh --mode strategy --dry-run
 ```
 
 **CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.

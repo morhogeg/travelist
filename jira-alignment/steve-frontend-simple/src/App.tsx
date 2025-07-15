@@ -199,7 +199,7 @@ function App() {
     try {
       const response = await axios.post(`${API_URL}/analyze`, {
         mode,
-        project: 'PROJ-123', // This should be configurable
+        project: null, // Let backend use the project from .env file
         principles: []
       });
       
@@ -682,8 +682,8 @@ function App() {
                       </motion.button>
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={getScoreDistribution(result.tickets)}>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={getScoreDistribution(result.tickets)} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                       <XAxis dataKey="range" />
                       <YAxis />
@@ -992,24 +992,40 @@ function App() {
                     // Handle bullet points
                     if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
                       const cleanText = trimmed.replace(/^[•-]\s*/, '').replace(/\*\*/g, '');
-                      const bulletIndex = result.executiveSummary.split('\n')
-                        .filter(line => line.trim().startsWith('•') || line.trim().startsWith('-'))
-                        .indexOf(paragraph) + 1;
-                      
-                      // Check if this is under "Immediate Recommendations" section
                       const lines = result.executiveSummary.split('\n');
-                      let isRecommendation = false;
+                      
+                      // Find which section this bullet belongs to
+                      let currentSection = '';
+                      let sectionStartIndex = 0;
                       for (let i = index - 1; i >= 0; i--) {
                         const lineContent = lines[i].trim().toLowerCase();
                         if (lineContent.includes('immediate recommendations') || lineContent.includes('recommendations:')) {
-                          isRecommendation = true;
+                          currentSection = 'recommendations';
+                          sectionStartIndex = i + 1;
+                          break;
+                        }
+                        if (lineContent.includes('performance highlights') || lineContent.includes('highlights:')) {
+                          currentSection = 'performance';
+                          sectionStartIndex = i + 1;
                           break;
                         }
                         if (lineContent.includes('key insights') || lineContent.includes('insights:')) {
-                          isRecommendation = false;
+                          currentSection = 'insights';
+                          sectionStartIndex = i + 1;
                           break;
                         }
                       }
+                      
+                      // Calculate bullet index within the current section
+                      let bulletIndex = 1;
+                      for (let i = sectionStartIndex; i < index; i++) {
+                        const line = lines[i].trim();
+                        if (line.startsWith('•') || line.startsWith('-')) {
+                          bulletIndex++;
+                        }
+                      }
+                      
+                      const isRecommendation = currentSection === 'recommendations';
                       
                       if (isRecommendation) {
                         // Checkbox for recommendations
