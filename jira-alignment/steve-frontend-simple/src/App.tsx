@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -44,7 +44,7 @@ import {
   SortDesc
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
-import './App.modern.css';
+import './App.modern2.css';
 import './App.darkmode-refined.css';
 import './App.score-colors.css';
 import './App.darkmode-final.css';
@@ -627,7 +627,6 @@ function App() {
                               }
                             }}
                             onClick={(e) => {
-                              console.log('Pie chart clicked!', entry.category);
                               const categoryTickets = result.tickets.filter(t => t.category === entry.category);
                               const rect = (e.target as any).getBoundingClientRect();
                               setChartTooltip({
@@ -683,7 +682,7 @@ function App() {
                       </motion.button>
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={140}>
+                  <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={getScoreDistribution(result.tickets)}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                       <XAxis dataKey="range" />
@@ -942,14 +941,14 @@ function App() {
               </motion.div>
 
               {/* Executive Summary */}
-              <motion.div 
-                className="summary-card glass"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
-                whileHover={{ y: -2 }}
-              >
-                <div className="summary-header">
+              {result.executiveSummary && (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                  style={{ marginTop: '2rem' }}
+                >
+                <div className="tickets-header">
                   <h2>Executive Summary</h2>
                   <div className="summary-actions">
                     <motion.button 
@@ -976,33 +975,111 @@ function App() {
                     </motion.button>
                   </div>
                 </div>
-                <div className="summary-content">
+                
+                <motion.div 
+                  className="summary-card glass"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.95 }}
+                >
+                  <div className="summary-content">
                   {result.executiveSummary.split('\n').map((paragraph, index) => {
-                    if (paragraph.trim().startsWith('•')) {
+                    const trimmed = paragraph.trim();
+                    
+                    // Skip empty paragraphs
+                    if (!trimmed) return null;
+                    
+                    // Handle bullet points
+                    if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
+                      const cleanText = trimmed.replace(/^[•-]\s*/, '').replace(/\*\*/g, '');
+                      const bulletIndex = result.executiveSummary.split('\n')
+                        .filter(line => line.trim().startsWith('•') || line.trim().startsWith('-'))
+                        .indexOf(paragraph) + 1;
+                      
+                      // Check if this is under "Immediate Recommendations" section
+                      const lines = result.executiveSummary.split('\n');
+                      let isRecommendation = false;
+                      for (let i = index - 1; i >= 0; i--) {
+                        const lineContent = lines[i].trim().toLowerCase();
+                        if (lineContent.includes('immediate recommendations') || lineContent.includes('recommendations:')) {
+                          isRecommendation = true;
+                          break;
+                        }
+                        if (lineContent.includes('key insights') || lineContent.includes('insights:')) {
+                          isRecommendation = false;
+                          break;
+                        }
+                      }
+                      
+                      if (isRecommendation) {
+                        // Checkbox for recommendations
+                        const bulletId = `bullet-${index}`;
+                        return (
+                          <motion.div 
+                            key={index} 
+                            className="summary-bullet-item recommendation-item"
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: 1.0 + index * 0.05 }}
+                          >
+                            <label className="bullet-checkbox-wrapper">
+                              <input 
+                                type="checkbox" 
+                                id={bulletId}
+                                className="bullet-checkbox"
+                              />
+                              <div className="bullet-icon">
+                                <CheckCircle2 className="check-icon" />
+                              </div>
+                            </label>
+                            <span className="bullet-text">{cleanText}</span>
+                          </motion.div>
+                        );
+                      } else {
+                        // Numbers for key insights
+                        return (
+                          <motion.div 
+                            key={index} 
+                            className="summary-bullet-item insight-item"
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: 1.0 + index * 0.05 }}
+                          >
+                            <div className="bullet-icon numbered" style={{ 
+                              color: 'white', 
+                              opacity: 1, 
+                              background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 'bold',
+                              fontSize: '0.875rem'
+                            }}>{bulletIndex}</div>
+                            <span className="bullet-text">{cleanText}</span>
+                          </motion.div>
+                        );
+                      }
+                    }
+                    
+                    // Handle markdown-style headers (##, **text**)
+                    if (trimmed.startsWith('##') || (trimmed.startsWith('**') && trimmed.endsWith(':**'))) {
+                      const cleanHeading = trimmed.replace(/^##\s*/, '').replace(/\*\*/g, '').replace(/:/g, ''); // Remove markdown and colons
                       return (
-                        <motion.p 
+                        <motion.h3 
                           key={index} 
-                          className="summary-bullet"
-                          initial={{ x: -20, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
+                          className="summary-heading"
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: 1.0 + index * 0.05 }}
                         >
-                          {paragraph}
-                        </motion.p>
+                          {cleanHeading}
+                        </motion.h3>
                       );
-                    } else if (paragraph.trim().includes('Are we building what matters?')) {
-                      return (
-                        <motion.p 
-                          key={index} 
-                          className="summary-insight"
-                          initial={{ scale: 0.95, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 1.1 + index * 0.05 }}
-                        >
-                          {paragraph}
-                        </motion.p>
-                      );
-                    } else if (paragraph.trim()) {
+                    }
+                    
+                    // Handle bold text (**text**)
+                    if (trimmed.includes('**')) {
+                      const parts = trimmed.split(/\*\*(.*?)\*\*/g);
                       return (
                         <motion.p 
                           key={index} 
@@ -1011,17 +1088,126 @@ function App() {
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: 1.0 + index * 0.05 }}
                         >
-                          {paragraph}
+                          {parts.map((part, partIndex) => 
+                            partIndex % 2 === 1 ? (
+                              <span key={partIndex} className="summary-bold">{part}</span>
+                            ) : (
+                              part
+                            )
+                          )}
                         </motion.p>
                       );
                     }
-                    return null;
+                    
+                    // Skip "Are we building what matters?" line
+                    if (trimmed.includes('Are we building what matters?')) {
+                      return null;
+                    }
+                    
+                    // Check if this is a special paragraph (Bottom Line or intro)
+                    const cleanParagraph = trimmed.replace(/\*\*/g, '');
+                    const isBottomLine = trimmed.toLowerCase().includes('bottom line');
+                    const isHealthScore = trimmed.includes('Strategic Health Assessment:');
+                    const isIntro = (index === 0 && !isHealthScore) || (index === 1 && isHealthScore) || (index < 5 && !trimmed.includes(':') && !trimmed.startsWith('•') && !trimmed.startsWith('-') && !isHealthScore);
+                    
+                    // Handle Strategic Health Assessment combined with intro
+                    if (isHealthScore) {
+                      const scoreMatch = trimmed.match(/Strategic Health Assessment:\s*(\d+)\/100/);
+                      const score = scoreMatch ? scoreMatch[1] : '0';
+                      
+                      // Get the next paragraph (intro text)
+                      let introText = '';
+                      if (index + 1 < result.executiveSummary.split('\n').length) {
+                        const nextLine = result.executiveSummary.split('\n')[index + 1].trim();
+                        if (nextLine && !nextLine.includes(':') && !nextLine.startsWith('•') && !nextLine.startsWith('-')) {
+                          introText = nextLine.replace(/\*\*/g, '');
+                        }
+                      }
+                      
+                      if (introText) {
+                        return (
+                          <motion.div 
+                            key={index} 
+                            className="summary-intro-combined"
+                            initial={{ y: 10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 1.0 + index * 0.05 }}
+                          >
+                            <div className="health-score-badge">
+                              <span className="score-number">{score}</span>
+                              <span className="score-label">/100</span>
+                            </div>
+                            <p>{introText}</p>
+                          </motion.div>
+                        );
+                      }
+                    }
+                    
+                    // Skip the intro paragraph if it was already combined with health score
+                    if (index > 0 && result.executiveSummary.split('\n')[index - 1].includes('Strategic Health Assessment:')) {
+                      const trimmedPrev = result.executiveSummary.split('\n')[index - 1].trim();
+                      if (trimmedPrev.includes('Strategic Health Assessment:') && isIntro) {
+                        return null;
+                      }
+                    }
+                    
+                    if (isBottomLine) {
+                      return (
+                        <motion.div 
+                          key={index} 
+                          className="summary-bottom-line"
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ delay: 1.0 + index * 0.05, type: "spring", stiffness: 100 }}
+                          whileHover={{ scale: 1.01 }}
+                        >
+                          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                            <div className="bottom-line-icon">
+                              <Target style={{ width: 24, height: 24, position: 'relative', zIndex: 1 }} />
+                            </div>
+                            <div className="bottom-line-content">
+                              <h4>Bottom Line</h4>
+                              <p>{cleanParagraph.replace('Bottom Line:', '').trim()}</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    }
+                    
+                    if (isIntro && cleanParagraph.length > 50) {
+                      return (
+                        <motion.div 
+                          key={index} 
+                          className="summary-intro"
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ delay: 1.0 + index * 0.05 }}
+                        >
+                          <p>{cleanParagraph}</p>
+                        </motion.div>
+                      );
+                    }
+                    
+                    // Regular paragraphs
+                    return (
+                      <motion.p 
+                        key={index} 
+                        className="summary-paragraph"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 1.0 + index * 0.05 }}
+                      >
+                        {cleanParagraph}
+                      </motion.p>
+                    );
                   })}
-                </div>
+                  </div>
+                </motion.div>
               </motion.div>
+              )}
             </motion.div>
           )}
-        </AnimatePresence>
+          </AnimatePresence>
       </main>
       
       {/* Agent Settings Panel */}
@@ -1113,14 +1299,14 @@ function App() {
                       </div>
                       
                       <div className="form-group">
-                        <label className="toggle-label">
+                        <label className="toggle-label" style={{ justifyContent: 'flex-start', gap: '1rem' }}>
+                          <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>Agent Enabled</span>
                           <input
                             type="checkbox"
                             checked={agentSettings[selectedAgent].enabled}
                             onChange={(e) => updateAgentSettings(selectedAgent, { enabled: e.target.checked })}
                           />
                           <span className="toggle-switch" />
-                          <span>Agent Enabled</span>
                         </label>
                         <span className="form-hint">Disable to skip this agent during analysis</span>
                       </div>
