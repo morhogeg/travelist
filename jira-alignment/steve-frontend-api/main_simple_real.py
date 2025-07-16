@@ -243,11 +243,25 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
             breakdown = summary_data.get('alignment_breakdown', {})
             recommendations = summary_data.get('recommendations', [])
             
-            # Calculate percentages
+            # Calculate percentages and collect ticket keys by category
             core_value_pct = (breakdown.get('core_value', 0) / total_tickets * 100) if total_tickets > 0 else 0
             strategic_pct = (breakdown.get('strategic_enabler', 0) / total_tickets * 100) if total_tickets > 0 else 0
             drift_pct = (breakdown.get('drift', 0) / total_tickets * 100) if total_tickets > 0 else 0
             distraction_pct = (breakdown.get('distraction', 0) / total_tickets * 100) if total_tickets > 0 else 0
+            
+            # Collect ticket keys by category
+            tickets_by_category = {
+                'core_value': [],
+                'strategic_enabler': [],
+                'drift': [],
+                'distraction': []
+            }
+            
+            for alignment in alignments:
+                category = alignment.get('category', 'drift')
+                ticket_key = alignment.get('ticket_key', '')
+                if ticket_key and category in tickets_by_category:
+                    tickets_by_category[category].append(ticket_key)
             
             # Determine health status
             if avg_score >= 75:
@@ -268,10 +282,10 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
 Our current sprint analysis of {total_tickets} tickets reveals {health_status.lower()}.
 
 **Key Insights:**
-• **Core Value Focus**: {core_value_pct:.0f}% of work directly advances strategic goals ({breakdown.get('core_value', 0)} tickets)
-• **Strategic Support**: {strategic_pct:.0f}% provides foundational value ({breakdown.get('strategic_enabler', 0)} tickets)
-• **Drift Warning**: {drift_pct:.0f}% lacks clear strategic connection ({breakdown.get('drift', 0)} tickets)
-• **Distraction Alert**: {distraction_pct:.0f}% actively diverts from priorities ({breakdown.get('distraction', 0)} tickets)
+• **Core Value Focus**: {core_value_pct:.0f}% of work directly advances strategic goals ({breakdown.get('core_value', 0)} tickets) [[{', '.join(tickets_by_category['core_value'])}]]
+• **Strategic Support**: {strategic_pct:.0f}% provides foundational value ({breakdown.get('strategic_enabler', 0)} tickets) [[{', '.join(tickets_by_category['strategic_enabler'])}]]
+• **Drift Warning**: {drift_pct:.0f}% lacks clear strategic connection ({breakdown.get('drift', 0)} tickets) [[{', '.join(tickets_by_category['drift'])}]]
+• **Distraction Alert**: {distraction_pct:.0f}% actively diverts from priorities ({breakdown.get('distraction', 0)} tickets) [[{', '.join(tickets_by_category['distraction'])}]]
 
 **Performance Highlights:**
 

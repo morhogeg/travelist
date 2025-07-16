@@ -1525,6 +1525,55 @@ body {
   opacity: 1 !important;
 }
 
+/* Expandable Key Insights */
+.summary-bullet-item.expandable {
+  cursor: pointer;
+}
+
+.summary-bullet-item.expandable .expand-icon {
+  margin-left: auto;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.summary-bullet-item.expandable:hover .expand-icon {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+/* Ticket keys container */
+.ticket-keys-container {
+  overflow: hidden;
+}
+
+.ticket-key-badge {
+  transition: all 0.2s ease;
+}
+
+.ticket-key-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Light mode specific styling for ticket badges */
+[data-theme="light"] .ticket-key-badge {
+  background: var(--primary-color) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .ticket-key-badge:hover {
+  background: var(--primary-hover) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+[data-theme="light"] .ticket-keys-list {
+  background: var(--surface-secondary) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
 .summary-heading {
   color: var(--text-primary);
   font-size: 1.25rem;

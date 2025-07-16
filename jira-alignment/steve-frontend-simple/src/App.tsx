@@ -107,6 +107,7 @@ function App() {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedTickets, setExpandedTickets] = useState<Set<string>>(new Set());
+  const [expandedInsights, setExpandedInsights] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [chartTooltip, setChartTooltip] = useState<{ visible: boolean; x: number; y: number; tickets: Ticket[]; title: string; persistent?: boolean }>({
@@ -1052,27 +1053,106 @@ function App() {
                           </motion.div>
                         );
                       } else {
-                        // Numbers for key insights
+                        // Numbers for key insights - check if it's under Key Insights and has ticket data
+                        const isKeyInsight = currentSection === 'insights';
+                        
+                        // Extract ticket keys from [[...]] format
+                        const ticketMatch = cleanText.match(/\[\[(.*?)\]\]/);
+                        const ticketKeys = ticketMatch ? ticketMatch[1].split(', ').filter(key => key.trim()) : [];
+                        const displayText = cleanText.replace(/\s*\[\[.*?\]\]\s*/, ''); // Remove [[...]] from display
+                        
+                        const isExpanded = expandedInsights.has(bulletIndex);
+                        
                         return (
-                          <motion.div 
-                            key={index} 
-                            className="summary-bullet-item insight-item"
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 1.0 + index * 0.05 }}
-                          >
-                            <div className="bullet-icon numbered" style={{ 
-                              color: 'white', 
-                              opacity: 1, 
-                              background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontWeight: 'bold',
-                              fontSize: '0.875rem'
-                            }}>{bulletIndex}</div>
-                            <span className="bullet-text">{cleanText}</span>
-                          </motion.div>
+                          <div key={index}>
+                            <motion.div 
+                              className={`summary-bullet-item insight-item ${isKeyInsight && ticketKeys.length > 0 ? 'expandable' : ''}`}
+                              initial={{ x: -20, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ delay: 1.0 + index * 0.05 }}
+                              onClick={() => {
+                                if (isKeyInsight && ticketKeys.length > 0) {
+                                  const newExpanded = new Set(expandedInsights);
+                                  if (newExpanded.has(bulletIndex)) {
+                                    newExpanded.delete(bulletIndex);
+                                  } else {
+                                    newExpanded.add(bulletIndex);
+                                  }
+                                  setExpandedInsights(newExpanded);
+                                }
+                              }}
+                              style={{ cursor: isKeyInsight && ticketKeys.length > 0 ? 'pointer' : 'default' }}
+                            >
+                              <div className="bullet-icon numbered" style={{ 
+                                color: 'white', 
+                                opacity: 1, 
+                                background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 'bold',
+                                fontSize: '0.875rem'
+                              }}>{bulletIndex}</div>
+                              <span className="bullet-text">{displayText}</span>
+                              {isKeyInsight && ticketKeys.length > 0 && (
+                                <ChevronDown 
+                                  className={`expand-icon ${isExpanded ? 'expanded' : ''}`}
+                                  style={{ 
+                                    width: 16, 
+                                    height: 16, 
+                                    marginLeft: 'auto',
+                                    transition: 'transform 0.2s',
+                                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                                  }} 
+                                />
+                              )}
+                            </motion.div>
+                            <AnimatePresence>
+                              {isExpanded && ticketKeys.length > 0 && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="ticket-keys-container"
+                                  style={{ 
+                                    marginLeft: '2.5rem',
+                                    marginTop: '0.5rem',
+                                    marginBottom: '0.5rem',
+                                    overflow: 'hidden'
+                                  }}
+                                >
+                                  <div className="ticket-keys-list" style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem',
+                                    background: 'var(--surface-secondary)',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid var(--border-color)'
+                                  }}>
+                                    {ticketKeys.map((key, keyIndex) => (
+                                      <span 
+                                        key={keyIndex}
+                                        className="ticket-key-badge"
+                                        style={{
+                                          padding: '0.25rem 0.75rem',
+                                          background: 'var(--primary-color)',
+                                          color: 'white',
+                                          borderRadius: '1rem',
+                                          fontSize: '0.75rem',
+                                          fontWeight: '500',
+                                          fontFamily: 'monospace'
+                                        }}
+                                      >
+                                        {key}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
                         );
                       }
                     }
