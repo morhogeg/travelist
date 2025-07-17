@@ -41,7 +41,8 @@ import {
   ChevronRight,
   ArrowUpDown,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Ticket
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.modern2.css';
@@ -476,6 +477,40 @@ function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
+              {/* Navigation Bar */}
+              <motion.nav
+                className="section-nav glass"
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+              >
+                <div className="nav-inner">
+                  <a href="#metrics" className="nav-link" onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('metrics')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    <BarChart3 style={{ width: 16, height: 16 }} />
+                    <span>Analytics</span>
+                  </a>
+                  <a href="#tickets" className="nav-link" onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('tickets')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    <Ticket style={{ width: 16, height: 16 }} />
+                    <span>Tickets</span>
+                  </a>
+                  {result.executiveSummary && (
+                    <a href="#summary" className="nav-link" onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('summary')?.scrollIntoView({ behavior: 'smooth' });
+                    }}>
+                      <FileText style={{ width: 16, height: 16 }} />
+                      <span>Summary</span>
+                    </a>
+                  )}
+                </div>
+              </motion.nav>
+
               {result.error && (
                 <motion.div
                   className="error-banner"
@@ -488,7 +523,7 @@ function App() {
               )}
 
               {/* Key Metrics */}
-              <div className="metrics-grid">
+              <div id="metrics" className="metrics-grid">
                 <motion.div 
                   className="metric-card glass"
                   initial={{ scale: 0.9, opacity: 0 }}
@@ -573,7 +608,7 @@ function App() {
               </div>
 
               {/* Charts Section */}
-              <div className="charts-grid">
+              <div id="charts" className="charts-grid">
                 <motion.div 
                   className="chart-card glass"
                   initial={{ y: 20, opacity: 0 }}
@@ -593,14 +628,14 @@ function App() {
                       </motion.button>
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={140}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <PieChart>
                       <Pie
                         data={getCategoryData(result.tickets)}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        outerRadius={45}
+                        outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
                       >
@@ -731,6 +766,7 @@ function App() {
 
               {/* Ticket Analysis */}
               <motion.div
+                id="tickets"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.8 }}
@@ -832,18 +868,32 @@ function App() {
                   )}
                 </AnimatePresence>
 
-                <div className="tickets-grid">
-                  <AnimatePresence mode="popLayout">
-                  {filteredTickets.map((ticket, index) => (
-                    <motion.div
-                      key={ticket.key}
-                      className={`ticket-card glass ${ticket.category}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8 + Math.min(index * 0.05, 0.3), type: "spring", stiffness: 200 }}
-                      whileHover={{ y: -4 }}
-                      layout
-                    >
+                {/* Group tickets by category */}
+                {['core_value', 'strategic_enabler', 'drift', 'distraction'].map((category) => {
+                  const categoryTickets = filteredTickets.filter(ticket => ticket.category === category);
+                  if (categoryTickets.length === 0) return null;
+                  
+                  return (
+                    <div key={category} className="category-section">
+                      <div className="category-header">
+                        <div className="category-title">
+                          {getCategoryIcon(category)}
+                          <span>{CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}</span>
+                          <span className="category-count">({categoryTickets.length})</span>
+                        </div>
+                      </div>
+                      <div className="tickets-grid">
+                        <AnimatePresence mode="popLayout">
+                        {categoryTickets.map((ticket, index) => (
+                          <motion.div
+                            key={ticket.key}
+                            className={`ticket-card glass ${ticket.category}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 + Math.min(index * 0.05, 0.3), type: "spring", stiffness: 200 }}
+                            whileHover={{ y: -4 }}
+                            layout
+                          >
                       <div className="ticket-header">
                         <div className="ticket-meta">
                           <span className="ticket-key">{ticket.key}</span>
@@ -935,15 +985,19 @@ function App() {
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </motion.div>
-                  ))}
-                  </AnimatePresence>
-                </div>
+                          </motion.div>
+                        ))}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  );
+                })}
               </motion.div>
 
               {/* Executive Summary */}
               {result.executiveSummary && (
                 <motion.div
+                  id="summary"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.9 }}
