@@ -15,7 +15,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # Add the steve directory to the Python path
 steve_dir = os.path.join(os.path.dirname(__file__), '..', 'steve')
@@ -25,7 +25,7 @@ sys.path.append(steve_dir)
 os.chdir(steve_dir)
 
 # Load environment variables from steve/.env
-load_dotenv('.env')
+# load_dotenv('.env')
 
 try:
     from crew_steve import run_steve as crew_main
@@ -56,6 +56,7 @@ class AnalysisRequest(BaseModel):
     mode: str = "execution"
     project: Optional[str] = None
     principles: Optional[List[str]] = None
+    vision: Optional[str] = None
 
 class Ticket(BaseModel):
     key: str
@@ -398,6 +399,80 @@ async def analyze_tickets(request: AnalysisRequest, background_tasks: Background
     analysis_cache[analysis_id] = result
     
     return result
+
+class VisionRequest(BaseModel):
+    vision: dict
+    format: str = "yaml"
+
+@app.post("/vision")
+async def update_vision(request: VisionRequest):
+    """Update the product vision"""
+    try:
+        if request.format == "yaml":
+            # Save as principles.yaml
+            principles_path = os.path.join(os.path.dirname(__file__), '..', 'steve', 'config', 'principles.yaml')
+            os.makedirs(os.path.dirname(principles_path), exist_ok=True)
+            
+            import yaml
+            with open(principles_path, 'w') as f:
+                yaml.dump(request.vision, f, default_flow_style=False)
+        else:
+            # Save as vision.md for backward compatibility
+            vision_path = os.path.join(os.path.dirname(__file__), '..', 'steve', 'config', 'vision.md')
+            os.makedirs(os.path.dirname(vision_path), exist_ok=True)
+            
+            with open(vision_path, 'w') as f:
+                f.write(str(request.vision))
+        
+        return {"status": "success", "message": "Vision updated successfully"}
+    except Exception as e:
+        if logger:
+            logger.error(f"Failed to update vision: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/vision")
+async def get_vision():
+    """Get the current product vision"""
+    try:
+        # First try to load from principles.yaml
+        principles_path = os.path.join(os.path.dirname(__file__), '..', 'steve', 'config', 'principles.yaml')
+        
+        if os.path.exists(principles_path):
+            import yaml
+            with open(principles_path, 'r') as f:
+                principles_data = yaml.safe_load(f)
+            return {"vision": principles_data, "format": "yaml"}
+        
+        # Fallback to vision.md if it exists
+        vision_path = os.path.join(os.path.dirname(__file__), '..', 'steve', 'config', 'vision.md')
+        if os.path.exists(vision_path):
+            with open(vision_path, 'r') as f:
+                vision = f.read()
+            return {"vision": vision, "format": "markdown"}
+        
+        # Return default structure
+        return {
+            "vision": {
+                "principles": [
+                    {
+                        "name": "Define Your First Principle",
+                        "description": "Describe what this principle means for your product",
+                        "keywords": ["example", "keywords"],
+                        "weight": 1.0
+                    }
+                ],
+                "thresholds": {
+                    "core_value": 90,
+                    "strategic_enabler": 60,
+                    "drift": 40
+                }
+            },
+            "format": "yaml"
+        }
+    except Exception as e:
+        if logger:
+            logger.error(f"Failed to get vision: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/analysis/{analysis_id}", response_model=AnalysisResult)
 async def get_analysis(analysis_id: str):

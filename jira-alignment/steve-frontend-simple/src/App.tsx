@@ -42,7 +42,9 @@ import {
   ArrowUpDown,
   SortAsc,
   SortDesc,
-  Ticket
+  Ticket,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.modern2.css';
@@ -124,6 +126,12 @@ function App() {
   const [selectedAgent, setSelectedAgent] = useState<string>('ticketIngestor');
   const [sortBy, setSortBy] = useState<'score' | 'key' | 'category'>('score');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [settingsTab, setSettingsTab] = useState<'vision' | 'agents'>('vision');
+  const [productVision, setProductVision] = useState<any>(null);
+  const [visionFormat, setVisionFormat] = useState<'yaml' | 'markdown'>('yaml');
+  const [visionSaved, setVisionSaved] = useState(false);
+  const [editingVision, setEditingVision] = useState(false);
+  const [editedVision, setEditedVision] = useState<any>(null);
   const [agentSettings, setAgentSettings] = useState<AgentSettings>({
     ticketIngestor: {
       id: 'ticketIngestor',
@@ -187,6 +195,31 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    // Load vision from API
+    const loadVision = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/vision`);
+        console.log('Loaded vision:', response.data);
+        setProductVision(response.data.vision);
+        setVisionFormat(response.data.format || 'yaml');
+      } catch (error) {
+        console.error('Failed to load vision:', error);
+        // Set default vision structure
+        setProductVision({
+          principles: [],
+          thresholds: {
+            core_value: 90,
+            strategic_enabler: 60,
+            drift: 40
+          }
+        });
+      }
+    };
+    
+    loadVision();
+  }, []);
+
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -202,7 +235,8 @@ function App() {
       const response = await axios.post(`${API_URL}/analyze`, {
         mode,
         project: null, // Let backend use the project from .env file
-        principles: []
+        principles: [],
+        vision: productVision
       });
       
       setResult(response.data);
@@ -313,6 +347,82 @@ function App() {
     };
     setAgentSettings(newSettings);
     localStorage.setItem('steve-agent-settings', JSON.stringify(newSettings));
+  };
+
+  const startEditingVision = () => {
+    console.log('Starting edit vision, productVision:', productVision);
+    if (!productVision) {
+      console.error('Product vision is null!');
+      return;
+    }
+    // Ensure productVision has the required structure
+    const visionToEdit = {
+      principles: productVision.principles || [],
+      thresholds: productVision.thresholds || {
+        core_value: 90,
+        strategic_enabler: 60,
+        drift: 40
+      }
+    };
+    setEditingVision(true);
+    setEditedVision(JSON.parse(JSON.stringify(visionToEdit))); // Deep copy
+  };
+
+  const cancelEditingVision = () => {
+    setEditingVision(false);
+    setEditedVision(null);
+  };
+
+  const saveEditedVision = async () => {
+    try {
+      console.log('Saving edited vision:', editedVision);
+      await axios.post(`${API_URL}/vision`, { 
+        vision: editedVision, 
+        format: 'yaml' 
+      });
+      
+      setProductVision(editedVision);
+      setEditingVision(false);
+      setEditedVision(null);
+      setVisionSaved(true);
+      setTimeout(() => setVisionSaved(false), 3000);
+    } catch (error) {
+      console.error('Failed to save vision:', error);
+      alert('Failed to save vision. Please check the console for details.');
+    }
+  };
+
+  const updatePrinciple = (index: number, field: string, value: any) => {
+    const updated = { ...editedVision };
+    if (field === 'keywords' && typeof value === 'string') {
+      updated.principles[index][field] = value.split(',').map((k: string) => k.trim()).filter((k: string) => k);
+    } else {
+      updated.principles[index][field] = value;
+    }
+    setEditedVision(updated);
+  };
+
+  const addPrinciple = () => {
+    const updated = { ...editedVision };
+    updated.principles.push({
+      name: "New Principle",
+      description: "Describe this principle",
+      keywords: ["keyword1", "keyword2"],
+      weight: 1.0
+    });
+    setEditedVision(updated);
+  };
+
+  const removePrinciple = (index: number) => {
+    const updated = { ...editedVision };
+    updated.principles.splice(index, 1);
+    setEditedVision(updated);
+  };
+
+  const updateThreshold = (key: string, value: number) => {
+    const updated = { ...editedVision };
+    updated.thresholds[key] = value;
+    setEditedVision(updated);
   };
 
   const sortTickets = (tickets: Ticket[]) => {
@@ -1396,8 +1506,8 @@ function App() {
             >
               <div className="settings-header">
                 <div>
-                  <h2>Agent Configuration</h2>
-                  <p>Customize instructions for each STEVE agent</p>
+                  <h2>STEVE Configuration</h2>
+                  <p>Configure product vision and agent instructions</p>
                 </div>
                 <motion.button
                   onClick={() => setShowAgentSettings(false)}
@@ -1409,9 +1519,248 @@ function App() {
                 </motion.button>
               </div>
               
-              <div className="settings-content">
-                <div className="agent-list">
-                  {Object.values(agentSettings).map((agent) => (
+              <div className="settings-tabs">
+                <motion.button
+                  className={`settings-tab ${settingsTab === 'vision' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('vision')}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Target style={{ width: 16, height: 16 }} />
+                  <span>Product Vision</span>
+                </motion.button>
+                <motion.button
+                  className={`settings-tab ${settingsTab === 'agents' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('agents')}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Settings style={{ width: 16, height: 16 }} />
+                  <span>Agent Instructions</span>
+                </motion.button>
+              </div>
+              
+              <div className={`settings-content ${settingsTab === 'agents' ? 'agents-view' : ''}`}>
+                {(() => {
+                  console.log('Render check - settingsTab:', settingsTab, 'productVision:', productVision, 'editingVision:', editingVision, 'editedVision:', editedVision);
+                  return null;
+                })()}
+                {settingsTab === 'vision' && productVision ? (
+                  editingVision && editedVision ? (
+                    // Edit Mode
+                    <div className="vision-editor edit-mode">
+                      <div className="edit-header">
+                        <h3>Edit Product Vision</h3>
+                        <div className="edit-actions">
+                          <motion.button
+                            className="cancel-button"
+                            onClick={cancelEditingVision}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <X style={{ width: 16, height: 16 }} />
+                            <span>Cancel</span>
+                          </motion.button>
+                          <motion.button
+                            className="save-button"
+                            onClick={saveEditedVision}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {visionSaved ? (
+                              <>
+                                <Check style={{ width: 16, height: 16 }} />
+                                <span>Saved!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Save style={{ width: 16, height: 16 }} />
+                                <span>Save Changes</span>
+                              </>
+                            )}
+                          </motion.button>
+                        </div>
+                      </div>
+
+                      <div className="edit-content">
+                        <div className="edit-section">
+                          <div className="section-header">
+                            <h4>Principles</h4>
+                            <motion.button
+                              className="add-button"
+                              onClick={addPrinciple}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Plus style={{ width: 16, height: 16 }} />
+                              <span>Add Principle</span>
+                            </motion.button>
+                          </div>
+
+                          {editedVision.principles?.map((principle: any, index: number) => (
+                            <div key={index} className="edit-principle-card">
+                              <div className="principle-number">{index + 1}</div>
+                              <div className="edit-fields">
+                                <input
+                                  type="text"
+                                  value={principle.name}
+                                  onChange={(e) => updatePrinciple(index, 'name', e.target.value)}
+                                  placeholder="Principle Name"
+                                  className="principle-input"
+                                />
+                                <textarea
+                                  value={principle.description}
+                                  onChange={(e) => updatePrinciple(index, 'description', e.target.value)}
+                                  placeholder="Description"
+                                  className="principle-textarea"
+                                  rows={2}
+                                />
+                                <input
+                                  type="text"
+                                  value={principle.keywords?.join(', ')}
+                                  onChange={(e) => updatePrinciple(index, 'keywords', e.target.value)}
+                                  placeholder="Keywords (comma separated)"
+                                  className="principle-input"
+                                />
+                                <div className="weight-input-group">
+                                  <label>Weight:</label>
+                                  <input
+                                    type="number"
+                                    value={principle.weight}
+                                    onChange={(e) => updatePrinciple(index, 'weight', parseFloat(e.target.value))}
+                                    step="0.1"
+                                    min="0"
+                                    max="2"
+                                    className="weight-input"
+                                  />
+                                </div>
+                              </div>
+                              <motion.button
+                                className="remove-button"
+                                onClick={() => removePrinciple(index)}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                              >
+                                <Trash2 style={{ width: 16, height: 16 }} />
+                              </motion.button>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="edit-section">
+                          <h4>Alignment Thresholds</h4>
+                          <div className="thresholds-edit">
+                            <div className="threshold-input-group">
+                              <label>Core Value:</label>
+                              <input
+                                type="number"
+                                value={editedVision.thresholds?.core_value || 90}
+                                onChange={(e) => updateThreshold('core_value', parseInt(e.target.value))}
+                                min="0"
+                                max="100"
+                                className="threshold-input"
+                              />
+                            </div>
+                            <div className="threshold-input-group">
+                              <label>Strategic Enabler:</label>
+                              <input
+                                type="number"
+                                value={editedVision.thresholds?.strategic_enabler || 60}
+                                onChange={(e) => updateThreshold('strategic_enabler', parseInt(e.target.value))}
+                                min="0"
+                                max="100"
+                                className="threshold-input"
+                              />
+                            </div>
+                            <div className="threshold-input-group">
+                              <label>Drift:</label>
+                              <input
+                                type="number"
+                                value={editedVision.thresholds?.drift || 40}
+                                onChange={(e) => updateThreshold('drift', parseInt(e.target.value))}
+                                min="0"
+                                max="100"
+                                className="threshold-input"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Display Mode
+                  <div className="vision-editor">
+                    <div className="vision-header">
+                      <h3>Product Vision & Strategic Principles</h3>
+                      <p className="vision-subtitle">These principles guide how STEVE analyzes and categorizes your tickets</p>
+                    </div>
+                    
+                    <div className="principles-list">
+                      {productVision.principles?.map((principle: any, index: number) => (
+                        <motion.div
+                          key={index}
+                          className="principle-card"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <div className="principle-header">
+                            <div className="principle-number">{index + 1}</div>
+                            <div className="principle-content">
+                              <h4>{principle.name}</h4>
+                              <p>{principle.description}</p>
+                            </div>
+                            <div className="principle-weight">
+                              <span className="weight-label">Weight</span>
+                              <span className="weight-value">{principle.weight}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="principle-keywords">
+                            <span className="keywords-label">Keywords:</span>
+                            <div className="keywords-list">
+                              {principle.keywords?.map((keyword: string, kidx: number) => (
+                                <span key={kidx} className="keyword-tag">{keyword}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                    
+                    <div className="thresholds-section">
+                      <h4>Alignment Thresholds</h4>
+                      <div className="thresholds-grid">
+                        <div className="threshold-item">
+                          <div className="threshold-label">Core Value</div>
+                          <div className="threshold-value">{productVision.thresholds?.core_value || 90}+</div>
+                        </div>
+                        <div className="threshold-item">
+                          <div className="threshold-label">Strategic Enabler</div>
+                          <div className="threshold-value">{productVision.thresholds?.strategic_enabler || 60}+</div>
+                        </div>
+                        <div className="threshold-item">
+                          <div className="threshold-label">Drift</div>
+                          <div className="threshold-value">{productVision.thresholds?.drift || 40}+</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <motion.button
+                      className="edit-vision-button"
+                      onClick={startEditingVision}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Edit3 style={{ width: 16, height: 16 }} />
+                      <span>Edit Vision</span>
+                    </motion.button>
+                  </div>
+                  )
+                ) : (
+                  <>
+                    <div className="agent-list">
+                      {Object.values(agentSettings).map((agent) => (
                     <motion.div
                       key={agent.id}
                       className={`agent-item ${selectedAgent === agent.id ? 'selected' : ''}`}
@@ -1485,6 +1834,8 @@ function App() {
                     </>
                   )}
                 </div>
+                  </>
+                )}
               </div>
             </motion.div>
           </>
