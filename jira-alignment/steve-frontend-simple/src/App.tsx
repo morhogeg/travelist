@@ -266,11 +266,32 @@ function App() {
     setResult(null);
     
     try {
+      // Create a clean version of agentSettings without React components
+      const cleanAgentSettings = Object.entries(agentSettings).reduce((acc, [key, agent]) => {
+        acc[key] = {
+          id: agent.id,
+          name: agent.name,
+          description: agent.description,
+          instructions: agent.instructions,
+          enabled: agent.enabled,
+          color: agent.color
+          // Exclude icon field
+        };
+        return acc;
+      }, {} as any);
+      
+      console.log('Sending analyze request with:', {
+        mode,
+        project: null,
+        principles: [],
+        agentSettings: cleanAgentSettings
+      });
+      
       const response = await axios.post(`${API_URL}/analyze`, {
         mode,
         project: null, // Let backend use the project from .env file
         principles: [],
-        agentSettings: agentSettings
+        agentSettings: cleanAgentSettings
       });
       
       setResult(response.data);
@@ -418,7 +439,11 @@ function App() {
       return acc;
     }, {} as any);
     
-    localStorage.setItem('steve-agent-settings', JSON.stringify(settingsToSave));
+    try {
+      localStorage.setItem('steve-agent-settings', JSON.stringify(settingsToSave));
+    } catch (e) {
+      console.error('Error saving agent settings:', e);
+    }
   };
 
   const startEditingVision = () => {
@@ -437,7 +462,13 @@ function App() {
       }
     };
     setEditingVision(true);
-    setEditedVision(JSON.parse(JSON.stringify(visionToEdit))); // Deep copy
+    try {
+      setEditedVision(JSON.parse(JSON.stringify(visionToEdit))); // Deep copy
+    } catch (e) {
+      console.error('Error copying vision:', e);
+      // Fallback to simple copy
+      setEditedVision({ ...visionToEdit });
+    }
   };
 
   const cancelEditingVision = () => {
