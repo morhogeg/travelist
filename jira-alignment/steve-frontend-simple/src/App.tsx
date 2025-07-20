@@ -206,7 +206,26 @@ function App() {
   useEffect(() => {
     const savedSettings = localStorage.getItem('steve-agent-settings');
     if (savedSettings) {
-      setAgentSettings(JSON.parse(savedSettings));
+      const parsed = JSON.parse(savedSettings);
+      // Restore the icons based on agent IDs
+      const restoredSettings = Object.entries(parsed).reduce((acc, [key, agent]: [string, any]) => {
+        // Map icons back based on agent ID
+        const iconMap: { [key: string]: React.ReactNode } = {
+          ticketIngestor: <Database className="w-5 h-5" />,
+          alignmentEvaluator: <Scale className="w-5 h-5" />,
+          rewriteStrategist: <Edit3 className="w-5 h-5" />,
+          themeSynthesizer: <Lightbulb className="w-5 h-5" />,
+          founderVoice: <MessageSquare className="w-5 h-5" />
+        };
+        
+        acc[key] = {
+          ...agent,
+          icon: iconMap[key] || <Settings className="w-5 h-5" />
+        };
+        return acc;
+      }, {} as AgentSettings);
+      
+      setAgentSettings(restoredSettings);
     }
   }, []);
 
@@ -384,7 +403,22 @@ function App() {
       }
     };
     setAgentSettings(newSettings);
-    localStorage.setItem('steve-agent-settings', JSON.stringify(newSettings));
+    
+    // Create a serializable version without React components
+    const settingsToSave = Object.entries(newSettings).reduce((acc, [key, agent]) => {
+      acc[key] = {
+        id: agent.id,
+        name: agent.name,
+        description: agent.description,
+        instructions: agent.instructions,
+        enabled: agent.enabled,
+        color: agent.color
+        // Omit icon field as it contains React components
+      };
+      return acc;
+    }, {} as any);
+    
+    localStorage.setItem('steve-agent-settings', JSON.stringify(settingsToSave));
   };
 
   const startEditingVision = () => {
@@ -554,6 +588,25 @@ function App() {
               <Settings />
               <span className="settings-indicator" />
             </motion.button>
+            
+            {/* Development: Reset Setup Button */}
+            {process.env.NODE_ENV === 'development' && (
+              <motion.button
+                className="reset-setup-button"
+                onClick={() => {
+                  localStorage.removeItem('steve-setup-completed');
+                  localStorage.removeItem('steve-last-analysis');
+                  setShowInitialSetup(true);
+                  setSetupStep('welcome');
+                  setResult(null);
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Reset to initial setup"
+              >
+                <RefreshCw style={{ width: 16, height: 16 }} />
+              </motion.button>
+            )}
             
             
             {!showInitialSetup && (
