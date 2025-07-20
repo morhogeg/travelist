@@ -44,13 +44,18 @@ import {
   SortDesc,
   Ticket,
   Plus,
-  Trash2
+  Trash2,
+  Rocket,
+  Users,
+  Heart,
+  CheckCircle
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.modern2.css';
 import './App.darkmode-refined.css';
 import './App.score-colors.css';
 import './App.darkmode-final.css';
+import './App.setup.css';
 
 const API_URL = 'http://localhost:8000';
 
@@ -113,6 +118,8 @@ function App() {
   const [expandedInsights, setExpandedInsights] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [showInitialSetup, setShowInitialSetup] = useState(true);
+  const [setupStep, setSetupStep] = useState<'welcome' | 'vision' | 'agents' | 'ready'>('welcome');
   const [chartTooltip, setChartTooltip] = useState<{ visible: boolean; x: number; y: number; tickets: Ticket[]; title: string; persistent?: boolean }>({
     visible: false,
     x: 0,
@@ -186,6 +193,14 @@ function App() {
       setTheme(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
     }
+    
+    // Check if user has completed initial setup
+    const hasCompletedSetup = localStorage.getItem('steve-setup-completed');
+    const hasAnalysisResult = localStorage.getItem('steve-last-analysis');
+    
+    if (hasCompletedSetup === 'true' || hasAnalysisResult) {
+      setShowInitialSetup(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -240,6 +255,9 @@ function App() {
       });
       
       setResult(response.data);
+      
+      // Save that analysis has been completed
+      localStorage.setItem('steve-last-analysis', new Date().toISOString());
     } catch (error) {
       console.error('Analysis failed:', error);
       setResult({
@@ -253,6 +271,17 @@ function App() {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+  
+  const completeSetupAndAnalyze = async () => {
+    // Mark setup as completed
+    localStorage.setItem('steve-setup-completed', 'true');
+    
+    // Hide setup screen
+    setShowInitialSetup(false);
+    
+    // Start analysis
+    await handleAnalyze();
   };
 
   const getHealthScore = (tickets: Ticket[]) => {
@@ -518,31 +547,367 @@ function App() {
             </motion.button>
             
             
-            <motion.button
-              className="analyze-button"
-              onClick={handleAnalyze}
-              disabled={isAnalyzing}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  <span>Analyzing...</span>
-                </>
-              ) : (
-                <>
-                  <RefreshCw />
-                  <span>Analyze Tickets</span>
-                </>
-              )}
-            </motion.button>
+            {!showInitialSetup && (
+              <motion.button
+                className="analyze-button"
+                onClick={handleAnalyze}
+                disabled={isAnalyzing}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    <span>Analyzing...</span>
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw />
+                    <span>Analyze Tickets</span>
+                  </>
+                )}
+              </motion.button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="main-content">
         <AnimatePresence mode="wait">
+          {showInitialSetup && !isAnalyzing && !result && (
+            <motion.div
+              className="setup-container"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {/* Welcome Screen */}
+              {setupStep === 'welcome' && (
+                <motion.div
+                  className="setup-welcome"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                >
+                  <div className="setup-card glass">
+                    <motion.div
+                      className="welcome-icon"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{ 
+                        duration: 4, 
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    >
+                      <Target style={{ width: 80, height: 80 }} />
+                    </motion.div>
+                    
+                    <h1 className="welcome-title">Welcome to STEVE</h1>
+                    <p className="welcome-subtitle">Strategic Ticket Evaluation & Vision Enforcer</p>
+                    
+                    <div className="welcome-features">
+                      <motion.div 
+                        className="feature-card"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <div className="feature-icon">
+                          <Shield style={{ width: 24, height: 24 }} />
+                        </div>
+                        <div className="feature-content">
+                          <h3>Define Your Vision</h3>
+                          <p>Set strategic principles that guide your team's work</p>
+                        </div>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="feature-card"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <div className="feature-icon">
+                          <Users style={{ width: 24, height: 24 }} />
+                        </div>
+                        <div className="feature-content">
+                          <h3>Configure AI Agents</h3>
+                          <p>Customize how STEVE analyzes your tickets</p>
+                        </div>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="feature-card"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        <div className="feature-icon">
+                          <BarChart3 style={{ width: 24, height: 24 }} />
+                        </div>
+                        <div className="feature-content">
+                          <h3>Get Strategic Insights</h3>
+                          <p>See how your work aligns with what matters most</p>
+                        </div>
+                      </motion.div>
+                    </div>
+                    
+                    <motion.button
+                      className="setup-primary-button"
+                      onClick={() => setSetupStep('vision')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span>Get Started</span>
+                      <ArrowRight style={{ width: 20, height: 20 }} />
+                    </motion.button>
+                    
+                    <button
+                      className="skip-setup-button"
+                      onClick={() => {
+                        setShowInitialSetup(false);
+                        localStorage.setItem('steve-setup-completed', 'true');
+                      }}
+                    >
+                      Skip setup and use defaults
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Vision Setup */}
+              {setupStep === 'vision' && (
+                <motion.div
+                  className="setup-vision"
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                >
+                  <div className="setup-card glass">
+                    <div className="setup-header">
+                      <h2>Define Your Product Vision</h2>
+                      <p>What principles should guide your team's work?</p>
+                    </div>
+                    
+                    <div className="vision-preview">
+                      {productVision && productVision.principles?.length > 0 ? (
+                        <div className="principles-preview-list">
+                          {productVision.principles.map((principle: any, index: number) => (
+                            <motion.div
+                              key={index}
+                              className="principle-preview-card"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                            >
+                              <div className="principle-preview-header">
+                                <div className="principle-preview-number">{index + 1}</div>
+                                <h4>{principle.name}</h4>
+                                <div className="principle-weight-badge">
+                                  <Zap style={{ width: 14, height: 14 }} />
+                                  <span>{principle.weight}</span>
+                                </div>
+                              </div>
+                              <p className="principle-preview-description">{principle.description}</p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="no-principles-message">
+                          <AlertCircle style={{ width: 48, height: 48, opacity: 0.3 }} />
+                          <p>No principles defined yet. Add your first principle to get started!</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="setup-actions">
+                      <motion.button
+                        className="setup-secondary-button"
+                        onClick={() => {
+                          setShowAgentSettings(true);
+                          setSettingsTab('vision');
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Edit3 style={{ width: 16, height: 16 }} />
+                        <span>Edit Vision</span>
+                      </motion.button>
+                      
+                      <div className="setup-nav-buttons">
+                        <button
+                          className="setup-back-button"
+                          onClick={() => setSetupStep('welcome')}
+                        >
+                          Back
+                        </button>
+                        <motion.button
+                          className="setup-primary-button"
+                          onClick={() => setSetupStep('agents')}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          disabled={!productVision || productVision.principles?.length === 0}
+                        >
+                          <span>Next: Configure Agents</span>
+                          <ArrowRight style={{ width: 20, height: 20 }} />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Agent Setup */}
+              {setupStep === 'agents' && (
+                <motion.div
+                  className="setup-agents"
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                >
+                  <div className="setup-card glass">
+                    <div className="setup-header">
+                      <h2>Configure Your AI Agents</h2>
+                      <p>Customize how STEVE analyzes your tickets</p>
+                    </div>
+                    
+                    <div className="agents-preview-grid">
+                      {Object.values(agentSettings).map((agent, index) => (
+                        <motion.div
+                          key={agent.id}
+                          className={`agent-preview-card ${!agent.enabled ? 'disabled' : ''}`}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <div className="agent-preview-header">
+                            <div 
+                              className="agent-preview-icon"
+                              style={{ backgroundColor: `${agent.color}20`, color: agent.color }}
+                            >
+                              {agent.icon}
+                            </div>
+                            <div className="agent-preview-status">
+                              {agent.enabled ? (
+                                <CheckCircle style={{ width: 16, height: 16, color: '#10b981' }} />
+                              ) : (
+                                <XCircle style={{ width: 16, height: 16, color: '#ef4444' }} />
+                              )}
+                            </div>
+                          </div>
+                          <h4>{agent.name}</h4>
+                          <p>{agent.description}</p>
+                          {agent.instructions && agent.instructions !== agent.description && (
+                            <div className="agent-custom-badge">
+                              <Sparkles style={{ width: 12, height: 12 }} />
+                              <span>Customized</span>
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                    
+                    <div className="setup-actions">
+                      <motion.button
+                        className="setup-secondary-button"
+                        onClick={() => {
+                          setShowAgentSettings(true);
+                          setSettingsTab('agents');
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Settings style={{ width: 16, height: 16 }} />
+                        <span>Configure Agents</span>
+                      </motion.button>
+                      
+                      <div className="setup-nav-buttons">
+                        <button
+                          className="setup-back-button"
+                          onClick={() => setSetupStep('vision')}
+                        >
+                          Back
+                        </button>
+                        <motion.button
+                          className="setup-primary-button"
+                          onClick={() => setSetupStep('ready')}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <span>Next: Review & Launch</span>
+                          <ArrowRight style={{ width: 20, height: 20 }} />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Ready to Analyze */}
+              {setupStep === 'ready' && (
+                <motion.div
+                  className="setup-ready"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                >
+                  <div className="setup-card glass ready-card">
+                    <motion.div
+                      className="ready-icon"
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    >
+                      <Rocket style={{ width: 64, height: 64 }} />
+                    </motion.div>
+                    
+                    <h2>You're All Set!</h2>
+                    <p className="ready-subtitle">STEVE is ready to analyze your tickets</p>
+                    
+                    <div className="ready-summary">
+                      <div className="summary-item">
+                        <CheckCircle2 style={{ width: 20, height: 20, color: '#10b981' }} />
+                        <span>{productVision?.principles?.length || 0} strategic principles configured</span>
+                      </div>
+                      <div className="summary-item">
+                        <CheckCircle2 style={{ width: 20, height: 20, color: '#10b981' }} />
+                        <span>{Object.values(agentSettings).filter(a => a.enabled).length} AI agents ready</span>
+                      </div>
+                      <div className="summary-item">
+                        <CheckCircle2 style={{ width: 20, height: 20, color: '#10b981' }} />
+                        <span>Analysis mode: {mode}</span>
+                      </div>
+                    </div>
+                    
+                    <motion.button
+                      className="launch-analysis-button"
+                      onClick={completeSetupAndAnalyze}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Sparkles style={{ width: 20, height: 20 }} />
+                      <span>Start Strategic Analysis</span>
+                    </motion.button>
+                    
+                    <button
+                      className="setup-back-button"
+                      onClick={() => setSetupStep('agents')}
+                    >
+                      Back to Agent Settings
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
           {isAnalyzing && (
             <motion.div
               className="loading-container"
