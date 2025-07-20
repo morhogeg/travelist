@@ -235,7 +235,8 @@ function App() {
       const response = await axios.post(`${API_URL}/analyze`, {
         mode,
         project: null, // Let backend use the project from .env file
-        principles: []
+        principles: [],
+        agentSettings: agentSettings
       });
       
       setResult(response.data);

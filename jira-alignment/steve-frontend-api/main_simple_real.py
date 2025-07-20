@@ -15,6 +15,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+import yaml
 # from dotenv import load_dotenv
 
 # Add the steve directory to the Python path
@@ -57,6 +58,7 @@ class AnalysisRequest(BaseModel):
     project: Optional[str] = None
     principles: Optional[List[str]] = None
     vision: Optional[dict] = None
+    agentSettings: Optional[dict] = None
 
 class Ticket(BaseModel):
     key: str
@@ -179,12 +181,79 @@ Our current sprint shows mixed strategic alignment with several areas requiring 
         timestamp=datetime.now().isoformat()
     )
 
+def apply_user_settings(request: AnalysisRequest):
+    """Apply user settings temporarily for this analysis"""
+    # Store original files for restoration
+    originals = {}
+    
+    try:
+        # Apply custom agent settings if provided
+        if request.agentSettings:
+            agents_path = os.path.join(os.path.dirname(__file__), '..', 'steve', 'config', 'agents.yaml')
+            
+            # Backup original
+            if os.path.exists(agents_path):
+                with open(agents_path, 'r') as f:
+                    originals['agents'] = f.read()
+                    original_agents = yaml.safe_load(originals['agents'])
+                
+                # Update with user settings
+                for agent_id, settings in request.agentSettings.items():
+                    if 'instructions' in settings and settings['instructions']:
+                        # Map frontend agent IDs to backend agent names
+                        agent_map = {
+                            'ticketIngestor': 'ticket_ingestor',
+                            'alignmentEvaluator': 'alignment_evaluator',
+                            'rewriteStrategist': 'rewrite_strategist',
+                            'themeSynthesizer': 'theme_synthesizer',
+                            'founderVoice': 'founder_voice'
+                        }
+                        
+                        backend_id = agent_map.get(agent_id, agent_id)
+                        
+                        # Update backstory (which is used as instructions) in the agents config
+                        if 'agents' in original_agents and backend_id in original_agents['agents']:
+                            # Store original backstory to append custom instructions
+                            original_backstory = original_agents['agents'][backend_id].get('backstory', '')
+                            custom_instructions = settings['instructions']
+                            
+                            # Append custom instructions to backstory
+                            original_agents['agents'][backend_id]['backstory'] = f"{original_backstory}\n\nCUSTOM INSTRUCTIONS: {custom_instructions}"
+                            
+                            # Handle enabled/disabled state
+                            if 'enabled' in settings and not settings['enabled']:
+                                # If disabled, set a flag that the backend can recognize
+                                original_agents['agents'][backend_id]['skip'] = True
+                
+                # Write updated config
+                with open(agents_path, 'w') as f:
+                    yaml.dump(original_agents, f, default_flow_style=False)
+                    
+        return originals
+        
+    except Exception as e:
+        print(f"Error applying user settings: {e}")
+        return originals
+
+def restore_original_files(originals):
+    """Restore original configuration files"""
+    try:
+        if 'agents' in originals:
+            agents_path = os.path.join(os.path.dirname(__file__), '..', 'steve', 'config', 'agents.yaml')
+            with open(agents_path, 'w') as f:
+                f.write(originals['agents'])
+    except Exception as e:
+        print(f"Error restoring files: {e}")
+
 async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
     """Run real STEVE analysis using the crew_steve backend"""
     if not STEVE_AVAILABLE:
         # Fallback to mock data if backend unavailable
         print("STEVE backend not available, using mock data")
         return generate_mock_data()
+    
+    # Apply user settings before analysis
+    originals = apply_user_settings(request)
     
     try:
         # Get project key from env or request
@@ -367,6 +436,9 @@ Our current sprint analysis of {total_tickets} tickets reveals {health_status.lo
             timestamp=datetime.now().isoformat(),
             error=f"Analysis failed: {str(e)}"
         )
+    finally:
+        # Always restore original files
+        restore_original_files(originals)
 
 @app.get("/")
 async def root():
