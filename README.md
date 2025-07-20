@@ -23,13 +23,18 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ## ⚡ Quick Start
 
+**New to STEVE?** Check out our **[📚 QUICKSTART Guide](./QUICKSTART.md)** for 5-minute setup!
+
 ### 🌐 Web Dashboard (Recommended)
 ```bash
-# 1. Clone and install
+# 1. Clone the repository
 git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
-# 2. Launch complete STEVE system (backend + frontend)
-./run-steve-simple.sh
+# 2. Validate your setup (optional but recommended)
+./validate-setup.sh
+
+# 3. Launch the web interface
+./run-web.sh
 ```
 
 **That's it!** Open http://localhost:5173 to access the modern web interface with:
@@ -41,18 +46,28 @@ git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
 ### 🖥️ Command Line Interface
 ```bash
-# 1. Clone and install  
+# 1. Clone the repository (if not already done)
 git clone https://github.com/morhogeg/STEVE.git && cd STEVE
-python -m venv steve-env && source steve-env/bin/activate
-pip install -r requirements.txt
 
-# 2. Test with mock data (safe)
-python3 steve.py --mode execution --test
+# 2. Configure your .env file with Jira credentials (see Configuration section)
 
-# 3. Configure your .env file with Jira credentials
+# 3. Run CLI analysis
+./run-cli.sh --mode execution
+```
 
-# 4. Run complete strategic analysis
-python3 steve.py --mode execution
+**Quick CLI Examples:**
+```bash
+# Test with mock data (no Jira connection needed)
+./run-cli.sh --test
+
+# Analyze current sprint and update Jira
+./run-cli.sh --mode execution
+
+# Full project review with sorted results
+./run-cli.sh --mode full_review --sorted
+
+# Dry run without updating Jira
+./run-cli.sh --mode strategy --dry-run
 ```
 
 **CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
@@ -276,6 +291,13 @@ python3 real_steve.py --mode execution --dry-run
 
 ## 🔧 Configuration
 
+### Prerequisites & Setup Validation
+Run `./validate-setup.sh` to check:
+- ✅ Python 3.8+ and Node.js 14+ installed
+- ✅ All required dependencies available
+- ✅ Jira connection and API keys configured
+- ✅ Project structure intact
+
 ### Review Modes
 - **`execution`**: Current sprint tickets only
 - **`strategy`**: Strategic epics and initiatives  
@@ -496,6 +518,9 @@ python3 steve.py --mode execution --dry-run
 
 ## 🛠️ Utility Scripts
 
+- **`validate-setup.sh`**: Check prerequisites and validate configuration
+- **`steve-help.sh`**: Display all available commands and options
+- **`start-fresh.sh`**: Clean environment setup for fresh installations
 - **`crew_steve_showcase.py`**: Demo version for showcasing STEVE's capabilities
 - **`cleanup_duplicates.py`**: Remove duplicate entries from analysis results
 - **`simple_crew.py`**: Simplified implementation for learning CrewAI concepts
@@ -542,6 +567,13 @@ STEVE is highly customizable:
 - **Agents**: Modify AI agent personalities and prompts
 - **Output**: Custom report formats and integrations
 - **Workflows**: Adapt to your team's processes
+
+## 📚 Documentation
+
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide with system requirements
+- **[API Setup Guides](./docs/)** - Detailed guides for Jira, OpenAI, and Notion setup
+- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Example Configurations](./examples/)** - Industry-specific principle templates
 
 ## 🤝 Contributing
 
