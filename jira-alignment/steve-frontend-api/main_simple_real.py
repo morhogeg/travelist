@@ -56,7 +56,7 @@ class AnalysisRequest(BaseModel):
     mode: str = "execution"
     project: Optional[str] = None
     principles: Optional[List[str]] = None
-    vision: Optional[str] = None
+    vision: Optional[dict] = None
 
 class Ticket(BaseModel):
     key: str
@@ -236,8 +236,12 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
         # Extract executive summary
         executive_summary = result.get('executive_narrative', '')
         
-        # If no executive narrative, build a comprehensive summary
-        if not executive_summary:
+        # Log what we got from backend
+        print(f"Executive narrative from backend: {executive_summary[:100]}..." if executive_summary else "No executive narrative from backend")
+        
+        # Always build our comprehensive summary (comment out to use backend's narrative)
+        # if not executive_summary:
+        if True:  # Force using our rich format
             summary_data = result.get('summary', {})
             total_tickets = summary_data.get('total_tickets', len(alignments))
             avg_score = summary_data.get('average_alignment_score', 0)

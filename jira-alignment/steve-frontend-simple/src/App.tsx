@@ -235,8 +235,7 @@ function App() {
       const response = await axios.post(`${API_URL}/analyze`, {
         mode,
         project: null, // Let backend use the project from .env file
-        principles: [],
-        vision: productVision
+        principles: []
       });
       
       setResult(response.data);
@@ -394,28 +393,41 @@ function App() {
 
   const updatePrinciple = (index: number, field: string, value: any) => {
     const updated = { ...editedVision };
-    if (field === 'keywords' && typeof value === 'string') {
-      updated.principles[index][field] = value.split(',').map((k: string) => k.trim()).filter((k: string) => k);
-    } else {
-      updated.principles[index][field] = value;
+    updated.principles[index][field] = value;
+    setEditedVision(updated);
+  };
+
+  const updatePrincipleKeywords = (index: number, value: string) => {
+    const updated = { ...editedVision };
+    // Only split if it's a string, otherwise keep as is
+    if (typeof value === 'string') {
+      updated.principles[index].keywords = value.split(',').map((k: string) => k.trim()).filter((k: string) => k);
     }
     setEditedVision(updated);
   };
 
   const addPrinciple = () => {
+    if (!editedVision || !editedVision.principles) {
+      console.error('EditedVision or principles is undefined');
+      return;
+    }
     const updated = { ...editedVision };
-    updated.principles.push({
+    updated.principles = [...updated.principles, {
       name: "New Principle",
       description: "Describe this principle",
       keywords: ["keyword1", "keyword2"],
       weight: 1.0
-    });
+    }];
     setEditedVision(updated);
   };
 
   const removePrinciple = (index: number) => {
+    if (!editedVision || !editedVision.principles) {
+      console.error('EditedVision or principles is undefined');
+      return;
+    }
     const updated = { ...editedVision };
-    updated.principles.splice(index, 1);
+    updated.principles = updated.principles.filter((_, i) => i !== index);
     setEditedVision(updated);
   };
 
@@ -1617,8 +1629,9 @@ function App() {
                                 />
                                 <input
                                   type="text"
-                                  value={principle.keywords?.join(', ')}
+                                  value={typeof principle.keywords === 'string' ? principle.keywords : principle.keywords?.join(', ')}
                                   onChange={(e) => updatePrinciple(index, 'keywords', e.target.value)}
+                                  onBlur={(e) => updatePrincipleKeywords(index, e.target.value)}
                                   placeholder="Keywords (comma separated)"
                                   className="principle-input"
                                 />
@@ -1719,7 +1732,7 @@ function App() {
                           <div className="principle-keywords">
                             <span className="keywords-label">Keywords:</span>
                             <div className="keywords-list">
-                              {principle.keywords?.map((keyword: string, kidx: number) => (
+                              {(Array.isArray(principle.keywords) ? principle.keywords : []).map((keyword: string, kidx: number) => (
                                 <span key={kidx} className="keyword-tag">{keyword}</span>
                               ))}
                             </div>
