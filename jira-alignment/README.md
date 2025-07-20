@@ -23,12 +23,17 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ## ⚡ Quick Start
 
+**New to STEVE?** Check out our **[📚 QUICKSTART Guide](./QUICKSTART.md)** for 5-minute setup!
+
 ### 🌐 Web Dashboard (Recommended)
 ```bash
 # 1. Clone the repository
 git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
-# 2. Launch the web interface
+# 2. Validate your setup (optional but recommended)
+./validate-setup.sh
+
+# 3. Launch the web interface
 ./run-web.sh
 ```
 
@@ -286,6 +291,13 @@ python3 real_steve.py --mode execution --dry-run
 
 ## 🔧 Configuration
 
+### Prerequisites & Setup Validation
+Run `./validate-setup.sh` to check:
+- ✅ Python 3.8+ and Node.js 14+ installed
+- ✅ All required dependencies available
+- ✅ Jira connection and API keys configured
+- ✅ Project structure intact
+
 ### Review Modes
 - **`execution`**: Current sprint tickets only
 - **`strategy`**: Strategic epics and initiatives  
@@ -506,6 +518,9 @@ python3 steve.py --mode execution --dry-run
 
 ## 🛠️ Utility Scripts
 
+- **`validate-setup.sh`**: Check prerequisites and validate configuration
+- **`steve-help.sh`**: Display all available commands and options
+- **`start-fresh.sh`**: Clean environment setup for fresh installations
 - **`crew_steve_showcase.py`**: Demo version for showcasing STEVE's capabilities
 - **`cleanup_duplicates.py`**: Remove duplicate entries from analysis results
 - **`simple_crew.py`**: Simplified implementation for learning CrewAI concepts
@@ -552,6 +567,13 @@ STEVE is highly customizable:
 - **Agents**: Modify AI agent personalities and prompts
 - **Output**: Custom report formats and integrations
 - **Workflows**: Adapt to your team's processes
+
+## 📚 Documentation
+
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide with system requirements
+- **[API Setup Guides](./docs/)** - Detailed guides for Jira, OpenAI, and Notion setup
+- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Example Configurations](./examples/)** - Industry-specific principle templates
 
 ## 🤝 Contributing
 
