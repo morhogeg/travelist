@@ -69,6 +69,7 @@ class Ticket(BaseModel):
     rationale: str
     suggestedSummary: Optional[str] = None
     suggestedDescription: Optional[str] = None
+    quickSuggestion: Optional[dict] = None
 
 class AnalysisResult(BaseModel):
     status: str
@@ -82,6 +83,33 @@ class AnalysisResult(BaseModel):
 analysis_cache: Dict[str, AnalysisResult] = {}
 current_analysis_id: Optional[str] = None
 
+def generate_quick_suggestion(score: int, summary: str, category: str) -> dict:
+    """Generate quick actionable suggestion based on score"""
+    if score >= 80:  # Core Value
+        return {
+            "action": "prioritize",
+            "text": "✅ Fast-track this high-value work",
+            "type": "success"
+        }
+    elif score >= 60:  # Strategic Enabler
+        return {
+            "action": "enhance",
+            "text": "📈 Consider adding strategic elements to boost alignment",
+            "type": "info"
+        }
+    elif score >= 40:  # Drift
+        return {
+            "action": "rephrase",
+            "text": "✏️ Rephrase to emphasize strategic value",
+            "type": "warning"
+        }
+    else:  # Distraction
+        return {
+            "action": "remove",
+            "text": "❌ Consider removing or deprioritizing",
+            "type": "danger"
+        }
+
 def generate_mock_data() -> AnalysisResult:
     """Generate mock data for testing"""
     mock_tickets = [
@@ -91,7 +119,8 @@ def generate_mock_data() -> AnalysisResult:
             description="Build a secure authentication system with JWT tokens and role-based access control",
             alignmentScore=85,
             category="core_value",
-            rationale="Strong alignment with security and user experience principles"
+            rationale="Strong alignment with security and user experience principles",
+            quickSuggestion=generate_quick_suggestion(85, "Implement user authentication system", "core_value")
         ),
         Ticket(
             key="PROJ-002", 
@@ -99,7 +128,8 @@ def generate_mock_data() -> AnalysisResult:
             description="Implement a dark/light mode toggle for better user experience",
             alignmentScore=72,
             category="strategic_enabler",
-            rationale="Supports user experience goals but not core business value"
+            rationale="Supports user experience goals but not core business value",
+            quickSuggestion=generate_quick_suggestion(72, "Add dark mode toggle", "strategic_enabler")
         ),
         Ticket(
             key="PROJ-003",
@@ -109,7 +139,8 @@ def generate_mock_data() -> AnalysisResult:
             category="drift",
             rationale="Technical debt work that doesn't directly serve user needs",
             suggestedSummary="Improve core user workflow performance",
-            suggestedDescription="Optimize critical user paths by refactoring legacy components that impact user experience"
+            suggestedDescription="Optimize critical user paths by refactoring legacy components that impact user experience",
+            quickSuggestion=generate_quick_suggestion(45, "Refactor legacy codebase", "drift")
         ),
         Ticket(
             key="PROJ-004",
@@ -119,7 +150,8 @@ def generate_mock_data() -> AnalysisResult:
             category="distraction",
             rationale="Nice-to-have feature that doesn't align with core business objectives",
             suggestedSummary="Enhance task completion feedback",
-            suggestedDescription="Improve user satisfaction with meaningful feedback when completing critical workflows"
+            suggestedDescription="Improve user satisfaction with meaningful feedback when completing critical workflows",
+            quickSuggestion=generate_quick_suggestion(25, "Add confetti animation", "distraction")
         ),
         Ticket(
             key="PROJ-005",
@@ -127,7 +159,8 @@ def generate_mock_data() -> AnalysisResult:
             description="Create comprehensive analytics for user behavior tracking",
             alignmentScore=88,
             category="core_value",
-            rationale="Directly supports data-driven decision making and business intelligence"
+            rationale="Directly supports data-driven decision making and business intelligence",
+            quickSuggestion=generate_quick_suggestion(88, "Implement advanced analytics dashboard", "core_value")
         ),
         Ticket(
             key="PROJ-006",
@@ -135,7 +168,8 @@ def generate_mock_data() -> AnalysisResult:
             description="Allow users to share achievements on social platforms",
             alignmentScore=35,
             category="distraction", 
-            rationale="Feature that diverts focus from core product value"
+            rationale="Feature that diverts focus from core product value",
+            quickSuggestion=generate_quick_suggestion(35, "Add social media sharing", "distraction")
         ),
         Ticket(
             key="PROJ-007",
@@ -143,7 +177,8 @@ def generate_mock_data() -> AnalysisResult:
             description="Improve backend performance for faster user interactions",
             alignmentScore=78,
             category="strategic_enabler",
-            rationale="Enables better user experience but is infrastructure-focused"
+            rationale="Enables better user experience but is infrastructure-focused",
+            quickSuggestion=generate_quick_suggestion(78, "Optimize API response times", "strategic_enabler")
         ),
         Ticket(
             key="PROJ-008",
@@ -151,7 +186,8 @@ def generate_mock_data() -> AnalysisResult:
             description="Add push notifications for important user events",
             alignmentScore=82,
             category="core_value",
-            rationale="Critical for user engagement and retention"
+            rationale="Critical for user engagement and retention",
+            quickSuggestion=generate_quick_suggestion(82, "Implement real-time notifications", "core_value")
         )
     ]
     
@@ -306,7 +342,8 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
                 category=category,
                 rationale=alignment.get('rationale', ''),
                 suggestedSummary=alignment.get('suggested_summary'),
-                suggestedDescription=alignment.get('suggested_description')
+                suggestedDescription=alignment.get('suggested_description'),
+                quickSuggestion=generate_quick_suggestion(int(score), alignment.get('summary', ''), category)
             ))
         
         # Extract executive summary

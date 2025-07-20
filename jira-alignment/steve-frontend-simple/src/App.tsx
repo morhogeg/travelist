@@ -68,6 +68,11 @@ interface Ticket {
   rationale: string;
   suggestedSummary?: string;
   suggestedDescription?: string;
+  quickSuggestion?: {
+    action: string;
+    text: string;
+    type: string;
+  };
 }
 
 interface AnalysisResult {
@@ -1499,6 +1504,12 @@ function App() {
 
                       <h3 className="ticket-title">{ticket.summary}</h3>
                       <p className="ticket-rationale">{ticket.rationale}</p>
+
+                      {ticket.quickSuggestion && (
+                        <div className={`quick-suggestion quick-suggestion-${ticket.quickSuggestion.type}`}>
+                          {ticket.quickSuggestion.text}
+                        </div>
+                      )}
 
                       {(ticket.suggestedSummary || expandedTickets.has(ticket.key)) && (
                         <button
