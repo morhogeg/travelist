@@ -13,131 +13,607 @@
 
 # STEVE - Strategic Ticket Evaluation & Vision Enforcer
 
-> **Find the ticket that kills your roadmap — before it does.**
+> 🎯 **One Command. Complete Strategic Intelligence.**
 
-## 🚀 Get Started in 5 Seconds
+STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
+
+> 📝 **Executive summaries are automatically published to Notion** with interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
+
+> 🌐 **Modern Web Interface** provides real-time strategic insights with color-coded score badges, interactive charts, and agent configuration - all in a beautiful dark/light theme dashboard.
+
+## ⚡ Quick Start
+
+**New to STEVE?** Check out our **[📚 QUICKSTART Guide](./QUICKSTART.md)** for 5-minute setup!
+
+### 🌐 Web Dashboard (Recommended)
 ```bash
-git clone https://github.com/morhogeg/STEVE.git && cd STEVE && ./run-web.sh
-```
-Open http://localhost:5173 — that's it. No config needed for demo mode.
+# 1. Clone the repository
+git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
----
+# 2. Validate your setup (optional but recommended)
+./validate-setup.sh
 
-## 💡 What Just Happened to Our Sprint
-
-*"We used STEVE to pre-screen a 40-ticket backlog. In 8 minutes, we identified 6 distractions eating 30% of our velocity and uncovered a core-value ticket buried at the bottom. That one re-prioritization saved us 2 weeks of drift."*
-
-**— Actual result from our last sprint planning**
-
-## 🎯 Core Features
-
-STEVE does three things exceptionally well:
-
-### 1. **Scores Every Ticket** (0-100)
-- 🟢 **80-100**: Core Value — directly advances your strategy
-- 🔵 **60-79**: Strategic Enabler — supports your goals  
-- 🟡 **40-59**: Drift — well-intentioned but misaligned
-- 🔴 **0-39**: Distraction — actively harmful to focus
-
-### 2. **Updates Jira Automatically**
-- Adds strategic scores to every ticket
-- Writes constructive analysis comments
-- Creates custom fields for native Jira sorting
-
-### 3. **Delivers Executive Intelligence**
-- One-page strategic health report
-- Specific recommendations with rationale
-- Publishes to Notion with visual dashboards
-
-## 🖥️ Choose Your Interface
-
-### Web Dashboard (Visual Thinkers)
-```bash
+# 3. Launch the web interface
 ./run-web.sh
 ```
-Real-time charts, drag-and-drop priorities, dark mode.
 
-### Command Line (Power Users)
+**That's it!** Open http://localhost:5173 to access the modern web interface with:
+- 🎯 **Real-time Strategic Dashboard** with color-coded score badges
+- 📊 **Interactive Charts** showing category distribution and score trends  
+- 🌙 **Dark/Light Mode** with glass morphism design
+- ⚙️ **Agent Configuration** to customize AI behavior
+- 📋 **Executive Summary** with copy/share functionality
+
+### 🖥️ Command Line Interface
 ```bash
+# 1. Clone the repository (if not already done)
+git clone https://github.com/morhogeg/STEVE.git && cd STEVE
+
+# 2. Configure your .env file with Jira credentials (see Configuration section)
+
+# 3. Run CLI analysis
 ./run-cli.sh --mode execution
 ```
-Instant analysis, scriptable, CI/CD ready.
 
-## 📊 See It In Action
+**Quick CLI Examples:**
+```bash
+# Test with mock data (no Jira connection needed)
+./run-cli.sh --test
+
+# Analyze current sprint and update Jira
+./run-cli.sh --mode execution
+
+# Full project review with sorted results
+./run-cli.sh --mode full_review --sorted
+
+# Dry run without updating Jira
+./run-cli.sh --mode strategy --dry-run
+```
+
+**CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
+
+## 🚀 What STEVE Does
+
+```bash
+python3 steve.py --mode execution
+```
+
+**This single command delivers:**
+
+- **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
+- **📊 Strategic Scoring**: Evaluates each ticket against your principles (0-100)
+- **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
+- **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
+- **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
+- **📄 Notion Integration**: Beautiful, interactive executive summaries with visual formatting
+- **🌐 Web Dashboard**: Modern React interface with real-time analysis and visualizations
+- **🎨 Color-Coded Scores**: Instant visual feedback (🟢 High, 🔵 Medium, 🟡 Low, 🔴 Critical)
+- **📋 Priority Lists**: Sorted strategic views with actionable next steps
+- **🗂️ Category Definitions**: Clear explanations of what each strategic category means
+- **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
+- **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
+- **⚙️ Agent Configuration**: Customize AI agent instructions via web interface
+- **🎯 Constructive Tone**: Positive, solution-focused messaging that motivates teams
+
+## 🎯 Example Output
 
 <details>
-<summary><b>Example Output (Click to Expand)</b></summary>
+<summary><b>Click to see example output</b></summary>
 
 ```
 📊 PROJ-123: 95/100 (Core Value)
    📝 Add CrewAI tutorial generator for hands-on projects
    💭 Strongly aligns with Builder-First Value principle
-   🎯 Next: Ship this week
+   🎯 Principles: Builder-First Value, AI Agent Excellence
 
 📊 PROJ-124: 25/100 (Distraction)  
    📝 Add animated GIF support to chat
-   💭 No strategic alignment. Consider removing.
-   ⚠️ Saving 3 dev days by skipping this
+   💭 Limited strategic alignment. Consider deprioritizing.
+   💭 Issues: No alignment with: Builder-First Value, AI Agent Excellence
+```
+
+### 📊 Sorted Priority View (--sorted flag)
+```
+┏━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ Rank ┃ Score  ┃ Ticket   ┃ Category       ┃ Summary                        ┃ Action             ┃
+┡━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│ #1   │ 100/100│ PROJ-23  │ Core Value     │ Add CrewAI tutorial generator...│ ✅ Keep prioritized │
+│ #2   │ 82.5/100│ PROJ-37 │ Core Value     │ Create mobile app for reading...│ ✅ Keep prioritized │
+│ #3   │ 60/100 │ PROJ-29  │ Strategic En...│ Add email digest feature...    │ 📈 Consider promoting│
+│ #4   │ 52.5/100│ PROJ-34 │ Drift          │ Implement comments system...   │ ⚠️ Needs realignment │
+│ #5   │ 30/100 │ PROJ-2   │ Distraction    │ Go-To-Market Planning          │ ❌ Consider removing │
+└━━━━━┴━━━━━━━━┴━━━━━━━━━━┴━━━━━━━━━━━━━━━━┴━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┴━━━━━━━━━━━━━━━━━━━━┘
 ```
 
 </details>
 
-## ⚙️ Real Setup (After Demo)
+## 🏗️ How STEVE Works
 
-1. **Add Your Jira Credentials**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your Jira URL, email, and API token
-   ```
+When you run `python3 steve.py --mode execution`, here's what happens:
 
-2. **Define Your Strategy**
-   ```yaml
-   # steve/config/principles.yaml
-   principles:
-     - name: "Customer Obsession"
-       weight: 1.5  # Most important
-   ```
+### **Phase 1: Multi-Agent Analysis** 🤖
+STEVE's **5 AI Agents** collaborate sequentially:
 
-3. **Run on Real Tickets**
-   ```bash
-   ./run-cli.sh --mode execution
-   ```
+1. **Ticket Ingestor** - Pulls tickets from Jira based on review mode
+2. **Alignment Evaluator** - Scores tickets against your strategic principles  
+3. **Rewrite Strategist** - Suggests improvements for misaligned tickets
+4. **Theme Synthesizer** - Detects patterns and recommends focus shifts
+5. **Founder Voice** - Creates constructive executive summaries
 
-Need help? Run `./validate-setup.sh` to check prerequisites.
+### **Phase 2: Jira Integration** 🔗
+STEVE automatically updates your actual Jira tickets:
 
-## 🚨 Why Teams Need This
-
-**Without STEVE**: You ship fast but ship wrong. Sprint retrospectives reveal 40% of work was "nice to have."
-
-**With STEVE**: Every ticket has a strategy score. Misalignment is visible before standup. Teams ship less but achieve more.
-
-## 🔗 Advanced Capabilities
+- **Custom Fields**: Populates STEVE Alignment Score and Category
+- **Analysis Comments**: Adds detailed strategic feedback to each ticket
+- **Safe Operation**: Dry-run mode available for testing
 
 <details>
-<summary><b>For Power Users (Click to See More)</b></summary>
+<summary><b>Enhanced Jira Comment Format 💬</b></summary>
 
-- **5 AI Agents** collaborate for deep analysis
-- **Pattern Detection** across sprints
-- **Custom Scoring** algorithms
-- **Notion Integration** with interactive reports
-- **API Access** for custom workflows
+Each ticket receives a comprehensive strategic analysis comment with:
 
-[📖 Full Documentation →](./docs/README_FULL.md)
+```
+⸻
+📦 *Ticket Type*: Platform Infra (non-user-facing)
+🧭 *Strategic Role*: Unlocks builder capabilities in downstream sprint
+⸻
+🎯 *Strategic Alignment Summary*
+*Score*: 75/100 — Strategic Enabler
+*Matched Principles*: Seamless Integration
+Solid principle alignment positions this as strategic infrastructure.
+⸻
+🧠 *Why This Aligns*
+This infrastructure work lays critical groundwork by establishing 
+the data flow needed for agent responsiveness.
+⸻
+🧭 *Recommendation*
+• ✅ *Action*: Schedule for next sprint with clear success criteria
+• 💡 *Rationale*: Future agent features depend on this foundation
+• 🔄 *Reframe Tip*: Add "enables real-time agent response" to description
+⸻
+```
+
+**Key Features**:
+- **Ticket Type & Role**: Immediate context about work category and strategic purpose
+- **Specific Explanations**: No generic templates - each comment is tailored to the ticket
+- **Actionable Recommendations**: Concrete next steps with timelines and metrics
+- **Reframe Tips**: Suggestions for improving strategic alignment (60-79 scores)
+- **Data-Driven Insights**: References specific impacts like "enables 80% of builders"
 
 </details>
 
-## 🛡️ Who Built This
+### **Phase 3: Strategic Reporting** 📊
+STEVE generates executive-ready intelligence:
 
-Originally created for an AI Strategy Brief Generator to ensure every tutorial actually helps builders ship.
+- **Color-coded Scorecards**: Visual priority ranking with emojis
+- **Executive Summaries**: Constructive, motivating strategic insights
+- **Priority Lists**: Sorted recommendations with specific actions
 
-Now used by product teams who are tired of building features nobody asked for.
+## ⚡ Quick Start
+
+### 1. Install Dependencies
+```bash
+git clone https://github.com/morhogeg/STEVE.git
+cd STEVE
+python -m venv steve-env
+source steve-env/bin/activate  # Windows: steve-env\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. Configure Environment
+```bash
+cp .env.example .env
+# Edit .env with your Jira credentials and API keys
+```
+
+### 3. Test STEVE
+```bash
+# Test with mock data (safe - no real Jira updates)
+python3 steve.py --mode execution --test
+
+# This will show you exactly what STEVE does without touching your real tickets
+```
+
+<details>
+<summary><b>4. Configure Your Product Vision</b></summary>
+
+STEVE needs to understand your product's strategic vision. Edit these files:
+
+#### `config/principles.yaml` - Your Strategic Principles
+```yaml
+principles:
+  - name: "Customer Obsession"
+    description: "Every feature should improve customer experience"
+    keywords: ["customer", "user", "experience", "UX", "usability"]
+    weight: 1.5  # Higher weight = more important
+  
+  - name: "Technical Excellence"
+    description: "Maintain high code quality and performance"
+    keywords: ["performance", "quality", "scalable", "maintainable"]
+    weight: 1.2
+
+thresholds:
+  core_value: 80      # 80-100 score = Core Value
+  strategic_enabler: 60  # 60-79 = Strategic Enabler
+  drift: 40           # 40-59 = Drift
+  # 0-39 = Distraction
+```
+
+#### `config/agents.yaml` - Agent Personalities & Tone
+Customize how agents analyze tickets and communicate:
+```yaml
+agents:
+  alignment_evaluator:
+    temperature: 0.3  # Creativity level (0-1)
+    
+  founder_voice:
+    tone: "constructive, motivating, clarity-driven"
+    tone_guidelines:
+      prefer_phrases:
+        - "Let's redirect energy toward what matters"
+        - "Time to close the gap between effort and impact"
+    category_definitions:
+      core_value: "High-impact work that directly advances our mission"
+      drift: "Well-intentioned work lacking clear strategic connection"
+```
+
+#### `.env` - Your Jira Configuration
+```bash
+JIRA_URL=https://yourcompany.atlassian.net
+JIRA_EMAIL=your.email@company.com
+JIRA_API_TOKEN=your_api_token_here
+JIRA_PROJECT_KEY=PROJ  # Your project key
+OPENAI_API_KEY=sk-...  # Or use OPENROUTER_API_KEY
+USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
+```
+
+</details>
+
+### 5. Run STEVE
+
+#### One Command Does Everything
+```bash
+# Complete strategic analysis (multi-agent AI + Jira updates + executive summary)
+python3 steve.py --mode execution
+
+# Test with mock data (safe - no Jira updates)
+python3 steve.py --mode execution --test
+
+# Full project strategic review
+python3 steve.py --mode full_review --project MYPROJ
+
+# Analysis only (skip Jira updates)
+python3 steve.py --mode execution --analysis-only
+
+# Include sorted priority list
+python3 steve.py --mode execution --sorted
+
+# Dry run (analyze but don't update Jira)
+python3 steve.py --mode execution --dry-run
+```
+
+#### Legacy Commands (Still Available)
+```bash
+# Multi-agent analysis only
+python3 crew_steve.py --test
+
+# Direct Jira integration only  
+python3 real_steve.py --mode execution --dry-run
+```
+
+## 🔧 Configuration
+
+### Prerequisites & Setup Validation
+Run `./validate-setup.sh` to check:
+- ✅ Python 3.8+ and Node.js 14+ installed
+- ✅ All required dependencies available
+- ✅ Jira connection and API keys configured
+- ✅ Project structure intact
+
+### Review Modes
+- **`execution`**: Current sprint tickets only
+- **`strategy`**: Strategic epics and initiatives  
+- **`full_review`**: All project tickets
+
+### Alignment Scoring
+- **90-100**: Core Value (directly advances strategy)
+- **60-89**: Strategic Enabler (supports goals)
+- **40-59**: Drift (weak strategic connection)
+- **0-39**: Distraction (misaligned work)
+
+### Notion Integration
+STEVE automatically saves executive summaries to Notion with interactive formatting and visual elements:
+
+**Features**:
+- **Interactive Score Distribution**: Toggle blocks showing ticket details by score ranges
+- **Visual Category Breakdown**: Color-coded callouts with alignment percentages
+- **Strategic Health Diagnosis**: Automated assessment with contextual recommendations
+- **Quick Guide**: Collapsible scoring system explanation for team reference
+- **Professional Formatting**: Clean layout with dividers, emojis, and structured sections
+- **Actionable Next Steps**: Checkbox-style todo items for immediate follow-up
+
+**Setup**: Add these environment variables to your `.env` file:
+```bash
+NOTION_TOKEN=secret_your_integration_token_here
+NOTION_DATABASE_ID=your_database_id_here
+```
+
+**Benefits**:
+- **Interactive Analysis**: Team members can explore score distributions and ticket details
+- **Visual Clarity**: Color-coded categories and strategic health indicators
+- **Permanent Record**: Timestamped strategic decisions with searchable history
+- **Team Collaboration**: Shared workspace for strategic discussions and planning
+- **Professional Presentation**: Executive-ready formatting for stakeholder reviews
+
+<details>
+<summary><b>🌐 Web Interface Features</b></summary>
+
+The modern React frontend provides a premium interface for strategic analysis:
+
+### 🎯 **Strategic Dashboard**
+- **Real-time Metrics**: Health score, total tickets, core value count, attention needed
+- **Interactive Charts**: Pie chart for category distribution, bar chart for score ranges
+- **Hover Tooltips**: Show relevant tickets when hovering over chart segments
+- **Color-coded Scores**: 🟢 High (80-100), 🔵 Medium (60-79), 🟡 Low (40-59), 🔴 Critical (0-39)
+
+### 📊 **Ticket Analysis Grid**
+- **Smart Filtering**: Search by text, filter by category
+- **Flexible Sorting**: By score, ticket key, or category
+- **Expandable Details**: View full descriptions and AI suggestions
+- **Score Badges**: Instant visual feedback with gradient backgrounds
+
+### ⚙️ **Agent Configuration Panel**
+- **Live Customization**: Modify AI agent instructions in real-time
+- **Agent Profiles**: Configure personality, tone, and behavior for each agent
+- **Settings Persistence**: Automatically saves configurations locally
+- **Visual Indicators**: Icons and colors for easy agent identification
+
+### 🎨 **Modern Design System**
+- **Dark/Light Themes**: Complete theme switching with system preference detection
+- **Glass Morphism**: Translucent cards with backdrop blur effects
+- **Smooth Animations**: Framer Motion powered transitions and micro-interactions
+- **Responsive Layout**: Works perfectly on desktop, tablet, and mobile
+- **Accessibility**: Keyboard navigation and screen reader support
+
+### 📋 **Executive Summary**
+- **Rich Typography**: Premium fonts with drop caps and proper hierarchy
+- **Copy/Share Actions**: One-click copying and sharing of executive insights
+- **Interactive Formatting**: Collapsible sections and visual emphasis
+- **Export Options**: Download reports in multiple formats
+
+### 🚀 **Quick Actions**
+- **One-Click Analysis**: Start ticket analysis with visual progress tracking
+- **Theme Toggle**: Instant switching between light and dark modes
+- **Settings Access**: Quick configuration without leaving the main interface
+- **Real-time Updates**: Live data refresh and synchronization
+
+Access the web interface at **http://localhost:5173** after running `./run-steve-simple.sh`
+
+</details>
+
+<details>
+<summary><b>📁 Project Structure</b></summary>
+
+```
+STEVE/
+├── run-steve-simple.sh       # 🚀 ONE-COMMAND STARTUP (START HERE)
+├── steve/                    # 🧠 Python backend
+│   ├── steve.py             # 🎯 Unified command interface
+│   ├── crew_steve.py        # Multi-agent AI system (legacy)
+│   ├── real_steve.py        # Jira integration layer (legacy)
+│   ├── crew_steve_showcase.py # Demo/showcase version
+│   ├── simple_crew.py       # Simplified version for learning
+│   ├── cleanup_duplicates.py # Utility for cleaning duplicate entries
+│   ├── config/
+│   │   ├── principles.yaml  # 📋 Your strategic vision
+│   │   ├── agents.yaml     # 🤖 AI agent configurations & tone
+│   │   └── settings.yaml   # ⚙️ System settings
+│   ├── core/
+│   │   ├── schemas.py      # 📊 Data models
+│   │   ├── jira_client.py  # 🔗 Jira integration
+│   │   └── orchestrator.py # 🎵 Agent orchestration
+│   ├── agents/             # 🤖 Individual AI agents
+│   │   ├── ticket_ingestor.py    # 📥 Jira ticket harvester
+│   │   ├── alignment_evaluator.py # 📊 Strategic scoring
+│   │   ├── rewrite_strategist.py # ✍️ Ticket improvement
+│   │   ├── theme_synthesizer.py  # 📈 Pattern detection
+│   │   └── founder_voice.py      # 💼 Executive summaries
+│   ├── utils/
+│   │   ├── logger.py       # 🖥️ Rich console logging
+│   │   └── notion_integration.py # 📄 Notion integration
+│   ├── data_collector.py   # 📡 Data aggregation
+│   ├── llm_config.py      # 🧠 LLM configuration
+│   ├── example_executive_summary.md # 📄 Example output
+│   ├── NOTION_SETUP.md    # 📄 Notion integration setup
+│   ├── pyproject.toml     # 🐍 Python project config
+│   └── requirements.txt    # 📦 Backend dependencies
+├── steve-frontend-simple/   # 🌐 Modern web interface
+│   ├── src/
+│   │   ├── App.tsx         # 📱 Main React application
+│   │   ├── App.modern.css  # 🎨 Modern design system
+│   │   ├── App.darkmode-refined.css # 🌙 Dark theme
+│   │   ├── App.score-colors.css     # 🎯 Color-coded scores
+│   │   └── App.darkmode-final.css   # 🌃 Enhanced dark mode
+│   ├── package.json        # 📦 Frontend dependencies
+│   ├── tsconfig.json       # ⚙️ TypeScript configuration
+│   ├── vite.config.ts      # ⚡ Vite build configuration
+│   └── README.md           # 📖 Frontend documentation
+└── steve-frontend-api/      # 🔗 API bridge layer
+    ├── main_simple_real.py # 📡 FastAPI backend adapter
+    └── requirements.txt     # 📦 API dependencies
+```
+
+</details>
+
+## 🎯 Example: AI Strategy Brief Generator
+
+This implementation is configured for an **AI Strategy Brief Generator** with these principles:
+
+1. **Builder-First Value** (weight: 1.5) - Everything must be buildable in 30-60 minutes
+2. **AI Agent Excellence** (weight: 1.3) - Focus on CrewAI, RAG, multi-agent systems  
+3. **Fresh Intelligence** (weight: 1.2) - Latest AI developments only
+4. **Premium Source Curation** (weight: 1.1) - GitHub, research labs, thought leaders
+5. **Seamless Integration** (weight: 1.0) - Notion, APIs, automation
+
+## 🔍 Strategic Intelligence Reports
+
+STEVE generates detailed analysis reports with constructive, motivating tone:
+
+### Executive Summary Features
+- **🗂️ Strategic Category Definitions**: Clear explanations of what each category means
+- **📊 Color-coded Scorecards**: Visual priority ranking with emojis (🟢🟡🟠🔴)
+- **💡 Constructive Recommendations**: Solution-focused guidance without blame
+- **🎯 Motivating Bottom Lines**: "Let's redirect energy toward what matters" vs accusatory language
+
+<details>
+<summary><b>Example Summary Output</b></summary>
+
+```
+🎯 STRATEGIC ALIGNMENT SUMMARY
+Total Tickets: 22
+Average Alignment: 71.2/100 - Significant improvement!
+Core Value: 50% (Target: 60%+ — almost there!)
+
+📊 Top Performers:
+  🟢 PROJ-201: Multi-agent workflow orchestrator (98/100)
+  🟢 PROJ-203: Real-time AI research aggregator (96/100)
+
+💡 Recommendations:
+  ✅ Amplify AI Excellence - Build on CrewAI momentum
+  📈 Transform Maintenance into Innovation - Redirect drift energy
+  🎯 Push for 60%+ Core Value - Just 3 tickets away!
+
+Bottom Line: We're shipping fast AND shipping smart. Let's keep this momentum rolling!
+```
+
+See `example_executive_summary.md` and `example_executive_summary_sprint_25.md` for full examples.
+
+</details>
+
+### 🔢 Jira Custom Fields Setup
+
+STEVE can update custom fields for native Jira sorting:
+
+1. **Create Custom Fields** in Jira Settings > Issues > Custom Fields:
+   - `STEVE Alignment Score` (Number field, 0-100)
+   - `STEVE Category` (Text field)
+
+2. **Add to Screens**: Configure these fields on your issue screens
+
+3. **Sort in Jira**: 
+   - Use JQL: `project = PROJ ORDER BY "STEVE Alignment Score" DESC`
+   - Save as filter "STEVE Strategic View"
+   - Sort boards by clicking column headers
+
+## 🛡️ What STEVE Prevents
+
+- **Feature Creep**: Identifies tickets that don't serve strategic goals
+- **Strategic Drift**: Catches teams working on misaligned priorities  
+- **Resource Waste**: Highlights low-value work before it consumes time
+- **Vision Dilution**: Keeps everyone focused on what matters most
+
+## 🔄 Workflow Integration
+
+### Daily Strategic Alignment
+```bash
+# Quick sprint check before standup
+python3 steve.py --mode execution --sorted
+```
+
+### Sprint Planning
+```bash
+# Analyze backlog before committing to new work  
+python3 steve.py --mode strategy --project MYPROJ
+```
+
+### Quarterly Strategic Reviews
+```bash
+# Complete project analysis for strategic planning
+python3 steve.py --mode full_review
+```
+
+### Safe Experimentation
+```bash
+# Test new principles or configurations safely
+python3 steve.py --mode execution --dry-run
+```
+
+## 🛠️ Utility Scripts
+
+- **`validate-setup.sh`**: Check prerequisites and validate configuration
+- **`steve-help.sh`**: Display all available commands and options
+- **`start-fresh.sh`**: Clean environment setup for fresh installations
+- **`crew_steve_showcase.py`**: Demo version for showcasing STEVE's capabilities
+- **`cleanup_duplicates.py`**: Remove duplicate entries from analysis results
+- **`simple_crew.py`**: Simplified implementation for learning CrewAI concepts
+
+<details>
+<summary><b>🚀 Advanced Features</b></summary>
+
+### Unified Command Options
+```bash
+python3 steve.py [OPTIONS]
+```
+
+**Analysis Control:**
+- `--mode execution|strategy|full_review` - Scope of analysis
+- `--project MYPROJ` - Target specific Jira project
+- `--test` - Use mock data for safe testing
+- `--dry-run` - Analyze without updating Jira tickets
+
+**Output Control:**
+- `--sorted` - Include strategic priority ranking
+- `--analysis-only` - Skip Jira updates, analysis only
+- `--no-notion` - Skip saving executive summary to Notion
+
+**Multi-Agent AI Features:**
+- **Multi-LLM Support**: OpenAI, OpenRouter, or local Ollama
+- **Strategic Rewrites**: AI-powered ticket improvement suggestions
+- **Executive Summaries**: Constructive, motivating strategic communications
+- **Pattern Detection**: Deep analysis of alignment trends
+- **Tone Control**: Configurable messaging for positive team impact
+- **Category Definitions**: Clear explanations in every report
+
+**Jira Integration Features:**
+- **Direct Connection**: Updates your actual Jira tickets automatically
+- **Custom Fields**: Populates STEVE Score and Category fields
+- **Rich Logging**: Beautiful console output with progress tracking
+- **Safe Operations**: Comprehensive error handling and dry-run capabilities
+
+</details>
+
+
+## 🛠️ Customization
+
+STEVE is highly customizable:
+
+- **Principles**: Define any strategic framework
+- **Scoring**: Adjust weights and thresholds
+- **Agents**: Modify AI agent personalities and prompts
+- **Output**: Custom report formats and integrations
+- **Workflows**: Adapt to your team's processes
+
+## 📚 Documentation
+
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide with system requirements
+- **[API Setup Guides](./docs/)** - Detailed guides for Jira, OpenAI, and Notion setup
+- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Example Configurations](./examples/)** - Industry-specific principle templates
+
+## 🤝 Contributing
+
+STEVE was built for the AI Strategy Brief Generator but is designed to be adaptable. While this specific configuration isn't meant to be forked directly, the architecture and approach can inspire your own strategic alignment systems.
+
+## 📄 License
+
+MIT License - Use STEVE's concepts to build your own strategic intelligence system.
 
 ---
 
-<div align="center">
+> **"Are we building what matters?"** - STEVE's guiding question
 
-**One command. Every ticket scored. Strategic drift eliminated.**
+🎯 **One command. Complete strategic intelligence. Every ticket aligned.**
 
-[Get Started](#-get-started-in-5-seconds) · [Full Docs](./docs/README_FULL.md) · [Report Issue](https://github.com/morhogeg/STEVE/issues)
-
-</div>
+```bash
+python3 steve.py --mode execution
+```
