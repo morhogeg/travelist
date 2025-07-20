@@ -261,13 +261,16 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
         
         print(f"Running real STEVE analysis for project: {project_key}, mode: {request.mode}")
         
+        # Check if we should use test mode (no real Jira connection)
+        use_test_mode = os.getenv("STEVE_TEST_MODE", "true").lower() == "true"
+        
         # Run STEVE analysis using crew_steve
         result = await asyncio.get_event_loop().run_in_executor(
             None, 
             lambda: crew_main(
                 review_mode=request.mode,
                 project_key=project_key,
-                test_mode=False,
+                test_mode=use_test_mode,  # Use test mode by default
                 dry_run=True  # Don't update Jira from the web interface
             )
         )

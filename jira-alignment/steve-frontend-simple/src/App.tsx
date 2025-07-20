@@ -258,15 +258,24 @@ function App() {
       
       // Save that analysis has been completed
       localStorage.setItem('steve-last-analysis', new Date().toISOString());
-    } catch (error) {
+    } catch (error: any) {
       console.error('Analysis failed:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      
+      let errorMessage = 'Failed to analyze tickets. Please check your configuration and try again.';
+      if (error.response?.data?.detail) {
+        errorMessage = `Error: ${error.response.data.detail}`;
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       setResult({
         status: 'error',
         progress: 0,
         tickets: [],
         executiveSummary: '',
         timestamp: new Date().toISOString(),
-        error: 'Failed to analyze tickets. Please check your configuration and try again.'
+        error: errorMessage
       });
     } finally {
       setIsAnalyzing(false);
