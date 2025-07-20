@@ -620,24 +620,22 @@ function App() {
               <span className="settings-indicator" />
             </motion.button>
             
-            {/* Development: Reset Setup Button */}
-            {process.env.NODE_ENV === 'development' && (
-              <motion.button
-                className="reset-setup-button"
-                onClick={() => {
-                  localStorage.removeItem('steve-setup-completed');
-                  localStorage.removeItem('steve-last-analysis');
-                  setShowInitialSetup(true);
-                  setSetupStep('welcome');
-                  setResult(null);
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title="Reset to initial setup"
-              >
-                <RefreshCw style={{ width: 16, height: 16 }} />
-              </motion.button>
-            )}
+            {/* Reset Setup Button - Always visible */}
+            <motion.button
+              className="reset-setup-button"
+              onClick={() => {
+                localStorage.removeItem('steve-setup-completed');
+                localStorage.removeItem('steve-last-analysis');
+                setShowInitialSetup(true);
+                setSetupStep('welcome');
+                setResult(null);
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Reset to initial setup"
+            >
+              <RefreshCw style={{ width: 16, height: 16 }} />
+            </motion.button>
             
             
             {!showInitialSetup && (

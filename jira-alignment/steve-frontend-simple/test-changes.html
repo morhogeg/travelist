@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Changes</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .test { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+    .toggle-switch { 
+      width: 44px; 
+      height: 24px; 
+      background: #d1d5db !important; 
+      border-radius: 12px;
+      display: inline-block;
+    }
+    .toggle-switch.on { background: #10b981 !important; }
+    .numbered { 
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+      color: white !important;
+      opacity: 1 !important;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Testing Changes</h1>
+  
+  <div class="test">
+    <h3>1. Toggle Colors Test</h3>
+    <p>Off state: <span class="toggle-switch"></span> (should be light gray #d1d5db)</p>
+    <p>On state: <span class="toggle-switch on"></span> (should be green #10b981)</p>
+  </div>
+  
+  <div class="test">
+    <h3>2. Heading Test</h3>
+    <p>Original: **Key Insights:**</p>
+    <p>After cleaning: Key Insights (no asterisks, no colon)</p>
+  </div>
+  
+  <div class="test">
+    <h3>3. Numbered Bullets Test</h3>
+    <p><span class="numbered">1</span> This number should always be visible (white text)</p>
+    <p><span class="numbered">2</span> This number should always be visible (white text)</p>
+  </div>
+  
+  <script>
+    // Test the heading cleaning
+    const heading = "**Key Insights:**";
+    const cleaned = heading.replace(/\*\*/g, '').replace(/:/g, '');
+    console.log('Original:', heading);
+    console.log('Cleaned:', cleaned);
+  </script>
+</body>
+</html>
