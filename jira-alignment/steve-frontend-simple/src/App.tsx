@@ -73,6 +73,7 @@ interface Ticket {
     text: string;
     type: string;
   };
+  strategicComment?: string;
 }
 
 interface AnalysisResult {
@@ -605,6 +606,34 @@ function App() {
             </div>
           </div>
           
+          {result && (
+            <div className="header-nav">
+              <a href="#metrics" className="nav-link" onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('metrics')?.scrollIntoView({ behavior: 'smooth' });
+              }}>
+                <BarChart3 style={{ width: 16, height: 16 }} />
+                <span>Analytics</span>
+              </a>
+              <a href="#tickets" className="nav-link" onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('tickets')?.scrollIntoView({ behavior: 'smooth' });
+              }}>
+                <Ticket style={{ width: 16, height: 16 }} />
+                <span>Tickets</span>
+              </a>
+              {result.executiveSummary && (
+                <a href="#summary" className="nav-link" onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('summary')?.scrollIntoView({ behavior: 'smooth' });
+                }}>
+                  <FileText style={{ width: 16, height: 16 }} />
+                  <span>Summary</span>
+                </a>
+              )}
+            </div>
+          )}
+          
           <div className="header-controls">
             <motion.button
               className="theme-toggle"
@@ -1061,39 +1090,6 @@ function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              {/* Navigation Bar */}
-              <motion.nav
-                className="section-nav glass"
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-              >
-                <div className="nav-inner">
-                  <a href="#metrics" className="nav-link" onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById('metrics')?.scrollIntoView({ behavior: 'smooth' });
-                  }}>
-                    <BarChart3 style={{ width: 16, height: 16 }} />
-                    <span>Analytics</span>
-                  </a>
-                  <a href="#tickets" className="nav-link" onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById('tickets')?.scrollIntoView({ behavior: 'smooth' });
-                  }}>
-                    <Ticket style={{ width: 16, height: 16 }} />
-                    <span>Tickets</span>
-                  </a>
-                  {result.executiveSummary && (
-                    <a href="#summary" className="nav-link" onClick={(e) => {
-                      e.preventDefault();
-                      document.getElementById('summary')?.scrollIntoView({ behavior: 'smooth' });
-                    }}>
-                      <FileText style={{ width: 16, height: 16 }} />
-                      <span>Summary</span>
-                    </a>
-                  )}
-                </div>
-              </motion.nav>
 
               {result.error && (
                 <motion.div
@@ -1505,27 +1501,15 @@ function App() {
                       <h3 className="ticket-title">{ticket.summary}</h3>
                       <p className="ticket-rationale">{ticket.rationale}</p>
 
-                      {ticket.quickSuggestion && (
-                        <div className={`quick-suggestion quick-suggestion-${ticket.quickSuggestion.type}`}>
-                          {ticket.quickSuggestion.text}
-                        </div>
-                      )}
-
-                      {(ticket.suggestedSummary || expandedTickets.has(ticket.key)) && (
+                      {(ticket.suggestedSummary || ticket.strategicComment || expandedTickets.has(ticket.key)) && (
                         <button
-                          className="expand-button"
+                          className="expand-button chevron-only"
                           onClick={() => toggleTicketExpansion(ticket.key)}
                         >
                           {expandedTickets.has(ticket.key) ? (
-                            <>
-                              <ChevronUp style={{ width: 16, height: 16 }} />
-                              <span>Hide details</span>
-                            </>
+                            <ChevronUp style={{ width: 20, height: 20 }} />
                           ) : (
-                            <>
-                              <ArrowRight style={{ width: 16, height: 16 }} />
-                              <span>View suggestion</span>
-                            </>
+                            <ChevronDown style={{ width: 20, height: 20 }} />
                           )}
                         </button>
                       )}
@@ -1539,10 +1523,17 @@ function App() {
                             transition={{ duration: 0.3 }}
                             className="ticket-details"
                           >
-                            <div className="detail-section">
-                              <h4>Current Description</h4>
-                              <p>{ticket.description || 'No description provided'}</p>
-                            </div>
+                            {ticket.strategicComment && (
+                              <div className="strategic-comment-section">
+                                <div className="detail-section">
+                                  <h4>Current Description</h4>
+                                  <p>{ticket.description || 'No description provided'}</p>
+                                </div>
+                                <div className="strategic-comment-content" dangerouslySetInnerHTML={{ 
+                                  __html: ticket.strategicComment.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                                }} />
+                              </div>
+                            )}
                             
                             {ticket.suggestedSummary && (
                               <div className="suggestion-section">

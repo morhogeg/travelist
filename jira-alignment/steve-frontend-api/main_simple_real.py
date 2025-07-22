@@ -70,6 +70,7 @@ class Ticket(BaseModel):
     suggestedSummary: Optional[str] = None
     suggestedDescription: Optional[str] = None
     quickSuggestion: Optional[dict] = None
+    strategicComment: Optional[str] = None
 
 class AnalysisResult(BaseModel):
     status: str
@@ -82,6 +83,81 @@ class AnalysisResult(BaseModel):
 # In-memory storage for analysis results
 analysis_cache: Dict[str, AnalysisResult] = {}
 current_analysis_id: Optional[str] = None
+
+def generate_strategic_comment(ticket: dict) -> str:
+    """Generate STEVE's strategic analysis comment for a ticket"""
+    score = ticket.get('alignmentScore', ticket.get('score', 0))
+    category = ticket.get('category', '')
+    summary = ticket.get('summary', '')
+    rationale = ticket.get('rationale', '')
+    matched_principles = ticket.get('matched_principles', [])
+    
+    divider = "⸻"
+    comment = f"{divider}\n\n"
+    
+    # Strategic Alignment Summary
+    comment += "🎯 **Strategic Alignment Summary**\n"
+    category_display = category.replace('_', ' ').title()
+    comment += f"**Score**: {score}/100 — {category_display}\n"
+    
+    # Matched principles
+    if matched_principles:
+        comment += f"**Matched Principles**: {', '.join(matched_principles)}\n"
+    else:
+        comment += "**Matched Principles**: None\n"
+    
+    # Score explanation
+    if score >= 90:
+        comment += "This ticket directly accelerates our core mission. All top-tier principles are strongly represented.\n"
+    elif score >= 60:
+        comment += "This work supports strategic objectives. It provides necessary enablement for core value delivery.\n"
+    elif score >= 40:
+        comment += "The alignment with strategic principles is weak. Connection to mission is ambiguous.\n"
+    else:
+        comment += "No meaningful alignment detected with our strategic principles.\n"
+    
+    comment += f"\n{divider}\n\n"
+    
+    # Why This Aligns/Doesn't Align
+    if score >= 60:
+        comment += "🧠 **Why This Aligns**\n"
+    else:
+        comment += "🧠 **Why This Doesn't Align**\n"
+    
+    comment += rationale
+    
+    if score >= 90:
+        comment += " This work represents a direct advancement of our core strategic objectives."
+    elif score >= 60:
+        comment += " While not directly mission-critical, it provides necessary infrastructure for future core value delivery."
+    elif score >= 40:
+        comment += " This work appears well-intentioned but lacks clear strategic connection."
+    else:
+        comment += " This work provides no identifiable connection to any strategic principle."
+    
+    comment += f"\n\n{divider}\n\n"
+    
+    # Recommendation
+    comment += "🧭 **Recommendation**\n"
+    
+    if score >= 90:
+        comment += "• ✅ **Action**: Prioritize and fast-track to execution\n"
+        comment += "• 💡 **Rationale**: This creates foundational infrastructure with clear ROI"
+    elif score >= 60:
+        comment += "• ✅ **Action**: Keep in roadmap and schedule soon\n"
+        comment += "• 💡 **Rationale**: Enables stronger Core Value delivery down the line"
+    elif score >= 40:
+        comment += "• 🚧 **Action**: Reframe to improve strategic connection\n"
+        comment += "• 💡 **Rationale**: Could deliver value with better alignment to principles"
+        if ticket.get('suggestedSummary'):
+            comment += f"\n• 🔄 **Reframe Tip**: \"{ticket['suggestedSummary']}\""
+    else:
+        comment += "• ❌ **Action**: Remove from backlog or dramatically reframe\n"
+        comment += "• 💡 **Rationale**: Opportunity cost too high given lack of strategic alignment"
+    
+    comment += f"\n\n{divider}"
+    
+    return comment
 
 def generate_quick_suggestion(score: int, summary: str, category: str) -> dict:
     """Generate quick actionable suggestion based on score"""
@@ -120,7 +196,14 @@ def generate_mock_data() -> AnalysisResult:
             alignmentScore=85,
             category="core_value",
             rationale="Strong alignment with security and user experience principles",
-            quickSuggestion=generate_quick_suggestion(85, "Implement user authentication system", "core_value")
+            quickSuggestion=generate_quick_suggestion(85, "Implement user authentication system", "core_value"),
+            strategicComment=generate_strategic_comment({
+                'alignmentScore': 85,
+                'category': 'core_value',
+                'summary': 'Implement user authentication system',
+                'rationale': 'Strong alignment with security and user experience principles',
+                'matched_principles': ['Security', 'User Experience']
+            })
         ),
         Ticket(
             key="PROJ-002", 
@@ -140,7 +223,15 @@ def generate_mock_data() -> AnalysisResult:
             rationale="Technical debt work that doesn't directly serve user needs",
             suggestedSummary="Improve core user workflow performance",
             suggestedDescription="Optimize critical user paths by refactoring legacy components that impact user experience",
-            quickSuggestion=generate_quick_suggestion(45, "Refactor legacy codebase", "drift")
+            quickSuggestion=generate_quick_suggestion(45, "Refactor legacy codebase", "drift"),
+            strategicComment=generate_strategic_comment({
+                'alignmentScore': 45,
+                'category': 'drift',
+                'summary': 'Refactor legacy codebase',
+                'rationale': 'Technical debt work that doesn\'t directly serve user needs',
+                'matched_principles': [],
+                'suggestedSummary': 'Improve core user workflow performance'
+            })
         ),
         Ticket(
             key="PROJ-004",
@@ -151,7 +242,15 @@ def generate_mock_data() -> AnalysisResult:
             rationale="Nice-to-have feature that doesn't align with core business objectives",
             suggestedSummary="Enhance task completion feedback",
             suggestedDescription="Improve user satisfaction with meaningful feedback when completing critical workflows",
-            quickSuggestion=generate_quick_suggestion(25, "Add confetti animation", "distraction")
+            quickSuggestion=generate_quick_suggestion(25, "Add confetti animation", "distraction"),
+            strategicComment=generate_strategic_comment({
+                'alignmentScore': 25,
+                'category': 'distraction',
+                'summary': 'Add confetti animation',
+                'rationale': 'Nice-to-have feature that doesn\'t align with core business objectives',
+                'matched_principles': [],
+                'suggestedSummary': 'Enhance task completion feedback'
+            })
         ),
         Ticket(
             key="PROJ-005",
@@ -334,6 +433,15 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
             else:
                 category = "distraction"
             
+            ticket_data = {
+                'alignmentScore': int(score),
+                'category': category,
+                'summary': alignment.get('summary', ''),
+                'rationale': alignment.get('rationale', ''),
+                'matched_principles': alignment.get('matched_principles', []),
+                'suggestedSummary': alignment.get('suggested_summary')
+            }
+            
             tickets.append(Ticket(
                 key=ticket_key,
                 summary=alignment.get('summary', ''),
@@ -343,7 +451,8 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
                 rationale=alignment.get('rationale', ''),
                 suggestedSummary=alignment.get('suggested_summary'),
                 suggestedDescription=alignment.get('suggested_description'),
-                quickSuggestion=generate_quick_suggestion(int(score), alignment.get('summary', ''), category)
+                quickSuggestion=generate_quick_suggestion(int(score), alignment.get('summary', ''), category),
+                strategicComment=generate_strategic_comment(ticket_data)
             ))
         
         # Extract executive summary
