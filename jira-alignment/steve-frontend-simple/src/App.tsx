@@ -1238,8 +1238,16 @@ function App() {
                             }}
                             onMouseLeave={() => {
                               setHoveredCategory(null);
+                              // Always hide tooltip on mouse leave unless it's persistent (clicked)
                               if (!chartTooltip.persistent) {
-                                setChartTooltip({ ...chartTooltip, visible: false });
+                                setChartTooltip({ 
+                                  visible: false,
+                                  x: 0,
+                                  y: 0,
+                                  tickets: [],
+                                  title: '',
+                                  persistent: false
+                                });
                               }
                             }}
                             onClick={(e) => {
@@ -1257,7 +1265,6 @@ function App() {
                           />
                         ))}
                       </Pie>
-                      <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="chart-legend">
@@ -1757,32 +1764,37 @@ function App() {
                                     overflow: 'hidden'
                                   }}
                                 >
-                                  <div className="ticket-keys-list" style={{
-                                    display: 'flex',
-                                    flexWrap: 'wrap',
-                                    gap: '0.5rem',
-                                    padding: '0.5rem',
-                                    background: 'var(--surface-secondary)',
-                                    borderRadius: '0.5rem',
-                                    border: '1px solid var(--border-color)'
-                                  }}>
-                                    {ticketKeys.map((key, keyIndex) => (
-                                      <span 
-                                        key={keyIndex}
-                                        className="ticket-key-badge"
-                                        style={{
-                                          padding: '0.25rem 0.75rem',
-                                          background: 'var(--primary-color)',
-                                          color: 'white',
-                                          borderRadius: '1rem',
-                                          fontSize: '0.75rem',
-                                          fontWeight: '500',
-                                          fontFamily: 'monospace'
-                                        }}
-                                      >
-                                        {key}
-                                      </span>
-                                    ))}
+                                  <div className="ticket-keys-list">
+                                    {ticketKeys.map((key, keyIndex) => {
+                                      // Determine category color based on the ticket
+                                      const ticket = result.tickets.find(t => t.key === key);
+                                      const categoryColor = ticket ? (
+                                        ticket.category === 'core_value' ? '#10b981' :
+                                        ticket.category === 'strategic_enabler' ? '#3b82f6' :
+                                        ticket.category === 'drift' ? '#f59e0b' :
+                                        '#ef4444'
+                                      ) : '#6b7280';
+                                      
+                                      return (
+                                        <span 
+                                          key={keyIndex}
+                                          className="ticket-key-badge"
+                                          style={{
+                                            padding: '0.25rem 0.75rem',
+                                            background: categoryColor,
+                                            color: 'white',
+                                            borderRadius: '1rem',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            fontFamily: 'monospace',
+                                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                            display: 'inline-block'
+                                          }}
+                                        >
+                                          {key}
+                                        </span>
+                                      );
+                                    })}
                                   </div>
                                 </motion.div>
                               )}
