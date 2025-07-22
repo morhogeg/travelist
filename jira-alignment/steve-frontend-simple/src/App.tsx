@@ -113,8 +113,54 @@ const CATEGORY_LABELS = {
   distraction: 'Distraction'
 };
 
+const AGENT_STEPS = [
+  {
+    id: 'jira',
+    name: 'Connecting to Jira',
+    description: 'Fetching tickets from your backlog',
+    icon: Database,
+    duration: 2000
+  },
+  {
+    id: 'ingestor',
+    name: 'Ticket Ingestor',
+    description: 'Extracting and normalizing ticket data',
+    icon: FileText,
+    duration: 3000
+  },
+  {
+    id: 'evaluator',
+    name: 'Alignment Evaluator',
+    description: 'Scoring tickets against your principles',
+    icon: Scale,
+    duration: 4000
+  },
+  {
+    id: 'strategist',
+    name: 'Rewrite Strategist',
+    description: 'Crafting strategic realignments',
+    icon: Edit3,
+    duration: 3000
+  },
+  {
+    id: 'synthesizer',
+    name: 'Theme Synthesizer',
+    description: 'Identifying patterns and blind spots',
+    icon: Sparkles,
+    duration: 2000
+  },
+  {
+    id: 'founder',
+    name: 'Founder Voice',
+    description: 'Generating executive insights',
+    icon: Target,
+    duration: 2000
+  }
+];
+
 function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [currentAgentStep, setCurrentAgentStep] = useState(0);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [mode, setMode] = useState('execution');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -270,6 +316,17 @@ function App() {
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     setResult(null);
+    setCurrentAgentStep(0);
+    
+    // Simulate agent progression
+    const progressInterval = setInterval(() => {
+      setCurrentAgentStep(prev => {
+        if (prev < AGENT_STEPS.length - 1) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, 3000); // 3 seconds per agent
     
     try {
       // Create a clean version of agentSettings without React components
@@ -324,7 +381,9 @@ function App() {
         error: errorMessage
       });
     } finally {
+      clearInterval(progressInterval);
       setIsAnalyzing(false);
+      setCurrentAgentStep(0);
     }
   };
   
@@ -1051,34 +1110,46 @@ function App() {
                 <p>STEVE is evaluating strategic alignment...</p>
                 
                 <div className="loading-steps">
-                  <motion.div 
-                    className="loading-step active"
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <CheckCircle2 />
-                    <span>Fetching tickets from Jira</span>
-                  </motion.div>
-                  <motion.div 
-                    className="loading-step"
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    <Loader2 className="animate-spin" />
-                    <span>Evaluating strategic alignment</span>
-                  </motion.div>
-                  <motion.div 
-                    className="loading-step"
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                  >
-                    <Sparkles />
-                    <span>Generating insights</span>
-                  </motion.div>
+                  {AGENT_STEPS.map((step, index) => {
+                    const Icon = step.icon;
+                    const isActive = index === currentAgentStep;
+                    const isComplete = index < currentAgentStep;
+                    
+                    return (
+                      <motion.div 
+                        key={step.id}
+                        className={`loading-step ${isActive ? 'active' : ''} ${isComplete ? 'complete' : ''}`}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.1 * index }}
+                      >
+                        {isComplete ? (
+                          <CheckCircle2 style={{ color: '#10b981' }} />
+                        ) : isActive ? (
+                          <Loader2 className="animate-spin" style={{ color: '#8b5cf6' }} />
+                        ) : (
+                          <Icon style={{ opacity: 0.5 }} />
+                        )}
+                        <div className="step-content">
+                          <span className="step-name">{step.name}</span>
+                          <span className="step-description">{step.description}</span>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
+                
+                {currentAgentStep < AGENT_STEPS.length - 1 && (
+                  <motion.div
+                    className="agent-handoff"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    key={currentAgentStep}
+                  >
+                    <ArrowRight style={{ width: 16, height: 16 }} />
+                    <span>Handing off to {AGENT_STEPS[currentAgentStep + 1].name}...</span>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           )}
