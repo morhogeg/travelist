@@ -612,5 +612,5 @@ MIT License - Use STEVE's concepts to build your own strategic intelligence syst
 🎯 **One command. Complete strategic intelligence. Every ticket aligned.**
 
 ```bash
-python3 steve.py --mode execution
+python3 steve/steve.py --mode execution
 ```
