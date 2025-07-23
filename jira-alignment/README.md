@@ -23,7 +23,6 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ## ⚡ Quick Start
 
-
 ### 🌐 Web Dashboard (Recommended)
 ```bash
 # 1. Clone the repository
