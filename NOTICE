@@ -1,0 +1,19 @@
+STEVE - Strategic Ticket Evaluation & Vision Enforcer
+Copyright 2025 Mor Hogeg
+
+This product includes software developed by Mor Hogeg.
+
+For more information about STEVE, please visit:
+https://github.com/morhogeg/STEVE
+
+ATTRIBUTION NOTICE:
+When using or modifying STEVE, please ensure proper attribution to the original author:
+- Include this NOTICE file in any distribution
+- Maintain the copyright notice "Copyright 2025 Mor Hogeg" in all copies
+- If you modify STEVE, clearly state the changes made
+
+Third-party components and their licenses:
+- React: MIT License
+- FastAPI: MIT License  
+- CrewAI: MIT License
+- Various Python packages: See requirements.txt for full list
