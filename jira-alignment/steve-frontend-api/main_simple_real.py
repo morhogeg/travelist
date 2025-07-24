@@ -26,9 +26,18 @@ sys.path.append(steve_dir)
 os.chdir(steve_dir)
 
 # Load environment variables from steve/.env
-# load_dotenv('.env')
+from dotenv import load_dotenv
+env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(env_path)
 
 try:
+    import sys
+    import os
+    # Add steve directory to Python path
+    steve_path = os.path.join(os.path.dirname(__file__), '..', 'steve')
+    if steve_path not in sys.path:
+        sys.path.insert(0, steve_path)
+    
     from crew_steve import run_steve as crew_main
     from core.schemas import ReviewMode
     from core.jira_client import JiraClient
@@ -295,9 +304,9 @@ def generate_mock_data() -> AnalysisResult:
 Our current sprint shows mixed strategic alignment with several areas requiring immediate attention. While we have strong core value initiatives (3 tickets, 38%), we're also investing significant effort in distractions that don't serve our users.
 
 **Key Insights:**
-• **Core Value Strength**: Authentication system and analytics dashboard demonstrate solid commitment to user security and data-driven decisions
-• **Strategic Drift Alert**: 25% of tickets (2/8) are categorized as distractions - this is above our 15% threshold
-• **Performance Focus**: API optimization and real-time notifications show good technical foundation building
+• **Core Value Strength**: Authentication system and analytics dashboard demonstrate solid commitment to user security and data-driven decisions [[PROJ-001, PROJ-005, PROJ-007]]
+• **Strategic Drift Alert**: 25% of tickets (2/8) are categorized as distractions - this is above our 15% threshold [[PROJ-004, PROJ-008]]
+• **Performance Focus**: API optimization and real-time notifications show good technical foundation building [[PROJ-003, PROJ-006]]
 
 **Immediate Recommendations:**
 • Consolidate or eliminate social media sharing and confetti features
