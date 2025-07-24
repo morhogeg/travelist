@@ -495,9 +495,6 @@ STEVE is highly customizable:
 - **Configuration Files** - See `steve/config/` directory for principles and agent setup
 - **Example Output** - View sample executive summaries in `steve/` directory
 
-## 🤝 Contributing
-
-STEVE was built for the AI Strategy Brief Generator but is designed to be adaptable. While this specific configuration isn't meant to be forked directly, the architecture and approach can inspire your own strategic alignment systems.
 
 ## 📄 License
 
