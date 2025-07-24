@@ -41,13 +41,6 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ### 🌐 Web Dashboard (Recommended)
 ```bash
-# 1. Clone the repository
-git clone https://github.com/morhogeg/STEVE.git && cd STEVE
-
-# 2. Validate your setup (optional but recommended)
-./validate-setup.sh
-
-# 3. Launch the web interface
 ./run-web.sh
 ```
 
@@ -60,12 +53,6 @@ git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
 ### 🖥️ Command Line Interface
 ```bash
-# 1. Clone the repository (if not already done)
-git clone https://github.com/morhogeg/STEVE.git && cd STEVE
-
-# 2. Configure your .env file with Jira credentials (see Configuration section)
-
-# 3. Run CLI analysis
 ./run-cli.sh --mode execution
 ```
 
@@ -88,11 +75,7 @@ git clone https://github.com/morhogeg/STEVE.git && cd STEVE
 
 ## 🚀 What STEVE Does
 
-```bash
-python3 steve/steve.py --mode execution
-```
-
-**This single command delivers:**
+**Running STEVE delivers:**
 
 - **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
 - **📊 Strategic Scoring**: Evaluates each ticket against your principles (0-100)
@@ -143,7 +126,7 @@ python3 steve/steve.py --mode execution
 
 ## 🏗️ How STEVE Works
 
-When you run `python3 steve/steve.py --mode execution`, here's what happens:
+When you run STEVE, here's what happens:
 
 ### **Phase 1: Multi-Agent Analysis** 🤖
 STEVE's **5 AI Agents** collaborate sequentially:
@@ -205,27 +188,19 @@ STEVE generates executive-ready intelligence:
 
 ## ⚡ Quick Start
 
-### 1. Install Dependencies
+### 1. Clone Repository
 ```bash
 git clone https://github.com/morhogeg/STEVE.git
 cd STEVE
-python -m venv steve-env
-source steve-env/bin/activate  # Windows: steve-env\Scripts\activate
-pip install -r steve/requirements.txt
 ```
 
 ### 2. Configure Environment
-```bash
-cp steve/.env.example .env
-# Edit .env with your Jira credentials and API keys
-```
+Edit `.env` with your Jira credentials and API keys.
 
 ### 3. Test STEVE
 ```bash
 # Test with mock data (safe - no real Jira updates)
-python3 steve/steve.py --mode execution --test
-
-# This will show you exactly what STEVE does without touching your real tickets
+./run-cli.sh --test
 ```
 
 <details>
@@ -285,34 +260,14 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 ### 5. Run STEVE
 
-#### One Command Does Everything
+#### Web Interface
 ```bash
-# Complete strategic analysis (multi-agent AI + Jira updates + executive summary)
-python3 steve/steve.py --mode execution
-
-# Test with mock data (safe - no Jira updates)
-python3 steve/steve.py --mode execution --test
-
-# Full project strategic review
-python3 steve/steve.py --mode full_review --project MYPROJ
-
-# Analysis only (skip Jira updates)
-python3 steve/steve.py --mode execution --analysis-only
-
-# Include sorted priority list
-python3 steve/steve.py --mode execution --sorted
-
-# Dry run (analyze but don't update Jira)
-python3 steve/steve.py --mode execution --dry-run
+./run-web.sh
 ```
 
-#### Legacy Commands (Still Available)
+#### Command Line Interface
 ```bash
-# Multi-agent analysis only
-python3 steve/crew_steve.py --test
-
-# Direct Jira integration only  
-python3 steve/real_steve.py --mode execution --dry-run
+./run-cli.sh --mode execution
 ```
 
 ## 🔧 Configuration
@@ -531,25 +486,25 @@ STEVE can update custom fields for native Jira sorting:
 ### Daily Strategic Alignment
 ```bash
 # Quick sprint check before standup
-python3 steve/steve.py --mode execution --sorted
+./run-cli.sh --mode execution --sorted
 ```
 
 ### Sprint Planning
 ```bash
 # Analyze backlog before committing to new work  
-python3 steve/steve.py --mode strategy --project MYPROJ
+./run-cli.sh --mode strategy --project MYPROJ
 ```
 
 ### Quarterly Strategic Reviews
 ```bash
 # Complete project analysis for strategic planning
-python3 steve/steve.py --mode full_review
+./run-cli.sh --mode full_review
 ```
 
 ### Safe Experimentation
 ```bash
 # Test new principles or configurations safely
-python3 steve/steve.py --mode execution --dry-run
+./run-cli.sh --mode execution --dry-run
 ```
 
 ## 🛠️ Utility Scripts
@@ -564,10 +519,7 @@ python3 steve/steve.py --mode execution --dry-run
 <details>
 <summary><b>🚀 Advanced Features</b></summary>
 
-### Unified Command Options
-```bash
-python3 steve/steve.py [OPTIONS]
-```
+### Command Options
 
 **Analysis Control:**
 - `--mode execution|strategy|full_review` - Scope of analysis
@@ -638,7 +590,3 @@ When using or modifying STEVE, please ensure proper attribution:
 > **"Are we building what matters?"** - STEVE's guiding question
 
 🎯 **One command. Complete strategic intelligence. Every ticket aligned.**
-
-```bash
-python3 steve/steve.py --mode execution
-```
