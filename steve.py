@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from rich.console import Console
 
 # Import from existing modules
-from crew_steve import run_steve as crew_main, create_agents, create_tasks
+from crew_steve_core import run_steve as crew_main, create_agents, create_tasks
 from real_steve import (
     connect_to_jira, 
     check_steve_custom_fields,
