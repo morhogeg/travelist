@@ -53,22 +53,7 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ### 🖥️ Command Line Interface
 ```bash
-./run-cli.sh --mode execution
-```
-
-**Quick CLI Examples:**
-```bash
-# Test with mock data (no Jira connection needed)
-./run-cli.sh --test
-
-# Analyze current sprint and update Jira
-./run-cli.sh --mode execution
-
-# Full project review with sorted results
-./run-cli.sh --mode full_review --sorted
-
-# Dry run without updating Jira
-./run-cli.sh --mode strategy --dry-run
+./run-cli.sh
 ```
 
 **CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
@@ -109,7 +94,7 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
    💭 Issues: No alignment with: Builder-First Value, AI Agent Excellence
 ```
 
-### 📊 Sorted Priority View (--sorted flag)
+### 📊 Sorted Priority View
 ```
 ┏━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
 ┃ Rank ┃ Score  ┃ Ticket   ┃ Category       ┃ Summary                        ┃ Action             ┃
@@ -197,14 +182,9 @@ cd STEVE
 ### 2. Configure Environment
 Edit `.env` with your Jira credentials and API keys.
 
-### 3. Test STEVE
-```bash
-# Test with mock data (safe - no real Jira updates)
-./run-cli.sh --test
-```
 
 <details>
-<summary><b>4. Configure Your Product Vision</b></summary>
+<summary><b>3. Configure Your Product Vision</b></summary>
 
 STEVE needs to understand your product's strategic vision. Edit these files:
 
@@ -258,7 +238,7 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 </details>
 
-### 5. Run STEVE
+### 4. Run STEVE
 
 #### Web Interface
 ```bash
@@ -267,7 +247,7 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 #### Command Line Interface
 ```bash
-./run-cli.sh --mode execution
+./run-cli.sh
 ```
 
 ## 🔧 Configuration
@@ -279,10 +259,6 @@ Run `./steve/validate-setup.sh` to check:
 - ✅ Jira connection and API keys configured
 - ✅ Project structure intact
 
-### Review Modes
-- **`execution`**: Current sprint tickets only
-- **`strategy`**: Strategic epics and initiatives  
-- **`full_review`**: All project tickets
 
 ### Alignment Scoring
 - **90-100**: Core Value (directly advances strategy)
@@ -481,56 +457,11 @@ STEVE can update custom fields for native Jira sorting:
 - **Resource Waste**: Highlights low-value work before it consumes time
 - **Vision Dilution**: Keeps everyone focused on what matters most
 
-## 🔄 Workflow Integration
 
-### Daily Strategic Alignment
-```bash
-# Quick sprint check before standup
-./run-cli.sh --mode execution --sorted
-```
-
-### Sprint Planning
-```bash
-# Analyze backlog before committing to new work  
-./run-cli.sh --mode strategy --project MYPROJ
-```
-
-### Quarterly Strategic Reviews
-```bash
-# Complete project analysis for strategic planning
-./run-cli.sh --mode full_review
-```
-
-### Safe Experimentation
-```bash
-# Test new principles or configurations safely
-./run-cli.sh --mode execution --dry-run
-```
-
-## 🛠️ Utility Scripts
-
-- **`steve/validate-setup.sh`**: Check prerequisites and validate configuration
-- **`steve-help.sh`**: Display all available commands and options
-- **`start-fresh.sh`**: Clean environment setup for fresh installations
-- **`steve/crew_steve_showcase.py`**: Demo version for showcasing STEVE's capabilities
-- **`steve/cleanup_duplicates.py`**: Remove duplicate entries from analysis results
-- **`steve/simple_crew.py`**: Simplified implementation for learning CrewAI concepts
 
 <details>
 <summary><b>🚀 Advanced Features</b></summary>
 
-### Command Options
-
-**Analysis Control:**
-- `--mode execution|strategy|full_review` - Scope of analysis
-- `--project MYPROJ` - Target specific Jira project
-- `--test` - Use mock data for safe testing
-- `--dry-run` - Analyze without updating Jira tickets
-
-**Output Control:**
-- `--sorted` - Include strategic priority ranking
-- `--analysis-only` - Skip Jira updates, analysis only
-- `--no-notion` - Skip saving executive summary to Notion
 
 **Multi-Agent AI Features:**
 - **Multi-LLM Support**: OpenAI, OpenRouter, or local Ollama
