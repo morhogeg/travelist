@@ -38,7 +38,7 @@ try:
     if steve_path not in sys.path:
         sys.path.insert(0, steve_path)
     
-    from crew_steve import run_steve as crew_main
+    from crew_steve_core import run_steve as crew_main
     from core.schemas import ReviewMode
     from core.jira_client import JiraClient
     from utils.logger import get_logger
