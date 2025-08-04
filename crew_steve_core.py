@@ -256,11 +256,26 @@ def create_tasks(context_data: Dict[str, str], review_mode: ReviewMode, dry_run:
            - 20-39: Minimal strategic value or misallocation concern
            - 0-19: No clear strategic alignment or potential negative impact
         
-        4. RATIONALE DOCUMENTATION:
-           - Provide clear 2-3 sentence explanation for each score
-           - Explain specific reasons for alignment or misalignment
-           - Connect work to measurable business outcomes
-           - Identify opportunities for improved strategic focus
+        4. RATIONALE DOCUMENTATION - CRITICAL REQUIREMENT:
+           - Generate a UNIQUE, CONTEXTUAL rationale for EACH ticket
+           - Explain HOW and WHY it aligns with the SPECIFIC principles defined
+           - Reference the actual principle names and their descriptions
+           - Each rationale MUST be different - absolutely no repetition
+           - Focus on strategic alignment with the vision, not technical details
+           
+           RATIONALE GENERATION RULES:
+           - Read the principle descriptions carefully
+           - Identify which aspects of the ticket connect to which principles
+           - Explain the connection in terms of business value and vision alignment
+           - Use varied vocabulary and sentence structure
+           - Be specific about how this work advances the product vision
+           
+           FORMAT FOR EACH TICKET:
+           Ticket: [KEY-XXX]
+           Score: [0-100]
+           Category: [core_value/strategic_enabler/drift/distraction]
+           Matched Principles: [List principle names that apply]
+           Rationale: [2-3 sentences explaining WHY this aligns with the vision]
         
         DELIVERABLE: Structured strategic alignment scores with clear rationale and recommendations.
         
@@ -551,21 +566,28 @@ def update_jira_tickets(jira_client: JiraClient, results: Dict[str, Any], dry_ru
             elif 'feature' in ticket_type.lower():
                 ticket_type_display = "Feature Addition"
             
-            comment_text = f"""⸻
-
-📦 *Ticket Type*: {ticket_type_display}
-🧭 *Strategic Role*: {strategic_role}
+            comment_text = f"""📊 **Current Description**
+{ticket.get('description', 'No description provided')}
 
 ⸻
 
-🎯 *Strategic Alignment Summary*
-*Score*: {score}/100 — {category.replace('_', ' ').title()}
-*Matched Principles*: {matched_principles}
+📦 **Ticket Type**: {ticket_type_display}
+🧭 **Strategic Role**: {strategic_role}
+
+⸻
+
+🎯 **Strategic Alignment Summary**
+
+**Score**: {score}/100 — {category.replace('_', ' ').title()}
+
+**Matched Principles**: {matched_principles}
+
 {score_explanation}
 
 ⸻
 
-🧠 *Why This {"Aligns" if score >= 60 else "Doesn't Align"}*
+🧠 **Why This {"Aligns" if score >= 60 else "Doesn't Align"}**
+
 {expanded_rationale}
 
 ⸻
@@ -575,10 +597,11 @@ def update_jira_tickets(jira_client: JiraClient, results: Dict[str, Any], dry_ru
             # Add suggested reframe for low alignment tickets
             if score < 60 and rewrite:
                 comment_text += f"""
-🔁 *Suggested Reframe*
+🔁 **Suggested Reframe**
 
-*New Title*: {rewrite['new_summary']}
-*Reason*: {rewrite['jira_comment']}
+**New Title**: {rewrite['new_summary']}
+
+**Reason**: {rewrite['jira_comment']}
 
 ⸻
 """
@@ -587,61 +610,58 @@ def update_jira_tickets(jira_client: JiraClient, results: Dict[str, Any], dry_ru
             if score >= 90:
                 # Core Value - give concrete next steps
                 if 'agent' in ticket_type.lower() or 'ai' in ticket_text:
-                    recommendation = """• ✅ *Action*: Fast-track to current sprint and assign senior engineers
-• 💡 *Rationale*: This unlocks 3-5 downstream agent features. Ship within 2 weeks to maintain momentum
-• 📊 *Impact*: Enables agentic experiences for ~80% of active builders"""
+                    recommendation = """✅ **Action**: Fast-track to current sprint and assign senior engineers
+💡 **Rationale**: This unlocks 3-5 downstream agent features. Ship within 2 weeks to maintain momentum
+📊 **Impact**: Enables agentic experiences for ~80% of active builders"""
                 elif 'integration' in ticket_text:
-                    recommendation = """• ✅ *Action*: Prioritize immediately and create integration cookbook
-• 💡 *Rationale*: Each integration multiplies builder possibilities. Document patterns for reuse
-• 🎯 *Success Metric*: 10+ builders using this integration within first month"""
+                    recommendation = """✅ **Action**: Prioritize immediately and create integration cookbook
+💡 **Rationale**: Each integration multiplies builder possibilities. Document patterns for reuse
+🎯 **Success Metric**: 10+ builders using this integration within first month"""
                 else:
-                    recommendation = """• ✅ *Action*: Make this the sprint's north star
-• 💡 *Rationale*: Direct mission advancement deserves focused execution. Clear other blockers
-• ⚡ *Velocity*: This single ticket can move our strategic score +5-10 points"""
+                    recommendation = """✅ **Action**: Make this the sprint's north star
+💡 **Rationale**: Direct mission advancement deserves focused execution. Clear other blockers
+⚡ **Velocity**: This single ticket can move our strategic score +5-10 points"""
             elif score >= 60:
                 # Strategic Enabler - explain dependencies and add reframe hook
                 if 'infrastructure' in ticket_type.lower():
-                    recommendation = """• ✅ *Action*: Schedule for next sprint with clear success criteria
-• 💡 *Rationale*: Future agent features depend on this foundation. Define performance benchmarks upfront
-• 🔄 *Reframe Tip*: Add 'enables real-time agent response' to description for clearer strategic link"""
+                    recommendation = """✅ **Action**: Schedule for next sprint with clear success criteria
+💡 **Rationale**: Future agent features depend on this foundation. Define performance benchmarks upfront
+🔄 **Reframe Tip**: Add 'enables real-time agent response' to description for clearer strategic link"""
                 elif 'ui' in ticket_type.lower():
-                    recommendation = """• ✅ *Action*: Bundle with related builder experience improvements
-• 💡 *Rationale*: UI clarity directly impacts builder adoption rates. Group for maximum impact
-• 🔄 *Reframe Tip*: Emphasize how this reduces time-to-first-agent-deployment"""
+                    recommendation = """✅ **Action**: Bundle with related builder experience improvements
+💡 **Rationale**: UI clarity directly impacts builder adoption rates. Group for maximum impact
+🔄 **Reframe Tip**: Emphasize how this reduces time-to-first-agent-deployment"""
                 else:
-                    recommendation = """• ✅ *Action*: Keep in roadmap but link to specific Core Value work
-• 💡 *Rationale*: This enables future builder capabilities. Make dependencies explicit
-• 🔄 *Reframe Tip*: Connect to specific agent/builder features this unblocks"""
+                    recommendation = """✅ **Action**: Keep in roadmap but link to specific Core Value work
+💡 **Rationale**: This enables future builder capabilities. Make dependencies explicit
+🔄 **Reframe Tip**: Connect to specific agent/builder features this unblocks"""
             elif score >= 40:
                 # Drift - specific reframing guidance
-                recommendation = """• 🚧 *Action*: Pause work and reframe before proceeding
-• 💡 *Rationale*: Current framing misses strategic value. 2 hours of reframing saves 20 hours of misaligned work"""
+                recommendation = """🚧 **Action**: Pause work and reframe before proceeding
+💡 **Rationale**: Current framing misses strategic value. 2 hours of reframing saves 20 hours of misaligned work"""
                 if rewrite:
-                    recommendation += f"\n• ✏️ *Suggested Reframe*: \"{rewrite['new_summary']}\""
-                    recommendation += "\n• 📝 *Next Step*: Update ticket description with builder impact and AI integration points"
+                    recommendation += f"\n✏️ **Suggested Reframe**: \"{rewrite['new_summary']}\""
+                    recommendation += "\n📝 **Next Step**: Update ticket description with builder impact and AI integration points"
                 else:
-                    recommendation += "\n• ✏️ *Reframe Focus*: How does this help builders? What agent capabilities does it enable?"
-                    recommendation += "\n• 💭 *Questions*: Can this integrate with our AI pipeline? Does it reduce builder friction?"
+                    recommendation += "\n✏️ **Reframe Focus**: How does this help builders? What agent capabilities does it enable?"
+                    recommendation += "\n💭 **Questions**: Can this integrate with our AI pipeline? Does it reduce builder friction?"
             else:
                 # Distraction - clear deprioritization with data
-                recommendation = """• 🚫 *Action*: Move to backlog immediately
-• 💡 *Rationale*: Zero strategic alignment = negative ROI. Team capacity is finite
-• 📊 *Opportunity Cost*: Every sprint on this delays 2-3 strategic initiatives"""
+                recommendation = """🚫 **Action**: Move to backlog immediately
+💡 **Rationale**: Zero strategic alignment = negative ROI. Team capacity is finite
+📊 **Opportunity Cost**: Every sprint on this delays 2-3 strategic initiatives"""
                 if rewrite and score > 20:  # Only suggest reframe if there's some hope
-                    recommendation += f"\n• ✏️ *Last Resort*: Radical reframe as \"{rewrite['new_summary']}\" or archive"
+                    recommendation += f"\n✏️ **Last Resort**: Radical reframe as \"{rewrite['new_summary']}\" or archive"
                 else:
-                    recommendation += "\n• 🗑️ *Recommendation*: Archive unless business case emerges"
+                    recommendation += "\n🗑️ **Recommendation**: Archive unless business case emerges"
             
             comment_text += f"""
-🧭 *Recommendation*
+🧭 **Recommendation**
 
-{recommendation}
-
-⸻
-
-_Generated by STEVE — Strategic Ticket Evaluation & Vision Enforcer_
-
-⸻"""
+{recommendation}"""
+            
+            # Store the comment in alignment data for frontend display
+            alignment['jira_comment'] = comment_text
             
             # Update the ticket in Jira by adding comment directly
             jira_client.jira.add_comment(ticket_key, comment_text)
@@ -811,46 +831,67 @@ def calculate_ticket_alignment_scores(context_data: Dict[str, str]) -> List[Dict
         else:
             category = 'distraction'
         
-        # Generate more specific rationale based on content
+        # For fallback only - generate a basic rationale
+        # This should only be used if AI agents don't provide one
         summary_lower = ticket['summary'].lower()
         desc_lower = ticket['description'].lower()
         
-        if max_score >= 80:
-            if 'agent' in text or 'ai' in text or 'multi-agent' in text:
-                rationale = "Directly implements AI agent capabilities that empower builders."
-            elif 'integration' in text or 'api' in text:
-                rationale = "Creates strategic integration points that multiply builder possibilities."
-            elif 'builder' in text or 'developer' in text:
-                rationale = "Explicitly targets builder productivity and empowerment."
-            elif 'real-time' in text or 'automation' in text:
-                rationale = "Delivers automation capabilities aligned with our AI-first vision."
+        # Generate varied rationales based on ticket content and principles
+        import hashlib
+        ticket_hash = hashlib.md5(f"{ticket_key}{summary_lower}".encode()).hexdigest()[:8]
+        hash_num = int(ticket_hash, 16)
+        
+        if matched_principles and len(matched_principles) > 0:
+            if max_score >= 80:
+                # Core Value - varied rationales based on ticket content
+                rationale_options = [
+                    f"Directly implements {matched_principles[0]} through actionable builder tools",
+                    f"Core advancement of {matched_principles[0]} with immediate impact",
+                    f"Strong embodiment of {', '.join(matched_principles[:2])} principles",
+                    f"Exemplifies {matched_principles[0]} through practical implementation",
+                    f"Critical enabler for {matched_principles[0]} strategy",
+                    f"Transforms {matched_principles[0]} vision into tangible features",
+                    f"Essential building block for {matched_principles[0]} goals",
+                    f"Accelerates {matched_principles[0]} through focused execution"
+                ]
+                rationale = rationale_options[hash_num % len(rationale_options)]
+            elif max_score >= 60:
+                rationale_options = [
+                    f"Supports {matched_principles[0]} with foundational capabilities",
+                    f"Enables {matched_principles[0]} through infrastructure work",
+                    f"Indirect advancement of {matched_principles[0]} principles",
+                    f"Strengthens platform for {matched_principles[0]} initiatives"
+                ]
+                rationale = rationale_options[hash_num % len(rationale_options)]
             else:
-                rationale = "Strongly aligns with strategic principles and directly advances core goals."
-        elif max_score >= 60:
-            if 'performance' in text or 'optimization' in text:
-                rationale = "Strengthens platform performance to support AI workloads."
-            elif 'infrastructure' in text or 'foundation' in text:
-                rationale = "Builds essential infrastructure for future strategic features."
-            elif 'bug' in text or 'fix' in text:
-                rationale = "Maintains system reliability that builders depend on."
-            elif 'ui' in text or 'ux' in text:
-                rationale = "Improves builder experience through interface enhancements."
-            else:
-                rationale = "Supports strategic objectives with clear connection to principles."
-        elif max_score >= 40:
-            if 'ui' in text or 'design' in text:
-                rationale = "UI work with unclear connection to builder productivity."
-            elif 'feature' in text:
-                rationale = "Adds functionality without clear strategic alignment."
-            else:
-                rationale = "Has some strategic value but connection to core principles is weak."
+                rationale = f"Peripheral connection to {matched_principles[0]}"
         else:
-            if 'marketing' in text or 'brand' in text:
-                rationale = "Marketing focus diverges from product excellence priorities."
-            elif 'cosmetic' in text or 'style' in text:
-                rationale = "Cosmetic changes with no builder or AI impact."
+            # No principles matched
+            if max_score >= 60:
+                rationale_options = [
+                    "Provides infrastructure value without direct principle alignment",
+                    "Foundational work that enables future strategic initiatives",
+                    "Supporting capability for broader strategic goals",
+                    "Technical enabler with indirect strategic benefit"
+                ]
+                rationale = rationale_options[hash_num % len(rationale_options)]
+            elif max_score >= 40:
+                rationale_options = [
+                    "Limited strategic alignment with current priorities",
+                    "Useful work outside core strategic focus",
+                    "Tangential value to product vision",
+                    "Minor contribution to strategic objectives"
+                ]
+                rationale = rationale_options[hash_num % len(rationale_options)]
             else:
-                rationale = "Limited strategic alignment. Consider deprioritizing or reframing."
+                rationale_options = [
+                    "No clear connection to strategic priorities",
+                    "Work that diverts from core mission",
+                    "Outside scope of current product vision",
+                    "Lacks alignment with defined principles",
+                    "Minimal strategic value identified"
+                ]
+                rationale = rationale_options[hash_num % len(rationale_options)]
         
         alignment = {
             'ticket_key': ticket_key,
@@ -859,11 +900,74 @@ def calculate_ticket_alignment_scores(context_data: Dict[str, str]) -> List[Dict
             'score': round(max_score, 1),
             'category': category,
             'rationale': rationale,
-            'matched_principles': matched_principles
+            'matched_principles': matched_principles,
+            'jira_comment': None  # Will be populated when Jira is updated
         }
         alignments.append(alignment)
     
     return alignments
+
+
+def extract_ai_generated_alignments(output_text: str, context_data: Dict[str, str] = None) -> List[Dict]:
+    """Extract alignment scores and rationales generated by the AI agents"""
+    import re
+    import yaml
+    
+    alignments = []
+    
+    # Look for ticket analysis patterns in the AI output
+    # The AI should output something like:
+    # Ticket: KEY-123
+    # Score: 85/100
+    # Category: core_value
+    # Matched Principles: Builder-First Value, AI Agent Excellence
+    # Rationale: This ticket directly advances our core mission by...
+    
+    # Pattern to find ticket blocks
+    ticket_pattern = r'(?:Ticket|TICKET|Key|KEY)[:\s]+([A-Z]+-\d+).*?(?:Score|SCORE)[:\s]+(\d+).*?(?:Category|CATEGORY)[:\s]+(\w+).*?(?:Matched Principles|MATCHED PRINCIPLES|Principles)[:\s]+([^\n]+).*?(?:Rationale|RATIONALE)[:\s]+([^\n]+(?:\n(?![A-Z]+:)[^\n]+)*)'
+    
+    matches = re.finditer(ticket_pattern, output_text, re.IGNORECASE | re.DOTALL)
+    
+    for match in matches:
+        ticket_key = match.group(1)
+        score = int(match.group(2))
+        category = match.group(3).lower().replace(' ', '_')
+        matched_principles_str = match.group(4).strip()
+        rationale = match.group(5).strip()
+        
+        # Clean up the rationale - remove extra whitespace and formatting
+        rationale = re.sub(r'\s+', ' ', rationale)
+        rationale = re.sub(r'\*+', '', rationale)  # Remove markdown formatting
+        
+        # Parse matched principles
+        matched_principles = [p.strip() for p in matched_principles_str.split(',') if p.strip() and p.strip().lower() != 'none']
+        
+        # Get ticket details from context if available
+        summary = ''
+        description = ''
+        if context_data:
+            for key, value in context_data.items():
+                if key == ticket_key:
+                    parts = value.split('\n', 1)
+                    summary = parts[0] if parts else ''
+                    description = parts[1] if len(parts) > 1 else ''
+                    break
+        
+        alignment = {
+            'ticket_key': ticket_key,
+            'summary': summary,
+            'description': description,
+            'score': score,
+            'category': category,
+            'rationale': rationale,  # Use the AI-generated rationale
+            'matched_principles': matched_principles,
+            'jira_comment': None
+        }
+        alignments.append(alignment)
+    
+    # If we found alignments in the AI output, use them
+    # Otherwise return empty list to trigger fallback
+    return alignments if alignments else []
 
 
 def parse_crew_results(crew_output, context_data: Dict[str, str] = None) -> Dict[str, Any]:
@@ -872,8 +976,15 @@ def parse_crew_results(crew_output, context_data: Dict[str, str] = None) -> Dict
     
     output_text = str(crew_output)
     
-    # Get detailed ticket alignments using proven algorithm
-    alignments = calculate_ticket_alignment_scores(context_data) if context_data else []
+    # First, try to extract AI-generated alignments from the agent output
+    ai_alignments = extract_ai_generated_alignments(output_text, context_data)
+    
+    # If AI didn't generate proper alignments, fall back to algorithmic scoring
+    # but still use AI-generated rationales if available
+    if not ai_alignments:
+        alignments = calculate_ticket_alignment_scores(context_data) if context_data else []
+    else:
+        alignments = ai_alignments
     
     # Enhanced parsing to capture more agent insights
     agent_insights = extract_agent_insights(output_text)

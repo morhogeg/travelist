@@ -18,11 +18,15 @@ def get_llm():
     # Option 2: OpenRouter (free tier)
     elif os.getenv("OPENROUTER_API_KEY"):
         return LLM(
-            model="openrouter/mistralai/mistral-small-3.2-24b-instruct:free",
+            model="openrouter/qwen/qwen-2.5-coder-32b-instruct",
             api_key=os.getenv("OPENROUTER_API_KEY"),
             base_url="https://openrouter.ai/api/v1",
             temperature=0.7,
-            max_tokens=1000
+            max_tokens=1000,
+            default_headers={
+                "HTTP-Referer": "https://steve-ai.com",
+                "X-Title": "STEVE - Strategic Ticket Evaluation"
+            }
         )
     
     # Option 3: Local Ollama
