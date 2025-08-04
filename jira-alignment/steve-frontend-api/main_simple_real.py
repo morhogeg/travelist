@@ -164,8 +164,6 @@ def generate_strategic_comment(ticket: dict) -> str:
         comment += "• ❌ **Action**: Remove from backlog or dramatically reframe\n"
         comment += "• 💡 **Rationale**: Opportunity cost too high given lack of strategic alignment"
     
-    comment += f"\n\n{divider}"
-    
     return comment
 
 def generate_quick_suggestion(score: int, summary: str, category: str) -> dict:
@@ -308,12 +306,14 @@ Our current sprint shows mixed strategic alignment with several areas requiring 
 • **Strategic Drift Alert**: 25% of tickets (2/8) are categorized as distractions - this is above our 15% threshold [[PROJ-004, PROJ-008]]
 • **Performance Focus**: API optimization and real-time notifications show good technical foundation building [[PROJ-003, PROJ-006]]
 
-**Immediate Recommendations:**
-• Consolidate or eliminate social media sharing and confetti features
-• Reframe legacy refactoring in terms of user impact
-• Maintain focus on authentication and analytics as flagship deliverables
-
 **Bottom Line**: We're building meaningful features but getting distracted by nice-to-haves. The team needs to recommit to user-centric outcomes over feature completeness.
+
+**📋 Next Steps:**
+• Review ticket priorities based on alignment scores
+• Focus sprint planning on Core Value tickets  
+• Address or defer Distraction category tickets
+• Implement strategic alignment review for future work
+• Schedule strategic alignment checkpoint for next sprint
 
 *Are we building what matters?*"""
 
@@ -419,7 +419,7 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
                 review_mode=request.mode,
                 project_key=project_key,
                 test_mode=use_test_mode,  # Uses real Jira by default (false)
-                dry_run=True  # Don't update Jira from the web interface
+                dry_run=False  # Update Jira tickets with analysis results
             )
         )
         
@@ -451,17 +451,23 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
                 'suggestedSummary': alignment.get('suggested_summary')
             }
             
+            # Use the actual Jira comment from crew_steve if available
+            jira_comment = alignment.get('jira_comment', '')
+            
+            # Use backend rationale directly - it should now be varied and contextual
+            rationale = alignment.get('rationale', '')
+            
             tickets.append(Ticket(
                 key=ticket_key,
                 summary=alignment.get('summary', ''),
                 description=alignment.get('description', ''),
                 alignmentScore=int(score),
                 category=category,
-                rationale=alignment.get('rationale', ''),
+                rationale=rationale,
                 suggestedSummary=alignment.get('suggested_summary'),
                 suggestedDescription=alignment.get('suggested_description'),
                 quickSuggestion=generate_quick_suggestion(int(score), alignment.get('summary', ''), category),
-                strategicComment=generate_strategic_comment(ticket_data)
+                strategicComment=jira_comment or generate_strategic_comment(ticket_data)
             ))
         
         # Extract executive summary
@@ -513,69 +519,123 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
                 health_status = "Critical Misalignment"
                 health_emoji = "🔴"
             
+            # Count categories for better insights
+            core_value_count = breakdown.get('core_value', 0)
+            strategic_count = breakdown.get('strategic_enabler', 0)
+            drift_count = breakdown.get('drift', 0)
+            distraction_count = breakdown.get('distraction', 0)
+            
             executive_summary = f"""**Strategic Health Assessment: {avg_score:.0f}/100 {health_emoji}**
 
 Our current sprint analysis of {total_tickets} tickets reveals {health_status.lower()}.
 
 **Key Insights:**
-• **Core Value Focus**: {core_value_pct:.0f}% of work directly advances strategic goals ({breakdown.get('core_value', 0)} tickets) [[{', '.join(tickets_by_category['core_value'])}]]
-• **Strategic Support**: {strategic_pct:.0f}% provides foundational value ({breakdown.get('strategic_enabler', 0)} tickets) [[{', '.join(tickets_by_category['strategic_enabler'])}]]
-• **Drift Warning**: {drift_pct:.0f}% lacks clear strategic connection ({breakdown.get('drift', 0)} tickets) [[{', '.join(tickets_by_category['drift'])}]]
-• **Distraction Alert**: {distraction_pct:.0f}% actively diverts from priorities ({breakdown.get('distraction', 0)} tickets) [[{', '.join(tickets_by_category['distraction'])}]]
+• **Core Value Focus**: {core_value_pct:.0f}% of work directly advances strategic goals ({core_value_count} tickets) [[{', '.join(tickets_by_category['core_value'])}]]
+• **Strategic Support**: {strategic_pct:.0f}% provides foundational value ({strategic_count} tickets) [[{', '.join(tickets_by_category['strategic_enabler'])}]]
+• **Drift Warning**: {drift_pct:.0f}% lacks clear strategic connection ({drift_count} tickets) [[{', '.join(tickets_by_category['drift'])}]]
+• **Distraction Alert**: {distraction_pct:.0f}% actively diverts from priorities ({distraction_count} tickets) [[{', '.join(tickets_by_category['distraction'])}]]
 
 **Performance Highlights:**
 
-• Average alignment score of {avg_score:.0f}/100 {"exceeds" if avg_score >= 70 else "falls below"} target threshold
-• {"Strong" if core_value_pct >= 60 else "Weak"} concentration on high-impact initiatives
-• {"Minimal" if distraction_pct <= 15 else "Concerning level of"} resource allocation to non-strategic work
-
-**Immediate Recommendations:**
+• Sprint velocity opportunity: Cut {distraction_count} distraction tickets to gain ~{distraction_pct*0.4:.0f}% velocity increase
+• Strategic coverage: {core_value_count + strategic_count}/{total_tickets} tickets ({(core_value_pct + strategic_pct):.0f}%) aligned with business objectives
+• Immediate wins: {len([t for t in tickets if 60 <= t.alignmentScore < 80])} tickets are one scope adjustment away from Core Value status
+• Resource efficiency: {100 - distraction_pct - drift_pct:.0f}% of engineering effort directly supports strategic goals
 
 """
             
-            # Add recommendations if available
-            if recommendations:
-                count = 0
-                for rec in recommendations:
-                    # Skip recommendation if it looks like a header (ends with colon or contains numbered subheading)
-                    rec_clean = rec.strip()
-                    
-                    # Skip headers and numbered items
-                    if (rec_clean.endswith(':') or 
-                        'Sprint:' in rec_clean or
-                        rec_clean.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.'))):
-                        continue
-                    
-                    # Remove any leading numbers/bullets
-                    rec_clean = rec_clean.lstrip('0123456789.-• ')
-                    
-                    executive_summary += f"• {rec_clean}\n"
-                    count += 1
-                    if count >= 5:  # Show up to 5 recommendations
-                        break
-            else:
-                # Default recommendations based on scores
-                if avg_score < 60:
-                    executive_summary += "• Refocus sprint planning on core strategic principles\n"
-                    executive_summary += "• Review and realign drift tickets with business objectives\n"
-                    executive_summary += "• Consider deferring or removing distraction items\n"
-                    executive_summary += "• Establish weekly alignment reviews to catch drift early\n"
-                    executive_summary += "• Create strategic principle cheat sheet for ticket creation\n"
-                elif avg_score < 75:
-                    executive_summary += "• Elevate strategic enablers to core value status where possible\n"
-                    executive_summary += "• Clarify strategic connections for drift tickets\n"
-                    executive_summary += "• Maintain momentum on high-scoring initiatives\n"
-                    executive_summary += "• Share alignment best practices from top performers\n"
-                    executive_summary += "• Consider strategic value in sprint planning discussions\n"
-                else:
-                    executive_summary += "• Scale successful patterns across more tickets\n"
-                    executive_summary += "• Document strategic wins for team learning\n"
-                    executive_summary += "• Continue excellence in strategic alignment\n"
-                    executive_summary += "• Mentor other teams on alignment best practices\n"
-                    executive_summary += "• Celebrate and showcase high-scoring initiatives\n"
+            # Generate intelligent, product-focused next steps
+            next_steps = []
+            mentioned_tickets = set()  # Track which tickets we've already mentioned
             
-            executive_summary += f"""
-**Bottom Line**: {"We're on track with strong strategic focus. Keep this momentum!" if avg_score >= 70 else "Time to realign our efforts with what truly matters for our users and business."}"""
+            # Analyze ticket relationships and patterns
+            auth_tickets = [t for t in tickets if any(word in t.summary.lower() for word in ['auth', 'login', 'user', 'account', 'security'])]
+            ui_tickets = [t for t in tickets if any(word in t.summary.lower() for word in ['ui', 'ux', 'interface', 'design', 'frontend', 'dark mode', 'animation'])]
+            data_tickets = [t for t in tickets if any(word in t.summary.lower() for word in ['analytics', 'data', 'metrics', 'tracking', 'report'])]
+            api_tickets = [t for t in tickets if any(word in t.summary.lower() for word in ['api', 'backend', 'performance', 'optimization', 'response'])]
+            
+            # Priority 1: Strategic ticket combinations
+            if auth_tickets and len(auth_tickets) > 1:
+                auth_keys = [t.key for t in auth_tickets[:2]]
+                for key in auth_keys:
+                    mentioned_tickets.add(key)
+                next_steps.append(f"Combine {' and '.join(auth_keys)} into comprehensive 'User Identity & Access Management' epic - this creates a cohesive security narrative vs scattered features")
+            
+            # Priority 2: Reframe low performers with specific suggestions
+            worst_tickets = sorted([t for t in tickets if t.alignmentScore < 40 and t.key not in mentioned_tickets], key=lambda x: x.alignmentScore)[:1]
+            if worst_tickets:
+                ticket = worst_tickets[0]
+                mentioned_tickets.add(ticket.key)
+                if 'animation' in ticket.summary.lower() or 'confetti' in ticket.summary.lower():
+                    next_steps.append(f"Reframe {ticket.key} as 'User Achievement & Engagement System' - expand to include progress tracking, milestones, and retention metrics")
+                elif 'refactor' in ticket.summary.lower():
+                    next_steps.append(f"Pivot {ticket.key} from technical debt to 'Performance Enhancement for User Experience' - tie refactoring to specific user journey improvements")
+                elif 'social' in ticket.summary.lower():
+                    next_steps.append(f"Transform {ticket.key} into 'Community-Driven Growth Engine' - include viral loops, referral tracking, and network effects")
+                else:
+                    next_steps.append(f"Revise {ticket.key} to include measurable user outcomes - add success metrics, user stories, and business KPIs")
+            
+            # Priority 3: Elevate mid-range tickets with specific enhancements
+            mid_tickets = [t for t in tickets if 50 <= t.alignmentScore < 75 and t.key not in mentioned_tickets]
+            if mid_tickets:
+                ticket = mid_tickets[0]
+                mentioned_tickets.add(ticket.key)
+                if 'api' in ticket.summary.lower() or 'performance' in ticket.summary.lower():
+                    next_steps.append(f"Enhance {ticket.key} scope: Add user-facing performance metrics dashboard showing impact on customer experience")
+                elif 'notification' in ticket.summary.lower():
+                    next_steps.append(f"Expand {ticket.key}: Include intelligent notification preferences, ML-driven timing, and engagement analytics")
+                elif 'dark mode' in ticket.summary.lower() or 'theme' in ticket.summary.lower():
+                    next_steps.append(f"Elevate {ticket.key}: Position as accessibility initiative supporting WCAG compliance and inclusive design")
+                else:
+                    next_steps.append(f"Strengthen {ticket.key}: Add A/B testing framework, success metrics, and rollback strategy")
+            
+            # Priority 4: Create strategic initiatives from patterns
+            if ui_tickets and api_tickets:
+                # Find tickets not yet mentioned
+                ui_candidates = [t for t in ui_tickets if t.key not in mentioned_tickets]
+                api_candidates = [t for t in api_tickets if t.key not in mentioned_tickets]
+                
+                if ui_candidates and api_candidates:
+                    ui_key = ui_candidates[0].key
+                    api_key = api_candidates[0].key
+                    mentioned_tickets.add(ui_key)
+                    mentioned_tickets.add(api_key)
+                    next_steps.append(f"Create unified initiative: Combine {ui_key} (frontend) with {api_key} (backend) for end-to-end feature delivery")
+            
+            if data_tickets:
+                data_candidates = [t for t in data_tickets if t.key not in mentioned_tickets]
+                if data_candidates:
+                    data_key = data_candidates[0].key
+                    mentioned_tickets.add(data_key)
+                    next_steps.append(f"Build 'Data-Driven Decision Platform' by connecting {data_key} to product analytics and user behavior insights")
+            
+            # Priority 5: Sprint-level strategic guidance
+            if avg_score < 60:
+                problematic = [t for t in tickets if t.alignmentScore < 50]
+                if problematic:
+                    next_steps.append(f"Emergency pivot: {len(problematic)} tickets need immediate reframing. Schedule 2-hour workshop to align on product vision")
+            elif avg_score < 75:
+                improvable = [t for t in tickets if 60 <= t.alignmentScore < 80 and t.key not in mentioned_tickets]
+                if improvable:
+                    tickets_to_mention = improvable[:2]
+                    for t in tickets_to_mention:
+                        mentioned_tickets.add(t.key)
+                    next_steps.append(f"Quick wins available: Add user metrics to {', '.join([t.key for t in tickets_to_mention])} to push into Core Value territory")
+            else:
+                top_performer = max([t for t in tickets if t.key not in mentioned_tickets], key=lambda x: x.alignmentScore, default=None) if tickets else None
+                if top_performer:
+                    mentioned_tickets.add(top_performer.key)
+                    next_steps.append(f"Scale success pattern from {top_performer.key}: Apply same user-centric framing to next sprint's backlog")
+            
+            # Add context-aware suggestion based on category distribution
+            if distraction_count >= 3:
+                next_steps.append("Consider 'Innovation Friday' approach: Dedicate 20% time to transform distraction tickets into strategic experiments")
+            elif drift_count >= 3:
+                next_steps.append("Implement 'North Star' metric: All drift tickets must connect to single primary KPI before approval")
+            
+            executive_summary += "**📋 Next Steps:**\n"
+            for step in next_steps[:5]:  # Top 5 actions
+                executive_summary += f"• {step}\n"
             
         return AnalysisResult(
             status="completed",
@@ -637,6 +697,105 @@ async def analyze_tickets(request: AnalysisRequest, background_tasks: Background
     analysis_cache[analysis_id] = result
     
     return result
+
+class NotionExportRequest(BaseModel):
+    analysisResult: AnalysisResult
+    projectKey: str = "PROJ"
+    mode: str = "execution"
+
+@app.post("/export-notion")
+async def export_to_notion(request: NotionExportRequest):
+    """Export analysis results to Notion"""
+    try:
+        # Import Notion integration utilities
+        from utils.notion_integration import create_notion_manager
+        
+        # Generate full structured report
+        # Convert frontend result to the format expected by steve.py
+        analysis_data = {
+            'alignments': [],
+            'executive_narrative': request.analysisResult.executiveSummary,
+            'summary': {
+                'total_tickets': len(request.analysisResult.tickets),
+                'average_alignment_score': sum(t.alignmentScore for t in request.analysisResult.tickets) / len(request.analysisResult.tickets) if request.analysisResult.tickets else 0,
+                'alignment_breakdown': {},
+                'recommendations': []
+            }
+        }
+        
+        # Convert tickets to alignments format
+        for ticket in request.analysisResult.tickets:
+            analysis_data['alignments'].append({
+                'ticket_key': ticket.key,
+                'summary': ticket.summary,
+                'description': ticket.description,
+                'score': ticket.alignmentScore,
+                'category': ticket.category,
+                'rationale': ticket.rationale,
+                'jira_comment': ticket.strategicComment
+            })
+        
+        # Calculate breakdown
+        for ticket in request.analysisResult.tickets:
+            category = ticket.category
+            if category not in analysis_data['summary']['alignment_breakdown']:
+                analysis_data['summary']['alignment_breakdown'][category] = 0
+            analysis_data['summary']['alignment_breakdown'][category] += 1
+        
+        # Generate the structured report (similar to steve.py)
+        from datetime import datetime
+        
+        # Build the report content
+        report = f"""# STEVE Strategic Analysis Report
+Project: {request.projectKey}
+Mode: {request.mode}
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+## Executive Summary
+{request.analysisResult.executiveSummary}
+
+## Ticket Analysis
+"""
+        
+        # Add ticket details
+        for ticket in sorted(request.analysisResult.tickets, key=lambda x: x.alignmentScore, reverse=True):
+            report += f"\n### {ticket.key}: {ticket.summary}"
+            report += f"\n**Score**: {ticket.alignmentScore}/100 ({ticket.category.replace('_', ' ').title()})"
+            report += f"\n**Rationale**: {ticket.rationale}\n"
+        
+        # Create Notion manager and save
+        notion_manager = create_notion_manager()
+        
+        if not notion_manager.authenticate():
+            return {"success": False, "error": "Failed to authenticate with Notion API"}
+        
+        # Extract sprint name from tickets if available
+        sprint_name = "Current Sprint"  # Default
+        
+        # Create the Notion page
+        page_title = f"STEVE Analysis - {request.projectKey} - {datetime.now().strftime('%Y-%m-%d')}"
+        if sprint_name != "Current Sprint":
+            page_title = f"STEVE Analysis - {sprint_name} - {datetime.now().strftime('%Y-%m-%d')}"
+        
+        page_url = notion_manager.create_executive_summary_page(
+            summary_content=report,
+            sprint_name=sprint_name
+        )
+        
+        if page_url:
+            return {
+                "success": True,
+                "notionUrl": page_url,
+                "pageId": None  # NotionManager returns URL directly
+            }
+        else:
+            return {"success": False, "error": "Failed to create Notion page"}
+            
+    except Exception as e:
+        print(f"Error exporting to Notion: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "error": str(e)}
 
 class VisionRequest(BaseModel):
     vision: dict
