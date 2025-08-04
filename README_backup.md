@@ -1,19 +1,3 @@
-<!--
-  Copyright 2025 Mor Hogeg
-  
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-  
-      http://www.apache.org/licenses/LICENSE-2.0
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
-
 <div align="center">
 
 ```
@@ -29,9 +13,9 @@
 
 # STEVE - Strategic Ticket Evaluation & Vision Enforcer
 
-> 🎯 **One Command. Complete Strategic Intelligence. YOUR Vision, Not Hardcoded Rules.**
+> 🎯 **One Command. Complete Strategic Intelligence.**
 
-STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with YOUR product's strategic vision. Every analysis is dynamically generated based on your unique principles - no templates, no hardcoded rules. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
+STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
 
 > 📝 **Executive summaries are automatically published to Notion** with interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
 
@@ -39,8 +23,17 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ## ⚡ Quick Start
 
+**New to STEVE?** Check out our **[📚 QUICKSTART Guide](./QUICKSTART.md)** for 5-minute setup!
+
 ### 🌐 Web Dashboard (Recommended)
 ```bash
+# 1. Clone the repository
+git clone https://github.com/morhogeg/STEVE.git && cd STEVE
+
+# 2. Validate your setup (optional but recommended)
+./validate-setup.sh
+
+# 3. Launch the web interface
 ./run-web.sh
 ```
 
@@ -53,17 +46,42 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ### 🖥️ Command Line Interface
 ```bash
-./run-cli.sh
+# 1. Clone the repository (if not already done)
+git clone https://github.com/morhogeg/STEVE.git && cd STEVE
+
+# 2. Configure your .env file with Jira credentials (see Configuration section)
+
+# 3. Run CLI analysis
+./run-cli.sh --mode execution
+```
+
+**Quick CLI Examples:**
+```bash
+# Test with mock data (no Jira connection needed)
+./run-cli.sh --test
+
+# Analyze current sprint and update Jira
+./run-cli.sh --mode execution
+
+# Full project review with sorted results
+./run-cli.sh --mode full_review --sorted
+
+# Dry run without updating Jira
+./run-cli.sh --mode strategy --dry-run
 ```
 
 **CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
 
 ## 🚀 What STEVE Does
 
-**Running STEVE delivers:**
+```bash
+python3 steve.py --mode execution
+```
+
+**This single command delivers:**
 
 - **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
-- **📊 Strategic Scoring**: Evaluates each ticket against YOUR custom principles (0-100)
+- **📊 Strategic Scoring**: Evaluates each ticket against your principles (0-100)
 - **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
 - **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
 - **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
@@ -75,8 +93,7 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 - **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
 - **⚙️ Agent Configuration**: Customize AI agent instructions via web interface
-- **🎯 Dynamic Rationales**: Unique, contextual explanations based on YOUR product vision - NO hardcoded rules!
-- **🔄 Vision-Driven Analysis**: Fully adapts to ANY product domain (SaaS, fintech, healthcare, etc.)
+- **🎯 Constructive Tone**: Positive, solution-focused messaging that motivates teams
 
 ## 🎯 Example Output
 
@@ -95,7 +112,7 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
    💭 Issues: No alignment with: Builder-First Value, AI Agent Excellence
 ```
 
-### 📊 Sorted Priority View
+### 📊 Sorted Priority View (--sorted flag)
 ```
 ┏━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
 ┃ Rank ┃ Score  ┃ Ticket   ┃ Category       ┃ Summary                        ┃ Action             ┃
@@ -112,7 +129,7 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ## 🏗️ How STEVE Works
 
-When you run STEVE, here's what happens:
+When you run `python3 steve.py --mode execution`, here's what happens:
 
 ### **Phase 1: Multi-Agent Analysis** 🤖
 STEVE's **5 AI Agents** collaborate sequentially:
@@ -174,44 +191,46 @@ STEVE generates executive-ready intelligence:
 
 ## ⚡ Quick Start
 
-### 1. Clone Repository
+### 1. Install Dependencies
 ```bash
 git clone https://github.com/morhogeg/STEVE.git
 cd STEVE
+python -m venv steve-env
+source steve-env/bin/activate  # Windows: steve-env\Scripts\activate
+pip install -r requirements.txt
 ```
 
 ### 2. Configure Environment
-Edit `.env` with your Jira credentials and API keys.
+```bash
+cp .env.example .env
+# Edit .env with your Jira credentials and API keys
+```
 
+### 3. Test STEVE
+```bash
+# Test with mock data (safe - no real Jira updates)
+python3 steve.py --mode execution --test
+
+# This will show you exactly what STEVE does without touching your real tickets
+```
 
 <details>
-<summary><b>3. Configure Your Product Vision</b></summary>
+<summary><b>4. Configure Your Product Vision</b></summary>
 
 STEVE needs to understand your product's strategic vision. Edit these files:
 
-#### `steve/config/principles.yaml` - Your Strategic Principles
+#### `config/principles.yaml` - Your Strategic Principles
 ```yaml
-# IMPORTANT: STEVE generates UNIQUE rationales for each ticket based on YOUR vision!
-# No hardcoded templates - every analysis is contextual and specific to your product.
-
 principles:
-  - name: "Customer Obsession"  # <-- Change to YOUR principle
+  - name: "Customer Obsession"
     description: "Every feature should improve customer experience"
     keywords: ["customer", "user", "experience", "UX", "usability"]
     weight: 1.5  # Higher weight = more important
   
-  - name: "Technical Excellence"  # <-- Add as many as needed
+  - name: "Technical Excellence"
     description: "Maintain high code quality and performance"
     keywords: ["performance", "quality", "scalable", "maintainable"]
     weight: 1.2
-
-# STEVE dynamically adapts to ANY product domain - not hardcoded rules!
-# - SaaS: "Subscription Value", "User Retention", "API-First"
-# - FinTech: "Security First", "Regulatory Compliance", "Transaction Speed"
-# - Healthcare: "Patient Privacy", "Clinical Accuracy", "Provider Efficiency"
-# - E-commerce: "Conversion Rate", "Cart Experience", "Mobile-First"
-# - Gaming: "Player Engagement", "Monetization", "Social Features"
-# - EdTech: "Learning Outcomes", "Teacher Efficiency", "Student Engagement"
 
 thresholds:
   core_value: 80      # 80-100 score = Core Value
@@ -220,7 +239,7 @@ thresholds:
   # 0-39 = Distraction
 ```
 
-#### `steve/config/agents.yaml` - Agent Personalities & Tone
+#### `config/agents.yaml` - Agent Personalities & Tone
 Customize how agents analyze tickets and communicate:
 ```yaml
 agents:
@@ -250,27 +269,51 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 </details>
 
-### 4. Run STEVE
+### 5. Run STEVE
 
-#### Web Interface
+#### One Command Does Everything
 ```bash
-./run-web.sh
+# Complete strategic analysis (multi-agent AI + Jira updates + executive summary)
+python3 steve.py --mode execution
+
+# Test with mock data (safe - no Jira updates)
+python3 steve.py --mode execution --test
+
+# Full project strategic review
+python3 steve.py --mode full_review --project MYPROJ
+
+# Analysis only (skip Jira updates)
+python3 steve.py --mode execution --analysis-only
+
+# Include sorted priority list
+python3 steve.py --mode execution --sorted
+
+# Dry run (analyze but don't update Jira)
+python3 steve.py --mode execution --dry-run
 ```
 
-#### Command Line Interface
+#### Legacy Commands (Still Available)
 ```bash
-./run-cli.sh
+# Multi-agent analysis only
+python3 crew_steve.py --test
+
+# Direct Jira integration only  
+python3 real_steve.py --mode execution --dry-run
 ```
 
 ## 🔧 Configuration
 
 ### Prerequisites & Setup Validation
-Run `./steve/validate-setup.sh` to check:
+Run `./validate-setup.sh` to check:
 - ✅ Python 3.8+ and Node.js 14+ installed
 - ✅ All required dependencies available
 - ✅ Jira connection and API keys configured
 - ✅ Project structure intact
 
+### Review Modes
+- **`execution`**: Current sprint tickets only
+- **`strategy`**: Strategic epics and initiatives  
+- **`full_review`**: All project tickets
 
 ### Alignment Scoring
 - **90-100**: Core Value (directly advances strategy)
@@ -316,10 +359,8 @@ The modern React frontend provides a premium interface for strategic analysis:
 ### 📊 **Ticket Analysis Grid**
 - **Smart Filtering**: Search by text, filter by category
 - **Flexible Sorting**: By score, ticket key, or category
-- **Individual Ticket Expansion**: Click to expand only the ticket you want to see
+- **Expandable Details**: View full descriptions and AI suggestions
 - **Score Badges**: Instant visual feedback with gradient backgrounds
-- **Dynamic Vision-Based Rationales**: Every ticket gets a UNIQUE explanation based on YOUR specific principles - never generic templates!
-- **Clean Formatting**: No bullet points in recommendations, just clear action items
 
 ### ⚙️ **Agent Configuration Panel**
 - **Live Customization**: Modify AI agent instructions in real-time
@@ -406,19 +447,13 @@ STEVE/
 
 ## 🎯 Example: AI Strategy Brief Generator
 
-This example shows how STEVE adapts to a specific product vision. When configured for an **AI Strategy Brief Generator**, STEVE dynamically generates rationales like:
-- "Directly advances Builder-First Value with hands-on CrewAI tutorial"
-- "Enables rapid prototyping of multi-agent workflows"
-- "Provides fresh intelligence from latest research papers"
+This implementation is configured for an **AI Strategy Brief Generator** with these principles:
 
-**Example Principles** (fully customizable):
 1. **Builder-First Value** (weight: 1.5) - Everything must be buildable in 30-60 minutes
 2. **AI Agent Excellence** (weight: 1.3) - Focus on CrewAI, RAG, multi-agent systems  
 3. **Fresh Intelligence** (weight: 1.2) - Latest AI developments only
 4. **Premium Source Curation** (weight: 1.1) - GitHub, research labs, thought leaders
 5. **Seamless Integration** (weight: 1.0) - Notion, APIs, automation
-
-**But YOUR product might have completely different principles!** STEVE will adapt its analysis to match YOUR vision - whether it's e-commerce, healthcare, fintech, or any other domain.
 
 ## 🔍 Strategic Intelligence Reports
 
@@ -451,7 +486,7 @@ Core Value: 50% (Target: 60%+ — almost there!)
 Bottom Line: We're shipping fast AND shipping smart. Let's keep this momentum rolling!
 ```
 
-See `steve/example_executive_summary.md` and `steve/example_executive_summary_sprint_25.md` for full examples.
+See `example_executive_summary.md` and `example_executive_summary_sprint_25.md` for full examples.
 
 </details>
 
@@ -477,11 +512,59 @@ STEVE can update custom fields for native Jira sorting:
 - **Resource Waste**: Highlights low-value work before it consumes time
 - **Vision Dilution**: Keeps everyone focused on what matters most
 
+## 🔄 Workflow Integration
 
+### Daily Strategic Alignment
+```bash
+# Quick sprint check before standup
+python3 steve.py --mode execution --sorted
+```
+
+### Sprint Planning
+```bash
+# Analyze backlog before committing to new work  
+python3 steve.py --mode strategy --project MYPROJ
+```
+
+### Quarterly Strategic Reviews
+```bash
+# Complete project analysis for strategic planning
+python3 steve.py --mode full_review
+```
+
+### Safe Experimentation
+```bash
+# Test new principles or configurations safely
+python3 steve.py --mode execution --dry-run
+```
+
+## 🛠️ Utility Scripts
+
+- **`validate-setup.sh`**: Check prerequisites and validate configuration
+- **`steve-help.sh`**: Display all available commands and options
+- **`start-fresh.sh`**: Clean environment setup for fresh installations
+- **`crew_steve_showcase.py`**: Demo version for showcasing STEVE's capabilities
+- **`cleanup_duplicates.py`**: Remove duplicate entries from analysis results
+- **`simple_crew.py`**: Simplified implementation for learning CrewAI concepts
 
 <details>
 <summary><b>🚀 Advanced Features</b></summary>
 
+### Unified Command Options
+```bash
+python3 steve.py [OPTIONS]
+```
+
+**Analysis Control:**
+- `--mode execution|strategy|full_review` - Scope of analysis
+- `--project MYPROJ` - Target specific Jira project
+- `--test` - Use mock data for safe testing
+- `--dry-run` - Analyze without updating Jira tickets
+
+**Output Control:**
+- `--sorted` - Include strategic priority ranking
+- `--analysis-only` - Skip Jira updates, analysis only
+- `--no-notion` - Skip saving executive summary to Notion
 
 **Multi-Agent AI Features:**
 - **Multi-LLM Support**: OpenAI, OpenRouter, or local Ollama
@@ -512,29 +595,25 @@ STEVE is highly customizable:
 
 ## 📚 Documentation
 
-- **Configuration Files** - See `steve/config/` directory for principles and agent setup
-- **Example Output** - View sample executive summaries in `steve/` directory
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide with system requirements
+- **[API Setup Guides](./docs/)** - Detailed guides for Jira, OpenAI, and Notion setup
+- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Example Configurations](./examples/)** - Industry-specific principle templates
 
+## 🤝 Contributing
+
+STEVE was built for the AI Strategy Brief Generator but is designed to be adaptable. While this specific configuration isn't meant to be forked directly, the architecture and approach can inspire your own strategic alignment systems.
 
 ## 📄 License
 
-Licensed under the Apache License, Version 2.0 - see the [LICENSE](LICENSE) file for details.
-
-Copyright 2025 Mor Hogeg
-
-### 🙏 Attribution Requirements
-
-When using or modifying STEVE, please ensure proper attribution:
-- Include the NOTICE file in any distribution
-- Maintain the copyright notice "Copyright 2025 Mor Hogeg" in all copies
-- Clearly state any changes you make to the original software
-- If you use STEVE in your project, please consider adding a note like:
-  ```
-  Built with STEVE (https://github.com/morhogeg/STEVE) by Mor Hogeg
-  ```
+MIT License - Use STEVE's concepts to build your own strategic intelligence system.
 
 ---
 
 > **"Are we building what matters?"** - STEVE's guiding question
 
 🎯 **One command. Complete strategic intelligence. Every ticket aligned.**
+
+```bash
+python3 steve.py --mode execution
+```

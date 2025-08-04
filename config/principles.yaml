@@ -1,84 +1,78 @@
-# AI Strategy Brief Generator - Product Principles
-# Strategic vision for building an AI-powered intelligence system
-# Updated: 2025-01-05
-
 principles:
-  - name: "Builder-First Value"
-    description: "Every feature must help developers build real AI systems, not just read about them"
-    keywords:
-      - buildable
-      - actionable
-      - hands-on
-      - implementation
-      - code examples
-      - working demo
-      - practical
-      - 30-60 minutes
-      - tutorial
-    weight: 1.5  # Highest priority - this is our core mission
-
-  - name: "AI Agent Excellence"
-    description: "Focus on multi-agent systems, RAG, and agentic architectures that push the field forward"
-    keywords:
-      - CrewAI
-      - agents
-      - multi-agent
-      - RAG
-      - LangChain
-      - AutoGen
-      - LangGraph
-      - agentic
-      - orchestration
-      - pipeline
-    weight: 1.3
-
-  - name: "Fresh Intelligence"
-    description: "Deliver cutting-edge AI insights from the last 30 days, not outdated information"
-    keywords:
-      - latest
-      - recent
-      - trending
-      - new release
-      - just launched
-      - breaking
-      - fresh
-      - current
-      - real-time
-      - daily
-    weight: 1.2
-
-  - name: "Premium Source Curation"
-    description: "Aggregate from high-quality sources like research labs, AI thought leaders, and working repositories"
-    keywords:
-      - research labs
-      - GitHub
-      - Hacker News
-      - Andrej Karpathy
-      - thought leaders
-      - premium sources
-      - curated
-      - high-quality
-      - verified
-    weight: 1.1
-
-  - name: "Seamless Integration"
-    description: "Integrate smoothly with developer workflows through Notion, APIs, and automation"
-    keywords:
-      - Notion
-      - API
-      - integration
-      - automation
-      - workflow
-      - seamless
-      - export
-      - webhook
-      - scheduled
-      - pipeline
-    weight: 1.0
-
-# Alignment thresholds
+- description: Every feature must help developers build real AI systems, not just
+    read about them
+  keywords:
+  - buildable
+  - actionable
+  - hands-on
+  - implementation
+  - code examples
+  - working demo
+  - practical
+  - 30-60 minutes
+  - tutorial
+  name: Builder-First Value
+  weight: 1.5
+- description: Focus on multi-agent systems, RAG, and agentic architectures that push
+    the field forward
+  keywords:
+  - CrewAI
+  - agents
+  - multi-agent
+  - RAG
+  - LangChain
+  - AutoGen
+  - LangGraph
+  - agentic
+  - orchestration
+  - pipeline
+  name: AI Agent Excellence
+  weight: 1.3
+- description: Deliver cutting-edge AI insights from the last 30 days, not outdated
+    information
+  keywords:
+  - latest
+  - recent
+  - trending
+  - new release
+  - just launched
+  - breaking
+  - fresh
+  - current
+  - real-time
+  - daily
+  name: Fresh Intelligence
+  weight: 1.2
+- description: Aggregate from high-quality sources like research labs, AI thought
+    leaders, and working repositories
+  keywords:
+  - research labs
+  - GitHub
+  - Hacker News
+  - Andrej Karpathy
+  - thought leaders
+  - premium sources
+  - curated
+  - high-quality
+  - verified
+  name: Premium Source Curation
+  weight: 1.1
+- description: Integrate smoothly with developer workflows through Notion, APIs, and
+    automation
+  keywords:
+  - Notion
+  - API
+  - integration
+  - automation
+  - workflow
+  - seamless
+  - export
+  - webhook
+  - scheduled
+  - pipeline
+  name: Seamless Integration
+  weight: 1
 thresholds:
-  core_value: 90      # Directly advances our builder-first mission
-  strategic_enabler: 60  # Supports our goals but not core
-  drift: 40          # Some value but losing focus
-  # anything below 40 is distraction from our mission
+  core_value: 90
+  drift: 40
+  strategic_enabler: 60
