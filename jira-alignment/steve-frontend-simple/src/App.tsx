@@ -56,6 +56,7 @@ import './App.darkmode-refined.css';
 import './App.score-colors.css';
 import './App.darkmode-final.css';
 import './App.setup.css';
+import './App.notion.css';
 
 const API_URL = 'http://localhost:8000';
 
@@ -341,12 +342,18 @@ function App() {
   const [selectedAgent, setSelectedAgent] = useState<string>('ticketIngestor');
   const [sortBy, setSortBy] = useState<'score' | 'key' | 'category'>('score');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [settingsTab, setSettingsTab] = useState<'vision' | 'agents'>('vision');
+  const [settingsTab, setSettingsTab] = useState<'vision' | 'agents' | 'notion'>('vision');
   const [productVision, setProductVision] = useState<any>(null);
   const [visionFormat, setVisionFormat] = useState<'yaml' | 'markdown'>('yaml');
   const [visionSaved, setVisionSaved] = useState(false);
   const [editingVision, setEditingVision] = useState(false);
   const [editedVision, setEditedVision] = useState<any>(null);
+  const [notionCredentials, setNotionCredentials] = useState({
+    token: localStorage.getItem('notion_token') || '',
+    databaseId: localStorage.getItem('notion_database_id') || ''
+  });
+  const [publishingToNotion, setPublishingToNotion] = useState(false);
+  const [notionSaved, setNotionSaved] = useState(false);
   const [agentSettings, setAgentSettings] = useState<AgentSettings>({
     ticketIngestor: {
       id: 'ticketIngestor',
@@ -633,6 +640,45 @@ function App() {
       navigator.clipboard.writeText(result.executiveSummary);
       setCopiedSummary(true);
       setTimeout(() => setCopiedSummary(false), 2000);
+    }
+  };
+
+  const publishToNotion = async () => {
+    if (!result?.executiveSummary) return;
+    
+    if (!notionCredentials.token || !notionCredentials.databaseId) {
+      alert('Please configure your Notion credentials in Settings first');
+      setShowAgentSettings(true);
+      setSettingsTab('notion');
+      return;
+    }
+
+    setPublishingToNotion(true);
+    
+    try {
+      const response = await fetch('http://localhost:8001/publish-to-notion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          summary: result.executiveSummary,
+          token: notionCredentials.token,
+          databaseId: notionCredentials.databaseId,
+          tickets: result.tickets
+        })
+      });
+
+      if (response.ok) {
+        alert('Successfully published to Notion!');
+      } else {
+        const error = await response.text();
+        alert(`Failed to publish to Notion: ${error}`);
+      }
+    } catch (error) {
+      alert(`Error publishing to Notion: ${error}`);
+    } finally {
+      setPublishingToNotion(false);
     }
   };
 
@@ -1725,26 +1771,24 @@ function App() {
                   <h2>Executive Summary</h2>
                   <div className="summary-actions">
                     <motion.button 
-                      className="summary-action-btn"
-                      onClick={copySummaryToClipboard}
+                      className="summary-action-btn export-notion-btn"
+                      onClick={publishToNotion}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      disabled={publishingToNotion}
+                      title="Export this executive summary to Notion"
                     >
-                      {copiedSummary ? <Check style={{ width: 16, height: 16 }} /> : <Copy style={{ width: 16, height: 16 }} />}
-                    </motion.button>
-                    <motion.button 
-                      className="summary-action-btn"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Share2 style={{ width: 16, height: 16 }} />
-                    </motion.button>
-                    <motion.button 
-                      className="summary-action-btn"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Download style={{ width: 16, height: 16 }} />
+                      {publishingToNotion ? (
+                        <>
+                          <Loader2 className="spinning" style={{ width: 16, height: 16 }} />
+                          <span>Exporting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FileText style={{ width: 16, height: 16 }} />
+                          <span>Export to Notion</span>
+                        </>
+                      )}
                     </motion.button>
                   </div>
                 </div>
@@ -2459,6 +2503,15 @@ function App() {
                   <Settings style={{ width: 16, height: 16 }} />
                   <span>Agent Instructions</span>
                 </motion.button>
+                <motion.button
+                  className={`settings-tab ${settingsTab === 'notion' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('notion')}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <FileText style={{ width: 16, height: 16 }} />
+                  <span>Notion Integration</span>
+                </motion.button>
               </div>
               
               <div className={`settings-content ${settingsTab === 'agents' ? 'agents-view' : ''}`}>
@@ -2679,7 +2732,10 @@ function App() {
                     </motion.button>
                   </div>
                   )
-                ) : (
+                ) : null}
+                
+                {/* Agent Instructions Tab */}
+                {settingsTab === 'agents' && (
                   <>
                     <div className="agent-list">
                       {Object.values(agentSettings).map((agent) => (
@@ -2757,6 +2813,94 @@ function App() {
                   )}
                 </div>
                   </>
+                )}
+                
+                {/* Notion Integration Settings */}
+                {settingsTab === 'notion' && (
+                  <div className="notion-integration-panel">
+                    <div className="notion-header">
+                      <div className="notion-icon">
+                        <FileText style={{ width: 24, height: 24 }} />
+                      </div>
+                      <div>
+                        <h3>Notion Integration</h3>
+                        <p>Connect STEVE to your Notion workspace to automatically publish executive summaries</p>
+                      </div>
+                    </div>
+                    
+                    <div className="notion-credentials">
+                      <div className="credential-field">
+                        <label htmlFor="notion-token">
+                          <span className="label-text">Integration Token</span>
+                        </label>
+                        <input
+                          id="notion-token"
+                          type="password"
+                          value={notionCredentials.token}
+                          onChange={(e) => setNotionCredentials({ ...notionCredentials, token: e.target.value })}
+                          placeholder="secret_..."
+                          className="credential-input"
+                        />
+                        <p className="field-hint">
+                          Create an integration at notion.so/my-integrations and copy the secret token
+                        </p>
+                      </div>
+                      
+                      <div className="credential-field">
+                        <label htmlFor="notion-database">
+                          <span className="label-text">Database ID</span>
+                        </label>
+                        <input
+                          id="notion-database"
+                          type="text"
+                          value={notionCredentials.databaseId}
+                          onChange={(e) => setNotionCredentials({ ...notionCredentials, databaseId: e.target.value })}
+                          placeholder="32-character ID..."
+                          className="credential-input"
+                        />
+                        <p className="field-hint">
+                          Find this in your Notion database URL after the workspace name (32 characters)
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="notion-actions">
+                      <motion.button
+                        className="notion-save-btn"
+                        onClick={() => {
+                          localStorage.setItem('notion_token', notionCredentials.token);
+                          localStorage.setItem('notion_database_id', notionCredentials.databaseId);
+                          setNotionSaved(true);
+                          setTimeout(() => setNotionSaved(false), 3000);
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {notionSaved ? (
+                          <>
+                            <Check style={{ width: 16, height: 16 }} />
+                            <span>Saved!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Save style={{ width: 16, height: 16 }} />
+                            <span>Save Configuration</span>
+                          </>
+                        )}
+                      </motion.button>
+                    </div>
+                    
+                    <div className="notion-guide">
+                      <h4>Quick Setup Guide:</h4>
+                      <ol>
+                        <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener noreferrer">notion.so/my-integrations</a></li>
+                        <li>Click "New integration" and give it a name (e.g., "STEVE")</li>
+                        <li>Copy the Internal Integration Token (starts with "secret_")</li>
+                        <li>Share your Notion database with the integration</li>
+                        <li>Copy the database ID from the URL</li>
+                      </ol>
+                    </div>
+                  </div>
                 )}
               </div>
             </motion.div>

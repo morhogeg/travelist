@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import yaml
+import requests
 # from dotenv import load_dotenv
 
 # Add the steve directory to the Python path
@@ -703,9 +704,110 @@ class NotionExportRequest(BaseModel):
     projectKey: str = "PROJ"
     mode: str = "execution"
 
+class NotionPublishRequest(BaseModel):
+    summary: str
+    token: str
+    databaseId: str
+    tickets: List[Ticket]
+
+@app.post("/publish-to-notion")
+async def publish_to_notion(request: NotionPublishRequest):
+    """Publish executive summary to Notion with user-provided credentials"""
+    try:
+        # Create Notion API headers
+        headers = {
+            "Authorization": f"Bearer {request.token}",
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28"
+        }
+        
+        # Create a new page in the database
+        page_data = {
+            "parent": {"database_id": request.databaseId},
+            "properties": {
+                "Name": {
+                    "title": [
+                        {
+                            "text": {
+                                "content": f"STEVE Analysis - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+                            }
+                        }
+                    ]
+                }
+            },
+            "children": [
+                {
+                    "object": "block",
+                    "type": "heading_1",
+                    "heading_1": {
+                        "rich_text": [{"text": {"content": "Executive Summary"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": request.summary}}]
+                    }
+                }
+            ]
+        }
+        
+        # Add ticket details if available
+        if request.tickets:
+            page_data["children"].extend([
+                {
+                    "object": "block",
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"text": {"content": "Ticket Analysis"}}]
+                    }
+                }
+            ])
+            
+            for ticket in sorted(request.tickets, key=lambda x: x.alignmentScore, reverse=True):
+                page_data["children"].extend([
+                    {
+                        "object": "block",
+                        "type": "heading_3",
+                        "heading_3": {
+                            "rich_text": [{"text": {"content": f"{ticket.key}: {ticket.summary}"}}]
+                        }
+                    },
+                    {
+                        "object": "block",
+                        "type": "paragraph",
+                        "paragraph": {
+                            "rich_text": [
+                                {"text": {"content": f"Score: {ticket.alignmentScore}/100 ({ticket.category})\n"}},
+                                {"text": {"content": f"Rationale: {ticket.rationale}"}}
+                            ]
+                        }
+                    }
+                ])
+        
+        # Create the page
+        response = requests.post(
+            "https://api.notion.com/v1/pages",
+            headers=headers,
+            json=page_data
+        )
+        
+        if response.status_code == 200:
+            page_info = response.json()
+            page_url = page_info.get("url", "")
+            return {"success": True, "url": page_url}
+        else:
+            error_msg = response.json().get("message", "Unknown error")
+            return {"success": False, "error": error_msg}
+            
+    except Exception as e:
+        print(f"Error publishing to Notion: {e}")
+        return {"success": False, "error": str(e)}
+
 @app.post("/export-notion")
 async def export_to_notion(request: NotionExportRequest):
-    """Export analysis results to Notion"""
+    """Export analysis results to Notion (legacy endpoint)"""
     try:
         # Import Notion integration utilities
         from utils.notion_integration import create_notion_manager
