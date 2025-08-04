@@ -63,7 +63,7 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 **Running STEVE delivers:**
 
 - **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
-- **📊 Strategic Scoring**: Evaluates each ticket against your principles (0-100)
+- **📊 Strategic Scoring**: Evaluates each ticket against YOUR custom principles (0-100)
 - **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
 - **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
 - **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
@@ -75,7 +75,8 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 - **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
 - **⚙️ Agent Configuration**: Customize AI agent instructions via web interface
-- **🎯 Constructive Tone**: Positive, solution-focused messaging that motivates teams
+- **🎯 Dynamic Rationales**: Unique, contextual explanations based on YOUR product vision
+- **🔄 Vision-Driven Analysis**: Adapts to any product domain (SaaS, fintech, healthcare, etc.)
 
 ## 🎯 Example Output
 
@@ -190,16 +191,23 @@ STEVE needs to understand your product's strategic vision. Edit these files:
 
 #### `steve/config/principles.yaml` - Your Strategic Principles
 ```yaml
+# Define YOUR product's unique vision - STEVE adapts to any domain!
 principles:
-  - name: "Customer Obsession"
+  - name: "Customer Obsession"  # <-- Change to YOUR principle
     description: "Every feature should improve customer experience"
     keywords: ["customer", "user", "experience", "UX", "usability"]
     weight: 1.5  # Higher weight = more important
   
-  - name: "Technical Excellence"
+  - name: "Technical Excellence"  # <-- Add as many as needed
     description: "Maintain high code quality and performance"
     keywords: ["performance", "quality", "scalable", "maintainable"]
     weight: 1.2
+
+# Works for ANY product domain:
+# - SaaS: "Subscription Value", "User Retention", "API-First"
+# - FinTech: "Security First", "Regulatory Compliance", "Transaction Speed"
+# - Healthcare: "Patient Privacy", "Clinical Accuracy", "Provider Efficiency"
+# - E-commerce: "Conversion Rate", "Cart Experience", "Mobile-First"
 
 thresholds:
   core_value: 80      # 80-100 score = Core Value
@@ -304,8 +312,10 @@ The modern React frontend provides a premium interface for strategic analysis:
 ### 📊 **Ticket Analysis Grid**
 - **Smart Filtering**: Search by text, filter by category
 - **Flexible Sorting**: By score, ticket key, or category
-- **Expandable Details**: View full descriptions and AI suggestions
+- **Individual Ticket Expansion**: Click to expand only the ticket you want to see
 - **Score Badges**: Instant visual feedback with gradient backgrounds
+- **Unique Rationales**: Each ticket gets a contextual explanation based on your vision
+- **Clean Formatting**: No bullet points in recommendations, just clear action items
 
 ### ⚙️ **Agent Configuration Panel**
 - **Live Customization**: Modify AI agent instructions in real-time
