@@ -770,16 +770,9 @@ async def publish_to_notion(request: NotionPublishRequest):
             page_data["children"].extend([
                 {
                     "object": "block", 
-                    "type": "heading_2",
-                    "heading_2": {
+                    "type": "heading_1",
+                    "heading_1": {
                         "rich_text": [{"text": {"content": "📊 Executive Summary"}}]
-                    }
-                },
-                {
-                    "object": "block",
-                    "type": "paragraph",
-                    "paragraph": {
-                        "rich_text": [{"text": {"content": request.summary.replace('**', '')}}]
                     }
                 },
                 {
@@ -788,15 +781,107 @@ async def publish_to_notion(request: NotionPublishRequest):
                     "divider": {}
                 }
             ])
+            
+            # Parse the executive summary into sections
+            summary_lines = request.summary.split('\n')
+            current_section = None
+            
+            for line in summary_lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Handle Key Insights section
+                if line.startswith('**Key Insights:**') or line.startswith('Key Insights:'):
+                    page_data["children"].append({
+                        "object": "block",
+                        "type": "heading_3",
+                        "heading_3": {
+                            "rich_text": [{"text": {"content": "🔍 Key Insights"}}]
+                        }
+                    })
+                    current_section = 'insights'
+                    continue
+                
+                # Handle Performance Highlights section
+                elif line.startswith('**Performance Highlights:**') or line.startswith('Performance Highlights:'):
+                    page_data["children"].append({
+                        "object": "block",
+                        "type": "heading_3",
+                        "heading_3": {
+                            "rich_text": [{"text": {"content": "⚡ Performance Highlights"}}]
+                        }
+                    })
+                    current_section = 'highlights'
+                    continue
+                
+                # Handle Next Steps section
+                elif line.startswith('**Next Steps:**') or line.startswith('Next Steps:'):
+                    page_data["children"].append({
+                        "object": "block",
+                        "type": "heading_3",
+                        "heading_3": {
+                            "rich_text": [{"text": {"content": "📌 Next Steps"}}]
+                        }
+                    })
+                    current_section = 'steps'
+                    continue
+                
+                # Process bullet points
+                if line.startswith('*') or line.startswith('-') or line.startswith('•'):
+                    bullet_text = line.lstrip('*-• ').replace('**', '')
+                    if current_section == 'steps':
+                        # Use to-do blocks for next steps
+                        page_data["children"].append({
+                            "object": "block",
+                            "type": "to_do",
+                            "to_do": {
+                                "rich_text": [{"text": {"content": bullet_text}}],
+                                "checked": False
+                            }
+                        })
+                    else:
+                        # Use bullet points for other sections
+                        page_data["children"].append({
+                            "object": "block",
+                            "type": "bulleted_list_item",
+                            "bulleted_list_item": {
+                                "rich_text": [{"text": {"content": bullet_text}}]
+                            }
+                        })
+                else:
+                    # Regular paragraph
+                    clean_text = line.replace('**', '')
+                    if clean_text:
+                        page_data["children"].append({
+                            "object": "block",
+                            "type": "paragraph",
+                            "paragraph": {
+                                "rich_text": [{"text": {"content": clean_text}}]
+                            }
+                        })
+            
+            page_data["children"].append({
+                "object": "block",
+                "type": "divider",
+                "divider": {}
+            })
         
         # Add Core Value tickets
         if core_value_tickets:
             page_data["children"].extend([
                 {
                     "object": "block",
-                    "type": "heading_2",
-                    "heading_2": {
+                    "type": "heading_1",
+                    "heading_1": {
                         "rich_text": [{"text": {"content": "🟢 Core Value Tickets"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": f"High-impact work that directly advances strategic goals ({len(core_value_tickets)} tickets)"}}]
                     }
                 }
             ])
@@ -824,9 +909,16 @@ async def publish_to_notion(request: NotionPublishRequest):
             page_data["children"].extend([
                 {
                     "object": "block",
-                    "type": "heading_2",
-                    "heading_2": {
+                    "type": "heading_1",
+                    "heading_1": {
                         "rich_text": [{"text": {"content": "🔵 Strategic Enabler Tickets"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": f"Work that supports strategic objectives ({len(strategic_enabler_tickets)} tickets)"}}]
                     }
                 }
             ])
@@ -849,14 +941,58 @@ async def publish_to_notion(request: NotionPublishRequest):
                     }
                 ])
         
+        # Add Drift tickets
+        if drift_tickets:
+            page_data["children"].extend([
+                {
+                    "object": "block",
+                    "type": "heading_1",
+                    "heading_1": {
+                        "rich_text": [{"text": {"content": "🟡 Drift Tickets"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": f"Well-intentioned work with weak strategic connection ({len(drift_tickets)} tickets)"}}]
+                    }
+                }
+            ])
+            
+            for ticket in sorted(drift_tickets, key=lambda x: x.alignmentScore, reverse=True):
+                page_data["children"].extend([
+                    {
+                        "object": "block",
+                        "type": "callout",
+                        "callout": {
+                            "rich_text": [
+                                {"text": {"content": f"#{ticket.key} - 🟡 {ticket.alignmentScore}\n"}},
+                                {"text": {"content": f"Category: Drift\n"}},
+                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
+                                {"text": {"content": f"Action: {ticket.rationale}"}}
+                            ],
+                            "icon": {"emoji": "🟡"},
+                            "color": "yellow_background"
+                        }
+                    }
+                ])
+        
         # Add Distraction tickets
         if distraction_tickets:
             page_data["children"].extend([
                 {
                     "object": "block",
-                    "type": "heading_2",
-                    "heading_2": {
+                    "type": "heading_1",
+                    "heading_1": {
                         "rich_text": [{"text": {"content": "🔴 Distraction Tickets"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": f"Work with no meaningful strategic alignment ({len(distraction_tickets)} tickets)"}}]
                     }
                 }
             ])
@@ -888,9 +1024,16 @@ async def publish_to_notion(request: NotionPublishRequest):
             },
             {
                 "object": "block",
-                "type": "heading_2",
-                "heading_2": {
+                "type": "heading_1",
+                "heading_1": {
                     "rich_text": [{"text": {"content": "💭 Strategic Blind Spots"}}]
+                }
+            },
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"text": {"content": "Critical gaps and missing opportunities in your current sprint"}}]
                 }
             }
         ])
@@ -932,9 +1075,16 @@ async def publish_to_notion(request: NotionPublishRequest):
             },
             {
                 "object": "block",
-                "type": "heading_2",
-                "heading_2": {
+                "type": "heading_1",
+                "heading_1": {
                     "rich_text": [{"text": {"content": "🎯 Strategic Recommendations"}}]
+                }
+            },
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"text": {"content": "Actionable steps to improve strategic alignment"}}]
                 }
             },
             {
