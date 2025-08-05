@@ -669,11 +669,16 @@ function App() {
         })
       });
 
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
         alert('Successfully published to Notion!');
+        if (data.url) {
+          window.open(data.url, '_blank');
+        }
       } else {
-        const error = await response.text();
-        alert(`Failed to publish to Notion: ${error}`);
+        const errorMsg = data.error || 'Unknown error occurred';
+        alert(`Failed to publish to Notion: ${errorMsg}`);
       }
     } catch (error) {
       alert(`Error publishing to Notion: ${error}`);

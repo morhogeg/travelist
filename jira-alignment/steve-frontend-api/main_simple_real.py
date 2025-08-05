@@ -983,13 +983,20 @@ async def publish_to_notion(request: NotionPublishRequest):
             json=page_data
         )
         
+        print(f"Notion API Response Status: {response.status_code}")
+        print(f"Notion API Response: {response.text[:500]}")  # First 500 chars
+        
         if response.status_code == 200:
             page_info = response.json()
             page_url = page_info.get("url", "")
+            print(f"Notion page created successfully: {page_url}")
             return {"success": True, "url": page_url}
         else:
-            error_msg = response.json().get("message", "Unknown error")
-            return {"success": False, "error": error_msg}
+            error_data = response.json()
+            error_msg = error_data.get("message", "Unknown error")
+            error_code = error_data.get("code", "")
+            print(f"Notion API Error: {error_code} - {error_msg}")
+            return {"success": False, "error": f"{error_code}: {error_msg}"}
             
     except Exception as e:
         print(f"Error publishing to Notion: {e}")
