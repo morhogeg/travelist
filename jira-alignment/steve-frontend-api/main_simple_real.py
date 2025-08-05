@@ -748,14 +748,32 @@ async def publish_to_notion(request: NotionPublishRequest):
             "children": []
         }
         
-        # Add header callout
+        # Add header with title and strategic health
         page_data["children"].extend([
+            {
+                "object": "block",
+                "type": "heading_1",
+                "heading_1": {
+                    "rich_text": [{"text": {"content": f"📊 STEVE Strategic Analysis Report"}}]
+                }
+            },
             {
                 "object": "block",
                 "type": "callout",
                 "callout": {
-                    "rich_text": [{"text": {"content": f"Strategic Health: {avg_score:.0f}/100 {'🟢' if avg_score >= 80 else '🟡' if avg_score >= 60 else '🟠' if avg_score >= 40 else '🔴'}"}}],
-                    "icon": {"emoji": "🎯"}
+                    "rich_text": [
+                        {"text": {"content": f"Strategic Health Assessment: {avg_score:.0f}/100 "}},
+                        {"text": {"content": f"{'🟢' if avg_score >= 80 else '🟡' if avg_score >= 60 else '🟠' if avg_score >= 40 else '🔴'}"}}
+                    ],
+                    "icon": {"emoji": "🎯"},
+                    "color": "gray_background"
+                }
+            },
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"text": {"content": f"Analyzed {total_tickets} tickets • {len(core_value_tickets)} Core Value • {len(strategic_enabler_tickets)} Strategic Enablers • {len(drift_tickets)} Drift • {len(distraction_tickets)} Distractions"}}]
                 }
             },
             {
@@ -785,6 +803,7 @@ async def publish_to_notion(request: NotionPublishRequest):
             # Parse the executive summary into sections
             summary_lines = request.summary.split('\n')
             current_section = None
+            next_steps = []
             
             for line in summary_lines:
                 line = line.strip()
@@ -815,15 +834,8 @@ async def publish_to_notion(request: NotionPublishRequest):
                     current_section = 'highlights'
                     continue
                 
-                # Handle Next Steps section
+                # Handle Next Steps section - skip it here, we'll add it as a separate section
                 elif line.startswith('**Next Steps:**') or line.startswith('Next Steps:'):
-                    page_data["children"].append({
-                        "object": "block",
-                        "type": "heading_3",
-                        "heading_3": {
-                            "rich_text": [{"text": {"content": "📌 Next Steps"}}]
-                        }
-                    })
                     current_section = 'steps'
                     continue
                 
@@ -831,15 +843,8 @@ async def publish_to_notion(request: NotionPublishRequest):
                 if line.startswith('*') or line.startswith('-') or line.startswith('•'):
                     bullet_text = line.lstrip('*-• ').replace('**', '')
                     if current_section == 'steps':
-                        # Use to-do blocks for next steps
-                        page_data["children"].append({
-                            "object": "block",
-                            "type": "to_do",
-                            "to_do": {
-                                "rich_text": [{"text": {"content": bullet_text}}],
-                                "checked": False
-                            }
-                        })
+                        # Collect next steps for later
+                        next_steps.append(bullet_text)
                     else:
                         # Use bullet points for other sections
                         page_data["children"].append({
@@ -860,6 +865,41 @@ async def publish_to_notion(request: NotionPublishRequest):
                                 "rich_text": [{"text": {"content": clean_text}}]
                             }
                         })
+            
+            page_data["children"].append({
+                "object": "block",
+                "type": "divider",
+                "divider": {}
+            })
+        
+        # Add Next Steps section if we collected any
+        if next_steps:
+            page_data["children"].extend([
+                {
+                    "object": "block",
+                    "type": "heading_1",
+                    "heading_1": {
+                        "rich_text": [{"text": {"content": "📌 Next Steps"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": "Immediate actions to improve strategic alignment"}}]
+                    }
+                }
+            ])
+            
+            for step in next_steps:
+                page_data["children"].append({
+                    "object": "block",
+                    "type": "to_do",
+                    "to_do": {
+                        "rich_text": [{"text": {"content": step}}],
+                        "checked": False
+                    }
+                })
             
             page_data["children"].append({
                 "object": "block",
@@ -903,6 +943,15 @@ async def publish_to_notion(request: NotionPublishRequest):
                         }
                     }
                 ])
+            
+            # Add spacing
+            page_data["children"].append({
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"text": {"content": ""}}]
+                }
+            })
         
         # Add Strategic Enabler tickets
         if strategic_enabler_tickets:
