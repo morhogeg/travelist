@@ -34,9 +34,9 @@
 
 STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with YOUR product's strategic vision. Every analysis is dynamically generated based on your unique principles. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
 
-> 📝 **Export executive summaries to Notion** with one click! Get interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
-
 > 🌐 **Modern Web Interface** provides real-time strategic insights with color-coded score badges, interactive charts, and agent configuration - all in a beautiful dark/light theme dashboard.
+
+> 📝 **Export executive summaries to Notion** with one click! Get interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
 
 ## ⚡ Quick Start
 
