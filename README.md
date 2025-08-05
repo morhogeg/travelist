@@ -39,28 +39,24 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 ## ⚡ Quick Start
 
-### 🌐 Web Dashboard (Recommended)
 ```bash
 ./run-web.sh
 ```
 
-**That's it!** Open http://localhost:5173 to access the modern web interface with:
-- 🎯 **Real-time Strategic Dashboard** with color-coded score badges
-- 📊 **Interactive Charts** showing category distribution and score trends  
-- 🌙 **Dark/Light Mode** with glass morphism design
-- ⚙️ **Agent Configuration** to customize AI behavior
-- 📋 **Executive Summary** with Export to Notion button
+**That's it!** Open http://localhost:5173 to access STEVE's unified interface that:
+- 🎯 **Analyzes your Jira tickets** with multi-agent AI system
+- 💬 **Updates Jira automatically** with scores, categories, and strategic comments
+- 📊 **Shows real-time dashboard** with color-coded score badges
+- 📈 **Displays interactive charts** for category distribution and score trends  
+- 🌙 **Supports dark/light themes** with glass morphism design
+- ⚙️ **Configures AI agents** to match your needs
+- 📋 **Generates executive summaries** with Export to Notion button
 
-### 🖥️ Command Line Interface
-```bash
-./run-cli.sh
-```
-
-**CLI Benefits:** STEVE will analyze your tickets, update Jira, and generate comprehensive executive summaries.
+**One interface, complete functionality:** The web dashboard now handles everything - from analysis to Jira updates to Notion exports.
 
 ## 🚀 What STEVE Does
 
-**Running STEVE delivers:**
+**The unified web interface delivers:**
 
 - **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
 - **📊 Strategic Scoring**: Evaluates each ticket against YOUR custom principles (0-100)
@@ -257,10 +253,6 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 ./run-web.sh
 ```
 
-#### Command Line Interface
-```bash
-./run-cli.sh
-```
 
 ## 🔧 Configuration
 
@@ -363,9 +355,9 @@ Access the web interface at **http://localhost:5173** after running `./run-web.s
 STEVE/
 ├── run-web.sh                # 🚀 ONE-COMMAND STARTUP (START HERE)
 ├── steve/                    # 🧠 Python backend
-│   ├── steve.py             # 🎯 Unified command interface
-│   ├── crew_steve.py        # Multi-agent AI system (legacy)
-│   ├── real_steve.py        # Jira integration layer (legacy)
+│   ├── steve.py             # 🎯 Main backend orchestrator
+│   ├── crew_steve_core.py   # Multi-agent AI system
+│   ├── crew_steve.py        # Legacy CLI version
 │   ├── crew_steve_showcase.py # Demo/showcase version
 │   ├── simple_crew.py       # Simplified version for learning
 │   ├── cleanup_duplicates.py # Utility for cleaning duplicate entries
