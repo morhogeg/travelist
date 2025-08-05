@@ -721,6 +721,16 @@ async def publish_to_notion(request: NotionPublishRequest):
             "Notion-Version": "2022-06-28"
         }
         
+        # Group tickets by category
+        core_value_tickets = [t for t in request.tickets if t.category == "core_value"]
+        strategic_enabler_tickets = [t for t in request.tickets if t.category == "strategic_enabler"]
+        drift_tickets = [t for t in request.tickets if t.category == "drift"]
+        distraction_tickets = [t for t in request.tickets if t.category == "distraction"]
+        
+        # Calculate metrics
+        total_tickets = len(request.tickets)
+        avg_score = sum(t.alignmentScore for t in request.tickets) / total_tickets if total_tickets > 0 else 0
+        
         # Create a new page in the database
         page_data = {
             "parent": {"database_id": request.databaseId},
@@ -729,18 +739,40 @@ async def publish_to_notion(request: NotionPublishRequest):
                     "title": [
                         {
                             "text": {
-                                "content": f"STEVE Analysis - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+                                "content": f"STEVE Strategic Report - Test Sprint {datetime.now().strftime('%Y-%m-%d')}"
                             }
                         }
                     ]
                 }
             },
-            "children": [
+            "children": []
+        }
+        
+        # Add header callout
+        page_data["children"].extend([
+            {
+                "object": "block",
+                "type": "callout",
+                "callout": {
+                    "rich_text": [{"text": {"content": f"Strategic Health: {avg_score:.0f}/100 {'🟢' if avg_score >= 80 else '🟡' if avg_score >= 60 else '🟠' if avg_score >= 40 else '🔴'}"}}],
+                    "icon": {"emoji": "🎯"}
+                }
+            },
+            {
+                "object": "block",
+                "type": "divider",
+                "divider": {}
+            }
+        ])
+        
+        # Add Executive Summary section if provided
+        if request.summary:
+            page_data["children"].extend([
                 {
-                    "object": "block",
-                    "type": "heading_1",
-                    "heading_1": {
-                        "rich_text": [{"text": {"content": "Executive Summary"}}]
+                    "object": "block", 
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"text": {"content": "📊 Executive Summary"}}]
                     }
                 },
                 {
@@ -749,42 +781,200 @@ async def publish_to_notion(request: NotionPublishRequest):
                     "paragraph": {
                         "rich_text": [{"text": {"content": request.summary}}]
                     }
+                },
+                {
+                    "object": "block",
+                    "type": "divider",
+                    "divider": {}
                 }
-            ]
-        }
+            ])
         
-        # Add ticket details if available
-        if request.tickets:
+        # Add Core Value tickets
+        if core_value_tickets:
             page_data["children"].extend([
                 {
                     "object": "block",
                     "type": "heading_2",
                     "heading_2": {
-                        "rich_text": [{"text": {"content": "Ticket Analysis"}}]
+                        "rich_text": [{"text": {"content": "🟢 Core Value Tickets"}}]
                     }
                 }
             ])
             
-            for ticket in sorted(request.tickets, key=lambda x: x.alignmentScore, reverse=True):
+            for ticket in sorted(core_value_tickets, key=lambda x: x.alignmentScore, reverse=True):
                 page_data["children"].extend([
                     {
                         "object": "block",
-                        "type": "heading_3",
-                        "heading_3": {
-                            "rich_text": [{"text": {"content": f"{ticket.key}: {ticket.summary}"}}]
-                        }
-                    },
-                    {
-                        "object": "block",
-                        "type": "paragraph",
-                        "paragraph": {
+                        "type": "callout",
+                        "callout": {
                             "rich_text": [
-                                {"text": {"content": f"Score: {ticket.alignmentScore}/100 ({ticket.category})\n"}},
-                                {"text": {"content": f"Rationale: {ticket.rationale}"}}
-                            ]
+                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🟢 {ticket.alignmentScore}\n", "annotations": {"bold": True}}},
+                                {"text": {"content": f"Category: Core Value\n"}},
+                                {"text": {"content": f"Action: Review and realign immediately"}}
+                            ],
+                            "icon": {"emoji": "🟢"},
+                            "color": "green_background"
                         }
                     }
                 ])
+        
+        # Add Strategic Enabler tickets
+        if strategic_enabler_tickets:
+            page_data["children"].extend([
+                {
+                    "object": "block",
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"text": {"content": "🔵 Strategic Enabler Tickets"}}]
+                    }
+                }
+            ])
+            
+            for ticket in sorted(strategic_enabler_tickets, key=lambda x: x.alignmentScore, reverse=True):
+                page_data["children"].extend([
+                    {
+                        "object": "block",
+                        "type": "callout",
+                        "callout": {
+                            "rich_text": [
+                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔵 {ticket.alignmentScore}\n", "annotations": {"bold": True}}},
+                                {"text": {"content": f"Category: Strategic Enabler\n"}},
+                                {"text": {"content": f"Action: Schedule for next sprint"}}
+                            ],
+                            "icon": {"emoji": "🔵"},
+                            "color": "blue_background"
+                        }
+                    }
+                ])
+        
+        # Add Distraction tickets
+        if distraction_tickets:
+            page_data["children"].extend([
+                {
+                    "object": "block",
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"text": {"content": "🔴 Distraction Tickets"}}]
+                    }
+                }
+            ])
+            
+            for ticket in sorted(distraction_tickets, key=lambda x: x.alignmentScore, reverse=True):
+                page_data["children"].extend([
+                    {
+                        "object": "block",
+                        "type": "callout",
+                        "callout": {
+                            "rich_text": [
+                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔴 {ticket.alignmentScore}\n", "annotations": {"bold": True}}},
+                                {"text": {"content": f"Category: Distraction\n"}},
+                                {"text": {"content": f"Action: Review and realign immediately"}}
+                            ],
+                            "icon": {"emoji": "🔴"},
+                            "color": "red_background"
+                        }
+                    }
+                ])
+        
+        # Add Strategic Blind Spots section
+        page_data["children"].extend([
+            {
+                "object": "block",
+                "type": "divider",
+                "divider": {}
+            },
+            {
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"text": {"content": "💭 Strategic Blind Spots"}}]
+                }
+            }
+        ])
+        
+        # Add dynamic blind spots based on analysis
+        if len(core_value_tickets) == 0:
+            page_data["children"].append({
+                "object": "block",
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {
+                    "rich_text": [{"text": {"content": "No Core Value tickets in current sprint. Your highest priority work is missing from the backlog."}}]
+                }
+            })
+        
+        if len(distraction_tickets) > total_tickets * 0.3:
+            page_data["children"].append({
+                "object": "block",
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {
+                    "rich_text": [{"text": {"content": f"{len(distraction_tickets)} Distraction tickets ({len(distraction_tickets)/total_tickets*100:.0f}% of sprint). Too much energy diverted from strategic goals."}}]
+                }
+            })
+        
+        if avg_score < 60:
+            page_data["children"].append({
+                "object": "block",
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {
+                    "rich_text": [{"text": {"content": f"Average strategic alignment of {avg_score:.0f}/100 indicates systemic drift from product vision."}}]
+                }
+            })
+        
+        # Add Strategic Recommendations section
+        page_data["children"].extend([
+            {
+                "object": "block",
+                "type": "divider",
+                "divider": {}
+            },
+            {
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"text": {"content": "🎯 Strategic Recommendations"}}]
+                }
+            },
+            {
+                "object": "block",
+                "type": "to_do",
+                "to_do": {
+                    "rich_text": [{"text": {"content": f"🔥 Focus development on Core Value tickets ({len(core_value_tickets)} tickets)"}}],
+                    "checked": False
+                }
+            },
+            {
+                "object": "block",
+                "type": "to_do",
+                "to_do": {
+                    "rich_text": [{"text": {"content": f"⏸️ Deprioritize or pause Distraction tickets ({len(distraction_tickets)} tickets)"}}],
+                    "checked": False
+                }
+            },
+            {
+                "object": "block",
+                "type": "to_do",
+                "to_do": {
+                    "rich_text": [{"text": {"content": "📏 Add 'Strategic Principle' as a required tag in all future tickets"}}],
+                    "checked": False
+                }
+            },
+            {
+                "object": "block",
+                "type": "to_do",
+                "to_do": {
+                    "rich_text": [{"text": {"content": "✅ Run STEVE analysis pre-sprint during backlog grooming"}}],
+                    "checked": False
+                }
+            },
+            {
+                "object": "block",
+                "type": "to_do",
+                "to_do": {
+                    "rich_text": [{"text": {"content": "🚫 Flag and halt any new ticket scoring below 40 before grooming"}}],
+                    "checked": False
+                }
+            }
+        ])
         
         # Create the page
         response = requests.post(
