@@ -33,7 +33,7 @@
 
 STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with YOUR product's strategic vision. Every analysis is dynamically generated based on your unique principles - no templates, no hardcoded rules. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
 
-> 📝 **Executive summaries are automatically published to Notion** with interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
+> 📝 **Export executive summaries to Notion** with one click! Get interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
 
 > 🌐 **Modern Web Interface** provides real-time strategic insights with color-coded score badges, interactive charts, and agent configuration - all in a beautiful dark/light theme dashboard.
 
@@ -49,14 +49,14 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 - 📊 **Interactive Charts** showing category distribution and score trends  
 - 🌙 **Dark/Light Mode** with glass morphism design
 - ⚙️ **Agent Configuration** to customize AI behavior
-- 📋 **Executive Summary** with copy/share functionality
+- 📋 **Executive Summary** with Export to Notion button
 
 ### 🖥️ Command Line Interface
 ```bash
 ./run-cli.sh
 ```
 
-**CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
+**CLI Benefits:** STEVE will analyze your tickets, update Jira, and generate comprehensive executive summaries.
 
 ## 🚀 What STEVE Does
 
@@ -67,7 +67,7 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 - **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
 - **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
 - **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
-- **📄 Notion Integration**: Beautiful, interactive executive summaries with visual formatting
+- **📄 Notion Export**: One-click export of executive summaries to Notion with visual formatting
 - **🌐 Web Dashboard**: Modern React interface with real-time analysis and visualizations
 - **🎨 Color-Coded Scores**: Instant visual feedback (🟢 High, 🔵 Medium, 🟡 Low, 🔴 Critical)
 - **📋 Priority Lists**: Sorted strategic views with actionable next steps
@@ -279,7 +279,7 @@ Run `./steve/validate-setup.sh` to check:
 - **0-39**: Distraction (misaligned work)
 
 ### Notion Integration
-STEVE automatically saves executive summaries to Notion with interactive formatting and visual elements:
+Export executive summaries to Notion with one click! The web interface includes an "Export to Notion" button that creates beautifully formatted pages with:
 
 **Features**:
 - **Interactive Score Distribution**: Toggle blocks showing ticket details by score ranges
@@ -289,7 +289,13 @@ STEVE automatically saves executive summaries to Notion with interactive formatt
 - **Professional Formatting**: Clean layout with dividers, emojis, and structured sections
 - **Actionable Next Steps**: Checkbox-style todo items for immediate follow-up
 
-**Setup**: Add these environment variables to your `.env` file:
+**Setup**: 
+1. In the web interface, click the settings icon and navigate to "Notion Integration"
+2. Enter your Notion Integration Token and Database ID
+3. Click "Save Configuration"
+4. After running analysis, click the "Export to Notion" button next to the Executive Summary
+
+Alternatively, add these to your `.env` file:
 ```bash
 NOTION_TOKEN=secret_your_integration_token_here
 NOTION_DATABASE_ID=your_database_id_here
@@ -336,9 +342,9 @@ The modern React frontend provides a premium interface for strategic analysis:
 
 ### 📋 **Executive Summary**
 - **Rich Typography**: Premium fonts with drop caps and proper hierarchy
-- **Copy/Share Actions**: One-click copying and sharing of executive insights
+- **Export to Notion**: One-click button to export summary to your Notion workspace
 - **Interactive Formatting**: Collapsible sections and visual emphasis
-- **Export Options**: Download reports in multiple formats
+- **Notion Integration Settings**: Configure credentials directly in the settings panel
 
 ### 🚀 **Quick Actions**
 - **One-Click Analysis**: Start ticket analysis with visual progress tracking
@@ -346,7 +352,7 @@ The modern React frontend provides a premium interface for strategic analysis:
 - **Settings Access**: Quick configuration without leaving the main interface
 - **Real-time Updates**: Live data refresh and synchronization
 
-Access the web interface at **http://localhost:5173** after running `./run-steve-simple.sh`
+Access the web interface at **http://localhost:5173** after running `./run-web.sh`
 
 </details>
 
@@ -355,7 +361,7 @@ Access the web interface at **http://localhost:5173** after running `./run-steve
 
 ```
 STEVE/
-├── run-steve-simple.sh       # 🚀 ONE-COMMAND STARTUP (START HERE)
+├── run-web.sh                # 🚀 ONE-COMMAND STARTUP (START HERE)
 ├── steve/                    # 🧠 Python backend
 │   ├── steve.py             # 🎯 Unified command interface
 │   ├── crew_steve.py        # Multi-agent AI system (legacy)
