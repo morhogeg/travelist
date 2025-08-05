@@ -29,9 +29,10 @@
 
 # STEVE - Strategic Ticket Evaluation & Vision Enforcer
 
-> 🎯 **One Command. Complete Strategic Intelligence. YOUR Vision, Not Hardcoded Rules.**
+> 🎯 **One Command. Complete Strategic Intelligence.**
+> No templates. No rigid frameworks. Just your product vision—applied.
 
-STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with YOUR product's strategic vision. Every analysis is dynamically generated based on your unique principles - no templates, no hardcoded rules. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
+STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with YOUR product's strategic vision. Every analysis is dynamically generated based on your unique principles. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
 
 > 📝 **Export executive summaries to Notion** with one click! Get interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
 
@@ -43,16 +44,9 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 ./run-web.sh
 ```
 
-**That's it!** Open http://localhost:5173 to access STEVE's unified interface that:
-- 🎯 **Analyzes your Jira tickets** with multi-agent AI system
-- 💬 **Updates Jira automatically** with scores, categories, and strategic comments
-- 📊 **Shows real-time dashboard** with color-coded score badges
-- 📈 **Displays interactive charts** for category distribution and score trends  
-- 🌙 **Supports dark/light themes** with glass morphism design
-- ⚙️ **Configures AI agents** to match your needs
-- 📋 **Generates executive summaries** with Export to Notion button
+**That's it!** Open http://localhost:5173 to access STEVE's unified interface.
 
-**One interface, complete functionality:** The web dashboard now handles everything - from analysis to Jira updates to Notion exports.
+See [🚀 What STEVE Does](#-what-steve-does) for full feature list.
 
 ## 🚀 What STEVE Does
 
@@ -71,13 +65,45 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 - **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
 - **⚙️ Agent Configuration**: Customize AI agent instructions via web interface
-- **🎯 Dynamic Rationales**: Unique, contextual explanations based on YOUR product vision - NO hardcoded rules!
-- **🔄 Vision-Driven Analysis**: Fully adapts to ANY product domain (SaaS, fintech, healthcare, etc.)
+- **🎯 Dynamic Rationales**: Unique, contextual explanations based on YOUR product vision
+- **🔄 Adaptive to Any Product Domain**: Works with e-commerce, fintech, SaaS, open-source, and any other domain
+
+✅ **STEVE adapts to your product** — just define your principles, and it handles the rest.
+
+## 📋 What Makes STEVE Different: Executive-Grade Strategy Summaries
+
+STEVE generates detailed analysis reports with constructive, motivating tone:
+
+### Executive Summary Features
+- **🗂️ Strategic Category Definitions**: Clear explanations of what each category means
+- **📊 Color-coded Scorecards**: Visual priority ranking with emojis (🟢🟡🟠🔴)
+- **💡 Constructive Recommendations**: Solution-focused guidance without blame
+- **🎯 Motivating Bottom Lines**: "Let's redirect energy toward what matters" vs accusatory language
+
+### 📋 Sample Executive Summary Output
+
+```
+🎯 STRATEGIC ALIGNMENT SUMMARY
+Total Tickets: 22
+Average Alignment: 71.2/100 - Significant improvement!
+Core Value: 50% (Target: 60%+ — almost there!)
+
+📊 Top Performers:
+  🟢 PROJ-201: Multi-agent workflow orchestrator (98/100)
+  🟢 PROJ-203: Real-time AI research aggregator (96/100)
+
+💡 Recommendations:
+  ✅ Amplify AI Excellence - Build on CrewAI momentum
+  📈 Transform Maintenance into Innovation - Redirect drift energy
+  🎯 Push for 60%+ Core Value - Just 3 tickets away!
+
+Bottom Line: We're shipping fast AND shipping smart. Let's keep this momentum rolling!
+```
 
 ## 🎯 Example Output
 
 <details>
-<summary><b>Click to see example output</b></summary>
+<summary><b>Click to see example ticket analysis</b></summary>
 
 ```
 📊 PROJ-123: 95/100 (Core Value)
@@ -168,7 +194,7 @@ STEVE generates executive-ready intelligence:
 - **Executive Summaries**: Constructive, motivating strategic insights
 - **Priority Lists**: Sorted recommendations with specific actions
 
-## ⚡ Quick Start
+## ⚡ Quick Setup
 
 ### 1. Clone Repository
 ```bash
@@ -248,11 +274,9 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 ### 4. Run STEVE
 
-#### Web Interface
 ```bash
 ./run-web.sh
 ```
-
 
 ## 🔧 Configuration
 
@@ -417,41 +441,6 @@ This example shows how STEVE adapts to a specific product vision. When configure
 5. **Seamless Integration** (weight: 1.0) - Notion, APIs, automation
 
 **But YOUR product might have completely different principles!** STEVE will adapt its analysis to match YOUR vision - whether it's e-commerce, healthcare, fintech, or any other domain.
-
-## 🔍 Strategic Intelligence Reports
-
-STEVE generates detailed analysis reports with constructive, motivating tone:
-
-### Executive Summary Features
-- **🗂️ Strategic Category Definitions**: Clear explanations of what each category means
-- **📊 Color-coded Scorecards**: Visual priority ranking with emojis (🟢🟡🟠🔴)
-- **💡 Constructive Recommendations**: Solution-focused guidance without blame
-- **🎯 Motivating Bottom Lines**: "Let's redirect energy toward what matters" vs accusatory language
-
-<details>
-<summary><b>Example Summary Output</b></summary>
-
-```
-🎯 STRATEGIC ALIGNMENT SUMMARY
-Total Tickets: 22
-Average Alignment: 71.2/100 - Significant improvement!
-Core Value: 50% (Target: 60%+ — almost there!)
-
-📊 Top Performers:
-  🟢 PROJ-201: Multi-agent workflow orchestrator (98/100)
-  🟢 PROJ-203: Real-time AI research aggregator (96/100)
-
-💡 Recommendations:
-  ✅ Amplify AI Excellence - Build on CrewAI momentum
-  📈 Transform Maintenance into Innovation - Redirect drift energy
-  🎯 Push for 60%+ Core Value - Just 3 tickets away!
-
-Bottom Line: We're shipping fast AND shipping smart. Let's keep this momentum rolling!
-```
-
-See `steve/example_executive_summary.md` and `steve/example_executive_summary_sprint_25.md` for full examples.
-
-</details>
 
 ### 🔢 Jira Custom Fields Setup
 
