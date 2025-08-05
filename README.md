@@ -29,59 +29,82 @@
 
 # STEVE - Strategic Ticket Evaluation & Vision Enforcer
 
-> 🎯 **One Command. Complete Strategic Intelligence. YOUR Vision, Not Hardcoded Rules.**
+> 🎯 **One Command. Complete Strategic Intelligence.**
+> No templates. No rigid frameworks. Just your product vision—applied.
 
-STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with YOUR product's strategic vision. Every analysis is dynamically generated based on your unique principles - no templates, no hardcoded rules. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
-
-> 📝 **Executive summaries are automatically published to Notion** with interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
+STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Every analysis is dynamically generated based on your unique principles. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
 
 > 🌐 **Modern Web Interface** provides real-time strategic insights with color-coded score badges, interactive charts, and agent configuration - all in a beautiful dark/light theme dashboard.
 
+> 📝 **Export executive summaries to Notion** with one click! Get interactive toggles, visual scoring distributions, and professional formatting for immediate team collaboration.
+
 ## ⚡ Quick Start
 
-### 🌐 Web Dashboard (Recommended)
 ```bash
 ./run-web.sh
 ```
 
-**That's it!** Open http://localhost:5173 to access the modern web interface with:
-- 🎯 **Real-time Strategic Dashboard** with color-coded score badges
-- 📊 **Interactive Charts** showing category distribution and score trends  
-- 🌙 **Dark/Light Mode** with glass morphism design
-- ⚙️ **Agent Configuration** to customize AI behavior
-- 📋 **Executive Summary** with copy/share functionality
-
-### 🖥️ Command Line Interface
-```bash
-./run-cli.sh
-```
-
-**CLI Benefits:** STEVE will analyze your tickets, update Jira, and **publish interactive executive summaries directly to Notion**.
+**That's it!** Open http://localhost:5173 to access STEVE's unified interface.
 
 ## 🚀 What STEVE Does
 
-**Running STEVE delivers:**
-
+### Core Capabilities
 - **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
-- **📊 Strategic Scoring**: Evaluates each ticket against YOUR custom principles (0-100)
-- **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
+- **📊 Strategic Scoring**: Evaluates each ticket against your custom principles (0-100)
 - **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
-- **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
-- **📄 Notion Integration**: Beautiful, interactive executive summaries with visual formatting
-- **🌐 Web Dashboard**: Modern React interface with real-time analysis and visualizations
-- **🎨 Color-Coded Scores**: Instant visual feedback (🟢 High, 🔵 Medium, 🟡 Low, 🔴 Critical)
-- **📋 Priority Lists**: Sorted strategic views with actionable next steps
+- **📄 Notion Export**: One-click export of executive summaries to Notion with visual formatting
+
+### Strategic Intelligence
+- **🎯 Dynamic Rationales**: Unique, contextual explanations based on your product vision
 - **🗂️ Category Definitions**: Clear explanations of what each strategic category means
-- **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
+- **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
+- **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
+
+### User Experience
+- **🌐 Web Dashboard**: Modern React interface with real-time analysis and visualizations
 - **⚙️ Agent Configuration**: Customize AI agent instructions via web interface
-- **🎯 Dynamic Rationales**: Unique, contextual explanations based on YOUR product vision - NO hardcoded rules!
-- **🔄 Vision-Driven Analysis**: Fully adapts to ANY product domain (SaaS, fintech, healthcare, etc.)
+- **📋 Priority Lists**: Sorted strategic views with actionable next steps
+- **🎨 Color-Coded Scores**: Instant visual feedback (🟢 High, 🔵 Medium, 🟡 Low, 🔴 Critical)
+- **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
+- **🔄 Adaptive to Any Product Domain**: Works with e-commerce, fintech, SaaS, open-source, and any other domain
+
+✅ **STEVE adapts to your product** — just define your principles, and it handles the rest.
+
+## 📋 What Makes STEVE Different: Executive-Grade Strategy Summaries
+
+STEVE generates detailed analysis reports with constructive, motivating tone:
+
+### Executive Summary Features
+- **🗂️ Strategic Category Definitions**: Clear explanations of what each category means
+- **📊 Color-coded Scorecards**: Visual priority ranking with emojis (🟢🟡🟠🔴)
+- **💡 Constructive Recommendations**: Solution-focused guidance without blame
+- **🎯 Motivating Bottom Lines**: "Let's redirect energy toward what matters" vs accusatory language
+
+### 📋 Sample Executive Summary Output
+
+```
+🎯 STRATEGIC ALIGNMENT SUMMARY
+Total Tickets: 22
+Average Alignment: 71.2/100 - Significant improvement!
+Core Value: 50% (Target: 60%+ — almost there!)
+
+📊 Top Performers:
+  🟢 PROJ-201: Multi-agent workflow orchestrator (98/100)
+  🟢 PROJ-203: Real-time AI research aggregator (96/100)
+
+💡 Recommendations:
+  ✅ Amplify AI Excellence - Build on CrewAI momentum
+  📈 Transform Maintenance into Innovation - Redirect drift energy
+  🎯 Push for 60%+ Core Value - Just 3 tickets away!
+
+Bottom Line: We're shipping fast AND shipping smart. Let's keep this momentum rolling!
+```
 
 ## 🎯 Example Output
 
 <details>
-<summary><b>Click to see example output</b></summary>
+<summary><b>Click to see example ticket analysis</b></summary>
 
 ```
 📊 PROJ-123: 95/100 (Core Value)
@@ -172,7 +195,7 @@ STEVE generates executive-ready intelligence:
 - **Executive Summaries**: Constructive, motivating strategic insights
 - **Priority Lists**: Sorted recommendations with specific actions
 
-## ⚡ Quick Start
+## ⚡ Quick Setup
 
 ### 1. Clone Repository
 ```bash
@@ -187,15 +210,24 @@ Edit `.env` with your Jira credentials and API keys.
 <details>
 <summary><b>3. Configure Your Product Vision</b></summary>
 
-STEVE needs to understand your product's strategic vision. Edit these files:
+STEVE needs to understand your product's strategic vision. You have two options:
+
+**Option 1: Use the Web Interface (Recommended for first-time users)**
+- Run `./run-web.sh` and STEVE will guide you through initial setup
+- Enter your product vision and strategic principles in the setup wizard
+- Your configuration will be saved automatically
+
+**Option 2: Edit Configuration Files Directly**
+- For advanced users or those who prefer file-based configuration
+- Edit the YAML files below before running STEVE
 
 #### `steve/config/principles.yaml` - Your Strategic Principles
 ```yaml
-# IMPORTANT: STEVE generates UNIQUE rationales for each ticket based on YOUR vision!
+# IMPORTANT: STEVE generates UNIQUE rationales for each ticket based on your vision!
 # No hardcoded templates - every analysis is contextual and specific to your product.
 
 principles:
-  - name: "Customer Obsession"  # <-- Change to YOUR principle
+  - name: "Customer Obsession"  # <-- Change to your principle
     description: "Every feature should improve customer experience"
     keywords: ["customer", "user", "experience", "UX", "usability"]
     weight: 1.5  # Higher weight = more important
@@ -252,14 +284,8 @@ USE_FOUNDER_VOICE=true  # Enable executive summaries (optional)
 
 ### 4. Run STEVE
 
-#### Web Interface
 ```bash
 ./run-web.sh
-```
-
-#### Command Line Interface
-```bash
-./run-cli.sh
 ```
 
 ## 🔧 Configuration
@@ -279,7 +305,7 @@ Run `./steve/validate-setup.sh` to check:
 - **0-39**: Distraction (misaligned work)
 
 ### Notion Integration
-STEVE automatically saves executive summaries to Notion with interactive formatting and visual elements:
+Export executive summaries to Notion with one click! The web interface includes an "Export to Notion" button that creates beautifully formatted pages with:
 
 **Features**:
 - **Interactive Score Distribution**: Toggle blocks showing ticket details by score ranges
@@ -289,7 +315,13 @@ STEVE automatically saves executive summaries to Notion with interactive formatt
 - **Professional Formatting**: Clean layout with dividers, emojis, and structured sections
 - **Actionable Next Steps**: Checkbox-style todo items for immediate follow-up
 
-**Setup**: Add these environment variables to your `.env` file:
+**Setup**: 
+1. In the web interface, click the settings icon and navigate to "Notion Integration"
+2. Enter your Notion Integration Token and Database ID
+3. Click "Save Configuration"
+4. After running analysis, click the "Export to Notion" button next to the Executive Summary
+
+Alternatively, add these to your `.env` file:
 ```bash
 NOTION_TOKEN=secret_your_integration_token_here
 NOTION_DATABASE_ID=your_database_id_here
@@ -318,7 +350,7 @@ The modern React frontend provides a premium interface for strategic analysis:
 - **Flexible Sorting**: By score, ticket key, or category
 - **Individual Ticket Expansion**: Click to expand only the ticket you want to see
 - **Score Badges**: Instant visual feedback with gradient backgrounds
-- **Dynamic Vision-Based Rationales**: Every ticket gets a UNIQUE explanation based on YOUR specific principles - never generic templates!
+- **Dynamic Vision-Based Rationales**: Every ticket gets a UNIQUE explanation based on your specific principles - never generic templates!
 - **Clean Formatting**: No bullet points in recommendations, just clear action items
 
 ### ⚙️ **Agent Configuration Panel**
@@ -336,9 +368,9 @@ The modern React frontend provides a premium interface for strategic analysis:
 
 ### 📋 **Executive Summary**
 - **Rich Typography**: Premium fonts with drop caps and proper hierarchy
-- **Copy/Share Actions**: One-click copying and sharing of executive insights
+- **Export to Notion**: One-click button to export summary to your Notion workspace
 - **Interactive Formatting**: Collapsible sections and visual emphasis
-- **Export Options**: Download reports in multiple formats
+- **Notion Integration Settings**: Configure credentials directly in the settings panel
 
 ### 🚀 **Quick Actions**
 - **One-Click Analysis**: Start ticket analysis with visual progress tracking
@@ -346,7 +378,7 @@ The modern React frontend provides a premium interface for strategic analysis:
 - **Settings Access**: Quick configuration without leaving the main interface
 - **Real-time Updates**: Live data refresh and synchronization
 
-Access the web interface at **http://localhost:5173** after running `./run-steve-simple.sh`
+Access the web interface at **http://localhost:5173** after running `./run-web.sh`
 
 </details>
 
@@ -355,11 +387,11 @@ Access the web interface at **http://localhost:5173** after running `./run-steve
 
 ```
 STEVE/
-├── run-steve-simple.sh       # 🚀 ONE-COMMAND STARTUP (START HERE)
+├── run-web.sh                # 🚀 ONE-COMMAND STARTUP (START HERE)
 ├── steve/                    # 🧠 Python backend
-│   ├── steve.py             # 🎯 Unified command interface
-│   ├── crew_steve.py        # Multi-agent AI system (legacy)
-│   ├── real_steve.py        # Jira integration layer (legacy)
+│   ├── steve.py             # 🎯 Main backend orchestrator
+│   ├── crew_steve_core.py   # Multi-agent AI system
+│   ├── crew_steve.py        # Legacy CLI version
 │   ├── crew_steve_showcase.py # Demo/showcase version
 │   ├── simple_crew.py       # Simplified version for learning
 │   ├── cleanup_duplicates.py # Utility for cleaning duplicate entries
@@ -418,42 +450,7 @@ This example shows how STEVE adapts to a specific product vision. When configure
 4. **Premium Source Curation** (weight: 1.1) - GitHub, research labs, thought leaders
 5. **Seamless Integration** (weight: 1.0) - Notion, APIs, automation
 
-**But YOUR product might have completely different principles!** STEVE will adapt its analysis to match YOUR vision - whether it's e-commerce, healthcare, fintech, or any other domain.
-
-## 🔍 Strategic Intelligence Reports
-
-STEVE generates detailed analysis reports with constructive, motivating tone:
-
-### Executive Summary Features
-- **🗂️ Strategic Category Definitions**: Clear explanations of what each category means
-- **📊 Color-coded Scorecards**: Visual priority ranking with emojis (🟢🟡🟠🔴)
-- **💡 Constructive Recommendations**: Solution-focused guidance without blame
-- **🎯 Motivating Bottom Lines**: "Let's redirect energy toward what matters" vs accusatory language
-
-<details>
-<summary><b>Example Summary Output</b></summary>
-
-```
-🎯 STRATEGIC ALIGNMENT SUMMARY
-Total Tickets: 22
-Average Alignment: 71.2/100 - Significant improvement!
-Core Value: 50% (Target: 60%+ — almost there!)
-
-📊 Top Performers:
-  🟢 PROJ-201: Multi-agent workflow orchestrator (98/100)
-  🟢 PROJ-203: Real-time AI research aggregator (96/100)
-
-💡 Recommendations:
-  ✅ Amplify AI Excellence - Build on CrewAI momentum
-  📈 Transform Maintenance into Innovation - Redirect drift energy
-  🎯 Push for 60%+ Core Value - Just 3 tickets away!
-
-Bottom Line: We're shipping fast AND shipping smart. Let's keep this momentum rolling!
-```
-
-See `steve/example_executive_summary.md` and `steve/example_executive_summary_sprint_25.md` for full examples.
-
-</details>
+**But your product might have completely different principles!** STEVE will adapt its analysis to match your vision - whether it's e-commerce, healthcare, fintech, or any other domain.
 
 ### 🔢 Jira Custom Fields Setup
 
