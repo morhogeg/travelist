@@ -779,7 +779,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                     "object": "block",
                     "type": "paragraph",
                     "paragraph": {
-                        "rich_text": [{"text": {"content": request.summary}}]
+                        "rich_text": [{"text": {"content": request.summary.replace('**', '')}}]
                     }
                 },
                 {
@@ -808,9 +808,10 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🟢 {ticket.alignmentScore}\n"}},
+                                {"text": {"content": f"#{ticket.key} - 🟢 {ticket.alignmentScore}\n"}},
                                 {"text": {"content": f"Category: Core Value\n"}},
-                                {"text": {"content": f"Action: Review and realign immediately"}}
+                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
+                                {"text": {"content": f"Action: {ticket.rationale}"}}
                             ],
                             "icon": {"emoji": "🟢"},
                             "color": "green_background"
@@ -837,9 +838,10 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔵 {ticket.alignmentScore}\n"}},
+                                {"text": {"content": f"#{ticket.key} - 🔵 {ticket.alignmentScore}\n"}},
                                 {"text": {"content": f"Category: Strategic Enabler\n"}},
-                                {"text": {"content": f"Action: Schedule for next sprint"}}
+                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
+                                {"text": {"content": f"Action: {ticket.rationale}"}}
                             ],
                             "icon": {"emoji": "🔵"},
                             "color": "blue_background"
@@ -866,9 +868,10 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔴 {ticket.alignmentScore}\n"}},
+                                {"text": {"content": f"#{ticket.key} - 🔴 {ticket.alignmentScore}\n"}},
                                 {"text": {"content": f"Category: Distraction\n"}},
-                                {"text": {"content": f"Action: Review and realign immediately"}}
+                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
+                                {"text": {"content": f"Action: {ticket.rationale}"}}
                             ],
                             "icon": {"emoji": "🔴"},
                             "color": "red_background"
@@ -938,7 +941,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                 "object": "block",
                 "type": "to_do",
                 "to_do": {
-                    "rich_text": [{"text": {"content": f"🔥 Focus development on Core Value tickets ({len(core_value_tickets)} tickets)"}}],
+                    "rich_text": [{"text": {"content": f"🔥 Focus development on Core Value tickets ({len(core_value_tickets)} tickets{': ' + ', '.join([t.key for t in core_value_tickets]) if core_value_tickets else ''})"}}],
                     "checked": False
                 }
             },
@@ -946,7 +949,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                 "object": "block",
                 "type": "to_do",
                 "to_do": {
-                    "rich_text": [{"text": {"content": f"⏸️ Deprioritize or pause Distraction tickets ({len(distraction_tickets)} tickets)"}}],
+                    "rich_text": [{"text": {"content": f"⏸️ Deprioritize or pause Distraction tickets ({len(distraction_tickets)} tickets{': ' + ', '.join([t.key for t in distraction_tickets]) if distraction_tickets else ''})"}}],
                     "checked": False
                 }
             },
