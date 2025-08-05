@@ -808,7 +808,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🟢 {ticket.alignmentScore}\n", "annotations": {"bold": True}}},
+                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🟢 {ticket.alignmentScore}\n"}},
                                 {"text": {"content": f"Category: Core Value\n"}},
                                 {"text": {"content": f"Action: Review and realign immediately"}}
                             ],
@@ -837,7 +837,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔵 {ticket.alignmentScore}\n", "annotations": {"bold": True}}},
+                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔵 {ticket.alignmentScore}\n"}},
                                 {"text": {"content": f"Category: Strategic Enabler\n"}},
                                 {"text": {"content": f"Action: Schedule for next sprint"}}
                             ],
@@ -866,7 +866,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔴 {ticket.alignmentScore}\n", "annotations": {"bold": True}}},
+                                {"text": {"content": f"#{ticket.key.split('-')[1]} - 🔴 {ticket.alignmentScore}\n"}},
                                 {"text": {"content": f"Category: Distraction\n"}},
                                 {"text": {"content": f"Action: Review and realign immediately"}}
                             ],
