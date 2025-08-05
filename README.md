@@ -32,7 +32,7 @@
 > 🎯 **One Command. Complete Strategic Intelligence.**
 > No templates. No rigid frameworks. Just your product vision—applied.
 
-STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with YOUR product's strategic vision. Every analysis is dynamically generated based on your unique principles. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
+STEVE is a unified multi-agent AI system that ensures every ticket in your backlog aligns with your product's strategic vision. Every analysis is dynamically generated based on your unique principles. Get AI-powered strategic analysis, automatic Jira updates, **interactive Notion reports**, and a **modern web dashboard** - preventing strategic drift before it happens.
 
 > 🌐 **Modern Web Interface** provides real-time strategic insights with color-coded score badges, interactive charts, and agent configuration - all in a beautiful dark/light theme dashboard.
 
@@ -46,26 +46,27 @@ STEVE is a unified multi-agent AI system that ensures every ticket in your backl
 
 **That's it!** Open http://localhost:5173 to access STEVE's unified interface.
 
-See [🚀 What STEVE Does](#-what-steve-does) for full feature list.
-
 ## 🚀 What STEVE Does
 
-**The unified web interface delivers:**
-
+### Core Capabilities
 - **🤖 Multi-Agent Analysis**: 5 AI agents collaborate for deep strategic insights
-- **📊 Strategic Scoring**: Evaluates each ticket against YOUR custom principles (0-100)
-- **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
+- **📊 Strategic Scoring**: Evaluates each ticket against your custom principles (0-100)
 - **💬 Jira Integration**: Updates your actual tickets with scores, categories, and analysis comments
-- **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
 - **📄 Notion Export**: One-click export of executive summaries to Notion with visual formatting
-- **🌐 Web Dashboard**: Modern React interface with real-time analysis and visualizations
-- **🎨 Color-Coded Scores**: Instant visual feedback (🟢 High, 🔵 Medium, 🟡 Low, 🔴 Critical)
-- **📋 Priority Lists**: Sorted strategic views with actionable next steps
+
+### Strategic Intelligence
+- **🎯 Dynamic Rationales**: Unique, contextual explanations based on your product vision
 - **🗂️ Category Definitions**: Clear explanations of what each strategic category means
-- **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
 - **📈 Pattern Detection**: Identifies trends and recommends strategic focus shifts
+- **✍️ Strategic Rewrites**: AI-powered suggestions to improve misaligned tickets
+- **🏷️ Smart Categorization**: Tags work as Core Value, Strategic Enabler, Drift, or Distraction
+
+### User Experience
+- **🌐 Web Dashboard**: Modern React interface with real-time analysis and visualizations
 - **⚙️ Agent Configuration**: Customize AI agent instructions via web interface
-- **🎯 Dynamic Rationales**: Unique, contextual explanations based on YOUR product vision
+- **📋 Priority Lists**: Sorted strategic views with actionable next steps
+- **🎨 Color-Coded Scores**: Instant visual feedback (🟢 High, 🔵 Medium, 🟡 Low, 🔴 Critical)
+- **💼 Executive Summaries**: Constructive, motivating strategic reports with clear recommendations
 - **🔄 Adaptive to Any Product Domain**: Works with e-commerce, fintech, SaaS, open-source, and any other domain
 
 ✅ **STEVE adapts to your product** — just define your principles, and it handles the rest.
@@ -213,11 +214,11 @@ STEVE needs to understand your product's strategic vision. Edit these files:
 
 #### `steve/config/principles.yaml` - Your Strategic Principles
 ```yaml
-# IMPORTANT: STEVE generates UNIQUE rationales for each ticket based on YOUR vision!
+# IMPORTANT: STEVE generates UNIQUE rationales for each ticket based on your vision!
 # No hardcoded templates - every analysis is contextual and specific to your product.
 
 principles:
-  - name: "Customer Obsession"  # <-- Change to YOUR principle
+  - name: "Customer Obsession"  # <-- Change to your principle
     description: "Every feature should improve customer experience"
     keywords: ["customer", "user", "experience", "UX", "usability"]
     weight: 1.5  # Higher weight = more important
@@ -340,7 +341,7 @@ The modern React frontend provides a premium interface for strategic analysis:
 - **Flexible Sorting**: By score, ticket key, or category
 - **Individual Ticket Expansion**: Click to expand only the ticket you want to see
 - **Score Badges**: Instant visual feedback with gradient backgrounds
-- **Dynamic Vision-Based Rationales**: Every ticket gets a UNIQUE explanation based on YOUR specific principles - never generic templates!
+- **Dynamic Vision-Based Rationales**: Every ticket gets a UNIQUE explanation based on your specific principles - never generic templates!
 - **Clean Formatting**: No bullet points in recommendations, just clear action items
 
 ### ⚙️ **Agent Configuration Panel**
@@ -440,7 +441,7 @@ This example shows how STEVE adapts to a specific product vision. When configure
 4. **Premium Source Curation** (weight: 1.1) - GitHub, research labs, thought leaders
 5. **Seamless Integration** (weight: 1.0) - Notion, APIs, automation
 
-**But YOUR product might have completely different principles!** STEVE will adapt its analysis to match YOUR vision - whether it's e-commerce, healthcare, fintech, or any other domain.
+**But your product might have completely different principles!** STEVE will adapt its analysis to match your vision - whether it's e-commerce, healthcare, fintech, or any other domain.
 
 ### 🔢 Jira Custom Fields Setup
 
