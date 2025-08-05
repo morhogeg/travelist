@@ -839,6 +839,11 @@ async def publish_to_notion(request: NotionPublishRequest):
                     current_section = 'steps'
                     continue
                 
+                # Skip the "Next Steps:" line if it appears inline
+                if line == '📋 Next Steps:' or line == 'Next Steps:':
+                    current_section = 'steps'
+                    continue
+                    
                 # Process bullet points
                 if line.startswith('*') or line.startswith('-') or line.startswith('•'):
                     bullet_text = line.lstrip('*-• ').replace('**', '')
@@ -857,7 +862,8 @@ async def publish_to_notion(request: NotionPublishRequest):
                 else:
                     # Regular paragraph
                     clean_text = line.replace('**', '')
-                    if clean_text:
+                    # Skip certain lines we don't want as paragraphs
+                    if current_section != 'steps' and not line.startswith('Strategic Health Assessment:') and clean_text and 'Our current sprint analysis' not in line:
                         page_data["children"].append({
                             "object": "block",
                             "type": "paragraph",
@@ -900,10 +906,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key} - 🟢 {ticket.alignmentScore}\n"}},
-                                {"text": {"content": f"Category: Core Value\n"}},
-                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
-                                {"text": {"content": f"Action: {ticket.rationale}"}}
+                                {"text": {"content": f"{ticket.key} • Score: {ticket.alignmentScore}/100\n{ticket.summary}\n\n💡 {ticket.rationale}"}}
                             ],
                             "icon": {"emoji": "🟢"},
                             "color": "green_background"
@@ -946,10 +949,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key} - 🔵 {ticket.alignmentScore}\n"}},
-                                {"text": {"content": f"Category: Strategic Enabler\n"}},
-                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
-                                {"text": {"content": f"Action: {ticket.rationale}"}}
+                                {"text": {"content": f"{ticket.key} • Score: {ticket.alignmentScore}/100\n{ticket.summary}\n\n💡 {ticket.rationale}"}}
                             ],
                             "icon": {"emoji": "🔵"},
                             "color": "blue_background"
@@ -983,10 +983,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key} - 🟡 {ticket.alignmentScore}\n"}},
-                                {"text": {"content": f"Category: Drift\n"}},
-                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
-                                {"text": {"content": f"Action: {ticket.rationale}"}}
+                                {"text": {"content": f"{ticket.key} • Score: {ticket.alignmentScore}/100\n{ticket.summary}\n\n💡 {ticket.rationale}"}}
                             ],
                             "icon": {"emoji": "🟡"},
                             "color": "yellow_background"
@@ -1020,10 +1017,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                         "type": "callout",
                         "callout": {
                             "rich_text": [
-                                {"text": {"content": f"#{ticket.key} - 🔴 {ticket.alignmentScore}\n"}},
-                                {"text": {"content": f"Category: Distraction\n"}},
-                                {"text": {"content": f"Summary: {ticket.summary}\n"}},
-                                {"text": {"content": f"Action: {ticket.rationale}"}}
+                                {"text": {"content": f"{ticket.key} • Score: {ticket.alignmentScore}/100\n{ticket.summary}\n\n💡 {ticket.rationale}"}}
                             ],
                             "icon": {"emoji": "🔴"},
                             "color": "red_background"
