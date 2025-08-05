@@ -872,40 +872,7 @@ async def publish_to_notion(request: NotionPublishRequest):
                 "divider": {}
             })
         
-        # Add Next Steps section if we collected any
-        if next_steps:
-            page_data["children"].extend([
-                {
-                    "object": "block",
-                    "type": "heading_1",
-                    "heading_1": {
-                        "rich_text": [{"text": {"content": "📌 Next Steps"}}]
-                    }
-                },
-                {
-                    "object": "block",
-                    "type": "paragraph",
-                    "paragraph": {
-                        "rich_text": [{"text": {"content": "Immediate actions to improve strategic alignment"}}]
-                    }
-                }
-            ])
-            
-            for step in next_steps:
-                page_data["children"].append({
-                    "object": "block",
-                    "type": "to_do",
-                    "to_do": {
-                        "rich_text": [{"text": {"content": step}}],
-                        "checked": False
-                    }
-                })
-            
-            page_data["children"].append({
-                "object": "block",
-                "type": "divider",
-                "divider": {}
-            })
+        # Store next_steps for later (we'll add them at the end)
         
         # Add Core Value tickets
         if core_value_tickets:
@@ -1177,6 +1144,40 @@ async def publish_to_notion(request: NotionPublishRequest):
                 }
             }
         ])
+        
+        # Add Next Steps section at the end if we collected any
+        if next_steps:
+            page_data["children"].extend([
+                {
+                    "object": "block",
+                    "type": "divider",
+                    "divider": {}
+                },
+                {
+                    "object": "block",
+                    "type": "heading_1",
+                    "heading_1": {
+                        "rich_text": [{"text": {"content": "📌 Next Steps"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": "Immediate actions from your executive summary"}}]
+                    }
+                }
+            ])
+            
+            for step in next_steps:
+                page_data["children"].append({
+                    "object": "block",
+                    "type": "to_do",
+                    "to_do": {
+                        "rich_text": [{"text": {"content": step}}],
+                        "checked": False
+                    }
+                })
         
         # Create the page
         response = requests.post(
