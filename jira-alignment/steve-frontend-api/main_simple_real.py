@@ -414,6 +414,7 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
         print(f"Environment STEVE_TEST_MODE: {os.getenv('STEVE_TEST_MODE', 'not set')}")
         
         # Run STEVE analysis using crew_steve
+        print(f"DEBUG: Running STEVE analysis with dry_run=False, test_mode={use_test_mode}, project_key={project_key}")
         result = await asyncio.get_event_loop().run_in_executor(
             None, 
             lambda: crew_main(
@@ -423,6 +424,7 @@ async def run_real_analysis(request: AnalysisRequest) -> AnalysisResult:
                 dry_run=False  # Update Jira tickets with analysis results
             )
         )
+        print(f"DEBUG: STEVE analysis complete. Has alignments: {'alignments' in result if result else False}")
         
         # Convert STEVE result to frontend format
         tickets = []
