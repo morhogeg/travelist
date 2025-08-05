@@ -840,13 +840,16 @@ async def publish_to_notion(request: NotionPublishRequest):
                     continue
                 
                 # Skip the "Next Steps:" line if it appears inline
-                if line == '📋 Next Steps:' or line == 'Next Steps:':
+                if line == '📋 Next Steps:' or line == 'Next Steps:' or '📋 Next Steps:' in line:
                     current_section = 'steps'
                     continue
                     
                 # Process bullet points
                 if line.startswith('*') or line.startswith('-') or line.startswith('•'):
                     bullet_text = line.lstrip('*-• ').replace('**', '')
+                    # Skip Strategic Health Assessment line even in bullet points
+                    if 'Strategic Health Assessment:' in bullet_text:
+                        continue
                     if current_section == 'steps':
                         # Collect next steps for later
                         next_steps.append(bullet_text)
@@ -862,8 +865,12 @@ async def publish_to_notion(request: NotionPublishRequest):
                 else:
                     # Regular paragraph
                     clean_text = line.replace('**', '')
-                    # Skip certain lines we don't want as paragraphs
-                    if current_section != 'steps' and not line.startswith('Strategic Health Assessment:') and clean_text and 'Our current sprint analysis' not in line:
+                    # Skip certain lines we don't want as paragraphs (including inline Next Steps text)
+                    if (current_section != 'steps' and 
+                        'Strategic Health Assessment:' not in line and 
+                        clean_text and 
+                        'Our current sprint analysis' not in line and
+                        '📋 Next Steps:' not in clean_text):
                         page_data["children"].append({
                             "object": "block",
                             "type": "paragraph",
@@ -872,13 +879,58 @@ async def publish_to_notion(request: NotionPublishRequest):
                             }
                         })
             
+            # Add divider after executive summary
             page_data["children"].append({
                 "object": "block",
                 "type": "divider",
                 "divider": {}
             })
         
-        # Store next_steps for later (we'll add them at the end)
+        # Add Strategic Blind Spots section RIGHT AFTER Executive Summary
+        page_data["children"].extend([
+            {
+                "object": "block",
+                "type": "heading_1",
+                "heading_1": {
+                    "rich_text": [{"text": {"content": "💭 Strategic Blind Spots"}}]
+                }
+            },
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"text": {"content": "Critical gaps and missing opportunities in your current sprint"}}]
+                }
+            }
+        ])
+        
+        # Add dynamic blind spots based on analysis
+        if len(core_value_tickets) == 0:
+            page_data["children"].append({
+                "object": "block",
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {
+                    "rich_text": [{"text": {"content": "No Core Value tickets in current sprint. Your highest priority work is missing from the backlog."}}]
+                }
+            })
+        
+        if len(distraction_tickets) > total_tickets * 0.3:
+            page_data["children"].append({
+                "object": "block",
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {
+                    "rich_text": [{"text": {"content": f"{len(distraction_tickets)} Distraction tickets ({len(distraction_tickets)/total_tickets*100:.0f}% of sprint). Too much energy diverted from strategic goals."}}]
+                }
+            })
+        
+        if avg_score < 60:
+            page_data["children"].append({
+                "object": "block",
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {
+                    "rich_text": [{"text": {"content": f"Average strategic alignment of {avg_score:.0f}/100 indicates systemic drift from product vision."}}]
+                }
+            })
         
         # Add Core Value tickets
         if core_value_tickets:
@@ -1024,57 +1076,6 @@ async def publish_to_notion(request: NotionPublishRequest):
                         }
                     }
                 ])
-        
-        # Add Strategic Blind Spots section
-        page_data["children"].extend([
-            {
-                "object": "block",
-                "type": "divider",
-                "divider": {}
-            },
-            {
-                "object": "block",
-                "type": "heading_1",
-                "heading_1": {
-                    "rich_text": [{"text": {"content": "💭 Strategic Blind Spots"}}]
-                }
-            },
-            {
-                "object": "block",
-                "type": "paragraph",
-                "paragraph": {
-                    "rich_text": [{"text": {"content": "Critical gaps and missing opportunities in your current sprint"}}]
-                }
-            }
-        ])
-        
-        # Add dynamic blind spots based on analysis
-        if len(core_value_tickets) == 0:
-            page_data["children"].append({
-                "object": "block",
-                "type": "bulleted_list_item",
-                "bulleted_list_item": {
-                    "rich_text": [{"text": {"content": "No Core Value tickets in current sprint. Your highest priority work is missing from the backlog."}}]
-                }
-            })
-        
-        if len(distraction_tickets) > total_tickets * 0.3:
-            page_data["children"].append({
-                "object": "block",
-                "type": "bulleted_list_item",
-                "bulleted_list_item": {
-                    "rich_text": [{"text": {"content": f"{len(distraction_tickets)} Distraction tickets ({len(distraction_tickets)/total_tickets*100:.0f}% of sprint). Too much energy diverted from strategic goals."}}]
-                }
-            })
-        
-        if avg_score < 60:
-            page_data["children"].append({
-                "object": "block",
-                "type": "bulleted_list_item",
-                "bulleted_list_item": {
-                    "rich_text": [{"text": {"content": f"Average strategic alignment of {avg_score:.0f}/100 indicates systemic drift from product vision."}}]
-                }
-            })
         
         # Add Strategic Recommendations section
         page_data["children"].extend([
