@@ -210,7 +210,16 @@ Edit `.env` with your Jira credentials and API keys.
 <details>
 <summary><b>3. Configure Your Product Vision</b></summary>
 
-STEVE needs to understand your product's strategic vision. Edit these files:
+STEVE needs to understand your product's strategic vision. You have two options:
+
+**Option 1: Use the Web Interface (Recommended for first-time users)**
+- Run `./run-web.sh` and STEVE will guide you through initial setup
+- Enter your product vision and strategic principles in the setup wizard
+- Your configuration will be saved automatically
+
+**Option 2: Edit Configuration Files Directly**
+- For advanced users or those who prefer file-based configuration
+- Edit the YAML files below before running STEVE
 
 #### `steve/config/principles.yaml` - Your Strategic Principles
 ```yaml
