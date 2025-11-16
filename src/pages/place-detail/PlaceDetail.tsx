@@ -14,7 +14,7 @@ import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchInput from "@/components/home/search/SearchInput";
 import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import countryToCode from "@/utils/flags/countryToCode"; // ✅ NEW
+import countryToCode from "@/utils/flags/countryToCode";
 
 interface Place {
   id: string;
@@ -110,7 +110,6 @@ const PlaceDetail = () => {
     )
   })).filter(group => group.items.length > 0);
 
-  // ✅ Generate country flag
   const flagEmoji =
     place?.country && countryToCode[place.country]
       ? String.fromCodePoint(...[...countryToCode[place.country]].map(c => 127397 + c.charCodeAt(0)))
@@ -189,6 +188,7 @@ const PlaceDetail = () => {
       </Button>
 
       <RecommendationDrawer
+        key={editRecommendation ? `edit-${editRecommendation.id}` : "new"}
         isDrawerOpen={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
         initialCity={place.name}

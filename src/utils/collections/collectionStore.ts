@@ -1,0 +1,66 @@
+export interface Collection {
+  id: string;
+  name: string;
+  placeIds: string[];
+  createdAt: string;
+}
+
+const STORAGE_KEY = "travelist-collections";
+
+// Fetch all collections
+export function getCollections(): Collection[] {
+  if (typeof window === "undefined") return [];
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+// Save all collections
+function saveCollections(collections: Collection[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(collections));
+}
+
+// Create a new collection
+export function addCollection(name: string): Collection {
+  const collections = getCollections();
+  const newCollection: Collection = {
+    id: crypto.randomUUID(),
+    name,
+    placeIds: [],
+    createdAt: new Date().toISOString(),
+  };
+  const updated = [...collections, newCollection];
+  saveCollections(updated);
+  return newCollection;
+}
+
+// Add a place to a collection (if not already added)
+export function addPlaceToCollection(collectionId: string, placeId: string) {
+  const collections = getCollections();
+  const updated = collections.map((col) => {
+    if (col.id === collectionId && !col.placeIds.includes(placeId)) {
+      return { ...col, placeIds: [...col.placeIds, placeId] };
+    }
+    return col;
+  });
+  saveCollections(updated);
+}
+
+// Remove a place from a collection
+export function removePlaceFromCollection(collectionId: string, placeId: string) {
+  const collections = getCollections();
+  const updated = collections.map((col) => {
+    if (col.id === collectionId) {
+      return { ...col, placeIds: col.placeIds.filter((id) => id !== placeId) };
+    }
+    return col;
+  });
+  saveCollections(updated);
+}
+
+// ✅ New: Find which collection contains a given place ID
+export function findCollectionIdByPlaceId(placeId: string): string | undefined {
+  const collections = getCollections();
+  for (const col of collections) {
+    if (col.placeIds?.includes(placeId)) return col.id;
+  }
+}

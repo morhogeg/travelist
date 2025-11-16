@@ -8,7 +8,7 @@ export const processStructuredRecommendation = async (
   values: StructuredFormValues,
   toast: ReturnType<typeof useToast>["toast"],
   existingRecId?: string
-): Promise<boolean> => {
+): Promise<{ id: string } | null> => {
   try {
     const recommendations = getRecommendations();
 
@@ -18,7 +18,7 @@ export const processStructuredRecommendation = async (
         description: "Please fill in all required fields",
         variant: "destructive",
       });
-      return false;
+      return null;
     }
 
     if (existingRecId) {
@@ -44,53 +44,51 @@ export const processStructuredRecommendation = async (
             localStorage.setItem("recommendations", JSON.stringify(recommendations));
             window.dispatchEvent(new CustomEvent("recommendationAdded"));
             found = true;
-            break;
+            return { id: place.id || existingRecId };
           }
         }
         if (found) break;
       }
-
-      if (found) return true;
 
       toast({
         title: "Error",
         description: "Recommendation not found.",
         variant: "destructive",
       });
-      return false;
+      return null;
     }
 
     const placeId = uuidv4();
     const recId = uuidv4();
-    const cityId = uuidv4(); // ✅ consistent cityId for grouping
+    const cityId = uuidv4();
     const image = await getSmartImage(`${values.name} ${values.city}`, values.category);
 
+    const newPlace = {
+      id: placeId,
+      recId,
+      name: values.name,
+      category: values.category,
+      description: values.description || "",
+      website: values.website || "",
+      image,
+      visited: false,
+      dateAdded: new Date().toISOString(),
+    };
+
     const newRec = {
-      id: cityId,         // 🔐 cityId = rec.id
-      cityId,             // 🔁 explicitly stored
+      id: cityId,
+      cityId,
       city: values.city,
       country: values.country,
       categories: [values.category],
-      places: [
-        {
-          id: placeId,
-          recId,
-          name: values.name,
-          category: values.category,
-          description: values.description || "",
-          website: values.website || "",
-          image,
-          visited: false,
-          dateAdded: new Date().toISOString(),
-        },
-      ],
+      places: [newPlace],
       rawText: `${values.name} in ${values.city}${values.description ? `: ${values.description}` : ""}`,
       dateAdded: new Date().toISOString(),
     };
 
     await storeRecommendation(newRec);
     window.dispatchEvent(new CustomEvent("recommendationAdded"));
-    return true;
+    return { id: placeId }; // ✅ return the new place's ID
   } catch (error) {
     console.error("Error submitting recommendation:", error);
     toast({
@@ -98,6 +96,6 @@ export const processStructuredRecommendation = async (
       description: "Could not save your recommendation.",
       variant: "destructive",
     });
-    return false;
+    return null;
   }
 };

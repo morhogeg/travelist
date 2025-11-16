@@ -99,7 +99,7 @@ const Index: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="pb-16"
       >
-        <SearchHeader heading="Alisa Travels" />
+        <SearchHeader heading="Travelist" />
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 px-6 sm:px-8">
           <CategoriesScrollbar />

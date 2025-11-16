@@ -14,53 +14,93 @@ import { FreeTextForm } from "./forms/FreeTextForm";
 import { useToast } from "@/hooks/use-toast";
 import { RecommendationDrawerProps } from "./types";
 import { useRecommendationSubmit } from "@/hooks/useRecommendationSubmit";
+import {
+  getCollections,
+  addPlaceToCollection,
+  findCollectionIdByPlaceId,
+} from "@/utils/collections/collectionStore";
 
-const RecommendationDrawer = ({ 
-  isDrawerOpen, 
-  setIsDrawerOpen, 
-  initialCity = "", 
+const RecommendationDrawer = ({
+  isDrawerOpen,
+  setIsDrawerOpen,
+  initialCity = "",
   initialCountry = "",
-  editRecommendation = null
+  editRecommendation = null,
 }: RecommendationDrawerProps) => {
   const [mode, setMode] = useState<"structured" | "freetext">("structured");
   const [localEditRecommendation, setLocalEditRecommendation] = useState<any>(null);
+  const [collections, setCollections] = useState<any[]>([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string>("");
 
   const { toast } = useToast();
-  const { 
+  const {
     isLoading,
-    submitStructuredRecommendation, 
-    submitFreeTextRecommendation 
+    submitStructuredRecommendation,
+    submitFreeTextRecommendation,
   } = useRecommendationSubmit();
 
+  // Load collections once
   useEffect(() => {
-    if (editRecommendation && isDrawerOpen) {
-      setMode("structured");
-      setLocalEditRecommendation(editRecommendation);
-    } else if (!isDrawerOpen) {
+    const loaded = getCollections();
+    setCollections(loaded);
+  }, []);
+
+  // Always reset or set localEditRecommendation when drawer opens
+  useEffect(() => {
+    if (isDrawerOpen) {
+      if (editRecommendation) {
+        // EDIT mode
+        setLocalEditRecommendation(editRecommendation);
+        const collectionId = findCollectionIdByPlaceId(editRecommendation.id || editRecommendation.recId);
+        setSelectedCollectionId(collectionId || "");
+        setMode("structured");
+      } else {
+        // ADD mode — clean state!
+        setLocalEditRecommendation(null);
+        setSelectedCollectionId("");
+        setMode("structured");
+      }
+    } else {
       setLocalEditRecommendation(null);
+      setSelectedCollectionId("");
     }
-  }, [editRecommendation, isDrawerOpen]);
+  }, [isDrawerOpen, editRecommendation]);
 
   const handleSubmitStructured = async (values: any) => {
     const recId = localEditRecommendation?.recId || localEditRecommendation?.id;
-    const success = await submitStructuredRecommendation(values, recId);
+    const savedId = await submitStructuredRecommendation(values, recId);
 
-    if (success) {
+    if (savedId) {
+      if (selectedCollectionId) {
+        addPlaceToCollection(selectedCollectionId, savedId);
+        console.log("[Collection Debug] Adding", savedId, "to", selectedCollectionId);
+      }
+
       toast({
         title: localEditRecommendation ? "Recommendation updated!" : "Recommendation added!",
-        description: `Your recommendation has been successfully ${localEditRecommendation ? 'updated' : 'added'}.`,
+        description: `Your recommendation has been successfully ${
+          localEditRecommendation ? "updated" : "added"
+        }.`,
       });
+
       setIsDrawerOpen(false);
     }
   };
 
   const handleSubmitFreeText = async (values: { city: string; recommendations: string }) => {
-    const success = await submitFreeTextRecommendation(values);
-    if (success) {
+    const savedId = await submitFreeTextRecommendation(values);
+
+    if (savedId) {
+      if (selectedCollectionId) {
+        addPlaceToCollection(selectedCollectionId, savedId);
+        console.log("[Collection Debug] Adding", savedId, "to", selectedCollectionId);
+      }
+
       toast({
         title: "Recommendation added!",
         description: "Your recommendation has been successfully added.",
       });
+
       setIsDrawerOpen(false);
     }
   };
@@ -69,10 +109,12 @@ const RecommendationDrawer = ({
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
       <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border">
         <DrawerHeader>
-          <DrawerTitle>{localEditRecommendation ? "Edit Recommendation" : "Add a Recommendation"}</DrawerTitle>
+          <DrawerTitle>
+            {localEditRecommendation ? "Edit Recommendation" : "Add a Recommendation"}
+          </DrawerTitle>
           <DrawerDescription>
-            {localEditRecommendation 
-              ? "Update the details of your recommendation." 
+            {localEditRecommendation
+              ? "Update the details of your recommendation."
               : "Choose how you'd like to add your recommendation."}
           </DrawerDescription>
         </DrawerHeader>
@@ -97,9 +139,32 @@ const RecommendationDrawer = ({
             </div>
           )}
 
+          {collections.length > 0 && (
+            <div
+              className="touch-none"
+              onPointerDownCapture={(e) => e.stopPropagation()}
+            >
+              <label className="block mb-1 text-sm text-muted-foreground">
+                Add to collection (optional):
+              </label>
+              <select
+                value={selectedCollectionId}
+                onChange={(e) => setSelectedCollectionId(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+              >
+                <option value="">-- None --</option>
+                {collections.map((col) => (
+                  <option key={col.id} value={col.id}>
+                    {col.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {mode === "structured" ? (
-            <StructuredInputForm 
-              onSubmit={handleSubmitStructured} 
+            <StructuredInputForm
+              onSubmit={handleSubmitStructured}
               initialCity={localEditRecommendation?.location || initialCity}
               initialCountry={localEditRecommendation?.country || initialCountry}
               isAnalyzing={isLoading}

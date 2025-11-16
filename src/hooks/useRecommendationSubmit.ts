@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { processStructuredRecommendation } from "@/utils/recommendation/structured-recommendation";
@@ -12,13 +11,15 @@ export const useRecommendationSubmit = () => {
   const submitStructuredRecommendation = async (
     values: StructuredFormValues, 
     existingRecId?: string
-  ): Promise<boolean> => {
+  ): Promise<string | null> => {
     setIsLoading(true);
     try {
       console.log("Submitting structured recommendation:", values);
       console.log("With existing rec ID:", existingRecId);
       const result = await processStructuredRecommendation(values, toast, existingRecId);
-      return result;
+
+      if (result && result.id) return result.id;
+      return null;
     } catch (error) {
       console.error("Error submitting structured recommendation:", error);
       toast({
@@ -26,7 +27,7 @@ export const useRecommendationSubmit = () => {
         description: "Failed to submit recommendation. Please try again.",
         variant: "destructive"
       });
-      return false;
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -34,11 +35,12 @@ export const useRecommendationSubmit = () => {
 
   const submitFreeTextRecommendation = async (
     values: FreeTextFormValues
-  ): Promise<boolean> => {
+  ): Promise<string | null> => {
     setIsLoading(true);
     try {
       const result = await processFreeTextRecommendation(values, toast);
-      return result;
+      if (result && result.id) return result.id;
+      return null;
     } catch (error) {
       console.error("Error submitting free text recommendation:", error);
       toast({
@@ -46,7 +48,7 @@ export const useRecommendationSubmit = () => {
         description: "Failed to submit recommendation. Please try again.",
         variant: "destructive"
       });
-      return false;
+      return null;
     } finally {
       setIsLoading(false);
     }

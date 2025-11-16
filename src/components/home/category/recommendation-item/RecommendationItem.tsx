@@ -22,7 +22,9 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.05 * index }}
-      className={`glass-card dark:glass-card-dark rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all scale-[0.85] ${item.visited ? 'ring-4 ring-green-500 dark:ring-green-400' : ''}`}
+      className={`glass-card dark:glass-card-dark rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all ${
+        item.visited ? 'ring-4 ring-green-500 dark:ring-green-400' : ''
+      }`}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <ItemImage 
