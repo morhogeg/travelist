@@ -111,9 +111,12 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
         )}
         <Button
           type="submit"
-          className="w-full"
-          variant="secondary"
+          className="w-full text-white font-semibold"
           disabled={isAnalyzing}
+          style={{
+            background: isAnalyzing ? '#9ca3af' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: isAnalyzing ? 'none' : '0 4px 20px rgba(102, 126, 234, 0.4)'
+          }}
         >
           {isAnalyzing ? (
             <>

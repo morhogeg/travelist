@@ -53,7 +53,7 @@ const ListView: React.FC<ListViewProps & { onRefresh?: () => void }> = ({
                     <h3 className="font-medium">{item.name}</h3>
                     <Badge variant="outline" className="text-xs">{item.category}</Badge>
                     {isVisited && (
-                      <Badge className="bg-green-500 text-white text-xs flex items-center gap-1">
+                      <Badge className="bg-success/20 border-success/30 text-success text-xs flex items-center gap-1">
                         <CheckCircle2 className="h-3 w-3" /> Visited
                       </Badge>
                     )}
@@ -78,7 +78,7 @@ const ListView: React.FC<ListViewProps & { onRefresh?: () => void }> = ({
                   <button
                     onClick={() => toggle(item.recId, item.name, isVisited)}
                     className={`p-2 rounded-full border transition-colors ${isVisited
-                      ? "bg-green-500 border-green-600 text-white"
+                      ? "bg-success border-success text-white"
                       : "border-gray-300 dark:border-gray-600 hover:bg-muted"}`}
                     title={isVisited ? "Mark as not visited" : "Mark as visited"}
                   >

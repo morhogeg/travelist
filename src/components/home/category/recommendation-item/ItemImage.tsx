@@ -24,7 +24,7 @@ const ItemImage: React.FC<ItemImageProps> = ({ item, getCategoryPlaceholder }) =
   const displayImage = getOptimalImage();
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden">
+    <div className="relative aspect-[3/2] overflow-hidden">
       <img 
         src={displayImage} 
         alt={item.name}
@@ -40,7 +40,7 @@ const ItemImage: React.FC<ItemImageProps> = ({ item, getCategoryPlaceholder }) =
       </span>
       
       {item.visited && (
-        <span className="absolute top-3 left-3 bg-green-500/80 text-white text-xs font-medium px-2.5 py-1.5 rounded-full flex items-center gap-1">
+        <span className="absolute top-3 left-3 bg-success/20 backdrop-blur-sm border border-success/30 text-success dark:text-success text-xs font-medium px-2.5 py-1.5 rounded-full flex items-center gap-1">
           <Check className="h-3 w-3" /> Visited
         </span>
       )}

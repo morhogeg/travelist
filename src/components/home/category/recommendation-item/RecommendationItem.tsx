@@ -17,13 +17,13 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   getCategoryPlaceholder
 }) => {
   return (
-    <motion.div 
+    <motion.div
       key={item.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.05 * index }}
-      className={`glass-card dark:glass-card-dark rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all ${
-        item.visited ? 'ring-4 ring-green-500 dark:ring-green-400' : ''
+      className={`liquid-glass-clear rounded-2xl overflow-hidden shadow-lg hover:shadow-xl ios26-transition-smooth ${
+        item.visited ? 'ring-2 ring-success/30' : ''
       }`}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
@@ -46,8 +46,8 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
         )}
       </div>
 
-      <div className="px-4 py-3 space-y-2">
-        <h3 className="text-base font-semibold leading-tight">{item.name}</h3>
+      <div className="px-2.5 py-1.5 space-y-0.5">
+        <h3 className="text-sm font-semibold leading-tight">{item.name}</h3>
 
         {item.description && (
           <p className="text-sm text-muted-foreground">{item.description}</p>

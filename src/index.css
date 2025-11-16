@@ -5,48 +5,141 @@
 
 @layer base {
   :root {
+    /* iOS 26 Minimalist Design System */
+    /* Clean, refined palette with subtle accents */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 0 0% 0%;
+
+    /* iOS System Blue - PRIMARY ACCENT (use sparingly!) */
+    --primary: 211 100% 50%; /* #007AFF */
+    --primary-foreground: 0 0% 100%;
+    --primary-subtle: 211 100% 50% / 0.1; /* 10% opacity for subtle backgrounds */
+
+    /* Minimalist Neutrals (Primary UI colors) */
+    --neutral-50: 0 0% 98%;
+    --neutral-100: 0 0% 96%;
+    --neutral-200: 0 0% 92%;
+    --neutral-300: 0 0% 88%;
+    --neutral-400: 0 0% 70%;
+    --neutral-500: 0 0% 50%;
+    --neutral-600: 0 0% 40%;
+    --neutral-700: 0 0% 25%;
+    --neutral-800: 0 0% 15%;
+    --neutral-900: 0 0% 8%;
+
+    /* Semantic Colors (Toned down for minimalism) */
+    --secondary: 0 0% 40%; /* Subtle gray instead of purple */
+    --secondary-foreground: 0 0% 100%;
+    --accent: 211 100% 50%; /* Same as primary for consistency */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 1 85% 55%; /* Subtle red */
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 60% 45%; /* Toned down green */
+    --success-foreground: 0 0% 100%;
+    --success-subtle: 145 60% 45% / 0.15; /* Subtle green background */
+    --warning: 48 95% 50%; /* Slightly toned down yellow */
+    --warning-foreground: 0 0% 0%;
+
+    /* Liquid Glass Materials */
+    --glass-clear: rgba(255, 255, 255, 0.15);
+    --glass-tinted: rgba(255, 255, 255, 0.35);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-shadow: rgba(0, 0, 0, 0.1);
+
+    /* System Grays (iOS 26) */
+    --gray-1: 0 0% 97%; /* systemGray */
+    --gray-2: 0 0% 92%; /* systemGray2 */
+    --gray-3: 0 0% 87%; /* systemGray3 */
+    --gray-4: 0 0% 78%; /* systemGray4 */
+    --gray-5: 0 0% 68%; /* systemGray5 */
+    --gray-6: 0 0% 58%; /* systemGray6 */
+
+    --muted: var(--gray-2);
+    --muted-foreground: var(--gray-6);
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5% 64.9%;
-    --radius: 0.5rem;
+    --popover-foreground: 0 0% 0%;
+    --border: var(--gray-3);
+    --input: var(--gray-3);
+    --ring: 240 5% 84%; /* Subtle neutral gray */
+
+    /* iOS 26 Rounded Corners */
+    --radius-sm: 0.625rem; /* 10pt */
+    --radius: 0.75rem; /* 12pt */
+    --radius-lg: 0.875rem; /* 14pt */
+    --radius-xl: 1rem; /* 16pt */
+    --radius-2xl: 1.25rem; /* 20pt */
+
+    /* iOS 26 Spacing */
+    --spacing-1: 0.25rem; /* 4pt */
+    --spacing-2: 0.5rem; /* 8pt */
+    --spacing-3: 0.75rem; /* 12pt */
+    --spacing-4: 1rem; /* 16pt */
+    --spacing-5: 1.25rem; /* 20pt */
+    --spacing-6: 1.5rem; /* 24pt */
+    --spacing-8: 2rem; /* 32pt */
+    --spacing-11: 2.75rem; /* 44pt - Min touch target */
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    /* iOS 26 Dark Mode - Minimalist Smoky Glass */
+    --background: 0 0% 0%; /* True black for OLED */
+    --foreground: 0 0% 100%;
+
+    /* iOS Blue - Still the primary accent */
+    --primary: 211 100% 60%; /* Slightly lighter for dark mode */
+    --primary-foreground: 0 0% 0%;
+    --primary-subtle: 211 100% 60% / 0.12;
+
+    /* Minimalist Neutrals - Dark Mode */
+    --neutral-50: 0 0% 12%;
+    --neutral-100: 0 0% 15%;
+    --neutral-200: 0 0% 18%;
+    --neutral-300: 0 0% 22%;
+    --neutral-400: 0 0% 35%;
+    --neutral-500: 0 0% 50%;
+    --neutral-600: 0 0% 60%;
+    --neutral-700: 0 0% 75%;
+    --neutral-800: 0 0% 85%;
+    --neutral-900: 0 0% 92%;
+
+    /* Semantic Colors - Dark Mode (still toned down) */
+    --secondary: 0 0% 60%;
+    --secondary-foreground: 0 0% 0%;
+    --accent: 211 100% 60%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 1 85% 60%;
+    --destructive-foreground: 0 0% 0%;
+    --success: 145 55% 50%;
+    --success-foreground: 0 0% 0%;
+    --success-subtle: 145 55% 50% / 0.2;
+    --warning: 48 95% 55%;
+    --warning-foreground: 0 0% 0%;
+
+    /* Liquid Glass Materials - Dark/Smoky */
+    --glass-clear: rgba(34, 34, 34, 0.15);
+    --glass-tinted: rgba(34, 34, 34, 0.35);
+    --glass-border: rgba(80, 80, 80, 0.8);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+
+    /* System Grays - Dark Mode */
+    --gray-1: 0 0% 14%;
+    --gray-2: 0 0% 18%;
+    --gray-3: 0 0% 22%;
+    --gray-4: 0 0% 28%;
+    --gray-5: 0 0% 38%;
+    --gray-6: 0 0% 48%;
+
+    --muted: var(--gray-2);
+    --muted-foreground: var(--gray-5);
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
+    --border: var(--gray-3);
+    --input: var(--gray-3);
+    --ring: 240 5% 84%; /* Subtle neutral gray */
   }
 }
 
@@ -54,25 +147,200 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    /* iOS 26 Typography - SF Pro feel with system fonts */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS 26 Typography Scale */
+  h1, .text-large-title {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  h2, .text-title-1 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  h3, .text-title-2 {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  h4, .text-title-3 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .text-body {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.47;
+  }
+
+  .text-callout {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .text-footnote {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .text-caption {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+  }
+
+  /* iOS Safe Area Support */
+  :root {
+    /* Define safe area fallbacks for web */
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-right: env(safe-area-inset-right, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  }
+
+  /* Ensure viewport covers full screen including notch/Dynamic Island */
+  html {
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+             env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
 }
 
-/* Custom */
-.glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* ========================================
+   iOS 26 Liquid Glass Materials
+   ======================================== */
+
+/* Liquid Glass Clear Mode (Default iOS 26) */
+.liquid-glass-clear {
+  background: var(--glass-clear);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow:
+    0 2px 16px var(--glass-shadow),
+    inset 0 0.5px 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dark .glass-card-dark,
+/* Liquid Glass Tinted Mode (iOS 26.1 Opacity Toggle) */
+.liquid-glass-tinted {
+  background: var(--glass-tinted);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow:
+    0 2px 16px var(--glass-shadow),
+    inset 0 0.5px 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Floating Elements (iOS 26 Pattern) */
+.liquid-glass-float {
+  background: var(--glass-clear);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Layered Depth (Multi-layer Liquid Glass) */
+.liquid-glass-layered {
+  position: relative;
+  background: var(--glass-clear);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+}
+
+.liquid-glass-layered::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 50%);
+  pointer-events: none;
+}
+
+/* Specular Highlights (Motion-reactive in iOS 26) */
+.liquid-glass-specular {
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-specular::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.liquid-glass-specular:hover::after {
+  opacity: 1;
+}
+
+/* Dark Mode - Smoky Glass */
+.dark .liquid-glass-clear,
+.dark .liquid-glass-tinted,
+.dark .liquid-glass-float {
+  box-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.5),
+    inset 0 0.5px 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Legacy support - map old glass-card to new Liquid Glass system */
+.glass-card {
+  background: var(--glass-clear);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow:
+    0 2px 16px var(--glass-shadow),
+    inset 0 0.5px 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .dark .glass-card {
-  background: rgba(34, 34, 34, 0.8);
-  border: 1px solid rgba(80, 80, 80, 0.2);
+  box-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.5),
+    inset 0 0.5px 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -149,7 +417,103 @@
   }
 }
 
-/* Animation utilities */
+/* ========================================
+   iOS 26 Fluid Animations
+   ======================================== */
+
+/* iOS 26 Fade + Scale (Combined Effect) */
+@keyframes ios26-fade-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ios26-fade-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* iOS 26 Slide Up (Page Transition) */
+@keyframes ios26-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* iOS 26 Bounce (Spring Animation) */
+@keyframes ios26-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* iOS 26 Shimmer (Loading Effect for Liquid Glass) */
+@keyframes ios26-shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ProMotion 120Hz Optimized Animations */
+.ios26-animate-in {
+  animation: ios26-fade-scale-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ios26-animate-out {
+  animation: ios26-fade-scale-out 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ios26-slide-up {
+  animation: ios26-slide-up 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ios26-bounce {
+  animation: ios26-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ios26-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+  animation: ios26-shimmer 2s infinite;
+}
+
+/* Smooth Transitions (120Hz ProMotion) */
+.ios26-transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ios26-transition-spring {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Legacy Animation Support */
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }

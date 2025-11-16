@@ -32,7 +32,15 @@ const Profile = () => {
               <Settings className="h-4 w-4" />
               Edit Profile
             </Button>
-            <Button size="sm" className="flex items-center gap-2" onClick={() => navigate('/settings')}>
+            <Button
+              size="sm"
+              className="flex items-center gap-2 text-white font-semibold"
+              onClick={() => navigate('/settings')}
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+              }}
+            >
               <Settings className="h-4 w-4" />
               Settings
             </Button>

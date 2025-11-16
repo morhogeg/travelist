@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { ThemeProvider, useTheme } from "./components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 
 // Pages
@@ -25,12 +26,17 @@ declare global {
   }
 }
 
-function App() {
+// Inner component that uses theme
+function AppContent() {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
+
+  // Automatically manage status bar based on theme
+  useStatusBarTheme(theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
 
   useEffect(() => {
     window.showRecDrawer = (cityName?: string, countryName?: string) => {
@@ -45,31 +51,37 @@ function App() {
   }, []);
 
   return (
+    <div className="min-h-screen bg-background font-sans antialiased">
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Index />} />
+          <Route path="/saved" element={<Saved />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/place/:id" element={<PlaceDetail />} />
+          <Route path="/country/:countryName" element={<CountryView />} />
+          <Route path="/collections" element={<CollectionsTab />} /> {/* ✅ New route */}
+          <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ New route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AnimatePresence>
+
+      <RecommendationDrawer
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
+        initialCity={selectedCity}
+        initialCountry={selectedCountry}
+      />
+
+      <Toaster />
+    </div>
+  );
+}
+
+function App() {
+  return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background font-sans antialiased">
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Index />} />
-            <Route path="/saved" element={<Saved />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/place/:id" element={<PlaceDetail />} />
-            <Route path="/country/:countryName" element={<CountryView />} />
-            <Route path="/collections" element={<CollectionsTab />} /> {/* ✅ New route */}
-            <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ New route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AnimatePresence>
-
-        <RecommendationDrawer 
-          isDrawerOpen={isDrawerOpen}
-          setIsDrawerOpen={setIsDrawerOpen}
-          initialCity={selectedCity}
-          initialCountry={selectedCountry}
-        />
-
-        <Toaster />
-      </div>
+      <AppContent />
     </ThemeProvider>
   );
 }

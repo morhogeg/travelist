@@ -84,23 +84,18 @@ const PlaceDetailHeader: React.FC<PlaceDetailHeaderProps> = ({
       </div>
 
       {/* Right side: view mode toggle */}
-      <div className="mt-4 sm:mt-0">
+      <div className="mt-4 sm:mt-0 flex justify-end">
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          size="icon"
           onClick={onToggleViewMode}
-          className="flex items-center gap-2"
+          className="h-9 w-9 rounded-full liquid-glass-clear hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60"
+          aria-label={viewMode === "grid" ? "Switch to list view" : "Switch to gallery view"}
         >
           {viewMode === "grid" ? (
-            <>
-              <List className="h-4 w-4" />
-              <span>List View</span>
-            </>
+            <List className="h-5 w-5" />
           ) : (
-            <>
-              <LayoutGrid className="h-4 w-4" />
-              <span>Gallery View</span>
-            </>
+            <LayoutGrid className="h-5 w-5" />
           )}
         </Button>
       </div>

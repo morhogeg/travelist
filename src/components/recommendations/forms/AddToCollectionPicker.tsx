@@ -43,9 +43,13 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
         {collections.map((collection) => (
           <Button
             key={collection.id}
-            variant={selected === collection.id ? "default" : "outline"}
+            variant="outline"
             onClick={() => handleSelect(collection.id)}
-            className="text-sm"
+            className={`text-sm ${selected === collection.id ? "text-white border-transparent" : ""}`}
+            style={selected === collection.id ? {
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+            } : undefined}
           >
             {collection.name}
           </Button>
@@ -57,7 +61,16 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />
-        <Button onClick={handleCreateNew}>Create</Button>
+        <Button
+          onClick={handleCreateNew}
+          className="text-white font-semibold shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+          }}
+        >
+          Create
+        </Button>
       </div>
     </div>
   );

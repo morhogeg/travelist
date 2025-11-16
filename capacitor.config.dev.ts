@@ -1,20 +1,14 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
-// Load dev or prod config based on NODE_ENV
-// Use: npm run cap:dev or npm run cap:prod
-const isDev = process.env.NODE_ENV !== 'production';
-
 const config: CapacitorConfig = {
   appId: 'com.travelist.app',
   appName: 'Travelist',
   webDir: 'dist',
-  ...(isDev && {
-    server: {
-      // LIVE RELOAD - For development only
-      url: 'http://192.168.1.176:5173',
-      cleartext: true
-    }
-  }),
+  server: {
+    // LIVE RELOAD - For development only
+    url: 'http://192.168.0.108:5174',
+    cleartext: true
+  },
   ios: {
     contentInset: 'automatic'
   },
@@ -23,6 +17,7 @@ const config: CapacitorConfig = {
       launchShowDuration: 1000,
       launchAutoHide: true,
       backgroundColor: '#000000',
+      androidScaleType: 'CENTER_CROP',
       showSpinner: false,
       splashFullScreen: true,
       splashImmersive: true

@@ -45,17 +45,17 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   };
 
   return (
-    <div className="mb-8 px-6 sm:px-8">
+    <div className="mb-6 px-6 sm:px-8">
       {!hideCountryHeader && (
         <h2
-          className="text-xl font-bold text-primary mb-3 ml-1 sm:ml-0 cursor-pointer"
+          className="text-xl font-bold text-[#667eea] mb-3 ml-1 sm:ml-0 cursor-pointer hover:text-[#764ba2] transition-colors"
           onClick={handleCountryClick}
           style={{ textDecoration: "none" }}
         >
           <span className="mr-2">{flag}</span>{country}
         </h2>
       )}
-      <div className="space-y-8">
+      <div className="space-y-6">
         {groups.map((group, index) => (
           <div key={group.cityId} className="pl-[2px] sm:pl-0">
             <CityGroup

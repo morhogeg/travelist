@@ -98,7 +98,7 @@ const LocationCard = ({
         </span>
 
         {visited && (
-          <span className="absolute top-3 right-3 bg-green-500/80 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+          <span className="absolute top-3 right-3 bg-success/20 backdrop-blur-sm border border-success/30 text-success text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
             <CheckCircle className="h-3 w-3" />
             Visited
           </span>

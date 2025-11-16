@@ -58,16 +58,16 @@ const ItemActions: React.FC<ItemActionsProps> = ({
   return (
     <div className="flex items-center gap-2">
       <div className="flex items-center space-x-2 relative">
-        <Checkbox 
+        <Checkbox
           id={`visited-${item.id || item.recId}`}
           checked={!!item.visited}
-          className={item.visited ? "bg-green-500 border-green-500 text-white" : ""}
+          className={item.visited ? "bg-success border-success text-white" : ""}
           onCheckedChange={handleCheckedChange}
           onClick={(e) => e.stopPropagation()}
         />
 
         {item.visited && (
-          <span className="absolute -top-3 -right-3 text-xs font-medium text-green-500 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">
+          <span className="absolute -top-3 -right-3 text-xs font-medium text-success bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">
             <span className="h-3 w-3 mr-0.5">✓</span> Visited
           </span>
         )}

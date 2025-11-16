@@ -17,16 +17,22 @@ const CategoryPill = ({
 }: CategoryPillProps) => {
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
+      whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className={`flex items-center gap-1.5 py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ${
+      className={`flex items-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold ios26-transition-spring relative ${
         isActive
-          ? "bg-primary text-primary-foreground"
-          : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:text-primary hover:shadow-sm"
+          ? "text-white shadow-lg"
+          : "liquid-glass-clear text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60"
       }`}
+      style={isActive ? {
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+      } : undefined}
     >
-      {icon}
-      {label}
+      <span className={isActive ? "opacity-100" : "opacity-70"}>
+        {icon}
+      </span>
+      <span>{label}</span>
     </motion.button>
   );
 };

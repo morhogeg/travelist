@@ -60,7 +60,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
           
           {recommendation.visited && (
             <div className="absolute top-4 right-4">
-              <Badge variant="outline" className="bg-green-500/90 text-white border-none font-medium">
+              <Badge variant="outline" className="bg-success/20 backdrop-blur-sm border-success/30 text-success font-medium">
                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Visited
               </Badge>
             </div>

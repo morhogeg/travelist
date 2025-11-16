@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import CountryGroupList from "@/components/home/category/CountryGroupList";
+import { mediumHaptic } from "@/utils/ios/haptics";
 
 const Index: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -99,11 +100,14 @@ const Index: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="pb-16"
       >
-        <SearchHeader heading="Travelist" />
+        <SearchHeader
+          heading="Travelist"
+          viewMode={viewMode}
+          onToggleViewMode={toggleViewMode}
+        />
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 px-6 sm:px-8">
+        <div className="mb-3 px-6 sm:px-8">
           <CategoriesScrollbar />
-          <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
         </div>
 
         <CountryGroupList
@@ -125,15 +129,23 @@ const Index: React.FC = () => {
         />
       </motion.div>
 
-      <Button
-        className="fixed bottom-20 right-4 rounded-full w-12 h-12 shadow-lg z-[100] hover:bg-primary/80 transform hover:scale-105 transition-all"
-        size="icon"
-        variant="default"
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.05 }}
+        className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
         aria-label="Add recommendation"
-        onClick={() => setIsDrawerOpen(true)}
+        onClick={() => {
+          mediumHaptic();
+          setIsDrawerOpen(true);
+        }}
+        style={{
+          bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
+        }}
       >
-        <Plus className="h-6 w-6" />
-      </Button>
+        <Plus className="h-7 w-7" strokeWidth={2.5} />
+      </motion.button>
     </Layout>
   );
 };

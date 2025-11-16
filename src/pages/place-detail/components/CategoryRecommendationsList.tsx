@@ -112,7 +112,7 @@ const CategoryRecommendationsList: React.FC<CategoryRecommendationsListProps> = 
                   />
                   {rec.visited && (
                     <div className="absolute top-2 left-2">
-                      <Badge variant="secondary" className="bg-green-500/90 text-white border-green-600/20">
+                      <Badge variant="secondary" className="bg-success/20 backdrop-blur-sm border-success/30 text-success">
                         <CheckCircle2 className="h-3 w-3 mr-1" /> Visited
                       </Badge>
                     </div>

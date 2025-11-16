@@ -41,7 +41,7 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
   const sortedCountries = Object.keys(countriesMap).sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="mt-2 space-y-10">
+    <div className="mt-2 space-y-8">
       {sortedCountries.map((country) => (
         <CountryGroup
           key={country}

@@ -63,25 +63,25 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         />
         
         {onEditImage && (
-          <button 
-            className="bg-black/60 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          <button
+            className="liquid-glass-clear p-1.5 rounded-full opacity-0 group-hover:opacity-100 ios26-transition-smooth text-white"
             onClick={(e) => {
               e.stopPropagation();
               onEditImage(place.id);
             }}
           >
-            <Pencil className="h-4 w-4 text-white" />
+            <Pencil className="h-4 w-4" />
           </button>
         )}
-        
-        <button 
-          className="bg-black/60 p-1.5 rounded-full group-hover:opacity-100 transition-opacity"
+
+        <button
+          className="liquid-glass-clear p-1.5 rounded-full group-hover:opacity-100 ios26-transition-smooth text-white"
           onClick={(e) => {
             e.stopPropagation();
             onAddToCity(place.name);
           }}
         >
-          <Plus className="h-4 w-4 text-white" />
+          <Plus className="h-4 w-4" />
         </button>
       </div>
     </motion.div>

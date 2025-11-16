@@ -21,12 +21,15 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col">
       <ThemeToggle />
-      <motion.div 
+      <motion.div
         initial="initial"
         animate="animate"
         exit="exit"
         variants={pageVariants}
-        className="flex-1 pt-6 md:pt-10 pb-24"
+        className="flex-1 pb-24"
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+        }}
       >
         {children}
       </motion.div>

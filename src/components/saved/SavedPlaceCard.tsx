@@ -75,14 +75,14 @@ const SavedPlaceCard: React.FC<SavedPlaceCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className={`h-full flex flex-col relative overflow-hidden group ${hasVisited ? 'ring-1 ring-green-500/50' : ''}`}>
+      <Card className={`h-full flex flex-col relative overflow-hidden group liquid-glass-clear ${hasVisited ? 'ring-1 ring-success/30' : ''}`}>
         {/* Control buttons - only visible on hover */}
         <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           {onUpdateImage && (
             <Button
               variant="secondary"
               size="icon"
-              className="h-8 w-8 bg-black/40 hover:bg-black/60 text-white"
+              className="h-8 w-8 liquid-glass-clear hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 text-white ios26-transition-smooth"
               onClick={() => setShowImageUploader(!showImageUploader)}
             >
               <Image className="h-4 w-4" />
@@ -110,7 +110,7 @@ const SavedPlaceCard: React.FC<SavedPlaceCardProps> = ({
           {/* Visited badge */}
           {hasVisited && (
             <div className="absolute top-2 left-2 z-10">
-              <span className="bg-green-500/80 text-white text-xs px-2 py-1 rounded-full">
+              <span className="bg-success/20 backdrop-blur-sm border border-success/30 text-success text-xs px-2 py-1 rounded-full">
                 {visitedCount} visited
               </span>
             </div>
