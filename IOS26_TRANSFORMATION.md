@@ -329,7 +329,38 @@ The transformation includes:
 
 ---
 
+---
+
+## 🎨 Latest Update: Purple Gradient Theme
+
+**Color Theme Change (Most Recent):**
+- Primary color changed from iOS Blue (#007AFF) to **Purple Gradient** (#667eea → #764ba2)
+- All UI elements updated to use purple theme:
+  - Category pills with gradient
+  - FAB button with gradient
+  - Bottom navbar highlights (minimalistic, icon-only)
+  - Back buttons, map pins, country names
+  - All action buttons with gradient
+
+**UI Refinements:**
+- Typography hierarchy: Country headers (text-xl) larger than city headers (text-lg)
+- Compact spacing throughout (cards: px-2.5 py-1.5)
+- Horizontal carousel for recommendations (240px width, snap scroll)
+- Toggle buttons repositioned to avoid overlaps
+- Focus rings changed from blue to neutral gray
+- Visited badges with success color and backdrop blur
+
+**Key Files with Purple Gradient:**
+- CategoryPill.tsx, FAB buttons, RecommendationDrawer buttons
+- Navbar.tsx (purple highlight for active tabs)
+- CountryGroup.tsx (purple country names with hover)
+- CityHeader.tsx (purple map pins)
+- SearchHeader.tsx (purple back button)
+
+---
+
 Generated: November 2025
 iOS Version: iOS 26.1
 Design Language: Liquid Glass
+Primary Theme: Purple Gradient (#667eea → #764ba2)
 Target Devices: iPhone 11+ (iOS 26 compatible)
