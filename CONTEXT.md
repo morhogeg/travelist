@@ -1,0 +1,358 @@
+# Travelist - Context & Quick Reference
+
+**Last Updated:** November 2025
+
+---
+
+## 🎯 Current Status
+
+**App State:** iOS 26 Liquid Glass transformation complete
+**Primary Theme:** Purple Gradient (#667eea → #764ba2)
+**Current Branch:** main
+**Active Development:** UI polish and feature enhancement
+
+---
+
+## 🚀 Quick Start
+
+### Run Development Server
+```bash
+npm run dev              # Web development (port 5173)
+npm run dev -- --host    # Accessible on local network
+```
+
+### iOS Development
+```bash
+npm run ios:dev          # Build and open in Xcode (development mode)
+npm run ios:prod         # Build for production and open in Xcode
+npm run cap:sync         # Sync web code to iOS
+npm run cap:open         # Open iOS project in Xcode
+```
+
+### Build
+```bash
+npm run build:dev        # Development build
+npm run build:prod       # Production build
+```
+
+---
+
+## 📁 Key Files & Locations
+
+### Design System
+- `src/index.css` - Liquid Glass materials, iOS 26 design tokens, animations
+- Theme colors: Purple gradient primary, success green for visited items
+
+### Core Components
+- `src/components/layout/Layout.tsx` - Main layout with safe areas
+- `src/components/layout/Navbar.tsx` - Bottom floating navbar (minimalistic purple)
+- `src/components/layout/ThemeToggle.tsx` - Dark/light mode toggle (top-right)
+- `src/components/home/search/SearchHeader.tsx` - Header with title, search, view toggle
+
+### Home/Recommendations
+- `src/components/home/category/CountryGroup.tsx` - Country sections (purple headers)
+- `src/components/home/category/CityGroup.tsx` - City sections
+- `src/components/home/category/CityHeader.tsx` - City headers with purple pin
+- `src/components/home/category/GridView.tsx` - Grid/carousel view for recommendations
+- `src/components/home/category/recommendation-item/RecommendationItem.tsx` - Individual cards (compact)
+- `src/components/home/category/ViewModeToggle.tsx` - Grid/List toggle (top-right, next to theme)
+
+### Forms & Drawers
+- `src/components/recommendations/RecommendationDrawer.tsx` - Add recommendation drawer
+- `src/components/recommendations/forms/StructuredInputForm.tsx` - Structured input form
+
+### Native iOS
+- `src/hooks/native/useHaptics.ts` - Haptic feedback hook
+- `src/hooks/native/useStatusBar.ts` - Status bar theme management
+- `src/utils/ios/haptics.ts` - Haptic utility functions
+
+### Pages
+- `src/pages/Index.tsx` - Home page with recommendations
+- `src/pages/Profile.tsx` - User profile
+- `src/pages/Settings.tsx` - App settings
+- `src/pages/place-detail/` - Place detail pages
+- `src/pages/CollectionsTab.tsx` - Collections list
+- `src/pages/CollectionDetailPage.tsx` - Individual collection
+
+### Configuration
+- `capacitor.config.ts` - Main Capacitor config (dev/prod switching)
+- `vite.config.ts` - Vite build configuration
+- `tailwind.config.ts` - Tailwind customization
+
+---
+
+## 🎨 Design System Reference
+
+### Purple Gradient Theme
+```css
+/* Primary gradient */
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+
+/* Text color */
+color: #667eea;
+
+/* Hover */
+color: #764ba2;
+```
+
+### Liquid Glass Materials
+```css
+.liquid-glass-clear   /* Most transparent - default */
+.liquid-glass-tinted  /* More opaque */
+.liquid-glass-float   /* Floating elements (navbar) */
+.liquid-glass-layered /* Multi-layer depth */
+```
+
+### iOS 26 Animations
+```css
+.ios26-transition-smooth  /* 120Hz smooth */
+.ios26-transition-spring  /* Spring physics */
+.ios26-animate-in         /* Fade + scale in */
+```
+
+### Typography Hierarchy
+- Country headers: `text-xl font-bold text-[#667eea]`
+- City headers: `text-lg font-semibold` with purple pin
+- Body: `text-sm` or `text-base`
+
+### Spacing (Current Compact Style)
+- Cards: `px-2.5 py-1.5 space-y-0.5`
+- Image aspect: `aspect-[3/2]` (was 4/3)
+- Carousel width: `240px` per item
+- Country/City groups: `space-y-6` (was space-y-8/10)
+
+---
+
+## 🔧 Important Conventions
+
+### Color Usage
+- **Purple gradient** for primary actions, highlights, active states
+- **Success green** (#34C759) for visited items (with backdrop blur)
+- **Neutral gray** for focus rings (not blue!)
+- **No blue** anywhere (fully replaced with purple theme)
+
+### UI Patterns
+- Toggles are `h-10 w-10` rounded circles
+- Buttons use gradient with inline styles (can't be in Tailwind)
+- Visited badges: backdrop blur with success color
+- Back buttons: purple with hover/active states
+- Navbar: minimalistic, icon-only highlights
+
+### Positioning
+- Theme toggle: top-right corner (right-4)
+- View mode toggle: SearchHeader at right-16 (avoids theme overlap)
+- Back button: left-4 when on city/country views
+
+### File Operations
+- Always use Edit tool for existing files (never Write unless new file)
+- Read files before editing
+- Use parallel tool calls when operations are independent
+
+---
+
+## 📊 Data Structure
+
+### Recommendation Object
+```typescript
+{
+  id: string;
+  recId: string;
+  name: string;
+  description?: string;
+  category: string;
+  city: string;
+  cityId: string;
+  country: string;
+  visited: boolean;
+  website?: string;
+  image?: string;
+}
+```
+
+### Place Object
+```typescript
+{
+  id: string;
+  name: string;
+  country: string;
+  image?: string;
+}
+```
+
+---
+
+## 🐛 Known Issues & Limitations
+
+### Current Limitations
+- Data is stored in localStorage (no backend yet)
+- Images are placeholder-based (category-specific)
+- No user authentication yet
+- No cloud sync
+
+### Safari/Web Limitations
+- Liquid Glass blur less pronounced than native iOS
+- Some haptics only work on device (not simulator)
+
+### Performance Notes
+- Carousel uses snap scroll with scrollbar-hide
+- Virtual scrolling not yet implemented for long lists
+- Bundle size is optimized but could be smaller
+
+---
+
+## 🎯 Recent Changes Summary
+
+**Latest Session Changes:**
+1. Purple gradient theme applied throughout (replaced all blue)
+2. Typography hierarchy: country (xl) > city (lg)
+3. Compact cards: reduced padding/spacing significantly
+4. Horizontal carousel for recommendations
+5. Minimalistic navbar (no background pill, just icon color)
+6. All toggles same size (h-10 w-10)
+7. Repositioned toggles to avoid overlaps
+8. Purple back button with hover states
+9. Purple map pins and country names
+10. Neutral focus rings (not blue)
+
+---
+
+## 💻 Development Notes
+
+### When Adding New Features
+1. Use Liquid Glass materials for overlays/modals
+2. Apply purple gradient to primary actions
+3. Add haptic feedback for interactions
+4. Use ios26-transition classes for animations
+5. Respect safe areas (env(safe-area-inset-*))
+6. Test in both light and dark modes
+7. Keep spacing compact (current style)
+
+### Haptics Usage
+```typescript
+import { haptics } from '@/utils/ios/haptics';
+
+haptics.light();   // Light tap
+haptics.medium();  // Button press
+haptics.heavy();   // Destructive action
+haptics.success(); // Success notification
+```
+
+### Status Bar
+```typescript
+// Status bar automatically follows theme
+// Configured in App.tsx with useStatusBarTheme hook
+```
+
+---
+
+## 📚 Documentation Files
+
+1. **IOS26_TRANSFORMATION.md** - Complete design system guide
+2. **ROADMAP.md** - Full to-do list and future plans
+3. **IOS_DEVELOPMENT.md** - iOS development setup
+4. **CONTEXT.md** (this file) - Quick reference for continuation
+5. **README.md** - Project overview
+
+---
+
+## 🎨 Design Philosophy
+
+**Current Aesthetic:**
+- Modern iOS 26 Liquid Glass
+- Purple gradient theme (elegant, not too flashy)
+- Minimalistic and clean
+- Compact but readable
+- Smooth animations with spring physics
+- Dark mode optimized for OLED
+
+**Key Principles:**
+- Less is more (minimalistic approach)
+- Proper visual hierarchy
+- Smooth, natural animations
+- Native iOS feel
+- Accessibility considered
+
+---
+
+## 🔄 Git Workflow
+
+```bash
+# Current branch
+main (up to date with origin/main)
+
+# Recent commits
+acf64d5 - Add comprehensive roadmap
+48f6c35 - Update documentation with purple gradient
+9262346 - Implement iOS 26 Liquid Glass design system
+96330eb - Convert web app to iOS with Capacitor
+
+# Commit style
+# Use descriptive messages with emoji where appropriate
+# Include "Co-Authored-By: Claude" footer
+```
+
+---
+
+## ⚡ Performance Tips
+
+- Liquid Glass can be heavy on older devices (use sparingly)
+- Test on iPhone 11/12 for minimum viable performance
+- Carousel uses CSS snap (performant)
+- Images need optimization (future task)
+- Keep blur radius reasonable (24-32px max)
+
+---
+
+## 🎯 Next Immediate Tasks (from ROADMAP.md)
+
+1. Pull-to-refresh on list views
+2. Swipe-to-delete gestures
+3. Long-press context menus
+4. Loading states with shimmer
+5. Empty states with illustrations
+6. Image optimization
+
+---
+
+## 📞 Quick Commands Reference
+
+```bash
+# Development
+npm run dev
+
+# iOS Preview
+npm run ios:dev
+
+# Build
+npm run build:prod
+
+# Capacitor
+npm run cap:sync
+npm run cap:open
+
+# Git
+git status
+git add -A
+git commit -m "message"
+git push
+```
+
+---
+
+## 🎨 Color Palette Quick Reference
+
+```
+Purple Gradient Primary: #667eea → #764ba2
+Success (Visited): #34C759
+Destructive: #FF3B30
+Warning: #FFCC00
+
+Focus Ring: neutral gray (240 5% 84%)
+Background Light: white
+Background Dark: #000000 (true black, OLED optimized)
+```
+
+---
+
+**Remember:** Purple theme everywhere, compact spacing, minimalistic style, smooth animations!
