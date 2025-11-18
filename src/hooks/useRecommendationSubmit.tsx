@@ -67,7 +67,9 @@ export const useRecommendationSubmit = () => {
   const handleStructuredSubmit = async (values: StructuredFormValues, existingRecId?: string): Promise<boolean> => {
     setIsAnalyzing(true);
     try {
-      console.log("Handling structured submit with values:", values);
+      console.log("🔍 STRUCTURED SUBMIT - Full values:", values);
+      console.log("🔍 Source data:", values.source);
+      console.log("🔍 Context data:", values.context);
       console.log("Editing existing recommendation ID:", existingRecId);
       
       // Check if we're editing an existing recommendation
@@ -147,9 +149,16 @@ export const useRecommendationSubmit = () => {
         context: values.context,
         id: crypto.randomUUID()
       };
-      
+
+      console.log("🔍 Created place object:", place);
+      console.log("🔍 Place source:", place.source);
+      console.log("🔍 Place context:", place.context);
+
       // Process structured recommendation with a single place
       const result = parseRecommendation(values.city, [place]);
+
+      console.log("🔍 parseRecommendation result:", result);
+      console.log("🔍 Result places[0]:", result.places[0]);
       
       // Add country if provided
       if (values.country && values.country !== "none") {

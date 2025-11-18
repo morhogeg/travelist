@@ -95,6 +95,10 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   }, [editRecommendation, initialCity, initialCountry, form]);
 
   const handleSubmit = (values: FormValues) => {
+    console.log("📋 FORM SUBMIT - Raw values:", values);
+    console.log("📋 Form source:", values.source);
+    console.log("📋 Form context:", values.context);
+
     if (values.website) {
       values.website = formatWebsiteUrl(values.website);
     }

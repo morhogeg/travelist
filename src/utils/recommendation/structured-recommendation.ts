@@ -36,6 +36,8 @@ export const processStructuredRecommendation = async (
               id: place.id || existingRecId,
               recId: place.recId || existingRecId,
               visited: place.visited || false,
+              source: values.source,
+              context: values.context,
             };
             if (!rec.categories.includes(values.category)) {
               rec.categories.push(values.category);
@@ -73,6 +75,8 @@ export const processStructuredRecommendation = async (
       image,
       visited: false,
       dateAdded: new Date().toISOString(),
+      source: values.source,
+      context: values.context,
     };
 
     const newRec = {

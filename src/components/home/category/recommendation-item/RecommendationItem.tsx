@@ -16,6 +16,14 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   onEditClick,
   getCategoryPlaceholder
 }) => {
+  // Debug logging
+  console.log('RecommendationItem:', item.name, {
+    hasSource: !!item.source,
+    source: item.source,
+    hasContext: !!item.context,
+    context: item.context
+  });
+
   // Check if item has attribution data
   const hasAttribution = !!(
     item.source?.name ||
