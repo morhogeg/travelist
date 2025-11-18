@@ -19,11 +19,18 @@ export const storeRecommendation = async (
   recommendation: ParsedRecommendation
 ): Promise<void> => {
   const recommendations = getRecommendations();
+
+  // Trim city name to prevent duplicates from whitespace
+  recommendation.city = recommendation.city.trim();
+
   const existingIndex = recommendations.findIndex(
-    (r) => r.city.toLowerCase() === recommendation.city.toLowerCase()
+    (r) => r.city.toLowerCase().trim() === recommendation.city.toLowerCase()
   );
 
-  const cityId = recommendation.cityId || recommendation.id || uuidv4();
+  // Use existing cityId if merging into existing city, otherwise generate new one
+  const cityId = existingIndex >= 0
+    ? recommendations[existingIndex].cityId || recommendations[existingIndex].id
+    : (recommendation.cityId || recommendation.id || uuidv4());
 
   recommendation.places = await Promise.all(
     recommendation.places.map(async (place) => {

@@ -94,7 +94,9 @@ export const useRecommendationSubmit = () => {
                 // Keep the existing ID and visited status
                 id: place.id,
                 recId: place.recId || existingRecId,
-                visited: place.visited || false
+                visited: place.visited || false,
+                source: values.source,
+                context: values.context,
               };
               
               // Update categories if needed
@@ -141,6 +143,8 @@ export const useRecommendationSubmit = () => {
         category: values.category,
         description: values.description || undefined,
         website: values.website || undefined,
+        source: values.source,
+        context: values.context,
         id: crypto.randomUUID()
       };
       

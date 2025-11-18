@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { formatWebsiteUrl } from "@/utils/countries";
 import { addToUserPlaces, getUserPlaces } from "@/utils/recommendation/user-places";
 import { addPlaceToCollection } from "@/utils/collections/collectionStore";
+import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 
 interface StructuredInputFormProps {
   onSubmit: (values: FormValues) => void;
@@ -47,6 +48,25 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   });
 
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
+
+  // Watch city field and auto-fill country from existing recommendations
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'city' && value.city && !editRecommendation) {
+        const cityName = value.city.trim();
+        const recommendations = getRecommendations();
+        const existingCity = recommendations.find(
+          r => r.city.toLowerCase().trim() === cityName.toLowerCase()
+        );
+
+        if (existingCity && existingCity.country && !value.country) {
+          form.setValue('country', existingCity.country);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, editRecommendation]);
 
   useEffect(() => {
     const values = editRecommendation
