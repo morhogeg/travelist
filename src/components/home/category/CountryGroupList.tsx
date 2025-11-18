@@ -5,6 +5,7 @@ import type { GroupedRecommendation } from "@/utils/recommendation/types";
 interface CountryGroupListProps {
   groupedRecommendations: GroupedRecommendation[];
   onEditClick?: (item: any) => void;
+  onViewDetails?: (item: any) => void;
   onToggleVisited?: (recId: string, name: string, visited: boolean) => void;
   onDeleteRecommendation?: (recId: string, name: string) => void;
   onCityClick?: (cityId: string) => void;
@@ -16,6 +17,7 @@ interface CountryGroupListProps {
 const CountryGroupList: React.FC<CountryGroupListProps> = ({
   groupedRecommendations,
   onEditClick,
+  onViewDetails,
   onToggleVisited,
   onDeleteRecommendation,
   onCityClick,
@@ -48,6 +50,7 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
           country={country}
           groups={countriesMap[country]}
           onEditClick={onEditClick}
+          onViewDetails={onViewDetails}
           onToggleVisited={onToggleVisited}
           onDeleteRecommendation={onDeleteRecommendation}
           onCityClick={onCityClick}

@@ -14,6 +14,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   onToggleVisited,
   onCityClick,
   onEditClick,
+  onViewDetails,
   getCategoryPlaceholder
 }) => {
   // Debug logging
@@ -39,9 +40,10 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.05 * index }}
-      className={`liquid-glass-clear rounded-2xl overflow-hidden shadow-lg hover:shadow-xl ios26-transition-smooth ${
+      className={`liquid-glass-clear rounded-2xl overflow-hidden shadow-lg hover:shadow-xl ios26-transition-smooth cursor-pointer ${
         item.visited ? 'ring-2 ring-success/30' : ''
       }`}
+      onClick={() => onViewDetails?.(item)}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <ItemImage

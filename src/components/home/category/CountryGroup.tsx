@@ -14,6 +14,7 @@ interface CountryGroupProps {
   country: string;
   groups: GroupedRecommendation[];
   onEditClick?: (item: any) => void;
+  onViewDetails?: (item: any) => void;
   onToggleVisited?: (recId: string, name: string, visited: boolean) => void;
   onDeleteRecommendation?: (recId: string, name: string) => void;
   onCityClick?: (cityId: string) => void;
@@ -27,6 +28,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   country,
   groups,
   onEditClick,
+  onViewDetails,
   onToggleVisited,
   onDeleteRecommendation,
   onCityClick,
@@ -65,6 +67,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
               items={group.items}
               index={index}
               onEditClick={onEditClick}
+          onViewDetails={onViewDetails}
               onToggleVisited={onToggleVisited}
               onDeleteRecommendation={onDeleteRecommendation}
               onCityClick={onCityClick}

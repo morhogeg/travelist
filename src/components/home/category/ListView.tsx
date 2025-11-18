@@ -19,6 +19,7 @@ const ListView: React.FC<ListViewProps & { onRefresh?: () => void }> = ({
   items,
   onDeleteRecommendation,
   onEditClick,
+  onViewDetails,
   onRefresh
 }) => {
   const { toast } = useToast();
@@ -72,9 +73,10 @@ const ListView: React.FC<ListViewProps & { onRefresh?: () => void }> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.05 * index }}
-            className={`liquid-glass-clear rounded-xl overflow-hidden shadow-md hover:shadow-lg ios26-transition-smooth ${
+            className={`liquid-glass-clear rounded-xl overflow-hidden shadow-md hover:shadow-lg ios26-transition-smooth cursor-pointer ${
               isVisited ? 'ring-2 ring-success/30' : ''
             }`}
+            onClick={() => onViewDetails?.(item)}
           >
             <div className="flex gap-3 p-3">
               {/* Image */}

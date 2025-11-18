@@ -6,6 +6,7 @@ import SearchHeader from "@/components/home/SearchHeader";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
+import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
@@ -22,6 +23,8 @@ const Index: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
   const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
 
   const navigate = useNavigate();
 
@@ -82,6 +85,40 @@ const Index: React.FC = () => {
     setIsDrawerOpen(true);
   };
 
+  const handleViewDetails = (recommendation: any) => {
+    setDetailsRecommendation(recommendation);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleDetailsEdit = () => {
+    setDetailsDialogOpen(false);
+    setSelectedRecommendation(detailsRecommendation);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDetailsDelete = () => {
+    if (detailsRecommendation?.recId) {
+      deleteRecommendation(detailsRecommendation.recId);
+      setDetailsDialogOpen(false);
+      loadRecommendations();
+    }
+  };
+
+  const handleDetailsToggleVisited = () => {
+    if (detailsRecommendation?.recId) {
+      markRecommendationVisited(
+        detailsRecommendation.recId,
+        detailsRecommendation.name,
+        !detailsRecommendation.visited
+      );
+      setDetailsRecommendation({
+        ...detailsRecommendation,
+        visited: !detailsRecommendation.visited,
+      });
+      loadRecommendations();
+    }
+  };
+
   const handleCityClick = (cityId: string) => {
     if (!cityId) return;
     navigate(`/place/${cityId}`);
@@ -115,7 +152,9 @@ const Index: React.FC = () => {
           onToggleVisited={handleToggleVisited}
           onDeleteRecommendation={handleDeleteRecommendation}
           onEditClick={handleEditClick}
+          onViewDetails={handleViewDetails}
           onCityClick={handleCityClick}
+          onRefresh={loadRecommendations}
           viewMode={viewMode}
           toggleViewMode={toggleViewMode}
         />
@@ -126,6 +165,15 @@ const Index: React.FC = () => {
           initialCity={selectedRecommendation?.location}
           initialCountry={selectedRecommendation?.country}
           editRecommendation={selectedRecommendation}
+        />
+
+        <RecommendationDetailsDialog
+          recommendation={detailsRecommendation}
+          isOpen={detailsDialogOpen}
+          onClose={() => setDetailsDialogOpen(false)}
+          onEdit={handleDetailsEdit}
+          onDelete={handleDetailsDelete}
+          onToggleVisited={handleDetailsToggleVisited}
         />
       </motion.div>
 

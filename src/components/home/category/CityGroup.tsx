@@ -20,6 +20,7 @@ const CityGroup: React.FC<Props> = ({
   items,
   index = 0,
   onEditClick,
+  onViewDetails,
   onToggleVisited,
   onDeleteRecommendation,
   onCityClick,
@@ -111,6 +112,7 @@ const CityGroup: React.FC<Props> = ({
             onToggleVisited={handleToggleVisited}
             onCityClick={handleCityClickInternal}
             onEditClick={handleEdit}
+            onViewDetails={onViewDetails}
             getCategoryPlaceholder={getCategoryPlaceholder}
           />
         ) : (
@@ -119,6 +121,7 @@ const CityGroup: React.FC<Props> = ({
             onDeleteRecommendation={handleDeleteRecommendation}
             onToggleVisited={handleToggleVisited}
             onEditClick={handleEdit}
+            onViewDetails={onViewDetails}
             onRefresh={onRefresh}
           />
         )}

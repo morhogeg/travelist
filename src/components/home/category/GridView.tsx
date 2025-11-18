@@ -8,6 +8,7 @@ const GridView: React.FC<GridViewProps> = ({
   onToggleVisited,
   onCityClick,
   onEditClick,
+  onViewDetails,
   getCategoryPlaceholder
 }) => {
   // Use horizontal carousel if more than one item, otherwise show single card
@@ -31,6 +32,7 @@ const GridView: React.FC<GridViewProps> = ({
                 onToggleVisited={onToggleVisited}
                 onCityClick={onCityClick}
                 onEditClick={() => onEditClick && onEditClick(item)}
+                onViewDetails={() => onViewDetails && onViewDetails(item)}
                 getCategoryPlaceholder={getCategoryPlaceholder}
               />
             </div>
@@ -51,6 +53,7 @@ const GridView: React.FC<GridViewProps> = ({
             onToggleVisited={onToggleVisited}
             onCityClick={onCityClick}
             onEditClick={() => onEditClick && onEditClick(item)}
+            onViewDetails={() => onViewDetails && onViewDetails(item)}
             getCategoryPlaceholder={getCategoryPlaceholder}
           />
         </div>
