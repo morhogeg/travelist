@@ -1,100 +1,185 @@
 
-import React from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { User, Settings, Info, Heart, MapPin } from "lucide-react";
+import { Settings, MapPin, CheckCircle2, Folder, Globe, TrendingUp } from "lucide-react";
 import Layout from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
+import { getCollections } from "@/utils/collections/collectionStore";
 
 const Profile = () => {
   const navigate = useNavigate();
-  
+  const [stats, setStats] = useState({
+    totalPlaces: 0,
+    totalRecommendations: 0,
+    visitedCount: 0,
+    totalCollections: 0,
+    countriesVisited: 0,
+    citiesVisited: 0,
+  });
+
+  useEffect(() => {
+    // Calculate real statistics
+    const places = getUserPlaces();
+    const recommendations = getRecommendations();
+    const collections = getCollections();
+
+    // Flatten all recommendations
+    const allRecs = recommendations.flatMap(rec =>
+      rec.places.map(place => ({
+        ...place,
+        city: rec.city,
+        country: rec.country,
+        visited: place.visited || rec.visited
+      }))
+    );
+
+    // Count visited
+    const visitedCount = allRecs.filter(rec => rec.visited).length;
+
+    // Count unique countries and cities
+    const uniqueCountries = new Set(
+      [...places.map(p => p.country), ...recommendations.map(r => r.country)].filter(Boolean)
+    );
+    const uniqueCities = new Set(
+      recommendations.map(r => r.city).filter(Boolean)
+    );
+
+    setStats({
+      totalPlaces: places.length,
+      totalRecommendations: allRecs.length,
+      visitedCount,
+      totalCollections: collections.length,
+      countriesVisited: uniqueCountries.size,
+      citiesVisited: uniqueCities.size,
+    });
+  }, []);
+
+  const completionRate = useMemo(() => {
+    if (stats.totalRecommendations === 0) return 0;
+    return Math.round((stats.visitedCount / stats.totalRecommendations) * 100);
+  }, [stats]);
+
+  const StatCard = ({ icon: Icon, label, value, subtitle, onClick }: any) => (
+    <motion.div
+      whileTap={onClick ? { scale: 0.98 } : {}}
+      onClick={onClick}
+      className={`liquid-glass-clear rounded-2xl p-4 shadow-md hover:shadow-lg ios26-transition-smooth ${
+        onClick ? 'cursor-pointer' : ''
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+          <Icon className="h-6 w-6 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-2xl font-bold leading-none mb-1">{value}</p>
+          <p className="text-sm text-muted-foreground truncate">{label}</p>
+          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+        </div>
+      </div>
+    </motion.div>
+  );
+
   return (
     <Layout>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="container max-w-xl mx-auto py-8 px-4"
+        className="px-6 py-8 pb-24"
       >
-        <div className="flex flex-col items-center mb-8">
-          <Avatar className="h-24 w-24 mb-4">
-            <AvatarFallback className="text-2xl bg-primary/10">A</AvatarFallback>
-          </Avatar>
-          
-          <h1 className="text-2xl font-bold">Alisa</h1>
-          <p className="text-muted-foreground">Travel enthusiast</p>
-          
-          <div className="flex gap-4 mt-4">
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Edit Profile
-            </Button>
-            <Button
-              size="sm"
-              className="flex items-center gap-2 text-white font-semibold"
-              onClick={() => navigate('/settings')}
-              style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-              }}
-            >
-              <Settings className="h-4 w-4" />
-              Settings
-            </Button>
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-4 text-white text-3xl font-bold shadow-lg">
+            T
           </div>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent mb-1">
+            Travelist
+          </h1>
+          <p className="text-muted-foreground text-sm">Your travel companion</p>
         </div>
-        
-        <Separator className="my-6" />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" />
-                Places
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">12</p>
-              <p className="text-muted-foreground text-sm">Saved destinations</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Heart className="h-4 w-4 text-primary" />
-                Visited
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">5</p>
-              <p className="text-muted-foreground text-sm">Completed recommendations</p>
-            </CardContent>
-          </Card>
+
+        {/* Stats Grid */}
+        <div className="space-y-3 mb-8">
+          <StatCard
+            icon={MapPin}
+            label="Total Recommendations"
+            value={stats.totalRecommendations}
+            subtitle="Places to explore"
+          />
+
+          <StatCard
+            icon={CheckCircle2}
+            label="Visited"
+            value={stats.visitedCount}
+            subtitle={`${completionRate}% completion rate`}
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard
+              icon={Globe}
+              label="Countries"
+              value={stats.countriesVisited}
+            />
+            <StatCard
+              icon={MapPin}
+              label="Cities"
+              value={stats.citiesVisited}
+            />
+          </div>
+
+          <StatCard
+            icon={Folder}
+            label="Collections"
+            value={stats.totalCollections}
+            subtitle="Organized groups"
+            onClick={() => navigate('/collections')}
+          />
+
+          {completionRate > 0 && (
+            <div className="liquid-glass-clear rounded-2xl p-4 shadow-md">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <p className="text-sm font-medium">Travel Progress</p>
+              </div>
+              <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
+                <div
+                  className="h-2 rounded-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-500"
+                  style={{ width: `${completionRate}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                You've visited {stats.visitedCount} out of {stats.totalRecommendations} recommendations
+              </p>
+            </div>
+          )}
         </div>
-        
-        <h2 className="text-xl font-semibold mb-4">Account</h2>
+
+        {/* Settings */}
         <div className="space-y-2">
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-muted-foreground"
+          <motion.button
+            whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/settings')}
+            className="w-full liquid-glass-clear rounded-xl p-4 shadow-md hover:shadow-lg ios26-transition-smooth flex items-center gap-3"
           >
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-            <Info className="mr-2 h-4 w-4" />
-            Help & Support
-          </Button>
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-            <User className="mr-2 h-4 w-4" />
-            Privacy
-          </Button>
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
+              <Settings className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-medium">Settings</p>
+              <p className="text-xs text-muted-foreground">Customize your experience</p>
+            </div>
+          </motion.button>
+        </div>
+
+        {/* App Version */}
+        <div className="mt-8 text-center">
+          <p className="text-xs text-muted-foreground">
+            Travelist v1.0.0
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Made with ❤️ for travelers
+          </p>
         </div>
       </motion.div>
     </Layout>

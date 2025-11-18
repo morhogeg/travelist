@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { FreeTextFormValues } from "./types";
 import { getSmartImage } from "@/utils/image/getSmartImage";
+import { autoPopulateSource, cleanAttributionFromText } from "./text-parser";
 
 export const processFreeTextRecommendation = async (
   values: FreeTextFormValues,
@@ -18,7 +19,15 @@ export const processFreeTextRecommendation = async (
       return false;
     }
 
-    const lines = values.recommendations
+    // Try to auto-detect attribution from the text
+    const detectedSource = autoPopulateSource(values.recommendations);
+
+    // Clean attribution patterns from the text before processing
+    const cleanedText = detectedSource
+      ? cleanAttributionFromText(values.recommendations)
+      : values.recommendations;
+
+    const lines = cleanedText
       .split("\n")
       .filter((line) => line.trim() !== "");
 
@@ -68,6 +77,8 @@ export const processFreeTextRecommendation = async (
           description: line.includes(":") ? line.split(":")[1].trim() : "",
           image,
           visited: false,
+          // Attach detected source if found
+          source: detectedSource || undefined,
         };
       })
     );

@@ -17,9 +17,9 @@ const ThemeToggle = () => {
     <motion.button
       whileTap={{ scale: 0.92 }}
       onClick={handleToggle}
-      className="fixed top-4 right-4 h-10 w-10 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-50 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
+      className="fixed top-3 right-3 h-10 w-10 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-50 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
       style={{
-        top: 'calc(1rem + env(safe-area-inset-top, 0px))'
+        top: 'calc(0.75rem + env(safe-area-inset-top, 0px))'
       }}
       aria-label="Toggle theme"
     >

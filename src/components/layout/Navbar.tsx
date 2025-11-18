@@ -21,14 +21,14 @@ const Navbar = () => {
         damping: 30,
         mass: 0.8,
       }}
-      className="fixed bottom-0 left-0 right-0 z-50 px-4 pt-1.5"
+      className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
       {/* iOS 26 Liquid Glass Floating Tab Bar */}
-      <nav className="mx-auto max-w-lg liquid-glass-float px-1.5 py-1.5">
-        <ul className="flex items-center justify-around">
+      <nav className="liquid-glass-float px-1.5 py-1.5">
+        <ul className="flex items-center justify-around max-w-lg mx-auto">
           {navItems.map((item) => (
             <li key={item.path} className="flex-1">
               <NavLink

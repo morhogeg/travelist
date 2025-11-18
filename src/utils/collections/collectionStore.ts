@@ -7,6 +7,16 @@ export interface Collection {
 
 const STORAGE_KEY = "travelist-collections";
 
+// Generate a unique ID
+function generateId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    // Fallback if crypto.randomUUID() is not available
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+}
+
 // Fetch all collections
 export function getCollections(): Collection[] {
   if (typeof window === "undefined") return [];
@@ -23,7 +33,7 @@ function saveCollections(collections: Collection[]) {
 export function addCollection(name: string): Collection {
   const collections = getCollections();
   const newCollection: Collection = {
-    id: crypto.randomUUID(),
+    id: generateId(),
     name,
     placeIds: [],
     createdAt: new Date().toISOString(),

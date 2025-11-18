@@ -106,7 +106,7 @@ const Index: React.FC = () => {
           onToggleViewMode={toggleViewMode}
         />
 
-        <div className="mb-3 px-6 sm:px-8">
+        <div className="mb-3">
           <CategoriesScrollbar />
         </div>
 

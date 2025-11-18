@@ -13,6 +13,7 @@ import { Calendar, CheckCircle2, Edit, ExternalLink, Globe, MapPin, Navigation, 
 import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { Badge } from "@/components/ui/badge";
+import { RecommendationDetail } from "@/components/recommendations/RecommendationDetail";
 
 interface RecommendationDetailsDialogProps {
   recommendation: any;
@@ -102,7 +103,13 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               </span>
             </div>
           )}
-          
+
+          {/* Attribution and Context Details */}
+          <RecommendationDetail
+            source={recommendation.source}
+            context={recommendation.context}
+          />
+
           <div className="flex flex-wrap gap-3 mt-5">
             <Button 
               variant="default" 

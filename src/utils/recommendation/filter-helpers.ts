@@ -41,6 +41,8 @@ export const getFilteredRecommendations = async (
             visited: !!place.visited,
             dateAdded: rec.dateAdded,
             country: rec.country,
+            source: place.source,
+            context: place.context,
           };
         });
     })

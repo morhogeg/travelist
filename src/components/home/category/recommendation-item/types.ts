@@ -1,3 +1,4 @@
+import { RecommendationSource, RecommendationContext } from "@/utils/recommendation/types";
 
 export interface RecommendationItemProps {
   item: {
@@ -13,6 +14,8 @@ export interface RecommendationItemProps {
     location?: string;
     cityId?: string;
     dateAdded?: string;  // Added dateAdded property
+    source?: RecommendationSource;
+    context?: RecommendationContext;
   };
   index: number;
   onDelete: (recId: string, name: string) => void;

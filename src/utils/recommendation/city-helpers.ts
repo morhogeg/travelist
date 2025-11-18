@@ -22,7 +22,7 @@ export const getRecommendationsForCity = (cityId: string): Recommendation[] => {
   
   if (cityRecs.length > 0) {
     // Found direct matches by ID
-    return cityRecs.flatMap(cityRec => 
+    return cityRecs.flatMap(cityRec =>
       cityRec.places.map(place => ({
         id: place.id || `place-${Date.now()}-${Math.random()}`,
         name: place.name,
@@ -33,7 +33,9 @@ export const getRecommendationsForCity = (cityId: string): Recommendation[] => {
         recId: cityRec.id,
         dateAdded: cityRec.dateAdded,
         visited: place.visited || false,
-        website: place.website
+        website: place.website,
+        source: place.source,
+        context: place.context,
       }))
     );
   }
@@ -49,7 +51,7 @@ export const getRecommendationsForCity = (cityId: string): Recommendation[] => {
     );
     
     if (cityNameRecs.length > 0) {
-      return cityNameRecs.flatMap(cityRec => 
+      return cityNameRecs.flatMap(cityRec =>
         cityRec.places.map(place => ({
           id: place.id || `place-${Date.now()}-${Math.random()}`,
           name: place.name,
@@ -60,7 +62,9 @@ export const getRecommendationsForCity = (cityId: string): Recommendation[] => {
           recId: cityRec.id,
           dateAdded: cityRec.dateAdded,
           visited: place.visited || false,
-          website: place.website
+          website: place.website,
+          source: place.source,
+          context: place.context,
         }))
       );
     }
@@ -77,7 +81,7 @@ export const getRecommendationsForCity = (cityId: string): Recommendation[] => {
     );
     
     if (matchingCityRecs.length > 0) {
-      return matchingCityRecs.flatMap(cityRec => 
+      return matchingCityRecs.flatMap(cityRec =>
         cityRec.places.map(place => ({
           id: place.id || `place-${Date.now()}-${Math.random()}`,
           name: place.name,
@@ -88,7 +92,9 @@ export const getRecommendationsForCity = (cityId: string): Recommendation[] => {
           recId: cityRec.id,
           dateAdded: cityRec.dateAdded,
           visited: place.visited || false,
-          website: place.website
+          website: place.website,
+          source: place.source,
+          context: place.context,
         }))
       );
     }

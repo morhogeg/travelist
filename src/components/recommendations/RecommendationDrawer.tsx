@@ -39,15 +39,13 @@ const RecommendationDrawer = ({
     submitFreeTextRecommendation,
   } = useRecommendationSubmit();
 
-  // Load collections once
-  useEffect(() => {
-    const loaded = getCollections();
-    setCollections(loaded);
-  }, []);
-
   // Always reset or set localEditRecommendation when drawer opens
   useEffect(() => {
     if (isDrawerOpen) {
+      // Reload collections every time drawer opens to get latest
+      const loaded = getCollections();
+      setCollections(loaded);
+
       if (editRecommendation) {
         // EDIT mode
         setLocalEditRecommendation(editRecommendation);
@@ -112,11 +110,11 @@ const RecommendationDrawer = ({
           <DrawerTitle>
             {localEditRecommendation ? "Edit Recommendation" : "Add a Recommendation"}
           </DrawerTitle>
-          <DrawerDescription>
-            {localEditRecommendation
-              ? "Update the details of your recommendation."
-              : "Choose how you'd like to add your recommendation."}
-          </DrawerDescription>
+          {localEditRecommendation && (
+            <DrawerDescription>
+              Update the details of your recommendation.
+            </DrawerDescription>
+          )}
         </DrawerHeader>
 
         <div className="px-6 space-y-4">

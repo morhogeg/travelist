@@ -9,20 +9,13 @@ import CityInput from "./CityInput";
 import CountrySelect from "./CountrySelect";
 import RecommendationFields from "./RecommendationFields";
 import AddToCollectionPicker from "./AddToCollectionPicker";
-import { FormValues } from "./types";
+import { SourceInput } from "./SourceInput";
+import { ContextInput } from "./ContextInput";
+import { FormValues, structuredFormSchema } from "./types";
 import { Loader2 } from "lucide-react";
 import { formatWebsiteUrl } from "@/utils/countries";
 import { addToUserPlaces, getUserPlaces } from "@/utils/recommendation/user-places";
 import { addPlaceToCollection } from "@/utils/collections/collectionStore";
-
-const formSchema = z.object({
-  name: z.string().min(1, "Please enter a name"),
-  category: z.string().min(1, "Please select a category"),
-  city: z.string().min(1, "Please enter a city"),
-  country: z.string().min(1, "Please select a country"),
-  description: z.string().optional(),
-  website: z.string().optional(),
-});
 
 interface StructuredInputFormProps {
   onSubmit: (values: FormValues) => void;
@@ -40,7 +33,7 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   editRecommendation = null,
 }) => {
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(structuredFormSchema),
     defaultValues: {
       name: "",
       category: "",
@@ -48,6 +41,8 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
       country: "",
       description: "",
       website: "",
+      source: undefined,
+      context: undefined,
     },
   });
 
@@ -62,6 +57,8 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
           country: editRecommendation.country || initialCountry,
           description: editRecommendation.description || "",
           website: editRecommendation.website || "",
+          source: editRecommendation.source || undefined,
+          context: editRecommendation.context || undefined,
         }
       : {
           name: "",
@@ -70,6 +67,8 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
           country: initialCountry,
           description: "",
           website: "",
+          source: undefined,
+          context: undefined,
         };
 
     form.reset(values);
@@ -104,6 +103,8 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
         <RecommendationFields form={form} onlyWebsite />
         <CityInput form={form} initialCity={initialCity} />
         <CountrySelect form={form} initialCountry={initialCountry} />
+        <SourceInput form={form} initialSource={editRecommendation?.source} />
+        <ContextInput form={form} initialContext={editRecommendation?.context} />
         {!editRecommendation && (
           <AddToCollectionPicker
             onSelect={(id) => setSelectedCollectionId(id)}

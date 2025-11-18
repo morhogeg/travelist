@@ -116,3 +116,49 @@ export const deleteRecommendation = (recId: string): void => {
   localStorage.setItem("recommendations", JSON.stringify(updated));
   window.dispatchEvent(new CustomEvent("recommendationDeleted"));
 };
+
+export const updateRecommendationMeta = (
+  recId: string,
+  updates: {
+    source?: ParsedRecommendation['places'][0]['source'];
+    context?: ParsedRecommendation['places'][0]['context'];
+    description?: string;
+    website?: string;
+  }
+): boolean => {
+  const recommendations = getRecommendations();
+  let updated = false;
+
+  for (const rec of recommendations) {
+    for (const place of rec.places) {
+      if (place.recId === recId) {
+        // Update source if provided
+        if (updates.source !== undefined) {
+          place.source = updates.source;
+        }
+        // Update context if provided
+        if (updates.context !== undefined) {
+          place.context = updates.context;
+        }
+        // Update description if provided
+        if (updates.description !== undefined) {
+          place.description = updates.description;
+        }
+        // Update website if provided
+        if (updates.website !== undefined) {
+          place.website = updates.website;
+        }
+        updated = true;
+        break;
+      }
+    }
+    if (updated) break;
+  }
+
+  if (updated) {
+    localStorage.setItem("recommendations", JSON.stringify(recommendations));
+    window.dispatchEvent(new CustomEvent("recommendationUpdated"));
+  }
+
+  return updated;
+};

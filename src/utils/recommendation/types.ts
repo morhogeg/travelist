@@ -1,4 +1,28 @@
 
+// Recommendation Attribution Types
+export type SourceType = 'friend' | 'instagram' | 'blog' | 'email' | 'text' | 'tiktok' | 'youtube' | 'article' | 'other';
+
+export interface RecommendationSource {
+  type: SourceType;
+  name: string;
+  relationship?: string;
+  url?: string;
+  date?: string;
+  notes?: string;
+}
+
+export type VisitPriority = 'high' | 'medium' | 'low';
+
+export interface RecommendationContext {
+  specificTip?: string;
+  occasionTags?: string[];
+  bestTime?: string;
+  priceRange?: '$' | '$$' | '$$$' | '$$$$';
+  visitPriority?: VisitPriority;
+  personalNote?: string;
+}
+
+// Core Recommendation Types
 export interface ParsedRecommendation {
   id: string;
   city: string;
@@ -19,6 +43,8 @@ export interface RecommendationPlace {
   image?: string;
   visited?: boolean;
   website?: string;
+  source?: RecommendationSource;
+  context?: RecommendationContext;
 }
 
 export interface Place {
@@ -40,6 +66,8 @@ export interface Recommendation {
   dateAdded?: string;
   visited?: boolean;
   country?: string;  // Added country property
+  source?: RecommendationSource;
+  context?: RecommendationContext;
 }
 
 export interface GroupedRecommendation {
