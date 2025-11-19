@@ -7,12 +7,20 @@ import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
+import { FilterButton, FilterSheet } from "@/components/home/filters";
+import ActiveFilters from "@/components/home/filters/ActiveFilters";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
+import {
+  getFilteredRecommendations,
+  getAvailableOccasions,
+  getAvailableCountries,
+  getAvailableCities
+} from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import CountryGroupList from "@/components/home/category/CountryGroupList";
 import { mediumHaptic } from "@/utils/ios/haptics";
+import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
 
 const Index: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -26,19 +34,35 @@ const Index: React.FC = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
 
+  // Filter state
+  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [availableOccasions, setAvailableOccasions] = useState<string[]>([]);
+  const [availableCountries, setAvailableCountries] = useState<string[]>([]);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+
   const navigate = useNavigate();
 
   const loadRecommendations = useCallback(async () => {
     const data = await getFilteredRecommendations(
-      selectedCategories.length === 0 ? "all" : selectedCategories
+      selectedCategories.length === 0 ? "all" : selectedCategories,
+      undefined,
+      filters
     );
     setGroupedRecommendations(data);
     setRefreshKey((prev) => prev + 1);
-  }, [selectedCategories]);
+  }, [selectedCategories, filters]);
 
   useEffect(() => {
     loadRecommendations();
   }, [selectedCategories, loadRecommendations]);
+
+  // Load available filter options
+  useEffect(() => {
+    setAvailableOccasions(getAvailableOccasions());
+    setAvailableCountries(getAvailableCountries());
+    setAvailableCities(getAvailableCities());
+  }, []);
 
   useEffect(() => {
     window.showRecDrawer = (cityName?: string, countryName?: string) => {
@@ -128,6 +152,24 @@ const Index: React.FC = () => {
     setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
   };
 
+  const handleRemoveFilter = (filterKey: keyof FilterState, value?: string) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev };
+
+      if (filterKey === "visitStatus") {
+        newFilters.visitStatus = "all";
+      } else if (value) {
+        // For array-based filters
+        const currentArray = newFilters[filterKey] as string[];
+        newFilters[filterKey] = currentArray.filter((v) => v !== value) as any;
+      }
+
+      return newFilters;
+    });
+  };
+
+  const activeFilterCount = countActiveFilters(filters);
+
   return (
     <Layout>
       <motion.div
@@ -143,8 +185,17 @@ const Index: React.FC = () => {
           onToggleViewMode={toggleViewMode}
         />
 
-        <div className="mb-3">
-          <CategoriesScrollbar />
+        <div className="mb-3 space-y-3">
+          <div className="flex items-center gap-2 px-4">
+            <div className="flex-1 overflow-x-auto">
+              <CategoriesScrollbar />
+            </div>
+            <FilterButton
+              activeCount={activeFilterCount}
+              onClick={() => setIsFilterSheetOpen(true)}
+            />
+          </div>
+          <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         </div>
 
         <CountryGroupList
@@ -174,6 +225,16 @@ const Index: React.FC = () => {
           onEdit={handleDetailsEdit}
           onDelete={handleDetailsDelete}
           onToggleVisited={handleDetailsToggleVisited}
+        />
+
+        <FilterSheet
+          isOpen={isFilterSheetOpen}
+          onClose={() => setIsFilterSheetOpen(false)}
+          filters={filters}
+          onFiltersChange={setFilters}
+          availableCountries={availableCountries}
+          availableCities={availableCities}
+          availableOccasions={availableOccasions}
         />
       </motion.div>
 

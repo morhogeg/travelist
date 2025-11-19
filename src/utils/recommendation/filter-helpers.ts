@@ -1,12 +1,14 @@
 import { getRecommendations } from "./recommendation-manager";
 import { GroupedRecommendation } from "./types";
 import { getSmartImage } from "@/utils/image/getSmartImage";
+import { FilterState } from "@/types/filters";
 
 export const getFilteredRecommendations = async (
   category: string | string[],
-  filterCountry?: string
+  filterCountry?: string,
+  filters?: FilterState
 ): Promise<GroupedRecommendation[]> => {
-  console.log("🔍 Filtering by category:", category, "country:", filterCountry);
+  console.log("🔍 Filtering by category:", category, "country:", filterCountry, "filters:", filters);
   const all = getRecommendations();
 
   const normalize = (v: string) => v.trim().toLowerCase();
@@ -21,12 +23,62 @@ export const getFilteredRecommendations = async (
 
   const flat = await Promise.all(
     all.flatMap(rec => {
+      // Country filter (legacy + new filter state)
       if (filterCountry && rec.country?.toLowerCase() !== filterCountry.toLowerCase()) {
         return [];
       }
+      if (filters?.countries && filters.countries.length > 0) {
+        if (!rec.country || !filters.countries.map(normalize).includes(normalize(rec.country))) {
+          return [];
+        }
+      }
+
+      // City filter
+      if (filters?.cities && filters.cities.length > 0) {
+        if (!rec.city || !filters.cities.map(normalize).includes(normalize(rec.city))) {
+          return [];
+        }
+      }
 
       return rec.places
-        .filter(p => isAllCategory || matchesCategory(p.category))
+        .filter(p => {
+          // Category filter
+          if (!isAllCategory && !matchesCategory(p.category)) return false;
+
+          // Visit status filter
+          if (filters?.visitStatus === "visited" && !p.visited) return false;
+          if (filters?.visitStatus === "not-visited" && p.visited) return false;
+
+          // Source filter
+          if (filters?.sources && filters.sources.length > 0) {
+            if (!p.source || !filters.sources.includes(p.source.type)) return false;
+          }
+
+          // Price range filter
+          if (filters?.priceRanges && filters.priceRanges.length > 0) {
+            if (!p.context?.priceRange || !filters.priceRanges.includes(p.context.priceRange)) {
+              return false;
+            }
+          }
+
+          // Priority filter
+          if (filters?.priorities && filters.priorities.length > 0) {
+            if (!p.context?.visitPriority || !filters.priorities.includes(p.context.visitPriority)) {
+              return false;
+            }
+          }
+
+          // Occasion filter
+          if (filters?.occasions && filters.occasions.length > 0) {
+            const placeTags = p.context?.occasionTags || [];
+            const hasMatchingTag = filters.occasions.some(occ =>
+              placeTags.map(normalize).includes(normalize(occ))
+            );
+            if (!hasMatchingTag) return false;
+          }
+
+          return true;
+        })
         .map(async place => {
           const image = place.image || (await getSmartImage(place.name, place.category));
           return {
@@ -56,7 +108,7 @@ export const getFilteredRecommendations = async (
         cityId: rec.cityId,
         cityName: rec.location,
         cityImage: "",
-        country: rec.country || "", // ✅ inject the country
+        country: rec.country || "",
         items: [],
       };
     }
@@ -70,4 +122,48 @@ export const getFilteredRecommendations = async (
       return new Date(b.dateAdded || "").getTime() - new Date(a.dateAdded || "").getTime();
     }),
   }));
+};
+
+// Helper to get all unique occasions from recommendations
+export const getAvailableOccasions = (): string[] => {
+  const all = getRecommendations();
+  const occasions = new Set<string>();
+
+  all.forEach(rec => {
+    rec.places.forEach(place => {
+      if (place.context?.occasionTags) {
+        place.context.occasionTags.forEach(tag => occasions.add(tag));
+      }
+    });
+  });
+
+  return Array.from(occasions).sort();
+};
+
+// Helper to get all unique countries
+export const getAvailableCountries = (): string[] => {
+  const all = getRecommendations();
+  const countries = new Set<string>();
+
+  all.forEach(rec => {
+    if (rec.country) {
+      countries.add(rec.country);
+    }
+  });
+
+  return Array.from(countries).sort();
+};
+
+// Helper to get all unique cities
+export const getAvailableCities = (): string[] => {
+  const all = getRecommendations();
+  const cities = new Set<string>();
+
+  all.forEach(rec => {
+    if (rec.city) {
+      cities.add(rec.city);
+    }
+  });
+
+  return Array.from(cities).sort();
 };

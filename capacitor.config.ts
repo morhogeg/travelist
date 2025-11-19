@@ -11,7 +11,7 @@ const config: CapacitorConfig = {
   ...(isDev && {
     server: {
       // LIVE RELOAD - For development only
-      url: 'http://192.168.1.176:5173',
+      url: 'http://192.168.0.105:5173',
       cleartext: true
     }
   }),
