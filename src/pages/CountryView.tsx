@@ -140,7 +140,7 @@ const CountryView: React.FC = () => {
 
         <div className="flex items-center justify-center">
           <h1 className="text-2xl font-bold tracking-tight">
-            <span className="mr-2">📍{flagEmoji}</span>
+            <span className="mr-2">{flagEmoji}</span>
             {countryName}
           </h1>
         </div>
@@ -183,6 +183,7 @@ const CountryView: React.FC = () => {
           hideCountryHeader={true}
           showToggle={false}
           noSidePadding={true}
+          hideCountry={true}
         />
       </div>
 

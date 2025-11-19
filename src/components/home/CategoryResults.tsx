@@ -18,6 +18,7 @@ interface CategoryResultsProps {
   hideCountryHeader?: boolean;
   showToggle?: boolean;
   noSidePadding?: boolean; // ✅ NEW
+  hideCountry?: boolean;
 }
 
 const CategoryResults: React.FC<CategoryResultsProps> = ({
@@ -34,6 +35,7 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
   hideCountryHeader = false,
   showToggle = true,
   noSidePadding = false, // ✅ NEW
+  hideCountry = false,
 }) => {
   useEffect(() => {
     const handler = (e: Event) => {
@@ -84,6 +86,7 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
               viewMode={viewMode}
               hideCityHeader={hideCityHeader}
               hideCountryHeader={hideCountryHeader}
+              hideCountry={hideCountry}
             />
           ))
         )}

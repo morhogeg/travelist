@@ -22,6 +22,7 @@ interface CountryGroupProps {
   viewMode?: "grid" | "list";
   hideCityHeader?: boolean;
   hideCountryHeader?: boolean; // ✅ NEW PROP
+  hideCountry?: boolean;
 }
 
 const CountryGroup: React.FC<CountryGroupProps> = ({
@@ -35,7 +36,8 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   onRefresh,
   viewMode = "grid",
   hideCityHeader = false,
-  hideCountryHeader = false // ✅ default false
+  hideCountryHeader = false, // ✅ default false
+  hideCountry = false
 }) => {
   if (!groups || groups.length === 0) return null;
 
@@ -67,13 +69,14 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
               items={group.items}
               index={index}
               onEditClick={onEditClick}
-          onViewDetails={onViewDetails}
+              onViewDetails={onViewDetails}
               onToggleVisited={onToggleVisited}
               onDeleteRecommendation={onDeleteRecommendation}
               onCityClick={onCityClick}
               onRefresh={onRefresh}
               viewMode={viewMode}
               hideCityHeader={hideCityHeader}
+              hideCountry={hideCountry}
             />
           </div>
         ))}

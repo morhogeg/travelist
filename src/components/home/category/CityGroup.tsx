@@ -11,6 +11,7 @@ import type { CityGroupProps } from "./types";
 
 interface Props extends CityGroupProps {
   hideCityHeader?: boolean; // ✅ NEW
+  hideCountry?: boolean;
 }
 
 const CityGroup: React.FC<Props> = ({
@@ -26,7 +27,8 @@ const CityGroup: React.FC<Props> = ({
   onCityClick,
   onRefresh,
   viewMode = "grid",
-  hideCityHeader = false // ✅ default false
+  hideCityHeader = false, // ✅ default false
+  hideCountry = false
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -123,6 +125,7 @@ const CityGroup: React.FC<Props> = ({
             onEditClick={handleEdit}
             onViewDetails={onViewDetails}
             onRefresh={onRefresh}
+            hideCountry={hideCountry}
           />
         )}
       </div>

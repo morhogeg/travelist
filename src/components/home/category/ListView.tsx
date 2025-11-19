@@ -15,12 +15,13 @@ import { formatUrl } from "@/utils/link-helpers";
 import countryToCode from "@/utils/flags/countryToCode";
 import { categories } from "@/components/recommendations/utils/category-data";
 
-const ListView: React.FC<ListViewProps & { onRefresh?: () => void }> = ({
+const ListView: React.FC<ListViewProps & { onRefresh?: () => void; hideCountry?: boolean }> = ({
   items,
   onDeleteRecommendation,
   onEditClick,
   onViewDetails,
-  onRefresh
+  onRefresh,
+  hideCountry = false
 }) => {
   const { toast } = useToast();
 
@@ -128,22 +129,49 @@ const ListView: React.FC<ListViewProps & { onRefresh?: () => void }> = ({
                   </DropdownMenu>
                 </div>
 
-                {(item.city || item.country) && (
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1 mb-2">
-                    <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                    <span className="truncate">
-                      {item.city && item.country
-                        ? `${item.city}, ${getFlag(item.country)} ${item.country}`
-                        : item.city || `${getFlag(item.country)} ${item.country}`}
-                    </span>
-                  </div>
-                )}
+                {/* Location or Context Info */}
+                <div className="mt-1 mb-2 space-y-1.5">
+                  {/* Location - only show if not hiding country */}
+                  {!hideCountry && (item.city || item.country) && (
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span className="truncate">
+                        {item.city && item.country
+                          ? `${item.city}, ${getFlag(item.country)} ${item.country}`
+                          : item.city || `${getFlag(item.country)} ${item.country}`}
+                      </span>
+                    </div>
+                  )}
 
-                {item.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                    {item.description}
-                  </p>
-                )}
+                  {/* Specific Tip */}
+                  {item.context?.specificTip && (
+                    <p className="text-xs text-amber-700 dark:text-amber-400 font-medium flex items-start gap-1.5">
+                      <span className="mt-0.5">💡</span>
+                      <span className="flex-1">{item.context.specificTip}</span>
+                    </p>
+                  )}
+
+                  {/* Occasion Tags */}
+                  {item.context?.occasionTags && item.context.occasionTags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {item.context.occasionTags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Description - show if no tip available */}
+                  {item.description && !item.context?.specificTip && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-3 mt-2">
                   {item.website && (
