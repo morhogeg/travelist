@@ -8,13 +8,14 @@ const config: CapacitorConfig = {
   appId: 'com.travelist.app',
   appName: 'Travelist',
   webDir: 'dist',
-  ...(isDev && {
-    server: {
-      // LIVE RELOAD - For development only
-      url: 'http://192.168.0.105:5173',
-      cleartext: true
-    }
-  }),
+  // Using local bundle for reliability - changes require build + sync
+  // To use live reload, update the IP below and uncomment
+  // ...(isDev && {
+  //   server: {
+  //     url: 'http://192.168.1.176:5173',
+  //     cleartext: true
+  //   }
+  // }),
   ios: {
     contentInset: 'automatic'
   },

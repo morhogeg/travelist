@@ -40,15 +40,15 @@ const CategoriesScrollbar: React.FC = () => {
   const resolvedActive = activeCategories.length === 0 ? ["all"] : activeCategories;
 
   return (
-    <div className="w-full overflow-x-auto">
-      <CategoriesScrollContainer>
+    <CategoriesScrollContainer>
+      <div className="flex gap-3 pb-2">
         <CategoryList
           categories={allCategories}
           activeCategories={resolvedActive}
           onCategoryToggle={handleCategoryToggle}
         />
-      </CategoriesScrollContainer>
-    </div>
+      </div>
+    </CategoriesScrollContainer>
   );
 };
 

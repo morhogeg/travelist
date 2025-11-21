@@ -42,11 +42,24 @@ const SourceSection: React.FC<SourceSectionProps> = ({ values, onChange }) => {
     onChange(newValues);
   };
 
+  // Organized order: Social media, Personal, Content, Other
+  const orderedSources: SourceType[] = [
+    'instagram',
+    'tiktok',
+    'youtube',
+    'friend',
+    'text',
+    'email',
+    'blog',
+    'article',
+    'other',
+  ];
+
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Who Recommended</h3>
+      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Source</h3>
       <div className="grid grid-cols-3 gap-2">
-        {(Object.keys(sourceIcons) as SourceType[]).map((source) => {
+        {orderedSources.map((source) => {
           const isSelected = values.includes(source);
           return (
             <motion.button

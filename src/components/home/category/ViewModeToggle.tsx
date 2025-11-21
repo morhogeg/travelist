@@ -12,7 +12,7 @@ const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ viewMode, onToggleViewM
     <motion.button
       layout
       onClick={onToggleViewMode}
-      className="h-10 w-10 rounded-full liquid-glass-clear hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 shrink-0 flex items-center justify-center ios26-transition-smooth"
+      className="min-h-11 min-w-11 rounded-full liquid-glass-clear hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 shrink-0 flex items-center justify-center ios26-transition-smooth"
       aria-label={viewMode === "grid" ? "Switch to list view" : "Switch to gallery view"}
     >
       {viewMode === "grid" ? (

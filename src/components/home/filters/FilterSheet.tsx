@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import VisitStatusSection from "./sections/VisitStatusSection";
 import SourceSection from "./sections/SourceSection";
 import PriceRangeSection from "./sections/PriceRangeSection";
-import PrioritySection from "./sections/PrioritySection";
 import OccasionSection from "./sections/OccasionSection";
 import LocationSection from "./sections/LocationSection";
 
@@ -118,11 +117,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
                 <PriceRangeSection
                   values={localFilters.priceRanges}
                   onChange={(values) => setLocalFilters({ ...localFilters, priceRanges: values })}
-                />
-
-                <PrioritySection
-                  values={localFilters.priorities}
-                  onChange={(values) => setLocalFilters({ ...localFilters, priorities: values })}
                 />
 
                 {availableOccasions.length > 0 && (

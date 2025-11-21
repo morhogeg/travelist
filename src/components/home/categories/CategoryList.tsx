@@ -15,12 +15,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   onCategoryToggle
 }) => {
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex gap-3 pb-2"
-    >
+    <>
       {categories.map((category) => (
         <CategoryPill
           key={category.id}
@@ -30,7 +25,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
           onClick={() => onCategoryToggle(category.id)}
         />
       ))}
-    </motion.div>
+    </>
   );
 };
 

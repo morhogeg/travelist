@@ -186,14 +186,17 @@ const Index: React.FC = () => {
         />
 
         <div className="mb-3 space-y-3">
-          <div className="flex items-center gap-2 px-4">
-            <div className="flex-1 overflow-x-auto">
-              <CategoriesScrollbar />
-            </div>
+          {/* Filter + Categories Row */}
+          <div className="flex items-center gap-3 px-4">
             <FilterButton
               activeCount={activeFilterCount}
               onClick={() => setIsFilterSheetOpen(true)}
             />
+            <div className="flex-1 min-w-0 relative">
+              <CategoriesScrollbar />
+              {/* Gradient hint for scrollable content */}
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+            </div>
           </div>
           <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         </div>
