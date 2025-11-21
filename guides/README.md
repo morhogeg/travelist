@@ -77,6 +77,24 @@ Contains:
 
 ---
 
+### 🎛️ [FILTERS_AND_LAYOUT.md](./FILTERS_AND_LAYOUT.md)
+**Filter system architecture and header layout best practices**
+
+Best for: Understanding filter implementation, iOS layout patterns, touch target standards
+
+Contains:
+- Complete filter system architecture
+- Filter types and components
+- Header layout patterns (iOS HIG compliant)
+- 44px touch target standards
+- Development workflow (build:sync, watch script)
+- Component reference and usage examples
+- Common issues and solutions
+
+**Use this when:** Working with filters, implementing iOS-compliant layouts, debugging touch interactions
+
+---
+
 ## 💡 Quick Usage Guide
 
 ### For AI Assistants (Claude):
@@ -88,23 +106,28 @@ When starting a new session, user might say:
 **Recommended approach:**
 1. Always start with `CONTEXT.md` for current state
 2. Reference `IOS26_TRANSFORMATION.md` for design patterns
-3. Check `ROADMAP.md` for feature priorities
-4. Use `IOS_DEVELOPMENT.md` when dealing with iOS/Capacitor
+3. Check `FILTERS_AND_LAYOUT.md` for filter system and iOS layout patterns
+4. Check `ROADMAP.md` for feature priorities
+5. Use `IOS_DEVELOPMENT.md` when dealing with iOS/Capacitor
 
 ### For Developers:
 1. **New to project?** Read files in this order:
-   - CONTEXT.md → IOS26_TRANSFORMATION.md → ROADMAP.md → IOS_DEVELOPMENT.md
+   - CONTEXT.md → IOS26_TRANSFORMATION.md → FILTERS_AND_LAYOUT.md → ROADMAP.md → IOS_DEVELOPMENT.md
 
 2. **Continuing work?**
    - CONTEXT.md (get up to speed quickly)
 
 3. **Implementing UI?**
    - IOS26_TRANSFORMATION.md (design system reference)
+   - FILTERS_AND_LAYOUT.md (layout patterns and touch standards)
 
-4. **Planning features?**
+4. **Working with filters?**
+   - FILTERS_AND_LAYOUT.md (complete filter system docs)
+
+5. **Planning features?**
    - ROADMAP.md (see what's next)
 
-5. **iOS issues?**
+6. **iOS issues?**
    - IOS_DEVELOPMENT.md (troubleshooting guide)
 
 ---
@@ -112,9 +135,16 @@ When starting a new session, user might say:
 ## 🎯 Current Project State
 
 **Status:** iOS 26 Liquid Glass transformation complete ✅
+**Latest:** Comprehensive filter system and iOS-compliant header layout ✅
 **Theme:** Purple Gradient (#667eea → #764ba2)
 **Branch:** main
 **Last Updated:** November 2025
+
+**Recent Completion:**
+✅ Filter system with 5 filter types
+✅ Fixed header layout (iOS HIG compliant)
+✅ 44px touch targets on all buttons
+✅ Improved development workflow (build:sync, watch script)
 
 **Next Priorities:**
 1. UI polish (pull-to-refresh, swipe gestures)
@@ -130,6 +160,7 @@ guides/
 ├── README.md                    ← You are here
 ├── CONTEXT.md                   ← Start here for quick reference
 ├── IOS26_TRANSFORMATION.md      ← Design system deep dive
+├── FILTERS_AND_LAYOUT.md        ← Filter system & layout patterns
 ├── ROADMAP.md                   ← To-do list and plans
 └── IOS_DEVELOPMENT.md           ← iOS setup and deployment
 ```
@@ -143,7 +174,8 @@ When making significant changes:
 1. **Update CONTEXT.md** - Add to "Recent Changes Summary"
 2. **Update ROADMAP.md** - Check off completed items, add new ones
 3. **Update IOS26_TRANSFORMATION.md** - If design system changes
-4. **Update IOS_DEVELOPMENT.md** - If iOS setup/config changes
+4. **Update FILTERS_AND_LAYOUT.md** - If filter system or layout patterns change
+5. **Update IOS_DEVELOPMENT.md** - If iOS setup/config changes
 
 ---
 
@@ -160,6 +192,12 @@ A: ROADMAP.md → Immediate Next Steps section
 
 **Q: How do I run the iOS app?**
 A: IOS_DEVELOPMENT.md or CONTEXT.md → Quick Start Commands
+
+**Q: How does the filter system work?**
+A: FILTERS_AND_LAYOUT.md → Filter System Architecture section
+
+**Q: What are iOS touch target standards?**
+A: FILTERS_AND_LAYOUT.md → iOS Touch Target Standards section
 
 **Q: What's the current status of the project?**
 A: CONTEXT.md → Current Status section

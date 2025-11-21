@@ -23,10 +23,12 @@ npm run dev -- --host    # Accessible on local network
 
 ### iOS Development
 ```bash
+npm run build:sync       # Build and sync to iOS (recommended workflow)
 npm run ios:dev          # Build and open in Xcode (development mode)
 npm run ios:prod         # Build for production and open in Xcode
 npm run cap:sync         # Sync web code to iOS
 npm run cap:open         # Open iOS project in Xcode
+./watch-and-sync.sh      # Watch for changes and auto-sync (requires fswatch)
 ```
 
 ### Build
@@ -56,6 +58,14 @@ npm run build:prod       # Production build
 - `src/components/home/category/GridView.tsx` - Grid/carousel view for recommendations
 - `src/components/home/category/recommendation-item/RecommendationItem.tsx` - Individual cards (compact)
 - `src/components/home/category/ViewModeToggle.tsx` - Grid/List toggle (top-right, next to theme)
+
+### Filters
+- `src/components/home/filters/FilterButton.tsx` - Icon-only filter button with badge
+- `src/components/home/filters/FilterSheet.tsx` - Bottom drawer with filter sections
+- `src/components/home/filters/ActiveFilters.tsx` - Active filter chips
+- `src/components/home/filters/sections/` - Individual filter section components
+- `src/types/filters.ts` - Filter state types and helpers
+- `src/utils/recommendation/filter-helpers.ts` - Filter logic
 
 ### Forms & Drawers
 - `src/components/recommendations/RecommendationDrawer.tsx` - Add recommendation drawer
@@ -203,17 +213,30 @@ color: #764ba2;
 
 ## 🎯 Recent Changes Summary
 
-**Latest Session Changes:**
+**Latest Session Changes (November 2025):**
+
+**Filter System & Header Layout Improvements:**
+1. ✅ Comprehensive filter system with 5 filter types (visit status, source, price, occasions, location)
+2. ✅ Fixed filter button placement - now stays visible when scrolling categories
+3. ✅ All buttons meet iOS 44px minimum touch target standard
+4. ✅ Icon-only filter button with active count badge
+5. ✅ Reorganized header layout following iOS best practices
+6. ✅ Source filter section renamed and logically organized (social → personal → content)
+7. ✅ Removed Priority filter section (simplified UX)
+8. ✅ Added build:sync npm script for faster development
+9. ✅ Created watch-and-sync.sh helper script
+10. ✅ Gradient hint for scrollable category area
+
+**Previous Changes:**
 1. Purple gradient theme applied throughout (replaced all blue)
 2. Typography hierarchy: country (xl) > city (lg)
 3. Compact cards: reduced padding/spacing significantly
 4. Horizontal carousel for recommendations
 5. Minimalistic navbar (no background pill, just icon color)
-6. All toggles same size (h-10 w-10)
-7. Repositioned toggles to avoid overlaps
-8. Purple back button with hover states
-9. Purple map pins and country names
-10. Neutral focus rings (not blue)
+6. Repositioned toggles to avoid overlaps
+7. Purple back button with hover states
+8. Purple map pins and country names
+9. Neutral focus rings (not blue)
 
 ---
 
