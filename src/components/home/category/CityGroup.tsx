@@ -1,5 +1,5 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +32,7 @@ const CityGroup: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toTitleCase = (str: string): string =>
     str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
@@ -96,39 +97,54 @@ const CityGroup: React.FC<Props> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="mb-6 px-4"
+      className="mb-3 px-4"
     >
       {!hideCityHeader && (
         <CityHeader
           cityName={cityName}
           cityId={cityId}
           onCityClick={handleCityClickInternal}
+          isCollapsed={isCollapsed}
+          onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+          itemCount={items.length}
         />
       )}
 
-      <div className="mt-4">
-        {viewMode === "grid" ? (
-          <GridView
-            items={processedItems}
-            onDeleteRecommendation={handleDeleteRecommendation}
-            onToggleVisited={handleToggleVisited}
-            onCityClick={handleCityClickInternal}
-            onEditClick={handleEdit}
-            onViewDetails={onViewDetails}
-            getCategoryPlaceholder={getCategoryPlaceholder}
-          />
-        ) : (
-          <ListView
-            items={processedItems}
-            onDeleteRecommendation={handleDeleteRecommendation}
-            onToggleVisited={handleToggleVisited}
-            onEditClick={handleEdit}
-            onViewDetails={onViewDetails}
-            onRefresh={onRefresh}
-            hideCountry={hideCountry}
-          />
+      <AnimatePresence initial={false}>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2">
+              {viewMode === "grid" ? (
+                <GridView
+                  items={processedItems}
+                  onDeleteRecommendation={handleDeleteRecommendation}
+                  onToggleVisited={handleToggleVisited}
+                  onCityClick={handleCityClickInternal}
+                  onEditClick={handleEdit}
+                  onViewDetails={onViewDetails}
+                  getCategoryPlaceholder={getCategoryPlaceholder}
+                />
+              ) : (
+                <ListView
+                  items={processedItems}
+                  onDeleteRecommendation={handleDeleteRecommendation}
+                  onToggleVisited={handleToggleVisited}
+                  onEditClick={handleEdit}
+                  onViewDetails={onViewDetails}
+                  onRefresh={onRefresh}
+                  hideCountry={hideCountry}
+                />
+              )}
+            </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </motion.div>
   );
 };

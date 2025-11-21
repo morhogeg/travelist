@@ -103,6 +103,7 @@ const Index: React.FC = () => {
       const customEvent = e as CustomEvent<string>;
       setFilters(prev => ({
         ...prev,
+        sources: ['friend'], // Auto-select "Friend" source type
         sourceNames: [customEvent.detail]
       }));
     };

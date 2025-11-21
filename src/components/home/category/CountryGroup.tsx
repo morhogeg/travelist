@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import CityGroup from "./CityGroup";
 import { useNavigate } from "react-router-dom";
 import type { GroupedRecommendation } from "@/utils/recommendation/types";
@@ -39,48 +41,90 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   hideCountryHeader = false, // ✅ default false
   hideCountry = false
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   if (!groups || groups.length === 0) return null;
 
   const navigate = useNavigate();
   const flag = getFlagEmoji(country);
 
+  // Count total items across all cities
+  const totalItems = groups.reduce((sum, group) => sum + group.items.length, 0);
+
   const handleCountryClick = () => {
     navigate(`/country/${encodeURIComponent(country)}`);
   };
 
+  const toggleCollapse = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <div className="mb-6 px-4">
+    <div className="mb-4 px-4">
       {!hideCountryHeader && (
-        <h2
-          className="text-xl font-bold text-[#667eea] mb-3 cursor-pointer hover:text-[#764ba2] transition-colors"
-          onClick={handleCountryClick}
-          style={{ textDecoration: "none" }}
+        <motion.div
+          className="flex items-center justify-between mb-2 cursor-pointer min-h-11 -mx-2 px-2 rounded-lg hover:bg-[#667eea]/5 ios26-transition-smooth"
+          onClick={toggleCollapse}
+          whileTap={{ scale: 0.98 }}
         >
-          <span className="mr-2">{flag}</span>{country}
-        </h2>
+          <h2
+            className="text-xl font-bold text-[#667eea] flex items-center gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCountryClick();
+            }}
+          >
+            <span>{flag}</span>
+            <span>{country}</span>
+            <span className="text-sm font-normal text-muted-foreground">({totalItems})</span>
+          </h2>
+
+          <motion.div
+            initial={false}
+            animate={{ rotate: isCollapsed ? 0 : 180 }}
+            transition={{ duration: 0.2 }}
+            className="text-[#667eea]"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </motion.div>
+        </motion.div>
       )}
-      <div className="space-y-6">
-        {groups.map((group, index) => (
-          <div key={group.cityId}>
-            <CityGroup
-              cityId={group.cityId}
-              cityName={group.cityName}
-              cityImage={group.cityImage}
-              items={group.items}
-              index={index}
-              onEditClick={onEditClick}
-              onViewDetails={onViewDetails}
-              onToggleVisited={onToggleVisited}
-              onDeleteRecommendation={onDeleteRecommendation}
-              onCityClick={onCityClick}
-              onRefresh={onRefresh}
-              viewMode={viewMode}
-              hideCityHeader={hideCityHeader}
-              hideCountry={hideCountry}
-            />
-          </div>
-        ))}
-      </div>
+
+      <AnimatePresence initial={false}>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-3">
+              {groups.map((group, index) => (
+                <div key={group.cityId}>
+                  <CityGroup
+                    cityId={group.cityId}
+                    cityName={group.cityName}
+                    cityImage={group.cityImage}
+                    items={group.items}
+                    index={index}
+                    onEditClick={onEditClick}
+                    onViewDetails={onViewDetails}
+                    onToggleVisited={onToggleVisited}
+                    onDeleteRecommendation={onDeleteRecommendation}
+                    onCityClick={onCityClick}
+                    onRefresh={onRefresh}
+                    viewMode={viewMode}
+                    hideCityHeader={hideCityHeader}
+                    hideCountry={hideCountry}
+                  />
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
