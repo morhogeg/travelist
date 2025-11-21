@@ -89,25 +89,17 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
   }
 
   const handleSourceClick = (sourceName: string) => {
-    // Store the filter in localStorage
-    localStorage.setItem('sourceFilter', sourceName);
+    // Apply filter for this friend
+    window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: sourceName }));
     // Close the dialog
     onClose?.();
-    // Navigate to home with the filter
-    navigate('/?filter=source&source=' + encodeURIComponent(sourceName));
-    // Trigger a custom event to update filters
-    window.dispatchEvent(new CustomEvent('sourceFilterChanged', {
-      detail: sourceName
-    }));
   };
 
   const handleTypeClick = (sourceType: string) => {
-    localStorage.setItem('sourceTypeFilter', sourceType);
+    // Apply filter for this source type
+    window.dispatchEvent(new CustomEvent('sourceTypeFilterChanged', { detail: sourceType }));
+    // Close the dialog
     onClose?.();
-    navigate('/?filter=type&type=' + encodeURIComponent(sourceType));
-    window.dispatchEvent(new CustomEvent('sourceTypeFilterChanged', {
-      detail: sourceType
-    }));
   };
 
   return (
@@ -124,7 +116,7 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
                     Recommended by{' '}
                     <button
                       onClick={() => source.name && handleSourceClick(source.name)}
-                      className="text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
+                      className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold cursor-pointer transition-colors"
                     >
                       {source.name || "someone"}
                     </button>

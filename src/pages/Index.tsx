@@ -59,13 +59,13 @@ const Index: React.FC = () => {
     loadRecommendations();
   }, [selectedCategories, loadRecommendations]);
 
-  // Load available filter options
+  // Load available filter options (refresh when recommendations change)
   useEffect(() => {
     setAvailableOccasions(getAvailableOccasions());
     setAvailableCountries(getAvailableCountries());
     setAvailableCities(getAvailableCities());
     setAvailableSourceNames(getAvailableSourceNames());
-  }, []);
+  }, [refreshKey]);
 
   useEffect(() => {
     window.showRecDrawer = (cityName?: string, countryName?: string) => {
@@ -116,12 +116,18 @@ const Index: React.FC = () => {
       }));
     };
 
+    const openFilterSheetHandler = () => {
+      setIsFilterSheetOpen(true);
+    };
+
     window.addEventListener("sourceFilterChanged", sourceFilterHandler);
     window.addEventListener("sourceTypeFilterChanged", sourceTypeFilterHandler);
+    window.addEventListener("openFilterSheet", openFilterSheetHandler);
 
     return () => {
       window.removeEventListener("sourceFilterChanged", sourceFilterHandler);
       window.removeEventListener("sourceTypeFilterChanged", sourceTypeFilterHandler);
+      window.removeEventListener("openFilterSheet", openFilterSheetHandler);
     };
   }, []);
 
@@ -193,6 +199,11 @@ const Index: React.FC = () => {
         // For array-based filters
         const currentArray = newFilters[filterKey] as string[];
         newFilters[filterKey] = currentArray.filter((v) => v !== value) as any;
+
+        // If removing a friend name and no more friend names, also clear 'friend' from sources
+        if (filterKey === "sourceNames" && (newFilters.sourceNames as string[]).length === 0) {
+          newFilters.sources = newFilters.sources.filter(s => s !== 'friend');
+        }
       }
 
       return newFilters;

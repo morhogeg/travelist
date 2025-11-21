@@ -121,12 +121,11 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <CategorySelection form={form} />
         <RecommendationFields form={form} namePlaceholder="e.g. Louvre Museum" onlyName />
-        <RecommendationFields form={form} onlyDescription />
-        <RecommendationFields form={form} onlyWebsite />
         <CityInput form={form} initialCity={initialCity} />
         <CountrySelect form={form} initialCountry={initialCountry} />
+        <CategorySelection form={form} />
+        <RecommendationFields form={form} onlyWebsite />
         <SourceInput form={form} initialSource={editRecommendation?.source} />
         <ContextInput form={form} initialContext={editRecommendation?.context} />
         {!editRecommendation && (

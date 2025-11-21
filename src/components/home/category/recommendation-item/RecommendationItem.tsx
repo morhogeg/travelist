@@ -83,7 +83,16 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
         {item.source?.name && (
           <p className="text-xs text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1">
             <UserCircle className="h-3 w-3" />
-            Recommended by {item.source.name}
+            Recommended by{' '}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: item.source.name }));
+              }}
+              className="hover:text-purple-800 dark:hover:text-purple-300 transition-colors font-semibold"
+            >
+              {item.source.name}
+            </button>
           </p>
         )}
 

@@ -25,6 +25,7 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({ itemName, onD
         <button
           className="text-muted-foreground hover:text-destructive transition-colors p-1.5 rounded-full hover:bg-muted/60"
           aria-label="Delete recommendation"
+          onClick={(e) => e.stopPropagation()}
         >
           <X className="h-4 w-4" />
         </button>
@@ -37,10 +38,11 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({ itemName, onD
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 requestAnimationFrame(() => {
                   onDelete();
                 });

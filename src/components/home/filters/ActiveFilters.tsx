@@ -20,12 +20,23 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({ filters, onRemoveFilter }
     });
   }
 
-  // Sources
-  filters.sources.forEach((source) => {
+  // Sources (only show if not filtering by specific friend names)
+  if (filters.sourceNames.length === 0) {
+    filters.sources.forEach((source) => {
+      chips.push({
+        key: "sources",
+        label: source.charAt(0).toUpperCase() + source.slice(1),
+        value: source,
+      });
+    });
+  }
+
+  // Source Names (specific friends) - these override generic source chips
+  filters.sourceNames.forEach((name) => {
     chips.push({
-      key: "sources",
-      label: source.charAt(0).toUpperCase() + source.slice(1),
-      value: source,
+      key: "sourceNames",
+      label: name,
+      value: name,
     });
   });
 

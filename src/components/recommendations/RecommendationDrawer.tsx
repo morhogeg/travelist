@@ -145,29 +145,6 @@ const RecommendationDrawer = ({
             </div>
           )}
 
-          {collections.length > 0 && (
-            <div
-              className="touch-none"
-              onPointerDownCapture={(e) => e.stopPropagation()}
-            >
-              <label className="block mb-1 text-sm text-muted-foreground">
-                Add to collection (optional):
-              </label>
-              <select
-                value={selectedCollectionId}
-                onChange={(e) => setSelectedCollectionId(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              >
-                <option value="">-- None --</option>
-                {collections.map((col) => (
-                  <option key={col.id} value={col.id}>
-                    {col.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {mode === "structured" ? (
             <StructuredInputForm
               onSubmit={handleSubmitStructured}
