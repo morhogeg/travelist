@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import {
   Collapsible,
@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, UserCircle } from "lucide-react";
 import { RecommendationSource, SourceType } from "@/utils/recommendation/types";
+import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 
 const SOURCE_TYPES: { value: SourceType; label: string }[] = [
   { value: "friend", label: "Friend" },
@@ -47,6 +48,25 @@ export const SourceInput: React.FC<SourceInputProps> = ({
   initialSource,
 }) => {
   const [isOpen, setIsOpen] = useState(!!initialSource);
+  const [savedSourceNames, setSavedSourceNames] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [sourceNameValue, setSourceNameValue] = useState(initialSource?.name || "");
+
+  // Load all unique source names from existing recommendations
+  useEffect(() => {
+    const recommendations = getRecommendations();
+    const sourceNames = new Set<string>();
+
+    recommendations.forEach(rec => {
+      rec.places.forEach(place => {
+        if (place.source?.name) {
+          sourceNames.add(place.source.name.trim());
+        }
+      });
+    });
+
+    setSavedSourceNames(Array.from(sourceNames).sort());
+  }, []);
 
   const hasAnySource = () => {
     const source = form.getValues("source");
@@ -55,6 +75,7 @@ export const SourceInput: React.FC<SourceInputProps> = ({
 
   const clearAllSource = () => {
     form.setValue("source", undefined);
+    setSourceNameValue("");
   };
 
   return (
@@ -96,23 +117,58 @@ export const SourceInput: React.FC<SourceInputProps> = ({
         </div>
 
         <CollapsibleContent className="space-y-4">
-          {/* Name */}
+          {/* Name with Autocomplete */}
           <FormField
             control={form.control}
             name="source.name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name or Source</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='e.g. "Sarah Chen", "@foodblogger", "NY Times"'
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const handleSourceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                const value = e.target.value;
+                setSourceNameValue(value);
+                field.onChange(value);
+                setShowSuggestions(value.length > 0);
+              };
+
+              const handleSourceNameSelect = (name: string) => {
+                setSourceNameValue(name);
+                field.onChange(name);
+                setShowSuggestions(false);
+              };
+
+              const filteredNames = savedSourceNames.filter(name =>
+                name.toLowerCase().includes(sourceNameValue.toLowerCase())
+              );
+
+              return (
+                <FormItem className="relative">
+                  <FormLabel>Name or Source</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='e.g. "Sarah Chen", "@foodblogger", "NY Times"'
+                      {...field}
+                      value={sourceNameValue}
+                      onChange={handleSourceNameChange}
+                      onFocus={() => setShowSuggestions(sourceNameValue.length > 0)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    />
+                  </FormControl>
+                  {showSuggestions && filteredNames.length > 0 && (
+                    <div className="absolute z-10 mt-1 w-full bg-popover border rounded-md shadow-lg max-h-60 overflow-auto">
+                      {filteredNames.map((name) => (
+                        <div
+                          key={name}
+                          className="px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                          onClick={() => handleSourceNameSelect(name)}
+                        >
+                          {name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           {/* Source Type */}

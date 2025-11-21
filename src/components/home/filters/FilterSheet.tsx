@@ -18,6 +18,7 @@ interface FilterSheetProps {
   availableCountries: string[];
   availableCities: string[];
   availableOccasions: string[];
+  availableSourceNames: string[];
 }
 
 const FilterSheet: React.FC<FilterSheetProps> = ({
@@ -28,6 +29,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
   availableCountries,
   availableCities,
   availableOccasions,
+  availableSourceNames,
 }) => {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters);
   const hasFilters = hasActiveFilters(localFilters);
@@ -112,6 +114,9 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
                 <SourceSection
                   values={localFilters.sources}
                   onChange={(values) => setLocalFilters({ ...localFilters, sources: values })}
+                  sourceNames={localFilters.sourceNames}
+                  onSourceNamesChange={(values) => setLocalFilters({ ...localFilters, sourceNames: values })}
+                  availableSourceNames={availableSourceNames}
                 />
 
                 <PriceRangeSection

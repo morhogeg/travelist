@@ -7,6 +7,9 @@ import { lightHaptic } from "@/utils/ios/haptics";
 interface SourceSectionProps {
   values: SourceType[];
   onChange: (values: SourceType[]) => void;
+  sourceNames: string[];
+  onSourceNamesChange: (values: string[]) => void;
+  availableSourceNames: string[];
 }
 
 const sourceIcons: Record<SourceType, React.ReactNode> = {
@@ -33,13 +36,27 @@ const sourceLabels: Record<SourceType, string> = {
   other: "Other",
 };
 
-const SourceSection: React.FC<SourceSectionProps> = ({ values, onChange }) => {
+const SourceSection: React.FC<SourceSectionProps> = ({
+  values,
+  onChange,
+  sourceNames,
+  onSourceNamesChange,
+  availableSourceNames
+}) => {
   const handleToggle = (source: SourceType) => {
     lightHaptic();
     const newValues = values.includes(source)
       ? values.filter((s) => s !== source)
       : [...values, source];
     onChange(newValues);
+  };
+
+  const handleSourceNameToggle = (name: string) => {
+    lightHaptic();
+    const newValues = sourceNames.includes(name)
+      ? sourceNames.filter((n) => n !== name)
+      : [...sourceNames, name];
+    onSourceNamesChange(newValues);
   };
 
   // Organized order: Social media, Personal, Content, Other
@@ -54,6 +71,8 @@ const SourceSection: React.FC<SourceSectionProps> = ({ values, onChange }) => {
     'article',
     'other',
   ];
+
+  const showFriendNames = values.includes('friend') && availableSourceNames.length > 0;
 
   return (
     <div className="space-y-3">
@@ -90,6 +109,36 @@ const SourceSection: React.FC<SourceSectionProps> = ({ values, onChange }) => {
           );
         })}
       </div>
+
+      {/* Friend Names Selection */}
+      {showFriendNames && (
+        <div className="space-y-2 pt-2">
+          <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400">Filter by Friend</h4>
+          <div className="flex flex-wrap gap-2">
+            {availableSourceNames.map((name) => {
+              const isSelected = sourceNames.includes(name);
+              return (
+                <motion.button
+                  key={name}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSourceNameToggle(name)}
+                  className={`
+                    px-3 py-1.5 rounded-full text-xs font-medium
+                    border ios26-transition-smooth
+                    ${
+                      isSelected
+                        ? "border-[#667eea] bg-gradient-to-br from-[#667eea]/10 to-[#764ba2]/10 text-[#667eea]"
+                        : "border-white/20 liquid-glass-clear text-gray-700 dark:text-gray-300 hover:border-[#667eea]/30"
+                    }
+                  `}
+                >
+                  {name}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

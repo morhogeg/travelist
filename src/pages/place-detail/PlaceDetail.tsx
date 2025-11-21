@@ -218,24 +218,26 @@ const PlaceDetail = () => {
         />
       </div>
 
-      <motion.button
-        whileTap={{ scale: 0.9 }}
-        whileHover={{ scale: 1.05 }}
-        className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
-        aria-label="Add recommendation"
-        onClick={() => {
-          mediumHaptic();
-          setEditRecommendation(null);
-          setIsDrawerOpen(true);
-        }}
-        style={{
-          bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
-        }}
-      >
-        <Plus className="h-7 w-7" strokeWidth={2.5} />
-      </motion.button>
+      {!isDrawerOpen && (
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+          aria-label="Add recommendation"
+          onClick={() => {
+            mediumHaptic();
+            setEditRecommendation(null);
+            setIsDrawerOpen(true);
+          }}
+          style={{
+            bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
+          }}
+        >
+          <Plus className="h-7 w-7" strokeWidth={2.5} />
+        </motion.button>
+      )}
 
       <RecommendationDrawer
         key={editRecommendation ? `edit-${editRecommendation.id}` : "new"}

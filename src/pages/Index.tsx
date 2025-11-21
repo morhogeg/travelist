@@ -15,7 +15,8 @@ import {
   getFilteredRecommendations,
   getAvailableOccasions,
   getAvailableCountries,
-  getAvailableCities
+  getAvailableCities,
+  getAvailableSourceNames
 } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import CountryGroupList from "@/components/home/category/CountryGroupList";
@@ -40,6 +41,7 @@ const Index: React.FC = () => {
   const [availableOccasions, setAvailableOccasions] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<string[]>([]);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [availableSourceNames, setAvailableSourceNames] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -62,6 +64,7 @@ const Index: React.FC = () => {
     setAvailableOccasions(getAvailableOccasions());
     setAvailableCountries(getAvailableCountries());
     setAvailableCities(getAvailableCities());
+    setAvailableSourceNames(getAvailableSourceNames());
   }, []);
 
   useEffect(() => {
@@ -92,6 +95,33 @@ const Index: React.FC = () => {
     };
     window.addEventListener("categorySelected", categoryHandler);
     return () => window.removeEventListener("categorySelected", categoryHandler);
+  }, []);
+
+  // Handle source filter events
+  useEffect(() => {
+    const sourceFilterHandler = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setFilters(prev => ({
+        ...prev,
+        sourceNames: [customEvent.detail]
+      }));
+    };
+
+    const sourceTypeFilterHandler = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setFilters(prev => ({
+        ...prev,
+        sources: [customEvent.detail as any]
+      }));
+    };
+
+    window.addEventListener("sourceFilterChanged", sourceFilterHandler);
+    window.addEventListener("sourceTypeFilterChanged", sourceTypeFilterHandler);
+
+    return () => {
+      window.removeEventListener("sourceFilterChanged", sourceFilterHandler);
+      window.removeEventListener("sourceTypeFilterChanged", sourceTypeFilterHandler);
+    };
   }, []);
 
   const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
@@ -238,26 +268,29 @@ const Index: React.FC = () => {
           availableCountries={availableCountries}
           availableCities={availableCities}
           availableOccasions={availableOccasions}
+          availableSourceNames={availableSourceNames}
         />
       </motion.div>
 
-      <motion.button
-        whileTap={{ scale: 0.9 }}
-        whileHover={{ scale: 1.05 }}
-        className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
-        aria-label="Add recommendation"
-        onClick={() => {
-          mediumHaptic();
-          setIsDrawerOpen(true);
-        }}
-        style={{
-          bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
-        }}
-      >
-        <Plus className="h-7 w-7" strokeWidth={2.5} />
-      </motion.button>
+      {!detailsDialogOpen && !isDrawerOpen && (
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+          aria-label="Add recommendation"
+          onClick={() => {
+            mediumHaptic();
+            setIsDrawerOpen(true);
+          }}
+          style={{
+            bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
+          }}
+        >
+          <Plus className="h-7 w-7" strokeWidth={2.5} />
+        </motion.button>
+      )}
     </Layout>
   );
 };

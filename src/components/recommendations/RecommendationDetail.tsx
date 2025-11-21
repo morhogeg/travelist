@@ -15,10 +15,12 @@ import {
   Clock,
   StickyNote,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface RecommendationDetailProps {
   source?: RecommendationSource;
   context?: RecommendationContext;
+  onClose?: () => void;
 }
 
 const getPriorityColor = (priority?: string) => {
@@ -63,7 +65,10 @@ const getPriorityLabel = (priority?: string) => {
 export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
   source,
   context,
+  onClose,
 }) => {
+  const navigate = useNavigate();
+
   // Return null if no source or context data
   if (!source && !context) {
     return null;
@@ -83,6 +88,28 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
     return null;
   }
 
+  const handleSourceClick = (sourceName: string) => {
+    // Store the filter in localStorage
+    localStorage.setItem('sourceFilter', sourceName);
+    // Close the dialog
+    onClose?.();
+    // Navigate to home with the filter
+    navigate('/?filter=source&source=' + encodeURIComponent(sourceName));
+    // Trigger a custom event to update filters
+    window.dispatchEvent(new CustomEvent('sourceFilterChanged', {
+      detail: sourceName
+    }));
+  };
+
+  const handleTypeClick = (sourceType: string) => {
+    localStorage.setItem('sourceTypeFilter', sourceType);
+    onClose?.();
+    navigate('/?filter=type&type=' + encodeURIComponent(sourceType));
+    window.dispatchEvent(new CustomEvent('sourceTypeFilterChanged', {
+      detail: sourceType
+    }));
+  };
+
   return (
     <div className="space-y-4 mt-4">
       {/* Source Section */}
@@ -94,10 +121,20 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
               <div className="flex-1 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold text-sm">
-                    Recommended by {source.name || "someone"}
+                    Recommended by{' '}
+                    <button
+                      onClick={() => source.name && handleSourceClick(source.name)}
+                      className="text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
+                    >
+                      {source.name || "someone"}
+                    </button>
                   </span>
                   {source.type && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors"
+                      onClick={() => handleTypeClick(source.type!)}
+                    >
                       {source.type.charAt(0).toUpperCase() + source.type.slice(1)}
                     </Badge>
                   )}
@@ -115,6 +152,7 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <ExternalLink className="h-3 w-3" />
                       View original

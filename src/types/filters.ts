@@ -11,6 +11,7 @@ export interface FilterState {
 
   // Who recommended (source)
   sources: SourceType[];
+  sourceNames: string[]; // Filter by specific person names
 
   // Price range
   priceRanges: PriceRangeFilter[];
@@ -29,6 +30,7 @@ export interface FilterState {
 export const INITIAL_FILTER_STATE: FilterState = {
   visitStatus: "all",
   sources: [],
+  sourceNames: [],
   priceRanges: [],
   priorities: [],
   occasions: [],
@@ -42,6 +44,7 @@ export const countActiveFilters = (filters: FilterState): number => {
 
   if (filters.visitStatus !== "all") count++;
   if (filters.sources.length > 0) count++;
+  if (filters.sourceNames.length > 0) count++;
   if (filters.priceRanges.length > 0) count++;
   if (filters.priorities.length > 0) count++;
   if (filters.occasions.length > 0) count++;

@@ -49,9 +49,16 @@ export const getFilteredRecommendations = async (
           if (filters?.visitStatus === "visited" && !p.visited) return false;
           if (filters?.visitStatus === "not-visited" && p.visited) return false;
 
-          // Source filter
+          // Source type filter
           if (filters?.sources && filters.sources.length > 0) {
             if (!p.source || !filters.sources.includes(p.source.type)) return false;
+          }
+
+          // Source name filter (specific person)
+          if (filters?.sourceNames && filters.sourceNames.length > 0) {
+            if (!p.source?.name || !filters.sourceNames.map(normalize).includes(normalize(p.source.name))) {
+              return false;
+            }
           }
 
           // Price range filter
@@ -166,4 +173,20 @@ export const getAvailableCities = (): string[] => {
   });
 
   return Array.from(cities).sort();
+};
+
+// Helper to get all unique source names
+export const getAvailableSourceNames = (): string[] => {
+  const all = getRecommendations();
+  const sourceNames = new Set<string>();
+
+  all.forEach(rec => {
+    rec.places.forEach(place => {
+      if (place.source?.name) {
+        sourceNames.add(place.source.name);
+      }
+    });
+  });
+
+  return Array.from(sourceNames).sort();
 };

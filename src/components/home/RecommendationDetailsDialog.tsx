@@ -3,17 +3,15 @@ import React from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Edit, ExternalLink, Globe, MapPin, Navigation, Trash2 } from "lucide-react";
+import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2 } from "lucide-react";
 import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { Badge } from "@/components/ui/badge";
 import { RecommendationDetail } from "@/components/recommendations/RecommendationDetail";
+import { useNavigate } from "react-router-dom";
 
 interface RecommendationDetailsDialogProps {
   recommendation: any;
@@ -42,138 +40,123 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const navigate = useNavigate();
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
-        <div className="relative h-48 overflow-hidden">
+      <DialogContent className="max-w-2xl w-full h-[90vh] p-0 overflow-hidden flex flex-col gap-0">
+        {/* Hero Image Section */}
+        <div className="relative h-64 flex-shrink-0 overflow-hidden">
           <img
             src={recommendation.image || getCategoryPlaceholder(recommendation.category)}
             alt={recommendation.name}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-          
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent"></div>
+
+          {/* Category Badge */}
           <div className="absolute top-4 left-4">
-            <Badge variant="secondary" className="font-medium">
+            <Badge className="liquid-glass-clear text-white border-white/20 font-medium px-3 py-1.5">
               {recommendation.category}
             </Badge>
           </div>
-          
-          {recommendation.visited && (
-            <div className="absolute top-4 right-4">
-              <Badge variant="outline" className="bg-success/20 backdrop-blur-sm border-success/30 text-success font-medium">
-                <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Visited
-              </Badge>
-            </div>
-          )}
-          
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <h2 className="text-white text-xl font-semibold">{recommendation.name}</h2>
+
+          {/* Title */}
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <h2 className="text-white text-2xl font-bold">{recommendation.name}</h2>
           </div>
         </div>
 
-        <DialogHeader className="px-6 pt-4">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 mr-1" /> 
-            <span>{recommendation.location}</span>
-            
-            {recommendation.country && (
-              <span className="flex items-center ml-3">
-                <Globe className="h-4 w-4 mr-1" />
-                {recommendation.country}
-              </span>
-            )}
-          </div>
-        </DialogHeader>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-4">
+            {/* Location Info */}
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4" />
+                <span>{recommendation.location}</span>
+              </div>
 
-        <div className="px-6 py-2">
-          {recommendation.description && (
-            <p className="mt-2 text-sm">{recommendation.description}</p>
-          )}
-          
-          {recommendation.dateAdded && (
-            <div className="flex items-center text-xs text-muted-foreground mt-4">
-              <Calendar className="h-3.5 w-3.5 mr-1" />
-              <span>
-                Added on {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </span>
+              {recommendation.country && (
+                <div className="flex items-center gap-1.5">
+                  <Globe className="h-4 w-4" />
+                  <span>{recommendation.country}</span>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Attribution and Context Details */}
-          <RecommendationDetail
-            source={recommendation.source}
-            context={recommendation.context}
-          />
-
-          <div className="flex flex-wrap gap-3 mt-5">
-            <Button 
-              variant="default" 
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={(e) => handleExternalClick(e, mapUrl)}
-            >
-              <Navigation className="h-4 w-4" />
-              <span>Navigate</span>
-            </Button>
-            
-            {websiteUrl && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="flex items-center gap-1"
-                onClick={(e) => handleExternalClick(e, websiteUrl)}
-              >
-                <ExternalLink className="h-4 w-4" />
-                <span>Website</span>
-              </Button>
+            {/* Date Added */}
+            {recommendation.dateAdded && (
+              <div className="flex items-center text-xs text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                <span>
+                  Added on {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
             )}
-            
-            <Button 
-              variant={recommendation.visited ? "destructive" : "outline"} 
-              size="sm"
-              className={`flex items-center gap-1 ${recommendation.visited ? 'bg-opacity-80' : ''}`}
-              onClick={onToggleVisited}
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              <span>{recommendation.visited ? 'Unmark Visited' : 'Mark Visited'}</span>
-            </Button>
+
+            {/* Attribution and Context Details */}
+            <RecommendationDetail
+              source={recommendation.source}
+              context={recommendation.context}
+              onClose={onClose}
+            />
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button
+                size="default"
+                className="flex-1 min-w-[140px] ios26-transition-smooth text-white"
+                onClick={(e) => handleExternalClick(e, mapUrl)}
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                }}
+              >
+                <Navigation className="h-4 w-4 mr-2" />
+                <span>Navigate</span>
+              </Button>
+
+              <Button
+                variant={recommendation.visited ? "default" : "outline"}
+                size="default"
+                className={`flex-1 min-w-[140px] ios26-transition-smooth ${
+                  recommendation.visited
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : 'border-gray-300'
+                }`}
+                onClick={onToggleVisited}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                <span>{recommendation.visited ? 'Visited' : 'Mark Visited'}</span>
+              </Button>
+            </div>
           </div>
         </div>
 
-        <DialogFooter className="px-6 py-4 border-t">
-          <div className="flex justify-between w-full">
-            <Button 
-              variant="destructive" 
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={onDelete}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span>Delete</span>
-            </Button>
-            
-            <div className="flex gap-2">
-              <DialogClose asChild>
-                <Button variant="outline" size="sm">Close</Button>
-              </DialogClose>
-              
-              <Button 
-                variant="default"
-                size="sm"
-                className="flex items-center gap-1"
-                onClick={onEdit}
-              >
-                <Edit className="h-4 w-4" />
-                <span>Edit</span>
-              </Button>
-            </div>
-          </div>
-        </DialogFooter>
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 p-4 border-t liquid-glass-clear flex justify-between items-center gap-3">
+          <Button
+            variant="destructive"
+            size="default"
+            className="flex items-center gap-2 ios26-transition-smooth"
+            onClick={onDelete}
+          >
+            <Trash2 className="h-4 w-4" />
+            <span>Delete</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="default"
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
