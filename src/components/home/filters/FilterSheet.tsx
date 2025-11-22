@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, RotateCcw } from "lucide-react";
 import { FilterState, resetFilters, hasActiveFilters } from "@/types/filters";
 import { mediumHaptic, lightHaptic } from "@/utils/ios/haptics";
-import { Button } from "@/components/ui/button";
 import VisitStatusSection from "./sections/VisitStatusSection";
 import SourceSection from "./sections/SourceSection";
 import PriceRangeSection from "./sections/PriceRangeSection";
@@ -81,27 +79,16 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
             <div className="liquid-glass-tinted rounded-t-3xl border-t border-white/20 flex flex-col max-h-[85vh]">
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-xl font-bold text-[#667eea]">Filters</h2>
-                  {hasFilters && (
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleReset}
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-gray-600 dark:text-gray-400 liquid-glass-clear border border-white/20 ios26-transition-smooth hover:border-[#667eea]/50"
-                    >
-                      <RotateCcw className="h-3 w-3" />
-                      Reset
-                    </motion.button>
-                  )}
-                </div>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleClose}
-                  className="h-8 w-8 rounded-full flex items-center justify-center liquid-glass-clear border border-white/20 ios26-transition-smooth hover:border-[#667eea]/50"
-                  aria-label="Close filters"
-                >
-                  <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                </motion.button>
+                <h2 className="text-xl font-bold text-[#667eea] leading-none">Filters</h2>
+                {hasFilters && (
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleReset}
+                    className="text-sm font-semibold text-[#667eea] ios26-transition-smooth hover:opacity-70"
+                  >
+                    Reset
+                  </motion.button>
+                )}
               </div>
 
               {/* Filter Sections - Scrollable */}

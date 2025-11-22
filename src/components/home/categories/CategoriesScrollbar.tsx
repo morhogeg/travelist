@@ -41,7 +41,7 @@ const CategoriesScrollbar: React.FC = () => {
 
   return (
     <CategoriesScrollContainer>
-      <div className="flex gap-3 pb-2">
+      <div className="flex gap-3">
         <CategoryList
           categories={allCategories}
           activeCategories={resolvedActive}

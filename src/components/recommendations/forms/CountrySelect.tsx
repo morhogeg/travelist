@@ -48,7 +48,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ form, initialCountry = ""
             </FormControl>
             <SelectContent className="max-h-[300px]">
               {/* Don't use an empty string value, use a special placeholder value instead */}
-              <SelectItem value="_placeholder">-- Select a country --</SelectItem>
+              <SelectItem value="_placeholder">Select a country</SelectItem>
               {countryList.map((country) => (
                 <SelectItem key={country} value={country}>
                   {country}

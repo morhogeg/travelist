@@ -18,7 +18,7 @@ const FilterButton: React.FC<FilterButtonProps> = ({ activeCount, onClick }) => 
     <motion.button
       whileTap={{ scale: 0.96 }}
       onClick={handleClick}
-      className="relative flex items-center justify-center min-h-11 min-w-11 px-3 rounded-xl liquid-glass-clear ios26-transition-spring hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 flex-shrink-0"
+      className="relative flex items-center justify-center min-h-11 min-w-11 py-2.5 px-3 rounded-xl liquid-glass-clear ios26-transition-spring hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 flex-shrink-0"
       aria-label={`Filters${activeCount > 0 ? ` (${activeCount} active)` : ""}`}
     >
       <SlidersHorizontal className="h-5 w-5 text-[#667eea] opacity-70" />

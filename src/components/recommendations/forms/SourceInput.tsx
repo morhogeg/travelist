@@ -230,6 +230,7 @@ export const SourceInput: React.FC<SourceInputProps> = ({
                 <FormControl>
                   <Input
                     type="date"
+                    className="max-w-[200px]"
                     {...field}
                     value={field.value || ""}
                   />
