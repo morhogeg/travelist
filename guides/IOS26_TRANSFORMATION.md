@@ -45,7 +45,7 @@ Your Travelist app now features Apple's iOS 26.1 Liquid Glass design language!
 **System Grays** (systemGray 1-6 for proper hierarchy)
 
 **Dark Mode:**
-- True black background (#000000) for OLED optimization
+- Soft black background (#0E0E0E / HSL: 0 0% 5.5%) for OLED optimization with reduced eye strain
 - Smoky Liquid Glass effect
 - Adjusted color brightness for dark mode
 
