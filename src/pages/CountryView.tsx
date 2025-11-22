@@ -133,7 +133,7 @@ const CountryView: React.FC = () => {
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={toggleSearch}
-            className="absolute right-14 top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
+            className="absolute left-[4rem] top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
             aria-label="Open search"
           >
             <SearchIcon className="h-5 w-5" />

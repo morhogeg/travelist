@@ -14,7 +14,6 @@ import { getFilteredRecommendations } from "@/utils/recommendation/filter-helper
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchInput from "@/components/home/search/SearchInput";
 import { Plus, ArrowLeft, Search as SearchIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import countryToCode from "@/utils/flags/countryToCode";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 
@@ -103,7 +102,7 @@ const PlaceDetail = () => {
     setIsDrawerOpen(true);
   };
 
-  const handleSearchClear = () => {
+  const handleClearSearch = () => {
     setSearchTerm("");
     setIsSearchExpanded(false);
   };
@@ -118,10 +117,12 @@ const PlaceDetail = () => {
 
   const filteredGroups = groupedRecommendations.map(group => ({
     ...group,
-    items: (group.items ?? []).filter(place =>
-      place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-    )
+    items: Array.isArray(group.items)
+      ? group.items.filter(place =>
+          place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+        )
+      : []
   })).filter(group => group.items.length > 0);
 
   const flagEmoji =
@@ -151,23 +152,23 @@ const PlaceDetail = () => {
           <ArrowLeft className="h-5 w-5 text-[#667eea]" />
         </motion.button>
 
-        {/* View Mode Toggle */}
-        {!isSearchExpanded && (
-          <div className="absolute right-3 top-3 z-40">
-            <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
-          </div>
-        )}
-
         {/* Search Icon Button */}
         {!isSearchExpanded && (
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={toggleSearch}
-            className="absolute right-14 top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
+            className="absolute left-[4rem] top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
             aria-label="Open search"
           >
             <SearchIcon className="h-5 w-5" />
           </motion.button>
+        )}
+
+        {/* View Mode Toggle */}
+        {!isSearchExpanded && (
+          <div className="absolute right-3 top-3 z-40">
+            <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
+          </div>
         )}
 
         <div className="flex items-center justify-center">
@@ -193,7 +194,7 @@ const PlaceDetail = () => {
             <SearchInput
               searchTerm={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onClear={handleSearchClear}
+              onClear={handleClearSearch}
             />
           </motion.div>
         )}

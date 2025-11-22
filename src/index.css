@@ -84,7 +84,7 @@
 
   .dark {
     /* iOS 26 Dark Mode - Minimalist Smoky Glass */
-    --background: 0 0% 0%; /* True black for OLED */
+    --background: 0 0% 5.5%; /* #0E0E0E for softer dark mode */
     --foreground: 0 0% 100%;
 
     /* iOS Blue - Still the primary accent */

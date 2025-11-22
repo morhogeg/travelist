@@ -195,12 +195,9 @@ const SearchHeader = ({ heading, viewMode, onToggleViewMode }: SearchHeaderProps
               {cityName}, {countryName}
             </h1>
           ) : (
-            <>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                {heading || "Travelist"}
-              </h1>
-              {!isSearchExpanded && <p className="text-muted-foreground text-sm mt-1">Find your next destination</p>}
-            </>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              {heading || "Travelist"}
+            </h1>
           )}
         </div>
       </div>
