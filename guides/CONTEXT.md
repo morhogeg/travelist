@@ -214,7 +214,7 @@ color: #764ba2;
 
 **Latest Session Changes (November 23, 2025):**
 
-**Final Polish & Detail Dialog Redesign:**
+**Minimalist Polish & iOS Drawer Patterns:**
 1. ✅ **Removed all grey shadows** - added `boxShadow: 'none'` to cards and category pills
 2. ✅ **Enhanced card design** - replaced emojis with category pill icons, consistent design language
 3. ✅ **Improved visited button** - changed from checkbox to circle/check icon, removed blue hover state bug
@@ -227,6 +227,10 @@ color: #764ba2;
 10. ✅ **Equal-width footer buttons** - Delete, Edit, and Close now balanced with `flex-1`
 11. ✅ **Search bar focus color** - changed from blue to purple (#667eea) for brand consistency
 12. ✅ **Clean header design** - removed glass morphism, using clean `bg-background` with `border-b`
+13. ✅ **Removed attribution badge** - removed redundant purple person icon from card headers
+14. ✅ **Removed city pin icons** - cleaner city headers without decorative purple pins
+15. ✅ **Converted to iOS Drawer** - detail view now uses Drawer with drag handle instead of Dialog
+16. ✅ **Consistent drawer heights** - all drawers set to 85vh max (not reaching notch)
 
 **Previous Session: Enhanced Text-Only Card Design & UX Improvements:**
 1. ✅ Unified card view - removed redundant gallery/list toggle

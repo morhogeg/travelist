@@ -1,6 +1,6 @@
 
 import React from "react";
-import { MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { CityHeaderProps } from "./types";
 import { motion } from "framer-motion";
 
@@ -36,7 +36,6 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
         onClick={handleCityNameClick}
         whileTap={{ scale: 0.98 }}
       >
-        <MapPin className="h-5 w-5 text-[#667eea]" />
         <h2 className="text-lg font-semibold">{cityName}</h2>
         <span className="text-sm text-muted-foreground">({itemCount})</span>
       </motion.div>

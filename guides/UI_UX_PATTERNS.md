@@ -100,10 +100,26 @@ right-3 top-3  /* View toggle */
 ## 🍎 iOS-Native UI Patterns
 
 ### Bottom Sheets/Drawers
+**Design Philosophy:**
+- iOS drag handle at top (horizontal bar, built into Drawer component)
+- Max height: 85vh (doesn't reach notch area)
+- Users can swipe down or tap backdrop to dismiss
+- No X close buttons in headers
+
 **Header Design:**
 - Title on the left (bold, purple, `leading-none` for perfect alignment)
 - Action button on the right (text-only, no background)
-- No close button (users swipe down or tap backdrop to dismiss)
+- Reduced top padding (`pt-2`) to account for drag handle space
+
+**Drawer Configuration:**
+```tsx
+<DrawerContent className="max-h-[85vh] p-0 flex flex-col">
+  {/* Drag handle automatically rendered by Drawer component */}
+  <div className="px-6 pt-2 pb-5">
+    {/* Header content */}
+  </div>
+</DrawerContent>
+```
 
 **Example (FilterSheet):**
 ```tsx
@@ -198,22 +214,13 @@ data-[highlighted]:text-white
   }}
 >
   <div className="px-3 py-2.5 space-y-1.5">
-    {/* Header with category icon, name, and attribution badge */}
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        {/* Category Icon (from pills) */}
-        <div className="w-6 h-6 flex items-center justify-center" style={{ color: borderColor }}>
-          {getCategoryIcon(item.category)}
-        </div>
-        <h3 className="text-base font-bold leading-tight flex-1">{name}</h3>
+    {/* Header with category icon and name */}
+    <div className="flex items-center gap-2">
+      {/* Category Icon (from pills) */}
+      <div className="w-6 h-6 flex items-center justify-center" style={{ color: borderColor }}>
+        {getCategoryIcon(item.category)}
       </div>
-
-      {/* Attribution badge */}
-      {hasAttribution && (
-        <div className="bg-purple-500/90 text-white p-1 rounded-full">
-          <UserCircle className="h-3 w-3" />
-        </div>
-      )}
+      <h3 className="text-base font-bold leading-tight flex-1">{name}</h3>
     </div>
 
     {/* Gradient divider */}
@@ -241,11 +248,6 @@ data-[highlighted]:text-white
 - Size: 24px (w-6 h-6)
 - Colored to match category
 - Consistent design language throughout app
-
-**Attribution Badge:**
-- **When to show:** Item has `source.name`, `context.specificTip`, or other attribution data
-- **Design:** Small purple circle (p-1) with UserCircle icon (h-3 w-3)
-- **Position:** Top-right of header
 
 **Gradient Divider:**
 - Subtle separator after header
@@ -294,11 +296,17 @@ data-[highlighted]:text-white
 - Chevron: Separate button, toggles collapse
 - Both have hover states but independent click handlers
 
+**Design:**
+- **No decorative icons** - removed purple pin icon for cleaner appearance
+- Text-only with hover background for clarity
+- Context makes location obvious without icon
+
 **Implementation:**
 ```tsx
 <div className="flex items-center justify-between">
   <motion.div onClick={handleCityNameClick}>
-    {/* City name content */}
+    <h2 className="text-lg font-semibold">{cityName}</h2>
+    <span className="text-sm text-muted-foreground">({itemCount})</span>
   </motion.div>
   {onToggleCollapse && (
     <motion.button onClick={handleChevronClick}>
@@ -316,7 +324,7 @@ data-[highlighted]:text-white
 
 ---
 
-## 📱 Detail Dialog Design (Updated November 23, 2025)
+## 📱 Detail Drawer Design (Updated November 23, 2025)
 
 ### Text-Only, Information-Dense Philosophy
 Consistent with card design - no hero images, prioritizing:
@@ -325,10 +333,17 @@ Consistent with card design - no hero images, prioritizing:
 - Information density over visual flair
 - Consistent text-only experience
 
-### Dialog Structure
+### iOS Drawer Pattern
+Uses Drawer component (not Dialog) for native iOS behavior:
+- **Drag handle at top** for intuitive dismiss gesture
+- **85vh max height** (doesn't reach notch)
+- **Swipe down to close** or tap backdrop
+- **No X button** - follows iOS conventions
+
+### Drawer Structure
 ```tsx
-<DialogContent
-  className="max-w-2xl w-full h-[90vh] p-0 overflow-hidden flex flex-col gap-0"
+<DrawerContent
+  className="max-h-[85vh] p-0 flex flex-col"
   style={{
     borderLeft: `4px solid ${categoryColor}`,  // Matches card accent
     boxShadow: 'none'  // No shadows

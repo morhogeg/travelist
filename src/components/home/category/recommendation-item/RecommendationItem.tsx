@@ -36,15 +36,6 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
     return emojiMap[category?.toLowerCase()] || "📍";
   };
 
-  // Check if item has attribution data
-  const hasAttribution = !!(
-    item.source?.name ||
-    item.context?.specificTip ||
-    item.context?.occasionTags?.length ||
-    item.context?.personalNote ||
-    item.context?.visitPriority
-  );
-
   // Get border color for category
   const borderColor = getCategoryColor(item.category || 'general');
 
@@ -65,22 +56,13 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
       onClick={() => onViewDetails?.(item)}
     >
       <div className="px-3 py-2.5 space-y-1.5">
-        {/* Header with name, icon and attribution badge */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {/* Category icon */}
-            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center" style={{ color: borderColor }}>
-              {getCategoryIcon(item.category)}
-            </div>
-            <h3 className="text-base font-bold leading-tight flex-1">{item.name}</h3>
+        {/* Header with name and category icon */}
+        <div className="flex items-center gap-2">
+          {/* Category icon */}
+          <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center" style={{ color: borderColor }}>
+            {getCategoryIcon(item.category)}
           </div>
-
-          {/* Attribution badge */}
-          {hasAttribution && (
-            <div className="bg-purple-500/90 text-white p-1 rounded-full flex-shrink-0">
-              <UserCircle className="h-3 w-3" />
-            </div>
-          )}
+          <h3 className="text-base font-bold leading-tight flex-1">{item.name}</h3>
         </div>
 
         {/* Subtle gradient divider */}

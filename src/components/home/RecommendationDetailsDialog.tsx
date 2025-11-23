@@ -1,10 +1,9 @@
 
 import React from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogClose,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerContent,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit } from "lucide-react";
 import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
@@ -46,16 +45,16 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const navigate = useNavigate();
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="max-w-2xl w-full h-[90vh] p-0 overflow-hidden flex flex-col gap-0"
+    <Drawer open={isOpen} onOpenChange={onClose}>
+      <DrawerContent
+        className="max-h-[85vh] p-0 flex flex-col"
         style={{
           borderLeft: `4px solid ${categoryColor}`,
           boxShadow: 'none'
         }}
       >
         {/* Compact Header */}
-        <div className="relative flex-shrink-0 px-6 py-5 bg-background border-b">
+        <div className="relative flex-shrink-0 px-6 pt-2 pb-5 bg-background border-b">
           <div className="flex items-start gap-4">
             {/* Category Icon - Larger */}
             <div
@@ -176,8 +175,8 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
             Close
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 };
 
