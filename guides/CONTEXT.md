@@ -214,7 +214,19 @@ color: #764ba2;
 
 **Latest Session Changes (November 23, 2025):**
 
-**Minimalist Polish & iOS Drawer Patterns:**
+**Profile & Settings Pages Redesign:**
+1. ✅ **Compact Profile header** - reduced avatar size (20px → 12px), title size (3xl → xl)
+2. ✅ **Removed redundant stat** - removed "Visited" stat card, kept only total/countries/cities/collections
+3. ✅ **Tighter stat cards** - reduced padding (p-4 → p-3.5), smaller icons (h-12 w-12 → h-11 w-11)
+4. ✅ **Enhanced typography** - labels now font-medium with foreground/80 instead of muted
+5. ✅ **Settings page overhaul** - new centered header with large icon and description
+6. ✅ **Switch component integration** - replaced manual toggle with proper Switch UI component
+7. ✅ **Improved theme setting** - better visual hierarchy with icon, title, and subtitle
+8. ✅ **Added "What's Next" section** - coming soon message with sparkles icon
+9. ✅ **Consistent spacing** - unified padding and margins across both pages
+10. ✅ **Better glass morphism** - improved liquid-glass-clear integration throughout
+
+**Previous Session: Minimalist Polish & iOS Drawer Patterns:**
 1. ✅ **Removed all grey shadows** - added `boxShadow: 'none'` to cards and category pills
 2. ✅ **Enhanced card design** - replaced emojis with category pill icons, consistent design language
 3. ✅ **Improved visited button** - changed from checkbox to circle/check icon, removed blue hover state bug
