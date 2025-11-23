@@ -226,8 +226,9 @@ color: #764ba2;
 9. ✅ **Cleaner, more scannable** - 30% less visual noise, easier to browse recommendations
 10. ✅ **Flag emojis stand out** - country flags provide visual interest without purple competition
 11. ✅ **Swapped tip/attribution order** - tips now appear before attribution (actionable info first, context second)
-12. ✅ **Added visual dividers** - three-tier hierarchy: country (2px) > city (1px) > card spacing (white space)
-13. ✅ **Subtle light grey dividers** - clear section separation without visual clutter
+12. ✅ **Gradient dividers** - replaced solid borders with elegant gradient fades (left-to-right: grey → transparent)
+13. ✅ **Three-tier hierarchy** - country gradients (60% opacity start) > city gradients (40% opacity) > card spacing
+14. ✅ **iOS-like elegance** - matches card gradient divider pattern, less intrusive than hard lines
 
 **Previous Session: Profile & Settings Pages Redesign:**
 1. ✅ **Compact Profile header** - reduced avatar size (20px → 12px), title size (3xl → xl)

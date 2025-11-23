@@ -95,7 +95,7 @@ const CityGroup: React.FC<Props> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="mb-3 pb-3 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0"
+      className="mb-3"
     >
       <div className="px-4">
       {!hideCityHeader && (
@@ -133,6 +133,9 @@ const CityGroup: React.FC<Props> = ({
         )}
       </AnimatePresence>
       </div>
+
+      {/* Gradient divider between cities */}
+      <div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-3 last:hidden" />
     </motion.div>
   );
 };

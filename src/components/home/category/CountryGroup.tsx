@@ -61,7 +61,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   };
 
   return (
-    <div className="mb-6 pb-6 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0">
+    <div className="mb-6">
       <div className="px-4">
       {!hideCountryHeader && (
         <motion.div
@@ -126,6 +126,9 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
         )}
       </AnimatePresence>
       </div>
+
+      {/* Gradient divider between countries */}
+      <div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30 mt-6 last:hidden" />
     </div>
   );
 };

@@ -305,44 +305,57 @@ data-[highlighted]:text-white
 - **Visual:** Subtle success ring (`ring-2 ring-success/30`)
 - **No heavy overlays** - keep card readable
 
-### Visual Dividers (Added November 23, 2025)
+### Visual Dividers - Gradient Approach (Updated November 23, 2025)
+
+**Design Philosophy:**
+Instead of solid grey borders, we use **gradient dividers that fade left-to-right**. This matches the card gradient divider pattern and creates a more elegant, iOS-like separation that's less intrusive than hard lines.
 
 **Three-tier hierarchy system:**
 
-1. **Country dividers** (thickest) - `border-b-2 border-neutral-200 dark:border-neutral-800`
-   - 2px thick divider
-   - Separates major country sections
-   - Applied to CountryGroup wrapper
-   - Includes `pb-6` and `mb-6` for spacing
+1. **Country dividers** (strongest gradient)
+   - Pattern: `from-neutral-300/60 via-neutral-200/30 to-transparent`
+   - Dark mode: `from-neutral-600/60 via-neutral-700/30`
+   - Height: 1px (`h-px`)
+   - Spacing: `mt-6` after country content
+   - More visible than city dividers but still subtle
 
-2. **City dividers** (thin) - `border-b border-neutral-200 dark:border-neutral-800`
-   - 1px thin divider
-   - Separates city groups within countries
-   - Applied to CityGroup wrapper
-   - Includes `pb-3` for spacing
+2. **City dividers** (subtle gradient)
+   - Pattern: `from-neutral-200/40 via-neutral-200/20 to-transparent`
+   - Dark mode: `from-neutral-700/40 via-neutral-700/20`
+   - Height: 1px (`h-px`)
+   - Spacing: `mt-3` after city content
+   - Very subtle, just hints at separation
 
-3. **Card spacing** (no divider) - `space-y-4`
-   - 16px gap between individual cards
+3. **Card spacing** (no divider)
+   - 16px gap between individual cards (`space-y-4`)
    - No divider lines, just white space
    - Clean separation without visual clutter
 
 **Implementation:**
 ```tsx
-// Country divider (2px)
-<div className="mb-6 px-4 pb-6 border-b-2 border-neutral-200 dark:border-neutral-800 last:border-b-0">
+// Country gradient divider
+<div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30 mt-6 last:hidden" />
 
-// City divider (1px)
-<div className="mb-3 px-4 pb-3 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0">
+// City gradient divider
+<div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-3 last:hidden" />
 
 // Card spacing
 <div className="space-y-4">
 ```
 
+**Why gradients over solid borders:**
+- ✅ Matches existing card gradient divider pattern (consistent design language)
+- ✅ More elegant and iOS-like than hard lines
+- ✅ Less intrusive - fades to transparent instead of abrupt edge
+- ✅ Creates hierarchy through opacity rather than thickness
+- ✅ Full-width gradients visible on both light and dark modes
+- ✅ `last:hidden` removes divider from last item in each section
+
 **Visual hierarchy result:**
-- Country sections clearly separated (strongest)
-- City groups distinct but subordinate to countries
-- Cards flow naturally with breathing room
-- Light grey keeps dividers subtle and minimal
+- Country gradients more prominent (starts at 60% opacity)
+- City gradients subtle (starts at 40% opacity)
+- Both fade to transparent for soft, elegant appearance
+- Clear separation without harsh visual interruption
 
 ---
 
