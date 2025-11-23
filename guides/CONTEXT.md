@@ -225,6 +225,9 @@ color: #764ba2;
 8. ✅ **Cards 25% shorter** - removed elements reduce card height from ~180px to ~140-150px
 9. ✅ **Cleaner, more scannable** - 30% less visual noise, easier to browse recommendations
 10. ✅ **Flag emojis stand out** - country flags provide visual interest without purple competition
+11. ✅ **Swapped tip/attribution order** - tips now appear before attribution (actionable info first, context second)
+12. ✅ **Added visual dividers** - three-tier hierarchy: country (2px) > city (1px) > card spacing (white space)
+13. ✅ **Subtle light grey dividers** - clear section separation without visual clutter
 
 **Previous Session: Profile & Settings Pages Redesign:**
 1. ✅ **Compact Profile header** - reduced avatar size (20px → 12px), title size (3xl → xl)

@@ -76,7 +76,14 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           <p className="text-sm text-muted-foreground">{item.description}</p>
         )}
 
-        {/* Attribution Info */}
+        {/* Tip - shown first as it's actionable info */}
+        {item.context?.specificTip && (
+          <p className="text-xs text-amber-700 dark:text-amber-400 italic">
+            💡 {item.context.specificTip}
+          </p>
+        )}
+
+        {/* Attribution Info - shown after tip */}
         {item.source?.name && (
           <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
             <UserCircle className="h-3 w-3" />
@@ -90,12 +97,6 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
             >
               {item.source.name}
             </button>
-          </p>
-        )}
-
-        {item.context?.specificTip && (
-          <p className="text-xs text-amber-700 dark:text-amber-400 italic">
-            💡 {item.context.specificTip}
           </p>
         )}
 

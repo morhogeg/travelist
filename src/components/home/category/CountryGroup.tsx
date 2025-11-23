@@ -61,7 +61,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   };
 
   return (
-    <div className="mb-4 px-4">
+    <div className="mb-6 px-4 pb-6 border-b-2 border-neutral-200 dark:border-neutral-800 last:border-b-0">
       {!hideCountryHeader && (
         <motion.div
           className="flex items-center justify-between mb-2 cursor-pointer min-h-11 -mx-2 px-2 rounded-lg hover:bg-[#667eea]/5 ios26-transition-smooth"

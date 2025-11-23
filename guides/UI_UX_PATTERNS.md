@@ -292,13 +292,57 @@ data-[highlighted]:text-white
 ### Content Hierarchy (Updated November 23, 2025)
 1. **Title** (text-base font-bold) with category icon
 2. **Description** (text-sm text-muted-foreground) - if exists
-3. **Attribution** (text-xs muted-foreground, clickable) - "Recommended by {name}" - grayed to reduce visual noise
-4. **Tip** (text-xs amber italic) - "💡 {tip}" - prominently displayed when available
+3. **Tip** (text-xs amber italic) - "💡 {tip}" - **shown first** as it's actionable info
+4. **Attribution** (text-xs muted-foreground, clickable) - "Recommended by {name}" - **shown after tip**, grayed to reduce visual noise
 5. **Actions** (visited checkbox + directions/map button only) - edit/delete moved to detail drawer
+
+**Order Rationale:**
+- Tips are actionable ("order the sambousek") → users want this first
+- Attribution is context ("who told me") → secondary metadata
+- Visual hierarchy: Amber tip stands out, gray attribution recedes
 
 ### Visited State
 - **Visual:** Subtle success ring (`ring-2 ring-success/30`)
 - **No heavy overlays** - keep card readable
+
+### Visual Dividers (Added November 23, 2025)
+
+**Three-tier hierarchy system:**
+
+1. **Country dividers** (thickest) - `border-b-2 border-neutral-200 dark:border-neutral-800`
+   - 2px thick divider
+   - Separates major country sections
+   - Applied to CountryGroup wrapper
+   - Includes `pb-6` and `mb-6` for spacing
+
+2. **City dividers** (thin) - `border-b border-neutral-200 dark:border-neutral-800`
+   - 1px thin divider
+   - Separates city groups within countries
+   - Applied to CityGroup wrapper
+   - Includes `pb-3` for spacing
+
+3. **Card spacing** (no divider) - `space-y-4`
+   - 16px gap between individual cards
+   - No divider lines, just white space
+   - Clean separation without visual clutter
+
+**Implementation:**
+```tsx
+// Country divider (2px)
+<div className="mb-6 px-4 pb-6 border-b-2 border-neutral-200 dark:border-neutral-800 last:border-b-0">
+
+// City divider (1px)
+<div className="mb-3 px-4 pb-3 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0">
+
+// Card spacing
+<div className="space-y-4">
+```
+
+**Visual hierarchy result:**
+- Country sections clearly separated (strongest)
+- City groups distinct but subordinate to countries
+- Cards flow naturally with breathing room
+- Light grey keeps dividers subtle and minimal
 
 ---
 

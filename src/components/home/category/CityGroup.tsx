@@ -95,7 +95,7 @@ const CityGroup: React.FC<Props> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="mb-3 px-4"
+      className="mb-3 px-4 pb-3 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0"
     >
       {!hideCityHeader && (
         <CityHeader
