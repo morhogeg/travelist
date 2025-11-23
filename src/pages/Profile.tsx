@@ -64,17 +64,17 @@ const Profile = () => {
     <motion.div
       whileTap={onClick ? { scale: 0.98 } : {}}
       onClick={onClick}
-      className={`liquid-glass-clear rounded-2xl p-4 shadow-md hover:shadow-lg ios26-transition-smooth ${
+      className={`liquid-glass-clear rounded-2xl p-3.5 shadow-md hover:shadow-lg ios26-transition-smooth ${
         onClick ? 'cursor-pointer' : ''
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-          <Icon className="h-6 w-6 text-primary" />
+        <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+          <Icon className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-2xl font-bold leading-none mb-1">{value}</p>
-          <p className="text-sm text-muted-foreground truncate">{label}</p>
+          <p className="text-sm font-medium text-foreground/80 truncate">{label}</p>
           {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
       </div>
@@ -86,33 +86,25 @@ const Profile = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="px-6 py-8 pb-24"
+        className="px-6 pt-2 pb-24"
       >
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-4 text-white text-3xl font-bold shadow-lg">
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-2 text-white text-xl font-bold shadow-lg">
             T
           </div>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent mb-1">
+          <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Travelist
           </h1>
-          <p className="text-muted-foreground text-sm">Your travel companion</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-3 mb-5">
           <StatCard
             icon={MapPin}
             label="Total Recommendations"
             value={stats.totalRecommendations}
             subtitle="Places to explore"
-          />
-
-          <StatCard
-            icon={CheckCircle2}
-            label="Visited"
-            value={stats.visitedCount}
-            subtitle={`${completionRate}% completion rate`}
           />
 
           <div className="grid grid-cols-2 gap-3">
@@ -137,10 +129,10 @@ const Profile = () => {
           />
 
           {completionRate > 0 && (
-            <div className="liquid-glass-clear rounded-2xl p-4 shadow-md">
+            <div className="liquid-glass-clear rounded-2xl p-3.5 shadow-md">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                <p className="text-sm font-medium">Travel Progress</p>
+                <p className="text-sm font-semibold">Travel Progress</p>
               </div>
               <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
                 <div
@@ -160,20 +152,20 @@ const Profile = () => {
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/settings')}
-            className="w-full liquid-glass-clear rounded-xl p-4 shadow-md hover:shadow-lg ios26-transition-smooth flex items-center gap-3"
+            className="w-full liquid-glass-clear rounded-2xl p-3.5 shadow-md hover:shadow-lg ios26-transition-smooth flex items-center gap-3"
           >
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
+            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
               <Settings className="h-5 w-5 text-primary" />
             </div>
-            <div className="flex-1 text-left">
-              <p className="font-medium">Settings</p>
+            <div className="flex-1 text-left min-w-0">
+              <p className="font-semibold text-base">Settings</p>
               <p className="text-xs text-muted-foreground">Customize your experience</p>
             </div>
           </motion.button>
         </div>
 
         {/* App Version */}
-        <div className="mt-8 text-center">
+        <div className="mt-4 text-center">
           <p className="text-xs text-muted-foreground">
             Travelist v1.0.0
           </p>
