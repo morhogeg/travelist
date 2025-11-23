@@ -44,7 +44,7 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
 
   return (
     <div className="mt-2 space-y-8">
-      {sortedCountries.map((country) => (
+      {sortedCountries.map((country, index) => (
         <CountryGroup
           key={country}
           country={country}
@@ -56,6 +56,7 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
           onCityClick={onCityClick}
           onRefresh={onRefresh}
           viewMode={viewMode}
+          isLastCountry={index === sortedCountries.length - 1}
         />
       ))}
     </div>

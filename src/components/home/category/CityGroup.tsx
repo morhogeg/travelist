@@ -11,6 +11,7 @@ import type { CityGroupProps } from "./types";
 interface Props extends CityGroupProps {
   hideCityHeader?: boolean; // ✅ NEW
   hideCountry?: boolean;
+  isLastInCountry?: boolean;
 }
 
 const CityGroup: React.FC<Props> = ({
@@ -26,7 +27,8 @@ const CityGroup: React.FC<Props> = ({
   onCityClick,
   onRefresh,
   hideCityHeader = false, // ✅ default false
-  hideCountry = false
+  hideCountry = false,
+  isLastInCountry = false
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -134,8 +136,10 @@ const CityGroup: React.FC<Props> = ({
       </AnimatePresence>
       </div>
 
-      {/* Gradient divider between cities */}
-      <div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-3 last:hidden" />
+      {/* Gradient divider between cities - only show if NOT the last city in the country */}
+      {!isLastInCountry && (
+        <div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-3" />
+      )}
     </motion.div>
   );
 };

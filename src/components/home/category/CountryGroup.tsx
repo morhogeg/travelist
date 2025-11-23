@@ -25,6 +25,7 @@ interface CountryGroupProps {
   hideCityHeader?: boolean;
   hideCountryHeader?: boolean; // ✅ NEW PROP
   hideCountry?: boolean;
+  isLastCountry?: boolean;
 }
 
 const CountryGroup: React.FC<CountryGroupProps> = ({
@@ -39,7 +40,8 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   viewMode = "grid",
   hideCityHeader = false,
   hideCountryHeader = false, // ✅ default false
-  hideCountry = false
+  hideCountry = false,
+  isLastCountry = false
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -118,6 +120,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
                     viewMode={viewMode}
                     hideCityHeader={hideCityHeader}
                     hideCountry={hideCountry}
+                    isLastInCountry={index === groups.length - 1}
                   />
                 </div>
               ))}
@@ -127,8 +130,10 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
       </AnimatePresence>
       </div>
 
-      {/* Gradient divider between countries */}
-      <div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30 mt-6 last:hidden" />
+      {/* Gradient divider between countries - only show if NOT the last country */}
+      {!isLastCountry && (
+        <div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30 mt-6" />
+      )}
     </div>
   );
 };
