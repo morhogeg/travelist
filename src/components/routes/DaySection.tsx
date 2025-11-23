@@ -35,6 +35,7 @@ interface DaySectionProps {
   onRemovePlace: (dayNumber: number, placeId: string) => void;
   onReorderPlaces: (dayNumber: number, reorderedPlaces: RoutePlaceReference[]) => void;
   onRemoveDay: (dayNumber: number) => void;
+  onPlaceClick: (placeId: string) => void;
 }
 
 interface SortablePlaceItemProps {
@@ -44,6 +45,7 @@ interface SortablePlaceItemProps {
   dayNumber: number;
   onToggleVisited: (dayNumber: number, placeId: string, visited: boolean) => void;
   onRemovePlace: (dayNumber: number, placeId: string) => void;
+  onPlaceClick: (placeId: string) => void;
 }
 
 const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
@@ -53,6 +55,7 @@ const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
   dayNumber,
   onToggleVisited,
   onRemovePlace,
+  onPlaceClick,
 }) => {
   const {
     attributes,
@@ -110,7 +113,12 @@ const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
               {getCategoryIcon(place.category)}
             </div>
             <h3
-              className={`font-semibold text-sm ${
+              onClick={(e) => {
+                e.stopPropagation();
+                lightHaptic();
+                onPlaceClick(placeRef.placeId);
+              }}
+              className={`font-semibold text-sm cursor-pointer hover:text-primary hover:underline ios26-transition-smooth ${
                 placeRef.visited ? 'line-through text-muted-foreground' : ''
               }`}
             >
@@ -167,6 +175,7 @@ const DaySection: React.FC<DaySectionProps> = ({
   onRemovePlace,
   onReorderPlaces,
   onRemoveDay,
+  onPlaceClick,
 }) => {
   const sortedPlaces = [...day.places].sort((a, b) => a.order - b.order);
 
@@ -300,6 +309,7 @@ const DaySection: React.FC<DaySectionProps> = ({
                     dayNumber={day.dayNumber}
                     onToggleVisited={onToggleVisited}
                     onRemovePlace={onRemovePlace}
+                    onPlaceClick={onPlaceClick}
                   />
                 );
               })}

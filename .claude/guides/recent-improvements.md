@@ -1,5 +1,124 @@
 # Recent Improvements & Changes
 
+## Clickable Attribution Navigation (Nov 2025)
+
+### Feature
+Friend/source names in recommendation detail drawers are now clickable, navigating to a filtered homepage showing all recommendations from that source, with easy back navigation to return to the original context.
+
+### Key Capabilities
+- **Clickable Friend Names**: Tap any friend/source name in attribution to filter by that source
+- **Context-Aware Navigation**: Different behavior based on where drawer is opened
+- **Back Navigation**: "Back to Route" button appears when navigating from route detail
+- **State Management**: Uses React Router location state for clean navigation
+- **Filter Preservation**: Automatically applies friend filter on navigation
+
+### Implementation Details
+
+**Modified Components**:
+- `RecommendationDetail.tsx` - Added navigation logic based on current path
+- `RecommendationDetailsDialog.tsx` - Passes current path context
+- `Index.tsx` - Handles location state and shows back button
+
+**Navigation Flow**:
+1. User on `/routes/:id` clicks place name → opens drawer
+2. Clicks friend name in attribution
+3. Navigates to `/` with state: `{ filterSource: name, returnTo: '/routes/:id' }`
+4. Home page applies filter and shows "Back to Route" button
+5. Click back → returns to route detail
+
+**Code Changes**:
+
+`RecommendationDetail.tsx` (Lines 93-109):
+```typescript
+const handleSourceClick = (sourceName: string) => {
+  // Check if we're on a route detail page
+  if (currentPath && currentPath.startsWith('/routes/')) {
+    // Navigate to home with filter state and return path
+    navigate('/', {
+      state: {
+        filterSource: sourceName,
+        returnTo: currentPath
+      }
+    });
+    onClose?.();
+  } else {
+    // Apply filter for this friend (current behavior)
+    window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: sourceName }));
+    onClose?.();
+  }
+};
+```
+
+`Index.tsx` (Lines 134-153):
+```typescript
+// Handle navigation state for filtering from route detail
+useEffect(() => {
+  const state = location.state as { filterSource?: string; returnTo?: string };
+  if (state?.filterSource) {
+    // Apply filter for the friend
+    setFilters(prev => ({
+      ...prev,
+      sources: ['friend'],
+      sourceNames: [state.filterSource]
+    }));
+
+    // Store return path
+    if (state.returnTo) {
+      setReturnToPath(state.returnTo);
+    }
+
+    // Clear the state to prevent re-applying on refresh
+    window.history.replaceState({}, '');
+  }
+}, [location.state]);
+```
+
+**UI Elements**:
+- Back button: Ghost variant with ArrowLeft icon + "Back to Route" text
+- Positioned at top of home page, above search header
+- Only shown when `returnToPath` exists
+- Haptic feedback on click
+
+### Behavior by Context
+
+**From Route Detail Page**:
+- Click friend name → Navigate to home with filter + back button
+- Browser history maintained
+- Can use browser back button
+
+**From Home Page**:
+- Click friend name → Apply filter via event system (current behavior)
+- No navigation, drawer just closes
+- Filter applied immediately
+
+**From Other Pages**:
+- Uses event-based system (fallback)
+- No special navigation handling
+
+### Design Consistency
+- Purple gradient for friend names (existing)
+- iOS 26 transition animations
+- Medium haptic on back button click
+- Matches existing back button patterns in app
+
+### Testing
+- [x] Click friend name from route detail → navigates with filter
+- [x] Back button appears on home page
+- [x] Click back button → returns to route
+- [x] Click friend name from home page → applies filter (no navigation)
+- [x] Browser history works correctly
+- [x] State clears on refresh
+- [x] Haptic feedback works
+- [x] Filter chip shows friend name correctly
+
+### Benefits
+- ✅ Explore all recommendations from a friend while planning route
+- ✅ Easy context switching without losing place
+- ✅ Standard browser navigation patterns
+- ✅ Clean state management with React Router
+
+---
+
 ## Routes Feature (Nov 2025)
 
 ### Feature

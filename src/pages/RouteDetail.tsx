@@ -13,12 +13,13 @@ import {
   reorderPlacesInDay,
   removeDayFromRoute
 } from "@/utils/route/route-manager";
-import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
+import { getRecommendations, markRecommendationVisited } from "@/utils/recommendation/recommendation-manager";
 import { Route, RouteDay, RoutePlaceReference } from "@/types/route";
-import { RecommendationPlace, ParsedRecommendation } from "@/utils/recommendation/types";
+import { RecommendationPlace, ParsedRecommendation, Recommendation } from "@/utils/recommendation/types";
 import { mediumHaptic, lightHaptic } from "@/utils/ios/haptics";
 import DaySection from "@/components/routes/DaySection";
 import AddPlacesToRouteDrawer from "@/components/routes/AddPlacesToRouteDrawer";
+import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 import { format } from "date-fns";
 import {
   AlertDialog,
@@ -39,6 +40,8 @@ const RouteDetail: React.FC = () => {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [selectedDayNumber, setSelectedDayNumber] = useState(1);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedPlaceDetails, setSelectedPlaceDetails] = useState<Recommendation | null>(null);
+  const [selectedPlaceNotes, setSelectedPlaceNotes] = useState<string | undefined>(undefined);
 
   const loadRoute = useCallback(() => {
     if (!id) return;
@@ -117,6 +120,80 @@ const RouteDetail: React.FC = () => {
     mediumHaptic();
     if (!id) return;
     removeDayFromRoute(id, dayNumber);
+  };
+
+  const handlePlaceClick = (placeId: string) => {
+    const place = places.get(placeId);
+    if (!place || !route) return;
+
+    // Find the day and place reference for this place
+    let dayNumber = 1;
+    let placeRef: RoutePlaceReference | undefined;
+    for (const day of route.days) {
+      placeRef = day.places.find(p => p.placeId === placeId);
+      if (placeRef) {
+        dayNumber = day.dayNumber;
+        break;
+      }
+    }
+
+    // Convert RecommendationPlace to Recommendation format for the dialog
+    const recommendation: Recommendation = {
+      id: place.id || placeId,
+      name: place.name,
+      location: route.city,
+      image: place.image || '',
+      category: place.category,
+      description: place.description,
+      website: place.website,
+      recId: place.recId || place.id || placeId,
+      visited: placeRef?.visited || false,
+      country: route.country,
+      source: place.source,
+      context: place.context,
+    };
+
+    setSelectedPlaceDetails(recommendation);
+    setSelectedPlaceNotes(placeRef?.notes);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedPlaceDetails(null);
+    setSelectedPlaceNotes(undefined);
+  };
+
+  const handleToggleVisitedFromDrawer = (recId: string, name: string, visited: boolean) => {
+    lightHaptic();
+    if (!id || !route) return;
+
+    // Find which day this place is in
+    let targetDayNumber = 1;
+    let targetPlaceId = '';
+
+    for (const day of route.days) {
+      const placeRef = day.places.find(p => {
+        const place = places.get(p.placeId);
+        return place && (place.recId === recId || place.id === recId);
+      });
+
+      if (placeRef) {
+        targetDayNumber = day.dayNumber;
+        targetPlaceId = placeRef.placeId;
+        break;
+      }
+    }
+
+    // Sync both route and source visited states
+    markRoutePlaceVisited(id, targetDayNumber, targetPlaceId, visited);
+    markRecommendationVisited(recId, name, visited);
+
+    // Update the dialog state to reflect the change
+    if (selectedPlaceDetails) {
+      setSelectedPlaceDetails({
+        ...selectedPlaceDetails,
+        visited: visited,
+      });
+    }
   };
 
   const handleDeleteRoute = () => {
@@ -247,6 +324,7 @@ const RouteDetail: React.FC = () => {
               onRemovePlace={handleRemovePlace}
               onReorderPlaces={handleReorderPlaces}
               onRemoveDay={handleRemoveDay}
+              onPlaceClick={handlePlaceClick}
             />
           ))}
         </div>
@@ -270,6 +348,18 @@ const RouteDetail: React.FC = () => {
         dayNumber={selectedDayNumber}
         onPlacesAdded={loadRoute}
       />
+
+      {/* Place Details Dialog */}
+      {selectedPlaceDetails && (
+        <RecommendationDetailsDialog
+          isOpen={selectedPlaceDetails !== null}
+          onClose={handleCloseDetails}
+          recommendation={selectedPlaceDetails}
+          onToggleVisited={handleToggleVisitedFromDrawer}
+          hideEditDelete={true}
+          routeNotes={selectedPlaceNotes}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

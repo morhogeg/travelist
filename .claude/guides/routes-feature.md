@@ -207,6 +207,8 @@ RouteDetail.tsx
 - `isAddDrawerOpen: boolean` - Add places drawer
 - `selectedDayNumber: number` - Which day to add places to
 - `isDeleteDialogOpen: boolean` - Delete confirmation
+- `selectedPlaceDetails: Recommendation | null` - Place detail drawer state
+- `selectedPlaceNotes: string | undefined` - Route-specific notes for place
 
 **Key Handlers**:
 ```typescript
@@ -217,6 +219,8 @@ handleReorderPlaces(day, places) // Drag-and-drop reorder
 handleAddDay()                  // Add new day
 handleRemoveDay(dayNumber)      // Delete empty day
 handleDeleteRoute()             // Delete entire route
+handlePlaceClick(placeId)       // Open place details drawer (NEW)
+handleToggleVisitedFromDrawer() // Sync visited state for route & source (NEW)
 ```
 
 **Layout**:
@@ -242,6 +246,7 @@ handleDeleteRoute()             // Delete entire route
   onRemovePlace: (day, place) => void;
   onReorderPlaces: (day, places[]) => void;
   onRemoveDay: (day) => void;
+  onPlaceClick: (placeId) => void;  // NEW: Opens place detail drawer
 }
 ```
 
@@ -372,6 +377,26 @@ TouchSensor: {
 3. Tap trash icon
 4. → Day removed immediately
 5. → Remaining days renumber automatically
+
+### View Place Details Flow (NEW)
+1. View route with places
+2. Tap place name (clickable, shows purple on hover)
+3. → Opens RecommendationDetailsDialog
+4. Shows full place details, attribution, tips, website
+5. Route-specific notes shown in amber box (if present)
+6. Can mark visited (syncs both route & source)
+7. Edit/Delete buttons hidden (route context)
+8. Close drawer → returns to route
+
+### Navigate to Friend's Recommendations Flow (NEW)
+1. View route with places
+2. Tap place name → opens drawer
+3. Tap friend name in attribution (purple, clickable)
+4. → Navigates to home page with friend filter applied
+5. "Back to Route" button appears at top
+6. Browse all recommendations from that friend
+7. Tap "Back to Route"
+8. → Returns to route detail view
 
 ---
 
@@ -615,6 +640,24 @@ useEffect(() => {
 - [ ] Route card click → detail view
 - [ ] Back button → returns to list
 - [ ] Delete route → returns to list
+
+### Place Details (NEW)
+- [x] Click place name → opens detail drawer
+- [x] Shows full place information
+- [x] Route notes shown in amber box (if present)
+- [x] Website button appears (if place has website)
+- [x] Mark visited → syncs route & source
+- [x] Edit/Delete buttons hidden in route context
+- [x] Close drawer → returns to route
+
+### Attribution Navigation (NEW)
+- [x] Click friend name from route → navigates to home with filter
+- [x] Back to Route button appears on home page
+- [x] Filter applied correctly (shows friend name chip)
+- [x] Click Back to Route → returns to route detail
+- [x] Browser history works correctly
+- [x] Click friend name from home → applies filter without navigation
+- [x] Haptic feedback on back button
 
 ---
 

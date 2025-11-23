@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import SearchHeader from "@/components/home/SearchHeader";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
@@ -9,7 +9,7 @@ import RecommendationDetailsDialog from "@/components/home/RecommendationDetails
 import { FilterButton, FilterSheet } from "@/components/home/filters";
 import ActiveFilters from "@/components/home/filters/ActiveFilters";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   getFilteredRecommendations,
   getAvailableOccasions,
@@ -42,6 +42,8 @@ const Index: React.FC = () => {
   const [availableSourceNames, setAvailableSourceNames] = useState<string[]>([]);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [returnToPath, setReturnToPath] = useState<string | null>(null);
 
   const loadRecommendations = useCallback(async () => {
     const data = await getFilteredRecommendations(
@@ -129,6 +131,27 @@ const Index: React.FC = () => {
     };
   }, []);
 
+  // Handle navigation state for filtering from route detail
+  useEffect(() => {
+    const state = location.state as { filterSource?: string; returnTo?: string };
+    if (state?.filterSource) {
+      // Apply filter for the friend
+      setFilters(prev => ({
+        ...prev,
+        sources: ['friend'],
+        sourceNames: [state.filterSource]
+      }));
+
+      // Store return path
+      if (state.returnTo) {
+        setReturnToPath(state.returnTo);
+      }
+
+      // Clear the state to prevent re-applying on refresh
+      window.history.replaceState({}, '');
+    }
+  }, [location.state]);
+
   const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
     markRecommendationVisited(id, name, !currentVisited);
     loadRecommendations();
@@ -163,24 +186,28 @@ const Index: React.FC = () => {
     }
   };
 
-  const handleDetailsToggleVisited = () => {
-    if (detailsRecommendation?.recId) {
-      markRecommendationVisited(
-        detailsRecommendation.recId,
-        detailsRecommendation.name,
-        !detailsRecommendation.visited
-      );
+  const handleDetailsToggleVisited = (recId: string, name: string, visited: boolean) => {
+    markRecommendationVisited(recId, name, visited);
+    if (detailsRecommendation) {
       setDetailsRecommendation({
         ...detailsRecommendation,
-        visited: !detailsRecommendation.visited,
+        visited: visited,
       });
-      loadRecommendations();
     }
+    loadRecommendations();
   };
 
   const handleCityClick = (cityId: string) => {
     if (!cityId) return;
     navigate(`/place/${cityId}`);
+  };
+
+  const handleBackToRoute = () => {
+    if (returnToPath) {
+      mediumHaptic();
+      navigate(returnToPath);
+      setReturnToPath(null);
+    }
   };
 
   const handleRemoveFilter = (filterKey: keyof FilterState, value?: string) => {
@@ -215,6 +242,21 @@ const Index: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="pb-16"
       >
+        {/* Back Button - shown when navigating from route detail */}
+        {returnToPath && (
+          <div className="px-6 pt-2 pb-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToRoute}
+              className="text-sm font-medium ios26-transition-smooth"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Route
+            </Button>
+          </div>
+        )}
+
         <SearchHeader
           heading="Travelist"
         />

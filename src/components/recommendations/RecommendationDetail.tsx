@@ -21,6 +21,7 @@ interface RecommendationDetailProps {
   source?: RecommendationSource;
   context?: RecommendationContext;
   onClose?: () => void;
+  currentPath?: string;
 }
 
 const getPriorityColor = (priority?: string) => {
@@ -66,6 +67,7 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
   source,
   context,
   onClose,
+  currentPath,
 }) => {
   const navigate = useNavigate();
 
@@ -89,10 +91,21 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
   }
 
   const handleSourceClick = (sourceName: string) => {
-    // Apply filter for this friend
-    window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: sourceName }));
-    // Close the dialog
-    onClose?.();
+    // Check if we're on a route detail page
+    if (currentPath && currentPath.startsWith('/routes/')) {
+      // Navigate to home with filter state and return path
+      navigate('/', {
+        state: {
+          filterSource: sourceName,
+          returnTo: currentPath
+        }
+      });
+      onClose?.();
+    } else {
+      // Apply filter for this friend (current behavior)
+      window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: sourceName }));
+      onClose?.();
+    }
   };
 
   const handleTypeClick = (sourceType: string) => {

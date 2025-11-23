@@ -10,16 +10,18 @@ import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { Badge } from "@/components/ui/badge";
 import { RecommendationDetail } from "@/components/recommendations/RecommendationDetail";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 
 interface RecommendationDetailsDialogProps {
   recommendation: any;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-  onToggleVisited: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onToggleVisited: (recId: string, name: string, visited: boolean) => void;
+  hideEditDelete?: boolean;
+  routeNotes?: string;
 }
 
 const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = ({
@@ -29,6 +31,8 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   onEdit,
   onDelete,
   onToggleVisited,
+  hideEditDelete = false,
+  routeNotes,
 }) => {
   if (!recommendation) return null;
 
@@ -43,6 +47,8 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   };
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
@@ -103,11 +109,21 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-4">
+            {/* Route-Specific Notes */}
+            {routeNotes && (
+              <div className="px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <p className="text-sm text-amber-700 dark:text-amber-400">
+                  📝 {routeNotes}
+                </p>
+              </div>
+            )}
+
             {/* Attribution and Context Details */}
             <RecommendationDetail
               source={recommendation.source}
               context={recommendation.context}
               onClose={onClose}
+              currentPath={currentPath}
             />
 
             {/* Action Buttons */}
@@ -124,15 +140,27 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                 <span>Navigate</span>
               </Button>
 
+              {websiteUrl && (
+                <Button
+                  size="default"
+                  variant="outline"
+                  className="flex-1 min-w-[140px] ios26-transition-smooth"
+                  onClick={(e) => handleExternalClick(e, websiteUrl)}
+                >
+                  <Globe className="h-4 w-4 mr-2" />
+                  <span>Website</span>
+                </Button>
+              )}
+
               <Button
-                variant={recommendation.visited ? "default" : "outline"}
+                variant="outline"
                 size="default"
                 className={`flex-1 min-w-[140px] ios26-transition-smooth ${
                   recommendation.visited
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'border-gray-300'
+                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+                    : 'border-gray-300 hover:bg-gray-50'
                 }`}
-                onClick={onToggleVisited}
+                onClick={() => onToggleVisited(recommendation.recId, recommendation.name, !recommendation.visited)}
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 <span>{recommendation.visited ? 'Visited' : 'Mark Visited'}</span>
@@ -142,39 +170,55 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
         </div>
 
         {/* Fixed Footer */}
-        <div
-          className="flex-shrink-0 p-4 border-t liquid-glass-clear flex items-center gap-3"
-          style={{ boxShadow: 'none' }}
-        >
-          <Button
-            variant="destructive"
-            size="default"
-            className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth"
-            onClick={onDelete}
+        {!hideEditDelete ? (
+          <div
+            className="flex-shrink-0 p-4 border-t liquid-glass-clear flex items-center gap-3"
+            style={{ boxShadow: 'none' }}
           >
-            <Trash2 className="h-4 w-4" />
-            <span>Delete</span>
-          </Button>
+            <Button
+              variant="destructive"
+              size="default"
+              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth"
+              onClick={onDelete}
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Delete</span>
+            </Button>
 
-          <Button
-            variant="outline"
-            size="default"
-            className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth"
-            onClick={onEdit}
-          >
-            <Edit className="h-4 w-4" />
-            <span>Edit</span>
-          </Button>
+            <Button
+              variant="outline"
+              size="default"
+              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth"
+              onClick={onEdit}
+            >
+              <Edit className="h-4 w-4" />
+              <span>Edit</span>
+            </Button>
 
-          <Button
-            variant="outline"
-            size="default"
-            className="flex-1"
-            onClick={onClose}
+            <Button
+              variant="outline"
+              size="default"
+              className="flex-1"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
+        ) : (
+          <div
+            className="flex-shrink-0 p-4 border-t liquid-glass-clear"
+            style={{ boxShadow: 'none' }}
           >
-            Close
-          </Button>
-        </div>
+            <Button
+              variant="outline"
+              size="default"
+              className="w-full"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
+        )}
       </DrawerContent>
     </Drawer>
   );
