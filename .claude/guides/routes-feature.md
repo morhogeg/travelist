@@ -474,6 +474,38 @@ const calculateProgress = (route: Route) => {
 - Animation: Smooth width transition (0.5s ease-out)
 - Display: "X of Y visited" + "Z%"
 
+### Two-Way Visited State Sync (NEW)
+
+**Bidirectional Sync**: Visited state syncs between routes and source recommendations
+
+**How It Works**:
+- Mark visited in route → Updates route + source recommendation
+- Mark visited on home/city/country view → Updates source + **all routes containing that place**
+- Same place always shows same visited state everywhere
+
+**Implementation**:
+- `syncVisitedStateToRoutes(recId, visited)` in route-manager.ts
+- Called from Index.tsx, useRecommendationActions.tsx
+- Finds all routes containing the place by recId/id match
+- Updates visited state for all matching places
+- Dispatches `routeUpdated` event to refresh UI
+
+**Benefits**:
+- ✅ Consistent state across app
+- ✅ Mark visited after trip → all routes update
+- ✅ If place is in multiple routes, all update
+- ✅ Undo support works correctly
+
+**Example**:
+```typescript
+// User marks "Pizza Hut" as visited from home screen
+markRecommendationVisited(recId, "Pizza Hut", true);
+syncVisitedStateToRoutes(recId, true);  // Updates all routes
+
+// If "Pizza Hut" is in 3 different routes, all 3 get updated
+// Progress bars in all 3 routes automatically update
+```
+
 ---
 
 ## Route Status Logic
@@ -634,6 +666,16 @@ useEffect(() => {
 - [ ] Progress bar animates correctly
 - [ ] Percentage calculates correctly
 - [ ] Visited places show green tint
+
+### Two-Way Sync (NEW)
+- [x] Mark visited on home → syncs to all routes with that place
+- [x] Mark visited in route → syncs to source recommendation
+- [x] Mark visited from city view → syncs to routes
+- [x] Mark visited from country view → syncs to routes
+- [x] Same place in multiple routes → all routes update
+- [x] Undo visited action → all contexts revert
+- [x] Progress bars update automatically after sync
+- [x] No infinite loops or duplicate updates
 
 ### Navigation
 - [ ] Routes tab in navbar works

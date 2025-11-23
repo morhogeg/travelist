@@ -244,6 +244,50 @@ export const markRoutePlaceVisited = (
 };
 
 /**
+ * Sync visited state from source recommendation to all routes containing that place
+ * This ensures two-way sync: marking visited anywhere updates it everywhere
+ */
+export const syncVisitedStateToRoutes = (recId: string, visited: boolean): void => {
+  const routes = getRoutes();
+  const recommendations = getRecommendations();
+
+  // Build a map of place details for quick lookup
+  const placesMap = new Map<string, any>();
+  recommendations.forEach(rec => {
+    rec.places.forEach(place => {
+      if (place.id) {
+        placesMap.set(place.id, place);
+      }
+    });
+  });
+
+  let updated = false;
+
+  // Check each route for places matching the recId
+  routes.forEach(route => {
+    route.days.forEach(day => {
+      day.places.forEach(placeRef => {
+        // Get the actual place details
+        const place = placesMap.get(placeRef.placeId);
+
+        // Match by recId or id
+        if (place && (place.recId === recId || place.id === recId)) {
+          placeRef.visited = visited;
+          updated = true;
+          route.dateModified = new Date().toISOString();
+        }
+      });
+    });
+  });
+
+  // Save and notify if any updates were made
+  if (updated) {
+    localStorage.setItem(ROUTES_STORAGE_KEY, JSON.stringify(routes));
+    window.dispatchEvent(new CustomEvent("routeUpdated"));
+  }
+};
+
+/**
  * Add a new day to a route
  */
 export const addDayToRoute = (

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { deleteRecommendation, markRecommendationVisited } from "@/utils/recommendation-parser";
+import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 
 interface LastAction {
   type: 'delete' | 'visited';
@@ -50,16 +51,20 @@ export const useRecommendationActions = (onRecommendationsChange: () => void) =>
       setLastAction(null);
     } else if (lastAction && lastAction.type === 'visited') {
       // Toggle back the visited state
-      markRecommendationVisited(lastAction.recId, lastAction.name, !lastAction.data);
-      
+      const revertedState = !lastAction.data;
+      markRecommendationVisited(lastAction.recId, lastAction.name, revertedState);
+
+      // Sync to all routes containing this place (two-way sync)
+      syncVisitedStateToRoutes(lastAction.recId, revertedState);
+
       // Dispatch event to update UI
       window.dispatchEvent(new CustomEvent('recommendationVisited'));
-      
+
       toast({
         title: "Status reverted",
         description: `"${lastAction.name}" has been marked as ${lastAction.data ? 'not visited' : 'visited'}.`,
       });
-      
+
       // Reset last action
       setLastAction(null);
     }
@@ -133,7 +138,7 @@ export const useRecommendationActions = (onRecommendationsChange: () => void) =>
       console.error("Missing data for toggling visited state:", { recId, itemName });
       return;
     }
-    
+
     // Store the current state for potential undo
     setLastAction({
       type: 'visited',
@@ -141,13 +146,17 @@ export const useRecommendationActions = (onRecommendationsChange: () => void) =>
       name: itemName,
       data: currentVisited
     });
-    
+
     // Mark the recommendation as visited or unvisited
-    markRecommendationVisited(recId, itemName, !currentVisited);
-    
+    const newVisitedState = !currentVisited;
+    markRecommendationVisited(recId, itemName, newVisitedState);
+
+    // Sync to all routes containing this place (two-way sync)
+    syncVisitedStateToRoutes(recId, newVisitedState);
+
     // Dispatch event for other components to know about the change
     window.dispatchEvent(new CustomEvent('recommendationVisited'));
-    
+
     // Show toast notification with undo action
     toast({
       title: currentVisited ? "Marked as unvisited" : "Marked as visited",
@@ -158,7 +167,7 @@ export const useRecommendationActions = (onRecommendationsChange: () => void) =>
         </ToastAction>
       )
     });
-    
+
     // Reload the recommendations
     onRecommendationsChange();
   };

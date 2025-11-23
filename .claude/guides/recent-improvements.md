@@ -1,5 +1,142 @@
 # Recent Improvements & Changes
 
+## Two-Way Visited State Sync (Nov 2025)
+
+### Feature
+Visited state now syncs bidirectionally between source recommendations and routes. Marking a place as visited anywhere updates it everywhere, ensuring consistent state across the entire app.
+
+### Problem Solved
+**Before**: Asymmetric sync caused confusion
+- Mark visited in route → ✅ Updates source & route
+- Mark visited on home → ❌ Only updates source, NOT routes
+- Result: Same place shows different visited states in different contexts
+
+**After**: Two-way sync for consistency
+- Mark visited anywhere → ✅ Updates EVERYWHERE
+- Same place always shows same visited state
+- Clear, predictable user experience
+
+### Key Capabilities
+- **Bidirectional Sync**: Visited state updates in both directions
+- **Universal Updates**: Mark visited anywhere = visited everywhere
+- **Multiple Routes**: Updates all routes containing the place
+- **Undo Support**: Undoing a visited action syncs correctly
+- **Event Dispatching**: Routes update automatically via custom events
+
+### Implementation Details
+
+**New Function**: `syncVisitedStateToRoutes(recId, visited)`
+
+Location: `/src/utils/route/route-manager.ts` (Lines 246-288)
+
+```typescript
+export const syncVisitedStateToRoutes = (recId: string, visited: boolean): void => {
+  const routes = getRoutes();
+  const recommendations = getRecommendations();
+
+  // Build a map of place details for quick lookup
+  const placesMap = new Map<string, any>();
+  recommendations.forEach(rec => {
+    rec.places.forEach(place => {
+      if (place.id) {
+        placesMap.set(place.id, place);
+      }
+    });
+  });
+
+  let updated = false;
+
+  // Check each route for places matching the recId
+  routes.forEach(route => {
+    route.days.forEach(day => {
+      day.places.forEach(placeRef => {
+        const place = placesMap.get(placeRef.placeId);
+
+        // Match by recId or id
+        if (place && (place.recId === recId || place.id === recId)) {
+          placeRef.visited = visited;
+          updated = true;
+          route.dateModified = new Date().toISOString();
+        }
+      });
+    });
+  });
+
+  // Save and notify if any updates were made
+  if (updated) {
+    localStorage.setItem(ROUTES_STORAGE_KEY, JSON.stringify(routes));
+    window.dispatchEvent(new CustomEvent("routeUpdated"));
+  }
+};
+```
+
+**Modified Components**:
+
+1. **Index.tsx** (Lines 156-164, 190-203)
+   - `handleToggleVisited`: Syncs to routes after marking visited
+   - `handleDetailsToggleVisited`: Syncs from detail drawer
+
+2. **useRecommendationActions.tsx** (Lines 136-173, 52-70)
+   - `handleVisitedToggle`: Syncs when toggling from city/country views
+   - `undoDelete`: Syncs when undoing visited state change
+   - Used by CityGroup, CountryView, CategoryRecommendationsList
+
+### User Scenarios
+
+**Scenario 1: Mark visited on home screen**
+1. User clicks visited checkbox on recommendation card
+2. Source recommendation updated ✅
+3. **All routes containing this place updated** ✅
+4. Route detail views refresh automatically
+
+**Scenario 2: Mark visited in route detail**
+1. User clicks visited in route day section
+2. Route updated ✅
+3. Source recommendation updated ✅ (already implemented)
+4. Other routes with same place also updated
+
+**Scenario 3: Mark visited from country/city view**
+1. User toggles visited in filtered view
+2. Source updated ✅
+3. All routes synced ✅
+4. Toast shows with undo option
+
+**Scenario 4: Undo visited action**
+1. User clicks "Undo" on toast notification
+2. Source recommendation reverted ✅
+3. All routes reverted ✅
+4. Consistent state maintained
+
+### Edge Cases Handled
+
+**Q: What if the same place is in multiple routes?**
+A: All routes get updated with the same visited state
+
+**Q: What if I undo a visited state change?**
+A: Undo syncs to routes too, maintaining consistency
+
+**Q: What about performance with many routes?**
+A: Only iterates when visited state changes, minimal impact
+
+### Testing
+- [x] Mark visited on home → syncs to routes
+- [x] Mark visited in route → syncs to source
+- [x] Mark visited from city view → syncs to routes
+- [x] Mark visited from country view → syncs to routes
+- [x] Same place in multiple routes → all update
+- [x] Undo visited action → all revert correctly
+- [x] Route progress bars update automatically
+- [x] No duplicate updates or infinite loops
+
+### Benefits
+- ✅ **Consistency**: Same visited state everywhere
+- ✅ **Predictable UX**: No confusion about visited status
+- ✅ **Common Use Case**: Mark visited after trip → updates all contexts
+- ✅ **Undo Support**: Undo works correctly across contexts
+- ✅ **Performance**: Efficient lookup with Map structure
+
+---
+
 ## Clickable Attribution Navigation (Nov 2025)
 
 ### Feature

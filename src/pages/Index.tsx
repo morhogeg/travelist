@@ -18,6 +18,7 @@ import {
   getAvailableSourceNames
 } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
+import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CountryGroupList from "@/components/home/category/CountryGroupList";
 import { mediumHaptic } from "@/utils/ios/haptics";
 import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
@@ -153,7 +154,12 @@ const Index: React.FC = () => {
   }, [location.state]);
 
   const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
-    markRecommendationVisited(id, name, !currentVisited);
+    const newVisitedState = !currentVisited;
+    markRecommendationVisited(id, name, newVisitedState);
+
+    // Sync to all routes containing this place (two-way sync)
+    syncVisitedStateToRoutes(id, newVisitedState);
+
     loadRecommendations();
   };
 
@@ -188,6 +194,10 @@ const Index: React.FC = () => {
 
   const handleDetailsToggleVisited = (recId: string, name: string, visited: boolean) => {
     markRecommendationVisited(recId, name, visited);
+
+    // Sync to all routes containing this place (two-way sync)
+    syncVisitedStateToRoutes(recId, visited);
+
     if (detailsRecommendation) {
       setDetailsRecommendation({
         ...detailsRecommendation,
