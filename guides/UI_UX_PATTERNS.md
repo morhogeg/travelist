@@ -8,7 +8,7 @@ This guide documents the established UI/UX patterns, design decisions, and conve
 
 ## 🎨 Color System
 
-### Primary Gradient
+### Primary Gradient (App Purple)
 The app's signature purple gradient is used consistently across interactive elements:
 ```css
 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
@@ -16,15 +16,51 @@ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
 
 **Used in:**
 - Active category pills
-- FilterButton (icon color: `#667eea` with 70% opacity)
 - Select dropdown highlights (both hover and selected states)
 - Primary action buttons
 - Floating add button
 - Filter drawer title and reset button
+- Attribution pills on recommendation cards
+
+### Category Color System
+Each category has a dedicated color gradient for visual distinction:
+
+**Food (Orange/Warm):**
+```css
+--category-food-from: 251 86% 58%;  /* #FB923C */
+--category-food-to: 24 95% 53%;     /* #F97316 */
+```
+
+**Lodging (Blue/Cool):**
+```css
+--category-lodging-from: 217 91% 60%;  /* #3B82F6 */
+--category-lodging-to: 221 83% 53%;    /* #2563EB */
+```
+
+**Attractions (Purple):**
+```css
+--category-attractions-from: 258 90% 66%;  /* #A78BFA */
+--category-attractions-to: 262 83% 58%;    /* #8B5CF6 */
+```
+
+**Shopping (Pink):**
+```css
+--category-shopping-from: 330 81% 60%;  /* #F472B6 */
+--category-shopping-to: 333 71% 51%;    /* #EC4899 */
+```
+
+**Nightlife (Indigo):**
+```css
+--category-nightlife-from: 239 84% 67%;  /* #818CF8 */
+--category-nightlife-to: 243 75% 59%;    /* #6366F1 */
+```
+
+**Usage:** Category badges, emoji backgrounds (future), and accent colors
 
 ### Dark Mode
 - Background: `#0E0E0E` (HSL: 0 0% 5.5%) - Softer than pure black
 - Provides better visual comfort while maintaining OLED benefits
+- Category colors are slightly more vibrant in dark mode for better visibility
 
 ---
 
@@ -33,12 +69,13 @@ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
 ### Standard Component Height
 **Button/Pill Height:** All interactive buttons and pills use consistent sizing:
 ```css
-min-h-11 py-2.5  /* 44px minimum (iOS touch target) */
+min-h-11  /* 44px minimum (iOS touch target) */
 ```
 
 **Examples:**
 - CategoryPill: `min-h-11 py-2.5 px-4`
-- FilterButton: `min-h-11 py-2.5 px-3`
+- SearchButton: `min-h-11 min-w-11 rounded-full`
+- FilterButton: `min-h-11 min-w-11 rounded-full`
 - This ensures perfect vertical alignment when placed side-by-side
 
 ### Search/Toggle Button Positioning
@@ -135,6 +172,82 @@ data-[highlighted]:text-white
 ```
 
 **Avoid:** Extra vertical padding in scroll containers that can cause alignment issues
+
+---
+
+## 🎴 Recommendation Card Design
+
+### Text-Only, Information-Dense Layout
+**Design Philosophy:** Prioritize information density over visual appeal. No images to maintain:
+- Fast loading and performance
+- Clean, minimal aesthetic
+- Consistent appearance regardless of image quality
+- More recommendations visible on screen
+
+### Card Structure
+```tsx
+<motion.div className="liquid-glass-clear rounded-2xl px-2.5 py-1.5 space-y-0.5">
+  {/* Header: Title + Badges */}
+  <div className="flex items-start justify-between gap-2">
+    <h3 className="text-sm font-semibold flex-1">{name}</h3>
+
+    <div className="flex items-center gap-1.5">
+      {/* Attribution badge (if has source/tip) */}
+      {hasAttribution && (
+        <div className="bg-purple-500/90 text-white p-1 rounded-full">
+          <UserCircle className="h-3 w-3" />
+        </div>
+      )}
+
+      {/* Category badge */}
+      <span className="px-2 py-0.5 rounded-md text-xs">
+        {categoryEmoji}
+      </span>
+    </div>
+  </div>
+
+  {/* Content sections... */}
+</motion.div>
+```
+
+### Badge System
+
+**Attribution Badge:**
+- **When to show:** Item has `source.name`, `context.specificTip`, or other attribution data
+- **Design:** Small purple circle (p-1) with UserCircle icon (h-3 w-3)
+- **Position:** Top-right, next to category badge
+
+**Category Badge:**
+- **Design:** Colored background matching category (orange/food, blue/lodging, etc.)
+- **Content:** Category emoji only (🍕 🏨 🎭 🛍️ 🌙)
+- **Size:** `px-2 py-0.5` with `text-xs font-medium`
+- **Colors:** Use category-specific classes from color system
+
+### Vertical List Layout
+**GridView displays cards as vertical list:**
+```tsx
+<div className="space-y-3">
+  {items.map(item => <RecommendationItem />)}
+</div>
+```
+
+**Rationale:**
+- ❌ No horizontal carousel (harder to scan, not iOS-native for lists)
+- ✅ Vertical scrolling is iOS standard for information-dense content
+- ✅ Natural reading flow
+- ✅ Easier to quickly scan through recommendations
+
+### Content Hierarchy
+1. **Title** (text-sm font-semibold) + Badges
+2. **Description** (text-sm text-muted-foreground) - if exists
+3. **Attribution** (text-xs purple, clickable) - "Recommended by {name}"
+4. **Tip** (text-xs amber italic) - "💡 {tip}"
+5. **Date** (text-xs muted) with Calendar icon
+6. **Actions** (checkbox, map, edit, delete buttons)
+
+### Visited State
+- **Visual:** Subtle success ring (`ring-2 ring-success/30`)
+- **No heavy overlays** - keep card readable
 
 ---
 
