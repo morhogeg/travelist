@@ -102,7 +102,10 @@ right-3 top-3  /* View toggle */
 ### Bottom Sheets/Drawers
 **Design Philosophy:**
 - iOS drag handle at top (horizontal bar, built into Drawer component)
-- Max height: 85vh (doesn't reach notch area)
+- Max heights by type:
+  - **Detail drawer:** 85vh
+  - **Add recommendation drawer:** 85vh (default)
+  - **Filter drawer:** 92vh (taller to show all options without scrolling)
 - Users can swipe down or tap backdrop to dismiss
 - No X close buttons in headers
 
@@ -113,17 +116,29 @@ right-3 top-3  /* View toggle */
 
 **Drawer Configuration:**
 ```tsx
+{/* Standard drawers */}
 <DrawerContent className="max-h-[85vh] p-0 flex flex-col">
   {/* Drag handle automatically rendered by Drawer component */}
   <div className="px-6 pt-2 pb-5">
     {/* Header content */}
   </div>
 </DrawerContent>
+
+{/* Filter drawer (taller) */}
+<DrawerContent className="max-h-[92vh] p-0 flex flex-col">
+  {/* Header, scrollable content, footer with compact button */}
+</DrawerContent>
 ```
 
-**Example (FilterSheet):**
+**Filter Drawer Specifics:**
+- Taller height (92vh) to fit all filter sections without scrolling
+- Compact "Apply Filters" button: `py-2.5 rounded-xl` (not py-3.5 rounded-2xl)
+- Scrollable content area for filter sections
+- Reset button in header when filters active
+
+**Example (FilterSheet Header):**
 ```tsx
-<div className="flex items-center justify-between">
+<div className="flex items-center justify-between px-6 pt-2 pb-4">
   <h2 className="text-xl font-bold text-[#667eea] leading-none">Filters</h2>
   {hasFilters && (
     <button className="text-sm font-semibold text-[#667eea]">

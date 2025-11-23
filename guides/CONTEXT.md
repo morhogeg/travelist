@@ -230,7 +230,9 @@ color: #764ba2;
 13. ✅ **Removed attribution badge** - removed redundant purple person icon from card headers
 14. ✅ **Removed city pin icons** - cleaner city headers without decorative purple pins
 15. ✅ **Converted to iOS Drawer** - detail view now uses Drawer with drag handle instead of Dialog
-16. ✅ **Consistent drawer heights** - all drawers set to 85vh max (not reaching notch)
+16. ✅ **Consistent drawer heights** - detail/add drawers at 85vh, filter drawer at 92vh
+17. ✅ **Filter drawer iOS patterns** - converted to Drawer component, added drag handle, reduced button size
+18. ✅ **Optimized filter drawer** - increased height to 92vh so all options visible without scrolling
 
 **Previous Session: Enhanced Text-Only Card Design & UX Improvements:**
 1. ✅ Unified card view - removed redundant gallery/list toggle
