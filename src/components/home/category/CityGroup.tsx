@@ -95,8 +95,9 @@ const CityGroup: React.FC<Props> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="mb-3 px-4 pb-3 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0"
+      className="mb-3 pb-3 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0"
     >
+      <div className="px-4">
       {!hideCityHeader && (
         <CityHeader
           cityName={cityName}
@@ -131,6 +132,7 @@ const CityGroup: React.FC<Props> = ({
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </motion.div>
   );
 };
