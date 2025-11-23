@@ -214,7 +214,19 @@ color: #764ba2;
 
 **Latest Session Changes (November 23, 2025):**
 
-**Profile & Settings Pages Redesign:**
+**Home Screen De-cluttering - UX Improvements:**
+1. ✅ **Removed date from cards** - "Nov 23, 2025" removed from card view, kept in detail drawer only
+2. ✅ **Simplified action buttons** - cards now show only visited checkbox + directions (map) button
+3. ✅ **Edit/Delete moved to drawer** - edit and delete buttons removed from cards, remain in detail drawer footer
+4. ✅ **Country headers de-emphasized** - changed from purple (`text-[#667eea]`) to black/foreground color
+5. ✅ **Attribution text grayed** - changed from purple to muted-foreground for less visual noise
+6. ✅ **Increased card spacing** - changed from `space-y-3` to `space-y-4` for better breathing room
+7. ✅ **Reduced purple overload** - purple now used strategically (category accents, active states) not everywhere
+8. ✅ **Cards 25% shorter** - removed elements reduce card height from ~180px to ~140-150px
+9. ✅ **Cleaner, more scannable** - 30% less visual noise, easier to browse recommendations
+10. ✅ **Flag emojis stand out** - country flags provide visual interest without purple competition
+
+**Previous Session: Profile & Settings Pages Redesign:**
 1. ✅ **Compact Profile header** - reduced avatar size (20px → 12px), title size (3xl → xl)
 2. ✅ **Removed redundant stat** - removed "Visited" stat card, kept only total/countries/cities/collections
 3. ✅ **Tighter stat cards** - reduced padding (p-4 → p-3.5), smaller icons (h-12 w-12 → h-11 w-11)

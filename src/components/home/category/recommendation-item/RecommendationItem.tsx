@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import ItemHeader from "./ItemHeader";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
 import { UserCircle } from "lucide-react";
@@ -79,7 +78,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
 
         {/* Attribution Info */}
         {item.source?.name && (
-          <p className="text-xs text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1">
+          <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
             <UserCircle className="h-3 w-3" />
             Recommended by{' '}
             <button
@@ -87,7 +86,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
                 e.stopPropagation();
                 window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: item.source.name }));
               }}
-              className="hover:text-purple-800 dark:hover:text-purple-300 transition-colors font-semibold"
+              className="hover:text-foreground transition-colors font-semibold"
             >
               {item.source.name}
             </button>
@@ -99,8 +98,6 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
             💡 {item.context.specificTip}
           </p>
         )}
-
-        <ItemHeader item={item} visited={!!item.visited} />
 
         <ItemActions
           item={item}

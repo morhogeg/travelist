@@ -277,7 +277,7 @@ data-[highlighted]:text-white
 ### Vertical List Layout
 **GridView displays cards as vertical list:**
 ```tsx
-<div className="space-y-3">  {/* Increased from space-y-2 for breathing room */}
+<div className="space-y-4">  {/* Increased from space-y-3 for better breathing room */}
   {items.map(item => <RecommendationItem />)}
 </div>
 ```
@@ -289,13 +289,12 @@ data-[highlighted]:text-white
 - ✅ Consistent with detail dialog design
 - ✅ Easier to quickly scan through recommendations
 
-### Content Hierarchy
-1. **Title** (text-sm font-semibold) + Badges
+### Content Hierarchy (Updated November 23, 2025)
+1. **Title** (text-base font-bold) with category icon
 2. **Description** (text-sm text-muted-foreground) - if exists
-3. **Attribution** (text-xs purple, clickable) - "Recommended by {name}"
-4. **Tip** (text-xs amber italic) - "💡 {tip}"
-5. **Date** (text-xs muted) with Calendar icon
-6. **Actions** (checkbox, map, edit, delete buttons)
+3. **Attribution** (text-xs muted-foreground, clickable) - "Recommended by {name}" - grayed to reduce visual noise
+4. **Tip** (text-xs amber italic) - "💡 {tip}" - prominently displayed when available
+5. **Actions** (visited checkbox + directions/map button only) - edit/delete moved to detail drawer
 
 ### Visited State
 - **Visual:** Subtle success ring (`ring-2 ring-success/30`)
@@ -304,6 +303,32 @@ data-[highlighted]:text-white
 ---
 
 ## 🎯 Component-Specific Patterns
+
+### CountryHeader (Updated November 23, 2025)
+**Behavior:**
+- Country name + count: Clickable, navigates to country detail
+- Chevron: Separate button, toggles collapse
+- Both have hover states but independent click handlers
+
+**Design Philosophy - De-emphasized:**
+- **No purple text** - uses default foreground color (black in light, white in dark)
+- **Flag emoji provides color** - colorful flag creates visual interest without purple overload
+- **Reduced visual hierarchy** - country headers are organizational, not primary focus
+- **Cleaner appearance** - less competing purple elements on screen
+
+**Implementation:**
+```tsx
+<h2 className="text-xl font-bold flex items-center gap-2">
+  <span>{flag}</span>
+  <span>{country}</span>
+  <span className="text-sm font-normal text-muted-foreground">({totalItems})</span>
+</h2>
+```
+
+**Before vs After:**
+- ❌ Before: `text-[#667eea]` (purple) + `text-[#667eea]` chevron
+- ✅ After: Default foreground + default chevron color
+- Result: Less purple competition, flag emojis stand out more
 
 ### CityHeader
 **Behavior:**

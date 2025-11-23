@@ -69,7 +69,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
           whileTap={{ scale: 0.98 }}
         >
           <h2
-            className="text-xl font-bold text-[#667eea] flex items-center gap-2"
+            className="text-xl font-bold flex items-center gap-2"
             onClick={(e) => {
               e.stopPropagation();
               handleCountryClick();
@@ -84,7 +84,6 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
             initial={false}
             animate={{ rotate: isCollapsed ? 0 : 180 }}
             transition={{ duration: 0.2 }}
-            className="text-[#667eea]"
           >
             <ChevronDown className="h-5 w-5" />
           </motion.div>

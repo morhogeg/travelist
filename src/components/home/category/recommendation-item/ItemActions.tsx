@@ -1,7 +1,6 @@
 import React from "react";
-import { Edit, Navigation, Check, Circle } from "lucide-react";
+import { Navigation, Check, Circle } from "lucide-react";
 import { RecommendationItemProps } from "./types";
-import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import { generateMapLink } from "@/utils/link-helpers";
 
 type ItemActionsProps = {
@@ -36,21 +35,6 @@ const ItemActions: React.FC<ItemActionsProps> = ({
     onToggleVisited(idToUse, item.name, !!item.visited);
   };
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onEditClick) {
-      onEditClick(item);
-    }
-  };
-
-  const handleCheckedChange = (checked: boolean | string) => {
-    const idToUse = item.recId || item.id;
-    if (!idToUse) {
-      console.error("Missing ID for visited toggle", item);
-      return;
-    }
-    onToggleVisited(idToUse, item.name, !!item.visited);
-  };
 
   const mapUrl = generateMapLink(item.name, item.location);
 
@@ -82,21 +66,6 @@ const ItemActions: React.FC<ItemActionsProps> = ({
       >
         <Navigation className="h-4 w-4" />
       </a>
-
-      {onEditClick && (
-        <button
-          className="text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-full hover:bg-muted/60"
-          onClick={handleEdit}
-          aria-label="Edit recommendation"
-        >
-          <Edit className="h-4 w-4" />
-        </button>
-      )}
-
-      <DeleteConfirmDialog
-        itemName={item.name}
-        onDelete={handleDelete}
-      />
     </div>
   );
 };
