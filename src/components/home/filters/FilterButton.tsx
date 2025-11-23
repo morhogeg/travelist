@@ -16,12 +16,12 @@ const FilterButton: React.FC<FilterButtonProps> = ({ activeCount, onClick }) => 
 
   return (
     <motion.button
-      whileTap={{ scale: 0.96 }}
+      whileTap={{ scale: 0.92 }}
       onClick={handleClick}
-      className="relative flex items-center justify-center min-h-11 min-w-11 py-2.5 px-3 rounded-xl liquid-glass-clear ios26-transition-spring hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 flex-shrink-0"
+      className="relative flex items-center justify-center min-h-11 min-w-11 rounded-full liquid-glass-clear ios26-transition-smooth hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 flex-shrink-0 text-neutral-700 dark:text-neutral-300"
       aria-label={`Filters${activeCount > 0 ? ` (${activeCount} active)` : ""}`}
     >
-      <SlidersHorizontal className="h-5 w-5 text-[#667eea] opacity-70" />
+      <SlidersHorizontal className="h-5 w-5" />
 
       <AnimatePresence>
         {activeCount > 0 && (

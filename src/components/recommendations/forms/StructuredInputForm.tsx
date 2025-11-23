@@ -91,8 +91,9 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
           context: undefined,
         };
 
-    form.reset(values);
-  }, [editRecommendation, initialCity, initialCountry, form]);
+    // Force reset with keepDefaultValues: false to clear all fields
+    form.reset(values, { keepDefaultValues: false });
+  }, [editRecommendation, initialCity, initialCountry]);
 
   const handleSubmit = (values: FormValues) => {
     console.log("📋 FORM SUBMIT - Raw values:", values);

@@ -525,6 +525,260 @@
 
 /* Custom button icons */
 .btn-icon {
-  @apply flex items-center justify-center w-9 h-9 rounded-full bg-muted/80 text-muted-foreground 
+  @apply flex items-center justify-center w-9 h-9 rounded-full bg-muted/80 text-muted-foreground
     hover:bg-muted hover:text-foreground transition-colors;
+}
+
+/* ========================================
+   Category Color System
+   ======================================== */
+
+:root {
+  /* Food - Orange/Warm */
+  --category-food-from: 251 86% 58%; /* #FB923C */
+  --category-food-to: 24 95% 53%; /* #F97316 */
+  --category-food-glow: 24 95% 53% / 0.15;
+
+  /* Lodging - Blue/Cool */
+  --category-lodging-from: 217 91% 60%; /* #3B82F6 */
+  --category-lodging-to: 221 83% 53%; /* #2563EB */
+  --category-lodging-glow: 221 83% 53% / 0.15;
+
+  /* Attractions - Purple */
+  --category-attractions-from: 258 90% 66%; /* #A78BFA */
+  --category-attractions-to: 262 83% 58%; /* #8B5CF6 */
+  --category-attractions-glow: 262 83% 58% / 0.15;
+
+  /* Shopping - Pink */
+  --category-shopping-from: 330 81% 60%; /* #F472B6 */
+  --category-shopping-to: 333 71% 51%; /* #EC4899 */
+  --category-shopping-glow: 333 71% 51% / 0.15;
+
+  /* Nightlife - Indigo */
+  --category-nightlife-from: 239 84% 67%; /* #818CF8 */
+  --category-nightlife-to: 243 75% 59%; /* #6366F1 */
+  --category-nightlife-glow: 243 75% 59% / 0.15;
+
+  /* App Purple Gradient (for attribution pills) */
+  --app-purple-from: 249 53% 58%; /* #667eea */
+  --app-purple-to: 279 44% 52%; /* #764ba2 */
+}
+
+.dark {
+  /* Slightly more vibrant colors in dark mode */
+  --category-food-from: 251 90% 62%;
+  --category-food-to: 24 100% 57%;
+
+  --category-lodging-from: 217 95% 64%;
+  --category-lodging-to: 221 87% 57%;
+
+  --category-attractions-from: 258 94% 70%;
+  --category-attractions-to: 262 87% 62%;
+
+  --category-shopping-from: 330 85% 64%;
+  --category-shopping-to: 333 75% 55%;
+
+  --category-nightlife-from: 239 88% 71%;
+  --category-nightlife-to: 243 79% 63%;
+}
+
+/* Category Gradient Backgrounds */
+.category-food-gradient {
+  background: linear-gradient(135deg, hsl(var(--category-food-from)) 0%, hsl(var(--category-food-to)) 100%);
+}
+
+.category-lodging-gradient {
+  background: linear-gradient(135deg, hsl(var(--category-lodging-from)) 0%, hsl(var(--category-lodging-to)) 100%);
+}
+
+.category-attractions-gradient {
+  background: linear-gradient(135deg, hsl(var(--category-attractions-from)) 0%, hsl(var(--category-attractions-to)) 100%);
+}
+
+.category-shopping-gradient {
+  background: linear-gradient(135deg, hsl(var(--category-shopping-from)) 0%, hsl(var(--category-shopping-to)) 100%);
+}
+
+.category-nightlife-gradient {
+  background: linear-gradient(135deg, hsl(var(--category-nightlife-from)) 0%, hsl(var(--category-nightlife-to)) 100%);
+}
+
+/* App Purple Gradient */
+.app-purple-gradient {
+  background: linear-gradient(135deg, hsl(var(--app-purple-from)) 0%, hsl(var(--app-purple-to)) 100%);
+}
+
+/* Category Glow Effects */
+.category-food-glow {
+  box-shadow: 0 0 20px hsl(var(--category-food-glow));
+}
+
+.category-lodging-glow {
+  box-shadow: 0 0 20px hsl(var(--category-lodging-glow));
+}
+
+.category-attractions-glow {
+  box-shadow: 0 0 20px hsl(var(--category-attractions-glow));
+}
+
+.category-shopping-glow {
+  box-shadow: 0 0 20px hsl(var(--category-shopping-glow));
+}
+
+.category-nightlife-glow {
+  box-shadow: 0 0 20px hsl(var(--category-nightlife-glow));
+}
+
+/* ========================================
+   Premium Card Animations
+   ======================================== */
+
+/* Card Entry Animation with Stagger */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-enter {
+  animation: card-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Stagger delays for multiple cards */
+.card-enter-0 { animation-delay: 0ms; }
+.card-enter-1 { animation-delay: 30ms; }
+.card-enter-2 { animation-delay: 60ms; }
+.card-enter-3 { animation-delay: 90ms; }
+.card-enter-4 { animation-delay: 120ms; }
+.card-enter-5 { animation-delay: 150ms; }
+.card-enter-6 { animation-delay: 180ms; }
+.card-enter-7 { animation-delay: 210ms; }
+.card-enter-8 { animation-delay: 240ms; }
+.card-enter-9 { animation-delay: 270ms; }
+
+/* Premium Card Hover */
+.premium-card-hover {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.premium-card-hover:hover {
+  transform: scale(1.01);
+}
+
+/* Emoji Pulse Animation */
+@keyframes emoji-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.emoji-pulse:hover {
+  animation: emoji-pulse 1s ease-in-out infinite;
+}
+
+/* Attribution Pill Tap Animation */
+@keyframes pill-tap {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.pill-tap:active {
+  animation: pill-tap 0.2s ease-in-out;
+}
+
+/* Checkmark Animation (for visited state) */
+@keyframes checkmark-draw {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.checkmark-animate {
+  stroke-dasharray: 20;
+  animation: checkmark-draw 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Radial Gradient Background Glow */
+.radial-gradient-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.radial-gradient-glow::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at top left, currentColor, transparent 50%);
+  opacity: 0.03;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.radial-gradient-glow:hover::before {
+  opacity: 0.06;
+}
+
+/* Enhanced Liquid Glass Border Glow */
+.glass-border-glow {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-border-glow::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, currentColor, transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.glass-border-glow:hover::after {
+  opacity: 0.4;
+}
+
+/* Smooth Spring Transitions */
+.transition-spring {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.transition-spring-fast {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Reduce Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .card-enter,
+  .premium-card-hover:hover,
+  .emoji-pulse:hover,
+  .pill-tap:active,
+  .checkmark-animate {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .premium-card-hover:hover {
+    transform: none !important;
+  }
 }

@@ -1,11 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import ItemImage from "./ItemImage";
 import ItemHeader from "./ItemHeader";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
-import { ExternalLink, UserCircle } from "lucide-react";
-import { formatUrl } from "@/utils/link-helpers";
+import { UserCircle } from "lucide-react";
+import { categories } from "@/components/recommendations/utils/category-data";
 
 const RecommendationItem: React.FC<RecommendationItemProps> = ({
   item,
@@ -17,13 +16,22 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   onViewDetails,
   getCategoryPlaceholder
 }) => {
-  // Debug logging
-  console.log('RecommendationItem:', item.name, {
-    hasSource: !!item.source,
-    source: item.source,
-    hasContext: !!item.context,
-    context: item.context
-  });
+  // Get category info
+  const getCategoryIcon = (category: string) => {
+    const cat = categories.find(c => c.id.toLowerCase() === category?.toLowerCase());
+    return cat?.icon || "📍";
+  };
+
+  const getCategoryColor = (category: string) => {
+    const colorMap: Record<string, string> = {
+      food: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+      lodging: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+      attractions: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+      shopping: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
+      nightlife: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
+    };
+    return colorMap[category?.toLowerCase()] || "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300";
+  };
 
   // Check if item has attribution data
   const hasAttribution = !!(
@@ -45,35 +53,27 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
       }`}
       onClick={() => onViewDetails?.(item)}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <ItemImage
-          item={item}
-          getCategoryPlaceholder={getCategoryPlaceholder}
-        />
-        {hasAttribution && (
-          <div className="absolute top-3 left-3 z-10">
-            <div className="bg-purple-500/90 hover:bg-purple-600 text-white p-1.5 rounded-full shadow-md transition-colors">
-              <UserCircle className="h-4 w-4" />
-            </div>
-          </div>
-        )}
-        {item.website && (
-          <div className="absolute top-3 right-3 z-10">
-            <a
-              href={formatUrl(item.website)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white/80 hover:bg-white text-primary p-1.5 rounded-full shadow-sm transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>
-        )}
-      </div>
-
       <div className="px-2.5 py-1.5 space-y-0.5">
-        <h3 className="text-sm font-semibold leading-tight">{item.name}</h3>
+        {/* Header with category and attribution badge */}
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-sm font-semibold leading-tight flex-1">{item.name}</h3>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* Attribution badge */}
+            {hasAttribution && (
+              <div className="bg-purple-500/90 text-white p-1 rounded-full">
+                <UserCircle className="h-3 w-3" />
+              </div>
+            )}
+
+            {/* Category badge */}
+            {item.category && (
+              <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${getCategoryColor(item.category)}`}>
+                {getCategoryIcon(item.category)}
+              </span>
+            )}
+          </div>
+        </div>
 
         {item.description && (
           <p className="text-sm text-muted-foreground">{item.description}</p>
@@ -102,9 +102,9 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           </p>
         )}
 
-        <ItemHeader item={item} />
+        <ItemHeader item={item} visited={!!item.visited} />
 
-        <ItemActions 
+        <ItemActions
           item={item}
           onDelete={onDelete}
           onToggleVisited={onToggleVisited}

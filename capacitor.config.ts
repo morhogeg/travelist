@@ -11,7 +11,7 @@ const config: CapacitorConfig = {
   // Live reload enabled - changes auto-update in simulator!
   ...(isDev && {
     server: {
-      url: 'http://192.168.1.151:5173',
+      url: 'http://192.168.1.180:5173',
       cleartext: true
     }
   }),

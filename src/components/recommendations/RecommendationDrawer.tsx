@@ -147,6 +147,7 @@ const RecommendationDrawer = ({
 
           {mode === "structured" ? (
             <StructuredInputForm
+              key={localEditRecommendation?.id || localEditRecommendation?.recId || 'new'}
               onSubmit={handleSubmitStructured}
               initialCity={localEditRecommendation?.location || initialCity}
               initialCountry={localEditRecommendation?.country || initialCountry}

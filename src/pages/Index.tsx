@@ -229,7 +229,7 @@ const Index: React.FC = () => {
 
         <div className="mb-3 space-y-3">
           {/* Filter + Categories Row */}
-          <div className="flex items-center gap-3 px-4">
+          <div className="flex items-center gap-3 pl-3 pr-4">
             <FilterButton
               activeCount={activeFilterCount}
               onClick={() => setIsFilterSheetOpen(true)}
