@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Folder, UserCircle } from "lucide-react"; // Changed Bookmark → Folder
+import { Home, Folder, UserCircle, MapPin } from "lucide-react"; // Changed Bookmark → Folder
 import { motion } from "framer-motion";
 import { haptics } from "@/utils/ios/haptics";
 
@@ -8,6 +8,7 @@ const Navbar = () => {
   const navItems = [
     { path: "/", label: "Home", icon: <Home className="h-5 w-5" /> },
     { path: "/collections", label: "Collections", icon: <Folder className="h-5 w-5" /> },
+    { path: "/routes", label: "Routes", icon: <MapPin className="h-5 w-5" /> },
     { path: "/profile", label: "Profile", icon: <UserCircle className="h-5 w-5" /> },
   ];
 

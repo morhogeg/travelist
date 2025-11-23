@@ -7,14 +7,18 @@ import { Button } from "@/components/ui/button";
 import SearchInput from "@/components/home/search/SearchInput";
 import CategoryList from "@/components/home/categories/CategoryList";
 import { categories } from "@/components/recommendations/utils/category-data";
-import { ArrowLeft, MapPin, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, ExternalLink, MapPinned } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { formatUrl } from "@/utils/link-helpers";
 import countryToCode from "@/utils/flags/countryToCode";
+import { createRouteFromCollection } from "@/utils/route/route-manager";
+import { useToast } from "@/hooks/use-toast";
+import { mediumHaptic } from "@/utils/ios/haptics";
 
 const CollectionDetailPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [collection, setCollection] = useState<any>(null);
   const [allItems, setAllItems] = useState<any[]>([]);
@@ -93,6 +97,66 @@ const CollectionDetailPage: React.FC = () => {
     availableCategories.includes(cat.id.toLowerCase())
   );
 
+  const handleConvertToRoute = () => {
+    mediumHaptic();
+
+    if (!collection || matchedItems.length === 0) {
+      toast({
+        title: "Cannot create route",
+        description: "No places in this collection to add to a route.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get the first item to determine city and country
+    const firstItem = matchedItems[0];
+    if (!firstItem.city || !firstItem.country) {
+      toast({
+        title: "Cannot create route",
+        description: "Collection items need city and country information.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if all items are from the same city
+    const cities = new Set(matchedItems.map(item => item.city));
+    if (cities.size > 1) {
+      toast({
+        title: "Multiple cities",
+        description: "This collection contains places from multiple cities. Routes can only contain places from a single city.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const placeIds = matchedItems.map(item => item.id);
+      const route = createRouteFromCollection(
+        collection.name,
+        firstItem.cityId,
+        firstItem.city,
+        firstItem.country,
+        placeIds
+      );
+
+      toast({
+        title: "Route created!",
+        description: `"${collection.name}" has been converted to a route.`,
+      });
+
+      navigate(`/routes/${route.id}`);
+    } catch (error) {
+      console.error("Error creating route from collection:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create route. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getFlag = (country: string | null): string => {
     if (!country) return "";
     const code = countryToCode[country];
@@ -131,6 +195,18 @@ const CollectionDetailPage: React.FC = () => {
           <p className="text-sm text-muted-foreground mt-1">
             {matchedItems.length} place{matchedItems.length !== 1 ? "s" : ""}
           </p>
+
+          {matchedItems.length > 0 && (
+            <Button
+              onClick={handleConvertToRoute}
+              variant="outline"
+              size="sm"
+              className="mt-3"
+            >
+              <MapPinned className="h-4 w-4 mr-2" />
+              Create Route
+            </Button>
+          )}
         </div>
       </div>
 

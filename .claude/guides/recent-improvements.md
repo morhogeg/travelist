@@ -1,5 +1,98 @@
 # Recent Improvements & Changes
 
+## Routes Feature (Nov 2025)
+
+### Feature
+Complete trip planning feature that allows users to create ordered itineraries from saved recommendations.
+
+### Key Capabilities
+- **Create Routes**: City-specific trip itineraries with optional dates
+- **Multi-Day Support**: Add multiple days to routes
+- **Drag-and-Drop Reordering**: Touch-optimized reordering of places within each day
+- **Progress Tracking**: Visual progress bars showing visited/total places
+- **Convert Collections**: One-click convert collections to ordered routes
+- **Delete Days**: Remove empty days from routes
+- **Status Grouping**: Routes organized as Upcoming, Ongoing, Past, or Undated
+
+### Implementation Details
+
+**New Components**:
+- `Routes.tsx` - Main routes list page
+- `RouteCard.tsx` - Individual route cards with progress
+- `RouteDetail.tsx` - Full route view with day-by-day breakdown
+- `DaySection.tsx` - Sortable day view with drag-and-drop
+- `CreateRouteDrawer.tsx` - Route creation form
+- `AddPlacesToRouteDrawer.tsx` - Place selection interface
+
+**Data Layer**:
+- `/src/types/route.ts` - TypeScript type definitions
+- `/src/utils/route/route-manager.ts` - CRUD operations and event system
+- localStorage with custom event dispatching
+
+**Libraries Added**:
+- `@dnd-kit/core` - Core drag-and-drop functionality
+- `@dnd-kit/sortable` - Sortable list support
+- `@dnd-kit/utilities` - Transform utilities
+
+**Touch Optimization**:
+- 250ms long-press activation delay
+- 5px tolerance to prevent accidental drags
+- Light haptic on drag start, medium on drop
+- Visual feedback: opacity, shadow, cursor changes
+
+**Navigation**:
+- Added Routes tab to main navbar (4 tabs now)
+- Routes at `/routes`
+- Route detail at `/routes/:id`
+
+### User Flows
+
+**Create Route**:
+1. Tap "+" floating button
+2. Enter name, select city, optional dates
+3. Auto-creates Day 1
+4. Navigate to route detail
+
+**Add Places**:
+1. Tap "Add" on a day
+2. Select places (city-filtered, checkboxes)
+3. Places appear numbered in order
+
+**Reorder**:
+1. Long-press drag handle (⋮⋮)
+2. Drag to new position
+3. Numbers auto-update
+
+**Convert Collection**:
+1. Open collection detail
+2. Tap "Create Route" button
+3. Validates single city
+4. Creates route with all places on Day 1
+
+### Design Consistency
+- Full iOS 26 Liquid Glass styling
+- Purple gradient theme throughout
+- Spring animations (120Hz optimized)
+- Proper haptic feedback
+- Empty states with illustrations
+- Progress bars with smooth animations
+
+### Testing
+- [x] Create/edit/delete routes
+- [x] Add/remove places
+- [x] Drag-and-drop reordering
+- [x] Multi-day support
+- [x] Progress tracking
+- [x] Collection conversion
+- [x] Delete empty days
+- [x] Navigation flow
+- [x] Haptic feedback
+- [x] Dark mode support
+
+See [Routes Feature Guide](./routes-feature.md) for complete documentation.
+
+---
+
 ## Clickable Cards (Nov 2025)
 
 ### Feature
