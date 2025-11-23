@@ -40,15 +40,6 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({ filters, onRemoveFilter }
     });
   });
 
-  // Price ranges
-  filters.priceRanges.forEach((price) => {
-    chips.push({
-      key: "priceRanges",
-      label: price,
-      value: price,
-    });
-  });
-
   // Priorities
   filters.priorities.forEach((priority) => {
     chips.push({

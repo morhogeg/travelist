@@ -4,7 +4,7 @@ import ItemHeader from "./ItemHeader";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
 import { UserCircle } from "lucide-react";
-import { categories } from "@/components/recommendations/utils/category-data";
+import { categories, getCategoryColor } from "@/components/recommendations/utils/category-data";
 
 const RecommendationItem: React.FC<RecommendationItemProps> = ({
   item,
@@ -22,15 +22,18 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
     return cat?.icon || "📍";
   };
 
-  const getCategoryColor = (category: string) => {
-    const colorMap: Record<string, string> = {
-      food: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
-      lodging: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-      attractions: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-      shopping: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
-      nightlife: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
+  // Get the category emoji
+  const getCategoryEmoji = (category: string): string => {
+    const emojiMap: Record<string, string> = {
+      food: "🍕",
+      lodging: "🏨",
+      attractions: "🎭",
+      shopping: "🛍️",
+      nightlife: "🌙",
+      outdoors: "🌲",
+      general: "📍"
     };
-    return colorMap[category?.toLowerCase()] || "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300";
+    return emojiMap[category?.toLowerCase()] || "📍";
   };
 
   // Check if item has attribution data
@@ -42,38 +45,51 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
     item.context?.visitPriority
   );
 
+  // Get border color for category
+  const borderColor = getCategoryColor(item.category || 'general');
+
   return (
     <motion.div
       key={item.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.05 * index }}
-      className={`liquid-glass-clear rounded-2xl overflow-hidden shadow-lg hover:shadow-xl ios26-transition-smooth cursor-pointer ${
+      className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${
         item.visited ? 'ring-2 ring-success/30' : ''
       }`}
+      style={{
+        border: 'none',
+        borderLeft: `4px solid ${borderColor}`,
+        boxShadow: 'none'
+      }}
       onClick={() => onViewDetails?.(item)}
     >
-      <div className="px-2.5 py-1.5 space-y-0.5">
-        {/* Header with category and attribution badge */}
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold leading-tight flex-1">{item.name}</h3>
-
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {/* Attribution badge */}
-            {hasAttribution && (
-              <div className="bg-purple-500/90 text-white p-1 rounded-full">
-                <UserCircle className="h-3 w-3" />
-              </div>
-            )}
-
-            {/* Category badge */}
-            {item.category && (
-              <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${getCategoryColor(item.category)}`}>
-                {getCategoryIcon(item.category)}
-              </span>
-            )}
+      <div className="px-3 py-2.5 space-y-1.5">
+        {/* Header with name, icon and attribution badge */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* Category icon */}
+            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center" style={{ color: borderColor }}>
+              {getCategoryIcon(item.category)}
+            </div>
+            <h3 className="text-base font-bold leading-tight flex-1">{item.name}</h3>
           </div>
+
+          {/* Attribution badge */}
+          {hasAttribution && (
+            <div className="bg-purple-500/90 text-white p-1 rounded-full flex-shrink-0">
+              <UserCircle className="h-3 w-3" />
+            </div>
+          )}
         </div>
+
+        {/* Subtle gradient divider */}
+        <div
+          className="h-px w-full rounded-full"
+          style={{
+            background: `linear-gradient(90deg, ${borderColor}40 0%, ${borderColor}10 50%, transparent 100%)`
+          }}
+        />
 
         {item.description && (
           <p className="text-sm text-muted-foreground">{item.description}</p>

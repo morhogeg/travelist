@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import CityHeader from "./CityHeader";
 import GridView from "./GridView";
-import ListView from "./ListView";
 import type { CityGroupProps } from "./types";
 
 interface Props extends CityGroupProps {
@@ -26,7 +25,6 @@ const CityGroup: React.FC<Props> = ({
   onDeleteRecommendation,
   onCityClick,
   onRefresh,
-  viewMode = "grid",
   hideCityHeader = false, // ✅ default false
   hideCountry = false
 }) => {
@@ -120,27 +118,15 @@ const CityGroup: React.FC<Props> = ({
             className="overflow-hidden"
           >
             <div className="mt-2">
-              {viewMode === "grid" ? (
-                <GridView
-                  items={processedItems}
-                  onDeleteRecommendation={handleDeleteRecommendation}
-                  onToggleVisited={handleToggleVisited}
-                  onCityClick={handleCityClickInternal}
-                  onEditClick={handleEdit}
-                  onViewDetails={onViewDetails}
-                  getCategoryPlaceholder={getCategoryPlaceholder}
-                />
-              ) : (
-                <ListView
-                  items={processedItems}
-                  onDeleteRecommendation={handleDeleteRecommendation}
-                  onToggleVisited={handleToggleVisited}
-                  onEditClick={handleEdit}
-                  onViewDetails={onViewDetails}
-                  onRefresh={onRefresh}
-                  hideCountry={hideCountry}
-                />
-              )}
+              <GridView
+                items={processedItems}
+                onDeleteRecommendation={handleDeleteRecommendation}
+                onToggleVisited={handleToggleVisited}
+                onCityClick={handleCityClickInternal}
+                onEditClick={handleEdit}
+                onViewDetails={onViewDetails}
+                getCategoryPlaceholder={getCategoryPlaceholder}
+              />
             </div>
           </motion.div>
         )}

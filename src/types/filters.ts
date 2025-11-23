@@ -3,7 +3,6 @@
 import { SourceType, VisitPriority } from "@/utils/recommendation/types";
 
 export type VisitStatusFilter = "all" | "visited" | "not-visited";
-export type PriceRangeFilter = "$" | "$$" | "$$$" | "$$$$";
 
 export interface FilterState {
   // Visit status
@@ -12,9 +11,6 @@ export interface FilterState {
   // Who recommended (source)
   sources: SourceType[];
   sourceNames: string[]; // Filter by specific person names
-
-  // Price range
-  priceRanges: PriceRangeFilter[];
 
   // Priority
   priorities: VisitPriority[];
@@ -31,7 +27,6 @@ export const INITIAL_FILTER_STATE: FilterState = {
   visitStatus: "all",
   sources: [],
   sourceNames: [],
-  priceRanges: [],
   priorities: [],
   occasions: [],
   countries: [],
@@ -45,7 +40,6 @@ export const countActiveFilters = (filters: FilterState): number => {
   if (filters.visitStatus !== "all") count++;
   if (filters.sources.length > 0) count++;
   if (filters.sourceNames.length > 0) count++;
-  if (filters.priceRanges.length > 0) count++;
   if (filters.priorities.length > 0) count++;
   if (filters.occasions.length > 0) count++;
   if (filters.countries.length > 0) count++;

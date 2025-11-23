@@ -4,7 +4,6 @@ import { FilterState, resetFilters, hasActiveFilters } from "@/types/filters";
 import { mediumHaptic, lightHaptic } from "@/utils/ios/haptics";
 import VisitStatusSection from "./sections/VisitStatusSection";
 import SourceSection from "./sections/SourceSection";
-import PriceRangeSection from "./sections/PriceRangeSection";
 import OccasionSection from "./sections/OccasionSection";
 import LocationSection from "./sections/LocationSection";
 
@@ -104,11 +103,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
                   sourceNames={localFilters.sourceNames}
                   onSourceNamesChange={(values) => setLocalFilters({ ...localFilters, sourceNames: values })}
                   availableSourceNames={availableSourceNames}
-                />
-
-                <PriceRangeSection
-                  values={localFilters.priceRanges}
-                  onChange={(values) => setLocalFilters({ ...localFilters, priceRanges: values })}
                 />
 
                 {availableOccasions.length > 0 && (

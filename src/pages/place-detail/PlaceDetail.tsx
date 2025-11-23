@@ -7,7 +7,6 @@ import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser
 import Layout from "@/components/layout/Layout";
 import { useToast } from "@/hooks/use-toast";
 import CategoryResults from "@/components/home/CategoryResults";
-import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
@@ -32,7 +31,6 @@ const PlaceDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editRecommendation, setEditRecommendation] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,10 +90,6 @@ const PlaceDetail = () => {
     window.addEventListener("categorySelected", categoryHandler);
     return () => window.removeEventListener("categorySelected", categoryHandler);
   }, []);
-
-  const toggleViewMode = () => {
-    setViewMode(prev => (prev === "grid" ? "list" : "grid"));
-  };
 
   const handleEditClick = (recommendation: any) => {
     setEditRecommendation(recommendation);
@@ -164,13 +158,6 @@ const PlaceDetail = () => {
           </motion.button>
         )}
 
-        {/* View Mode Toggle */}
-        {!isSearchExpanded && (
-          <div className="absolute right-3 top-3 z-40">
-            <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
-          </div>
-        )}
-
         <div className="flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">{place.name}</h1>
@@ -212,8 +199,6 @@ const PlaceDetail = () => {
           onDeleteRecommendation={() => {}}
           onEditClick={handleEditClick}
           onCityClick={() => {}}
-          viewMode={viewMode}
-          toggleViewMode={toggleViewMode}
           hideCityHeader
           hideCountryHeader
           showToggle={false}

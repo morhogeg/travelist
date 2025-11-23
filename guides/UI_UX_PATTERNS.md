@@ -183,50 +183,84 @@ data-[highlighted]:text-white
 - Clean, minimal aesthetic
 - Consistent appearance regardless of image quality
 - More recommendations visible on screen
+- **No shadows** - `boxShadow: 'none'` for clean, flat appearance
 
-### Card Structure
+### Card Structure (Updated November 23, 2025)
 ```tsx
-<motion.div className="liquid-glass-clear rounded-2xl px-2.5 py-1.5 space-y-0.5">
-  {/* Header: Title + Badges */}
-  <div className="flex items-start justify-between gap-2">
-    <h3 className="text-sm font-semibold flex-1">{name}</h3>
+<motion.div
+  className="liquid-glass-clear rounded-2xl overflow-hidden cursor-pointer relative"
+  style={{
+    borderLeft: `4px solid ${categoryColor}`,  // Colored accent border
+    borderTop: 'none',
+    borderRight: 'none',
+    borderBottom: 'none',
+    boxShadow: 'none'  // No grey shadows
+  }}
+>
+  <div className="px-3 py-2.5 space-y-1.5">
+    {/* Header with category icon, name, and attribution badge */}
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* Category Icon (from pills) */}
+        <div className="w-6 h-6 flex items-center justify-center" style={{ color: borderColor }}>
+          {getCategoryIcon(item.category)}
+        </div>
+        <h3 className="text-base font-bold leading-tight flex-1">{name}</h3>
+      </div>
 
-    <div className="flex items-center gap-1.5">
-      {/* Attribution badge (if has source/tip) */}
+      {/* Attribution badge */}
       {hasAttribution && (
         <div className="bg-purple-500/90 text-white p-1 rounded-full">
           <UserCircle className="h-3 w-3" />
         </div>
       )}
-
-      {/* Category badge */}
-      <span className="px-2 py-0.5 rounded-md text-xs">
-        {categoryEmoji}
-      </span>
     </div>
-  </div>
 
-  {/* Content sections... */}
+    {/* Gradient divider */}
+    <div className="h-px w-full rounded-full"
+      style={{
+        background: `linear-gradient(90deg, ${borderColor}40 0%, ${borderColor}10 50%, transparent 100%)`
+      }}
+    />
+
+    {/* Content sections... */}
+  </div>
 </motion.div>
 ```
 
-### Badge System
+### Key Visual Elements
+
+**4px Colored Left Border:**
+- Uses `getCategoryColor(category)` for color
+- Creates visual distinction without images
+- Matches category pill colors
+- Applied to entire card height
+
+**Category Icon (Not Emoji!):**
+- Uses `getCategoryIcon(category)` - same icons as category pills
+- Size: 24px (w-6 h-6)
+- Colored to match category
+- Consistent design language throughout app
 
 **Attribution Badge:**
 - **When to show:** Item has `source.name`, `context.specificTip`, or other attribution data
 - **Design:** Small purple circle (p-1) with UserCircle icon (h-3 w-3)
-- **Position:** Top-right, next to category badge
+- **Position:** Top-right of header
 
-**Category Badge:**
-- **Design:** Colored background matching category (orange/food, blue/lodging, etc.)
-- **Content:** Category emoji only (🍕 🏨 🎭 🛍️ 🌙)
-- **Size:** `px-2 py-0.5` with `text-xs font-medium`
-- **Colors:** Use category-specific classes from color system
+**Gradient Divider:**
+- Subtle separator after header
+- Uses category color at 40% → 10% → transparent
+- Adds polish without heavy lines
+
+**No Shadows:**
+- All cards use `boxShadow: 'none'`
+- Removes grey halos from liquid-glass-clear
+- Clean, modern, flat appearance
 
 ### Vertical List Layout
 **GridView displays cards as vertical list:**
 ```tsx
-<div className="space-y-3">
+<div className="space-y-3">  {/* Increased from space-y-2 for breathing room */}
   {items.map(item => <RecommendationItem />)}
 </div>
 ```
@@ -235,6 +269,7 @@ data-[highlighted]:text-white
 - ❌ No horizontal carousel (harder to scan, not iOS-native for lists)
 - ✅ Vertical scrolling is iOS standard for information-dense content
 - ✅ Natural reading flow
+- ✅ Consistent with detail dialog design
 - ✅ Easier to quickly scan through recommendations
 
 ### Content Hierarchy
@@ -278,6 +313,119 @@ data-[highlighted]:text-white
 - Title only, no tagline
 - Search expands from button click
 - View toggle hidden when search is active
+
+---
+
+## 📱 Detail Dialog Design (Updated November 23, 2025)
+
+### Text-Only, Information-Dense Philosophy
+Consistent with card design - no hero images, prioritizing:
+- Fast loading and performance
+- Clean, minimal aesthetic
+- Information density over visual flair
+- Consistent text-only experience
+
+### Dialog Structure
+```tsx
+<DialogContent
+  className="max-w-2xl w-full h-[90vh] p-0 overflow-hidden flex flex-col gap-0"
+  style={{
+    borderLeft: `4px solid ${categoryColor}`,  // Matches card accent
+    boxShadow: 'none'  // No shadows
+  }}
+>
+  {/* Compact Header */}
+  <div className="relative flex-shrink-0 px-6 py-5 bg-background border-b">
+    {/* Category icon (48px), title, location, date */}
+  </div>
+
+  {/* Scrollable Content */}
+  <div className="flex-1 overflow-y-auto">
+    {/* Attribution details, action buttons */}
+  </div>
+
+  {/* Fixed Footer - Equal width buttons */}
+  <div className="flex-shrink-0 p-4 border-t liquid-glass-clear flex items-center gap-3"
+    style={{ boxShadow: 'none' }}
+  >
+    {/* Delete, Edit, Close buttons */}
+  </div>
+</DialogContent>
+```
+
+### Key Design Decisions
+
+**No Hero Image:**
+- Removed 264px hero section entirely
+- Replaced with compact 120px header
+- Saves vertical space for content
+- Consistent with text-only philosophy
+
+**4px Vertical Left Border:**
+- Applied to entire dialog (not just header)
+- Uses `getCategoryColor(category)` for color
+- Subtle category indication
+- Matches card design language
+
+**48px Category Icon:**
+- Uses `getCategoryIcon()` - same as cards and pills
+- Colored to match category
+- Size: `w-12 h-12 text-3xl`
+- Creates strong visual hierarchy
+
+**Integrated Header Metadata:**
+- Title: `text-2xl font-extrabold`
+- Location with MapPin icon (inline)
+- Country with Globe icon (inline)
+- "Added on" date with Calendar icon
+- All in single compact section
+
+**Clean Header Background:**
+- Uses `bg-background` instead of liquid-glass-clear
+- Simple `border-b` separator
+- No glass morphism effects
+- Clean, readable design
+
+**Equal-Width Footer Buttons:**
+- All three buttons use `flex-1` for balanced layout
+- Delete (destructive), Edit (outline), Close (outline)
+- Icons + text for clarity
+- Proper spacing with `gap-3`
+
+### Avoid These Patterns
+
+❌ **Don't:** Use hero images in detail dialogs
+```tsx
+// This conflicts with text-only philosophy
+<div className="h-64 w-full">
+  <img src={image} />
+</div>
+```
+
+✅ **Do:** Use compact icon-based header
+```tsx
+<div className="flex items-start gap-4">
+  <div className="w-12 h-12 text-3xl" style={{ color: categoryColor }}>
+    {categoryIcon}
+  </div>
+  <div className="flex-1">
+    <h2 className="text-2xl font-extrabold">{name}</h2>
+  </div>
+</div>
+```
+
+❌ **Don't:** Place accent bars at bottom of header sections
+```tsx
+// This creates harsh separation
+<div className="border-b-4" style={{ borderColor: categoryColor }} />
+```
+
+✅ **Do:** Use subtle left border on entire dialog
+```tsx
+<DialogContent
+  style={{ borderLeft: `4px solid ${categoryColor}` }}
+>
+```
 
 ---
 

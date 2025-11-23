@@ -4,7 +4,6 @@ import { Plus } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import SearchHeader from "@/components/home/SearchHeader";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
-import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 import { FilterButton, FilterSheet } from "@/components/home/filters";
@@ -31,7 +30,6 @@ const Index: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
   const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
 
@@ -185,10 +183,6 @@ const Index: React.FC = () => {
     navigate(`/place/${cityId}`);
   };
 
-  const toggleViewMode = () => {
-    setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
-  };
-
   const handleRemoveFilter = (filterKey: keyof FilterState, value?: string) => {
     setFilters((prev) => {
       const newFilters = { ...prev };
@@ -223,8 +217,6 @@ const Index: React.FC = () => {
       >
         <SearchHeader
           heading="Travelist"
-          viewMode={viewMode}
-          onToggleViewMode={toggleViewMode}
         />
 
         <div className="mb-3 space-y-3">
@@ -251,8 +243,6 @@ const Index: React.FC = () => {
           onViewDetails={handleViewDetails}
           onCityClick={handleCityClick}
           onRefresh={loadRecommendations}
-          viewMode={viewMode}
-          toggleViewMode={toggleViewMode}
         />
 
         <RecommendationDrawer

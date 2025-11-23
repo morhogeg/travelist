@@ -7,7 +7,6 @@ import Layout from "@/components/layout/Layout";
 import CategoryResults from "@/components/home/CategoryResults";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
-import ViewModeToggle from "@/components/home/category/ViewModeToggle";
 import SearchInput from "@/components/home/search/SearchInput";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
@@ -22,7 +21,6 @@ const CountryView: React.FC = () => {
   const navigate = useNavigate();
 
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editRecommendation, setEditRecommendation] = useState<any>(null);
@@ -73,10 +71,6 @@ const CountryView: React.FC = () => {
     navigate(`/place/${cityId}`);
   };
 
-  const toggleViewMode = () => {
-    setViewMode(prev => (prev === "grid" ? "list" : "grid"));
-  };
-
   const handleAddClick = () => {
     setEditRecommendation(null);
     setIsDrawerOpen(true);
@@ -120,13 +114,6 @@ const CountryView: React.FC = () => {
         >
           <ArrowLeft className="h-5 w-5 text-[#667eea]" />
         </motion.button>
-
-        {/* View Mode Toggle */}
-        {!isSearchExpanded && (
-          <div className="absolute right-3 top-3 z-40">
-            <ViewModeToggle viewMode={viewMode} onToggleViewMode={toggleViewMode} />
-          </div>
-        )}
 
         {/* Search Icon Button */}
         {!isSearchExpanded && (
@@ -179,8 +166,6 @@ const CountryView: React.FC = () => {
           onDeleteRecommendation={handleDeleteRecommendation}
           onEditClick={handleEditClick}
           onCityClick={handleCityClick}
-          viewMode={viewMode}
-          toggleViewMode={toggleViewMode}
           hideCityHeader={false}
           hideCountryHeader={true}
           showToggle={false}

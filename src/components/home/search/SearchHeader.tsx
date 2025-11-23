@@ -7,10 +7,9 @@ import SearchInput from "./SearchInput";
 import SearchResults from "./SearchResults";
 import countryToCode from "@/utils/flags/countryToCode";
 import { ArrowLeft, Search as SearchIcon } from "lucide-react";
-import ViewModeToggle from "../category/ViewModeToggle";
 import { lightHaptic } from "@/utils/ios/haptics";
 
-const SearchHeader = ({ heading, viewMode, onToggleViewMode }: SearchHeaderProps) => {
+const SearchHeader = ({ heading }: SearchHeaderProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -161,13 +160,6 @@ const SearchHeader = ({ heading, viewMode, onToggleViewMode }: SearchHeaderProps
         >
           <ArrowLeft className="h-5 w-5 text-[#667eea]" />
         </button>
-      )}
-
-      {/* View Mode Toggle - only on home view */}
-      {viewMode && onToggleViewMode && !(isCityView || countryName) && !isSearchExpanded && (
-        <div className="absolute right-3 top-3 z-40">
-          <ViewModeToggle viewMode={viewMode} onToggleViewMode={onToggleViewMode} />
-        </div>
       )}
 
       {/* Search Icon Button - only on home view */}

@@ -19,15 +19,19 @@ const CategoryPill = ({
     <motion.button
       whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className={`flex items-center gap-2 min-h-11 py-2.5 px-4 rounded-xl text-sm font-semibold ios26-transition-spring relative ${
+      className={`flex items-center gap-2 min-h-11 py-2.5 px-4 rounded-xl text-sm font-semibold ios26-transition-spring relative shadow-none ${
         isActive
-          ? "text-white shadow-lg"
-          : "liquid-glass-clear text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60"
+          ? "text-white"
+          : "liquid-glass-clear bg-neutral-100/40 dark:bg-neutral-800/40 text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60"
       }`}
       style={isActive ? {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-      } : undefined}
+        border: 'none',
+        boxShadow: 'none'
+      } : {
+        border: 'none',
+        boxShadow: 'none'
+      }}
     >
       <span className={isActive ? "opacity-100" : "opacity-70"}>
         {icon}

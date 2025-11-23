@@ -1,6 +1,5 @@
 import React from "react";
-import { Edit, Navigation } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Edit, Navigation, Check, Circle } from "lucide-react";
 import { RecommendationItemProps } from "./types";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import { generateMapLink } from "@/utils/link-helpers";
@@ -56,22 +55,21 @@ const ItemActions: React.FC<ItemActionsProps> = ({
   const mapUrl = generateMapLink(item.name, item.location);
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center space-x-2 relative">
-        <Checkbox
-          id={`visited-${item.id || item.recId}`}
-          checked={!!item.visited}
-          className={item.visited ? "bg-success border-success text-white" : ""}
-          onCheckedChange={handleCheckedChange}
-          onClick={(e) => e.stopPropagation()}
-        />
-
-        {item.visited && (
-          <span className="absolute -top-3 -right-3 text-xs font-medium text-success bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">
-            <span className="h-3 w-3 mr-0.5">✓</span> Visited
-          </span>
+    <div className="flex items-center gap-3">
+      {/* Visited Toggle Button */}
+      <button
+        className={`transition-colors p-1.5 rounded-full hover:bg-muted/60 ${
+          item.visited ? 'text-success' : 'text-muted-foreground'
+        }`}
+        onClick={handleToggleVisited}
+        aria-label={item.visited ? "Mark as not visited" : "Mark as visited"}
+      >
+        {item.visited ? (
+          <Check className="h-4 w-4" />
+        ) : (
+          <Circle className="h-4 w-4" />
         )}
-      </div>
+      </button>
 
       {/* Google Maps Button */}
       <a
@@ -86,7 +84,7 @@ const ItemActions: React.FC<ItemActionsProps> = ({
       </a>
 
       {onEditClick && (
-        <button 
+        <button
           className="text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-full hover:bg-muted/60"
           onClick={handleEdit}
           aria-label="Edit recommendation"
@@ -95,9 +93,9 @@ const ItemActions: React.FC<ItemActionsProps> = ({
         </button>
       )}
 
-      <DeleteConfirmDialog 
-        itemName={item.name} 
-        onDelete={handleDelete} 
+      <DeleteConfirmDialog
+        itemName={item.name}
+        onDelete={handleDelete}
       />
     </div>
   );

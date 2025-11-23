@@ -55,16 +55,15 @@ npm run build:prod       # Production build
 - `src/components/home/category/CountryGroup.tsx` - Country sections (purple headers)
 - `src/components/home/category/CityGroup.tsx` - City sections
 - `src/components/home/category/CityHeader.tsx` - City headers with purple pin
-- `src/components/home/category/GridView.tsx` - Grid/carousel view for recommendations
-- `src/components/home/category/recommendation-item/RecommendationItem.tsx` - Individual cards (compact)
-- `src/components/home/category/ViewModeToggle.tsx` - Grid/List toggle (top-right, next to theme)
+- `src/components/home/category/GridView.tsx` - Vertical list view for recommendations
+- `src/components/home/category/recommendation-item/RecommendationItem.tsx` - Individual cards with colored borders, large emojis
 
 ### Filters
 - `src/components/home/filters/FilterButton.tsx` - Icon-only filter button with badge
-- `src/components/home/filters/FilterSheet.tsx` - Bottom drawer with filter sections
+- `src/components/home/filters/FilterSheet.tsx` - Bottom drawer with 4 filter types (visit status, source, occasions, location)
 - `src/components/home/filters/ActiveFilters.tsx` - Active filter chips
 - `src/components/home/filters/sections/` - Individual filter section components
-- `src/types/filters.ts` - Filter state types and helpers
+- `src/types/filters.ts` - Filter state types and helpers (no price range)
 - `src/utils/recommendation/filter-helpers.ts` - Filter logic
 
 ### Forms & Drawers
@@ -213,10 +212,34 @@ color: #764ba2;
 
 ## 🎯 Recent Changes Summary
 
-**Latest Session Changes (November 2025):**
+**Latest Session Changes (November 23, 2025):**
 
-**Filter System & Header Layout Improvements:**
-1. ✅ Comprehensive filter system with 5 filter types (visit status, source, price, occasions, location)
+**Final Polish & Detail Dialog Redesign:**
+1. ✅ **Removed all grey shadows** - added `boxShadow: 'none'` to cards and category pills
+2. ✅ **Enhanced card design** - replaced emojis with category pill icons, consistent design language
+3. ✅ **Improved visited button** - changed from checkbox to circle/check icon, removed blue hover state bug
+4. ✅ **Optimized spacing** - increased card spacing (space-y-3), pill spacing (gap-3), button spacing (gap-3)
+5. ✅ **Added subtle pill backgrounds** - inactive pills now have `bg-neutral-100/40` for better clickability
+6. ✅ **Redesigned detail dialog** - removed 264px hero image, replaced with compact text-only header
+7. ✅ **Vertical left border** - 4px colored accent on dialog (matches cards), removed aggressive bottom bar
+8. ✅ **Larger category icons** - increased to 48px in dialog header for better visual hierarchy
+9. ✅ **Integrated metadata** - moved "Added on" date into header, removed duplicate
+10. ✅ **Equal-width footer buttons** - Delete, Edit, and Close now balanced with `flex-1`
+11. ✅ **Search bar focus color** - changed from blue to purple (#667eea) for brand consistency
+12. ✅ **Clean header design** - removed glass morphism, using clean `bg-background` with `border-b`
+
+**Previous Session: Enhanced Text-Only Card Design & UX Improvements:**
+1. ✅ Unified card view - removed redundant gallery/list toggle
+2. ✅ Added colored 4px left border to cards (category-based)
+3. ✅ Larger 24x24 emoji for better visual hierarchy
+4. ✅ Gradient divider after card header for polish
+5. ✅ Improved spacing and typography (bolder names, better padding)
+6. ✅ Removed price range filter (simplified filter system)
+7. ✅ Text-only design philosophy - no images needed
+8. ✅ Single optimized view for all recommendation browsing
+
+**Previous: Filter System & Header Layout Improvements:**
+1. ✅ Comprehensive filter system with 4 filter types (visit status, source, occasions, location)
 2. ✅ Fixed filter button placement - now stays visible when scrolling categories
 3. ✅ All buttons meet iOS 44px minimum touch target standard
 4. ✅ Icon-only filter button with active count badge

@@ -61,13 +61,6 @@ export const getFilteredRecommendations = async (
             }
           }
 
-          // Price range filter
-          if (filters?.priceRanges && filters.priceRanges.length > 0) {
-            if (!p.context?.priceRange || !filters.priceRanges.includes(p.context.priceRange)) {
-              return false;
-            }
-          }
-
           // Priority filter
           if (filters?.priorities && filters.priorities.length > 0) {
             if (!p.context?.visitPriority || !filters.priorities.includes(p.context.visitPriority)) {

@@ -12,8 +12,10 @@ export interface CityGroupProps {
   index?: number;
   onEditClick?: (rec: any) => void;
   onViewDetails?: (rec: any) => void;
-  onRefresh?: () => void; // ✅ NEW: used by ListView/GridView to reload data
-  viewMode?: "grid" | "list";
+  onRefresh?: () => void; // ✅ NEW: used by GridView to reload data
+  onToggleVisited: (id: string) => void;
+  onDeleteRecommendation: (id: string) => void;
+  onCityClick?: (cityId: string) => void;
 }
 
 export interface CityHeaderProps {
@@ -32,11 +34,3 @@ export interface GridViewProps {
   getCategoryPlaceholder: (category: string) => string;
 }
 
-export interface ListViewProps {
-  items: Recommendation[];
-  onDeleteRecommendation: (recId: string, name: string) => void;
-  onToggleVisited: (recId: string, name: string, visited: boolean) => void;
-  onEditClick?: (item: Recommendation) => void;
-  onViewDetails?: (item: Recommendation) => void;
-  onRefresh?: () => void; // ✅ NEW: allows reloading from ListView directly
-}

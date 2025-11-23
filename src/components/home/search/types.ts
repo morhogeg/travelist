@@ -12,6 +12,4 @@ export interface SearchResult {
 
 export interface SearchHeaderProps {
   heading?: string;
-  viewMode?: "grid" | "list";
-  onToggleViewMode?: () => void;
 }
