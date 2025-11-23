@@ -333,15 +333,26 @@ Instead of solid grey borders, we use **gradient dividers that fade left-to-righ
 
 **Implementation:**
 ```tsx
-// Country gradient divider
-<div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30 mt-6 last:hidden" />
+// Country gradient divider (in CountryGroup.tsx)
+{!isLastCountry && (
+  <div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30 mt-6" />
+)}
 
-// City gradient divider
-<div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-3 last:hidden" />
+// City gradient divider (in CityGroup.tsx)
+{!isLastInCountry && (
+  <div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-3" />
+)}
 
 // Card spacing
 <div className="space-y-4">
 ```
+
+**Precise divider control:**
+- Uses `isLastInCountry` prop to control city dividers
+- Uses `isLastCountry` prop to control country dividers
+- CountryGroupList passes `isLastCountry={index === sortedCountries.length - 1}`
+- CountryGroup passes `isLastInCountry={index === groups.length - 1}`
+- Conditional rendering ensures dividers only show between items, not after last
 
 **Why gradients over solid borders:**
 - ✅ Matches existing card gradient divider pattern (consistent design language)
@@ -349,13 +360,17 @@ Instead of solid grey borders, we use **gradient dividers that fade left-to-righ
 - ✅ Less intrusive - fades to transparent instead of abrupt edge
 - ✅ Creates hierarchy through opacity rather than thickness
 - ✅ Full-width gradients visible on both light and dark modes
-- ✅ `last:hidden` removes divider from last item in each section
+- ✅ Conditional rendering provides precise control over divider placement
 
 **Visual hierarchy result:**
 - Country gradients more prominent (starts at 60% opacity)
 - City gradients subtle (starts at 40% opacity)
 - Both fade to transparent for soft, elegant appearance
 - Clear separation without harsh visual interruption
+- Shows between cities (Tel Aviv → Beer Sheba)
+- Shows between countries (Israel → United States)
+- Hides after last city in each country
+- Hides after last country in list
 
 ---
 

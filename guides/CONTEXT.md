@@ -229,6 +229,8 @@ color: #764ba2;
 12. ✅ **Gradient dividers** - replaced solid borders with elegant gradient fades (left-to-right: grey → transparent)
 13. ✅ **Three-tier hierarchy** - country gradients (60% opacity start) > city gradients (40% opacity) > card spacing
 14. ✅ **iOS-like elegance** - matches card gradient divider pattern, less intrusive than hard lines
+15. ✅ **Precise divider control** - conditional rendering with isLastInCountry/isLastCountry props
+16. ✅ **Perfect divider placement** - shows between cities, between countries, hides after last items
 
 **Previous Session: Profile & Settings Pages Redesign:**
 1. ✅ **Compact Profile header** - reduced avatar size (20px → 12px), title size (3xl → xl)
