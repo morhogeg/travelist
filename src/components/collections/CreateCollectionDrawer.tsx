@@ -15,7 +15,8 @@ import { addCollection, addPlaceToCollection } from "@/utils/collections/collect
 import { getUserPlaces } from "@/utils/recommendation-parser";
 import { getRecommendations } from "@/utils/recommendation-parser";
 import { useToast } from "@/hooks/use-toast";
-import { Search } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
+import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 
 interface CreateCollectionDrawerProps {
   isOpen: boolean;
@@ -69,11 +70,11 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
         }))
       );
 
-      // Combine and deduplicate by id
-      const allPlaces = [...placesFromUserPlaces, ...placesFromRecommendations];
+      // Only use places from recommendations (they have categories)
+      // Filter out cities from userPlaces
       const uniquePlaces = Array.from(
-        new Map(allPlaces.map(place => [place.id, place])).values()
-      );
+        new Map(placesFromRecommendations.map(place => [place.id, place])).values()
+      ).filter(place => place.category); // Only include places with categories
 
       setAvailablePlaces(uniquePlaces);
     } else {
@@ -190,21 +191,30 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
                 filteredPlaces.map(place => (
                   <div
                     key={place.id}
-                    className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-accent/50 transition-colors cursor-pointer"
+                    className="flex items-center space-x-3 p-3 rounded-lg border border-border transition-colors cursor-pointer"
                     onClick={() => handleTogglePlace(place.id)}
                   >
                     <Checkbox
                       checked={selectedPlaceIds.includes(place.id)}
                       onCheckedChange={() => handleTogglePlace(place.id)}
                       onClick={(e) => e.stopPropagation()}
+                      className="data-[state=checked]:bg-[#667eea] data-[state=checked]:border-[#667eea]"
                     />
-                    {place.image && (
-                      <img
-                        src={place.image}
-                        alt={place.name}
-                        className="w-12 h-12 rounded-md object-cover"
-                      />
-                    )}
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{
+                        backgroundColor: getCategoryColor(place.category || 'general'),
+                        color: '#666'
+                      }}
+                    >
+                      {place.category ? (
+                        <div className="scale-150">
+                          {getCategoryIcon(place.category)}
+                        </div>
+                      ) : (
+                        <MapPin className="h-5 w-5" />
+                      )}
+                    </div>
                     <div className="flex-1">
                       <p className="font-medium text-sm">{place.name}</p>
                       <p className="text-xs text-muted-foreground">

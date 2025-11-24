@@ -2,18 +2,20 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getCollections } from "@/utils/collections/collectionStore";
-import { getRecommendations } from "@/utils/recommendation-parser";
+import { getRecommendations, markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import { Button } from "@/components/ui/button";
 import SearchInput from "@/components/home/search/SearchInput";
 import CategoryList from "@/components/home/categories/CategoryList";
-import { categories } from "@/components/recommendations/utils/category-data";
-import { ArrowLeft, MapPin, ExternalLink, MapPinned } from "lucide-react";
+import { categories, getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
+import { ArrowLeft, MapPin, MapPinned, Compass } from "lucide-react";
 import Layout from "@/components/layout/Layout";
-import { formatUrl } from "@/utils/link-helpers";
 import countryToCode from "@/utils/flags/countryToCode";
-import { createRouteFromCollection } from "@/utils/route/route-manager";
+import { createRouteFromCollection, syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import { useToast } from "@/hooks/use-toast";
 import { mediumHaptic } from "@/utils/ios/haptics";
+import ItemActions from "@/components/home/category/recommendation-item/ItemActions";
+import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
+import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 
 const CollectionDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -24,6 +26,10 @@ const CollectionDetailPage: React.FC = () => {
   const [allItems, setAllItems] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
 
   useEffect(() => {
     if (!id || typeof id !== "string") return;
@@ -36,12 +42,11 @@ const CollectionDetailPage: React.FC = () => {
     const flattened = recs.flatMap(rec =>
       rec.places.map(place => ({
         ...place,
-        id: place.id,
         city: rec.city,
         cityId: rec.cityId || rec.id,
         country: rec.country,
+        location: place.location || `${place.name}, ${rec.city}, ${rec.country}`,
         category: place.category || rec.category,
-        image: place.image,
         dateAdded: rec.dateAdded
       }))
     );
@@ -50,6 +55,11 @@ const CollectionDetailPage: React.FC = () => {
   }, [id]);
 
   const toggleCategory = (categoryId: string) => {
+    if (categoryId === "all") {
+      setActiveCategories([]);
+      return;
+    }
+
     setActiveCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((c) => c !== categoryId)
@@ -58,6 +68,63 @@ const CollectionDetailPage: React.FC = () => {
   };
 
   const handleClearSearch = () => setSearchTerm("");
+
+  const handleViewDetails = (item: any) => {
+    setDetailsRecommendation(item);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleToggleVisited = (itemId: string, itemName: string, currentVisited: boolean) => {
+    const newVisitedState = !currentVisited;
+    markRecommendationVisited(itemId, itemName, newVisitedState);
+
+    // Sync to routes containing this place
+    syncVisitedStateToRoutes(itemId, newVisitedState);
+
+    // Reload items to reflect the change
+    const recs = getRecommendations();
+    const flattened = recs.flatMap(rec =>
+      rec.places.map(place => ({
+        ...place,
+        city: rec.city,
+        cityId: rec.cityId || rec.id,
+        country: rec.country,
+        location: place.location || `${place.name}, ${rec.city}, ${rec.country}`,
+        category: place.category || rec.category,
+        dateAdded: rec.dateAdded
+      }))
+    );
+    setAllItems(flattened);
+  };
+
+  const handleDetailsEdit = () => {
+    setDetailsDialogOpen(false);
+    setSelectedRecommendation(detailsRecommendation);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDetailsDelete = () => {
+    if (detailsRecommendation?.recId || detailsRecommendation?.id) {
+      const idToDelete = detailsRecommendation.recId || detailsRecommendation.id;
+      deleteRecommendation(idToDelete);
+      setDetailsDialogOpen(false);
+
+      // Reload items to reflect the change
+      const recs = getRecommendations();
+      const flattened = recs.flatMap(rec =>
+        rec.places.map(place => ({
+          ...place,
+          city: rec.city,
+          cityId: rec.cityId || rec.id,
+          country: rec.country,
+          location: place.location || `${place.name}, ${rec.city}, ${rec.country}`,
+          category: place.category || rec.category,
+          dateAdded: rec.dateAdded
+        }))
+      );
+      setAllItems(flattened);
+    }
+  };
 
   if (!collection) {
     return (
@@ -93,9 +160,12 @@ const CollectionDetailPage: React.FC = () => {
     )
   );
 
-  const filteredCategories = categories.filter((cat) =>
-    availableCategories.includes(cat.id.toLowerCase())
-  );
+  const filteredCategories = [
+    { id: "all", label: "All", icon: <Compass className="h-4 w-4" />, color: "#667eea" },
+    ...categories.filter((cat) => availableCategories.includes(cat.id.toLowerCase()))
+  ];
+
+  const resolvedActiveCategories = activeCategories.length === 0 ? ["all"] : activeCategories;
 
   const handleConvertToRoute = () => {
     mediumHaptic();
@@ -164,25 +234,9 @@ const CollectionDetailPage: React.FC = () => {
     return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
   };
 
-  const getCategoryIcon = (category: string) => {
-    const cat = categories.find(c => c.id.toLowerCase() === category?.toLowerCase());
-    return cat?.icon || "📍";
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colorMap: Record<string, string> = {
-      food: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
-      lodging: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-      attractions: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-      shopping: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
-      nightlife: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
-    };
-    return colorMap[category?.toLowerCase()] || "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300";
-  };
-
   return (
     <Layout>
-      <div className="px-4 pt-3 pb-4">
+      <div className="px-4 pt-1 pb-4">
         <button
           onClick={() => navigate(-1)}
           className="absolute left-3 top-3 p-2 z-50 hover:bg-[#667eea]/10 active:bg-[#667eea]/20 rounded-full transition-colors"
@@ -218,76 +272,96 @@ const CollectionDetailPage: React.FC = () => {
         />
 
         {filteredCategories.length > 0 && (
-          <CategoryList
-            categories={filteredCategories}
-            activeCategories={activeCategories}
-            onCategoryToggle={toggleCategory}
-          />
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <CategoryList
+              categories={filteredCategories}
+              activeCategories={resolvedActiveCategories}
+              onCategoryToggle={toggleCategory}
+            />
+          </div>
         )}
 
-        <div className="grid gap-4 pb-8">
-          {matchedItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.05 * index }}
-              className="liquid-glass-clear rounded-xl overflow-hidden shadow-md hover:shadow-lg ios26-transition-smooth"
-            >
-              <div className="flex gap-3 p-3">
-                {/* Image */}
-                <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
-                  <img
-                    src={item.image || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4"}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {item.category && (
-                    <div className={`absolute top-1 left-1 px-1.5 py-0.5 rounded text-xs font-medium ${getCategoryColor(item.category)}`}>
-                      {getCategoryIcon(item.category)}
+        <div className="space-y-3 pb-8">
+          {matchedItems.map((item, index) => {
+            const borderColor = getCategoryColor(item.category || 'general');
+
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.05 * index }}
+                className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${
+                  item.visited ? 'ring-2 ring-success/30' : ''
+                }`}
+                style={{
+                  border: 'none',
+                  borderLeft: `4px solid ${borderColor}`,
+                  boxShadow: 'none'
+                }}
+                onClick={() => handleViewDetails(item)}
+              >
+                <div className="px-3 py-2 flex gap-2">
+                  {/* Left side: Content */}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    {/* Header with name and category icon */}
+                    <div className="flex items-center gap-2">
+                      {/* Category icon */}
+                      <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: borderColor }}>
+                        {getCategoryIcon(item.category || 'general')}
+                      </div>
+                      <h3 className="text-base font-semibold leading-tight flex-1 truncate">{item.name}</h3>
                     </div>
-                  )}
+
+                    {item.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
+                    )}
+
+                    {/* Location info */}
+                    {(item.city || item.country) && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">
+                          {item.city && item.country
+                            ? `${item.city}, ${getFlag(item.country)} ${item.country}`
+                            : item.city || `${getFlag(item.country)} ${item.country}`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right side: Actions (vertically stacked) */}
+                  <div className="flex flex-col justify-between items-center py-1">
+                    <ItemActions
+                      item={item}
+                      onToggleVisited={handleToggleVisited}
+                      onDelete={() => {}}
+                      onEditClick={() => {}}
+                    />
+                  </div>
                 </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base leading-tight mb-1">{item.name}</h3>
-
-                  {(item.city || item.country) && (
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span className="truncate">
-                        {item.city && item.country
-                          ? `${item.city}, ${getFlag(item.country)} ${item.country}`
-                          : item.city || `${getFlag(item.country)} ${item.country}`}
-                      </span>
-                    </div>
-                  )}
-
-                  {item.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                      {item.description}
-                    </p>
-                  )}
-
-                  {item.website && (
-                    <a
-                      href={formatUrl(item.website)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                      Visit website
-                    </a>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
+
+      {/* Details Dialog */}
+      <RecommendationDetailsDialog
+        recommendation={detailsRecommendation}
+        isOpen={detailsDialogOpen}
+        onClose={() => setDetailsDialogOpen(false)}
+        onEdit={handleDetailsEdit}
+        onDelete={handleDetailsDelete}
+        onToggleVisited={handleToggleVisited}
+      />
+
+      {/* Recommendation Drawer for Editing */}
+      <RecommendationDrawer
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
+        editRecommendation={selectedRecommendation}
+      />
     </Layout>
   );
 };

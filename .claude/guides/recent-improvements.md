@@ -1,5 +1,157 @@
 # Recent Improvements & Changes
 
+## Collections Detail Page Improvements (Nov 24, 2025)
+
+### Overview
+Fixed critical bugs and improved UI consistency in the Collections detail page, making it fully functional with proper edit/delete capabilities and better visual design.
+
+### Issues Fixed
+
+#### 1. Non-Functional Edit & Delete Buttons
+**Problem**: Edit and Delete buttons in the RecommendationDetailsDialog were not working when opened from collection detail pages.
+
+**Root Cause**: Empty function handlers `() => {}` passed to `onEdit` and `onDelete` props.
+
+**Solution** (CollectionDetailPage.tsx):
+- Added state management for RecommendationDrawer
+- Imported and rendered RecommendationDrawer component
+- Implemented `handleDetailsEdit()` to open drawer in edit mode
+- Implemented `handleDetailsDelete()` to delete recommendations
+- Connected handlers to dialog props
+
+```typescript
+// Added state (lines 30-31)
+const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
+
+// Edit handler (lines 100-104)
+const handleDetailsEdit = () => {
+  setDetailsDialogOpen(false);
+  setSelectedRecommendation(detailsRecommendation);
+  setIsDrawerOpen(true);
+};
+
+// Delete handler (lines 106-127)
+const handleDetailsDelete = () => {
+  if (detailsRecommendation?.recId || detailsRecommendation?.id) {
+    const idToDelete = detailsRecommendation.recId || detailsRecommendation.id;
+    deleteRecommendation(idToDelete);
+    setDetailsDialogOpen(false);
+    // Reload items...
+  }
+};
+
+// Connected to dialog (lines 354-355)
+onEdit={handleDetailsEdit}
+onDelete={handleDetailsDelete}
+
+// Rendered drawer (lines 360-364)
+<RecommendationDrawer
+  isDrawerOpen={isDrawerOpen}
+  setIsDrawerOpen={setIsDrawerOpen}
+  editRecommendation={selectedRecommendation}
+/>
+```
+
+#### 2. Mark Visited Button Color Issue
+**Problem**: Unvisited state used gray colors (`border-gray-300 hover:bg-gray-50`) that didn't match app's purple/blue gradient theme.
+
+**Solution** (RecommendationDetailsDialog.tsx:154):
+Changed from gray to purple theme colors:
+```typescript
+className={`flex-1 min-w-[140px] ios26-transition-smooth ${
+  recommendation.visited
+    ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+    : 'border-purple-400 hover:bg-purple-50 text-purple-700'  // ← Updated
+}`}
+```
+
+#### 3. Visited Toggle in Card Items
+**Problem**: Small visited toggle button wasn't visually distinct enough, especially when marked as visited.
+
+**Solution** (ItemActions.tsx:44-58):
+- Added green background for visited state: `bg-success/20 text-success hover:bg-success/30`
+- Increased padding for better touch target: `p-1`
+- Made check icon bolder: `strokeWidth={2.5}`
+- Improved hover states for better feedback
+
+#### 4. Friend Filter Navigation from Collections
+**Problem**: Clicking on friend names in collection detail dialogs didn't navigate to home with filter.
+
+**Solution** (RecommendationDetail.tsx:95):
+Extended path check to include collections:
+```typescript
+if (currentPath && (currentPath.startsWith('/routes/') || currentPath.startsWith('/collections/'))) {
+  // Navigate to home with filter and return path
+}
+```
+
+#### 5. Back Button Text
+**Problem**: Back button always showed "Back to Route" even when coming from collections.
+
+**Solution** (Index.tsx:265):
+Made text dynamic based on return path:
+```typescript
+{returnToPath.startsWith('/collections/') ? 'Back to Collection' : 'Back to Route'}
+```
+
+#### 6. Duplicate Location Display
+**Problem**: Location and country were both shown, causing duplication (e.g., "Pizza lila, Tel aviv, Israel" + "Israel").
+
+**Solution** (RecommendationDetailsDialog.tsx:77-83):
+Removed separate country display since it's already in the location string.
+
+#### 7. Mark Visited Button State Logic
+**Problem**: Button passed wrong state to toggle handler.
+
+**Solution** (RecommendationDetailsDialog.tsx:156):
+Changed to pass current state: `!!recommendation.visited` instead of flipped state.
+
+### Files Modified
+
+1. **CollectionDetailPage.tsx** (`/src/pages/collections/CollectionDetailPage.tsx`)
+   - Added drawer state management
+   - Implemented edit/delete handlers
+   - Imported and rendered RecommendationDrawer
+   - Imported deleteRecommendation utility
+
+2. **RecommendationDetailsDialog.tsx** (`/src/components/home/RecommendationDetailsDialog.tsx`)
+   - Updated Mark Visited button styling
+   - Fixed state passing logic
+   - Removed duplicate location display
+
+3. **ItemActions.tsx** (`/src/components/home/category/recommendation-item/ItemActions.tsx`)
+   - Enhanced visited toggle button styling
+   - Added visual distinction for visited state
+
+4. **RecommendationDetail.tsx** (`/src/components/recommendations/RecommendationDetail.tsx`)
+   - Extended friend filter navigation to support collections
+
+5. **Index.tsx** (`/src/pages/Index.tsx`)
+   - Made back button text dynamic based on source
+
+### Benefits
+- ✅ Collections detail page now fully functional
+- ✅ Edit button opens drawer for editing recommendations
+- ✅ Delete button removes recommendations from collection
+- ✅ Consistent purple/blue theme throughout UI
+- ✅ Better visual feedback for visited state
+- ✅ Friend filter navigation works from collections
+- ✅ Context-aware back button text
+- ✅ Cleaner location display without duplication
+
+### Testing Completed
+- [x] Edit button opens drawer with correct recommendation
+- [x] Delete button removes recommendation and updates list
+- [x] Mark Visited button has proper purple styling
+- [x] Visited toggle in cards shows green background when visited
+- [x] Friend name click navigates to home with filter
+- [x] Back button shows "Back to Collection" when appropriate
+- [x] Location displays once without duplication
+- [x] All changes persist and sync correctly
+
+---
+
 ## Day Editing Feature (Nov 2025)
 
 ### Feature

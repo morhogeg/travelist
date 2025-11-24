@@ -80,13 +80,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                   <MapPin className="h-3.5 w-3.5" />
                   <span>{recommendation.location}</span>
                 </div>
-
-                {recommendation.country && (
-                  <div className="flex items-center gap-1.5">
-                    <Globe className="h-3.5 w-3.5" />
-                    <span>{recommendation.country}</span>
-                  </div>
-                )}
               </div>
 
               {/* Added on Date - Moved to Header */}
@@ -158,9 +151,9 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                 className={`flex-1 min-w-[140px] ios26-transition-smooth ${
                   recommendation.visited
                     ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
-                    : 'border-gray-300 hover:bg-gray-50'
+                    : 'border-purple-400 hover:bg-purple-50 text-purple-700'
                 }`}
-                onClick={() => onToggleVisited(recommendation.recId, recommendation.name, !recommendation.visited)}
+                onClick={() => onToggleVisited(recommendation.recId, recommendation.name, !!recommendation.visited)}
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 <span>{recommendation.visited ? 'Visited' : 'Mark Visited'}</span>

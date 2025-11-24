@@ -91,8 +91,8 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
   }
 
   const handleSourceClick = (sourceName: string) => {
-    // Check if we're on a route detail page
-    if (currentPath && currentPath.startsWith('/routes/')) {
+    // Check if we're on a route or collection detail page
+    if (currentPath && (currentPath.startsWith('/routes/') || currentPath.startsWith('/collections/'))) {
       // Navigate to home with filter state and return path
       navigate('/', {
         state: {

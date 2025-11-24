@@ -252,7 +252,7 @@ const Index: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="pb-16"
       >
-        {/* Back Button - shown when navigating from route detail */}
+        {/* Back Button - shown when navigating from route or collection detail */}
         {returnToPath && (
           <div className="px-6 pt-2 pb-3">
             <Button
@@ -262,7 +262,7 @@ const Index: React.FC = () => {
               className="text-sm font-medium ios26-transition-smooth"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Route
+              {returnToPath.startsWith('/collections/') ? 'Back to Collection' : 'Back to Route'}
             </Button>
           </div>
         )}
