@@ -12,8 +12,9 @@ import CreateRouteDrawer from "@/components/routes/CreateRouteDrawer";
 
 const Routes: React.FC = () => {
   const [groupedRoutes, setGroupedRoutes] = useState<GroupedRoutes>({
-    upcoming: [],
     ongoing: [],
+    completed: [],
+    upcoming: [],
     past: [],
     undated: []
   });
@@ -55,8 +56,9 @@ const Routes: React.FC = () => {
   };
 
   const totalRoutes =
-    groupedRoutes.upcoming.length +
     groupedRoutes.ongoing.length +
+    groupedRoutes.completed.length +
+    groupedRoutes.upcoming.length +
     groupedRoutes.past.length +
     groupedRoutes.undated.length;
 
@@ -147,6 +149,12 @@ const Routes: React.FC = () => {
               />
 
               <RouteSection
+                title="Completed"
+                routes={groupedRoutes.completed}
+                icon={CheckCircle2}
+              />
+
+              <RouteSection
                 title="Upcoming"
                 routes={groupedRoutes.upcoming}
                 icon={Calendar}
@@ -167,12 +175,15 @@ const Routes: React.FC = () => {
 
             {/* Floating Add Button */}
             <motion.button
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
               onClick={handleCreateRoute}
-              className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-2xl flex items-center justify-center z-50"
+              className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+              aria-label="Add route"
               style={{
+                bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)'
+                boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
               }}
             >
               <Plus className="h-6 w-6 text-white" />

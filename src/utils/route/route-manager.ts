@@ -343,6 +343,37 @@ export const removeDayFromRoute = (routeId: string, dayNumber: number): boolean 
 };
 
 /**
+ * Update a day's label and/or date
+ */
+export const updateDay = (
+  routeId: string,
+  dayNumber: number,
+  label: string,
+  date: string
+): boolean => {
+  const routes = getRoutes();
+  const route = routes.find(r => r.id === routeId);
+
+  if (!route) return false;
+
+  const day = route.days.find(d => d.dayNumber === dayNumber);
+  if (!day) return false;
+
+  // Update label (empty string means remove custom label)
+  day.label = label.trim() || undefined;
+
+  // Update date (empty string means remove custom date)
+  day.date = date.trim() || undefined;
+
+  route.dateModified = new Date().toISOString();
+
+  localStorage.setItem(ROUTES_STORAGE_KEY, JSON.stringify(routes));
+  window.dispatchEvent(new CustomEvent("routeUpdated", { detail: route }));
+
+  return true;
+};
+
+/**
  * Calculate progress for a route
  */
 export const calculateRouteProgress = (route: Route): RouteWithProgress => {
@@ -367,9 +398,16 @@ export const calculateRouteProgress = (route: Route): RouteWithProgress => {
 };
 
 /**
- * Determine route status based on dates
+ * Determine route status based on completion and dates
  */
-export const getRouteStatus = (route: Route): RouteStatus => {
+export const getRouteStatus = (routeWithProgress: RouteWithProgress): RouteStatus => {
+  // Check completion first - if 100% visited, it's completed regardless of dates
+  if (routeWithProgress.progressPercentage === 100) {
+    return 'completed';
+  }
+
+  // Otherwise use date-based logic
+  const route = routeWithProgress;
   if (!route.startDate && !route.endDate) {
     return 'undated';
   }
@@ -416,8 +454,9 @@ export const getGroupedRoutes = (): GroupedRoutes => {
   const routesWithProgress = routes.map(calculateRouteProgress);
 
   const grouped: GroupedRoutes = {
-    upcoming: [],
     ongoing: [],
+    completed: [],
+    upcoming: [],
     past: [],
     undated: []
   };
@@ -428,12 +467,17 @@ export const getGroupedRoutes = (): GroupedRoutes => {
   });
 
   // Sort each group
-  grouped.upcoming.sort((a, b) => {
+  grouped.ongoing.sort((a, b) => {
     if (!a.startDate || !b.startDate) return 0;
     return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
   });
 
-  grouped.ongoing.sort((a, b) => {
+  grouped.completed.sort((a, b) => {
+    // Sort completed by most recently completed (modified date)
+    return new Date(b.dateModified).getTime() - new Date(a.dateModified).getTime();
+  });
+
+  grouped.upcoming.sort((a, b) => {
     if (!a.startDate || !b.startDate) return 0;
     return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
   });

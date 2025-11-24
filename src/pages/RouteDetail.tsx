@@ -11,7 +11,8 @@ import {
   removePlaceFromRoute,
   addDayToRoute,
   reorderPlacesInDay,
-  removeDayFromRoute
+  removeDayFromRoute,
+  updateDay
 } from "@/utils/route/route-manager";
 import { getRecommendations, markRecommendationVisited } from "@/utils/recommendation/recommendation-manager";
 import { Route, RouteDay, RoutePlaceReference } from "@/types/route";
@@ -19,6 +20,7 @@ import { RecommendationPlace, ParsedRecommendation, Recommendation } from "@/uti
 import { mediumHaptic, lightHaptic } from "@/utils/ios/haptics";
 import DaySection from "@/components/routes/DaySection";
 import AddPlacesToRouteDrawer from "@/components/routes/AddPlacesToRouteDrawer";
+import EditDayDrawer from "@/components/routes/EditDayDrawer";
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 import { format } from "date-fns";
 import {
@@ -42,6 +44,8 @@ const RouteDetail: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedPlaceDetails, setSelectedPlaceDetails] = useState<Recommendation | null>(null);
   const [selectedPlaceNotes, setSelectedPlaceNotes] = useState<string | undefined>(undefined);
+  const [isEditDayDrawerOpen, setIsEditDayDrawerOpen] = useState(false);
+  const [editingDay, setEditingDay] = useState<RouteDay | null>(null);
 
   const loadRoute = useCallback(() => {
     if (!id) return;
@@ -120,6 +124,23 @@ const RouteDetail: React.FC = () => {
     mediumHaptic();
     if (!id) return;
     removeDayFromRoute(id, dayNumber);
+  };
+
+  const handleEditDay = (dayNumber: number) => {
+    lightHaptic();
+    if (!route) return;
+    const day = route.days.find(d => d.dayNumber === dayNumber);
+    if (day) {
+      setEditingDay(day);
+      setIsEditDayDrawerOpen(true);
+    }
+  };
+
+  const handleSaveDay = (dayNumber: number, label: string, date: string) => {
+    if (!id) return;
+    updateDay(id, dayNumber, label, date);
+    setIsEditDayDrawerOpen(false);
+    setEditingDay(null);
   };
 
   const handlePlaceClick = (placeId: string) => {
@@ -325,6 +346,7 @@ const RouteDetail: React.FC = () => {
               onReorderPlaces={handleReorderPlaces}
               onRemoveDay={handleRemoveDay}
               onPlaceClick={handlePlaceClick}
+              onEditDay={handleEditDay}
             />
           ))}
         </div>
@@ -347,6 +369,14 @@ const RouteDetail: React.FC = () => {
         route={route}
         dayNumber={selectedDayNumber}
         onPlacesAdded={loadRoute}
+      />
+
+      {/* Edit Day Drawer */}
+      <EditDayDrawer
+        isOpen={isEditDayDrawerOpen}
+        onClose={() => setIsEditDayDrawerOpen(false)}
+        day={editingDay}
+        onSave={handleSaveDay}
       />
 
       {/* Place Details Dialog */}

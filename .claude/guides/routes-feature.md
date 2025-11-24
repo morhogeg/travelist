@@ -108,6 +108,7 @@ markRoutePlaceVisited(routeId, dayNumber, placeId, visited) → boolean
 // Day Management
 addDayToRoute(routeId, date?, label?) → boolean
 removeDayFromRoute(routeId, dayNumber) → boolean
+updateDay(routeId, dayNumber, label, date) → boolean
 
 // Utils
 calculateRouteProgress(route) → RouteWithProgress
@@ -138,6 +139,7 @@ Routes.tsx
 ```
 RouteDetail.tsx
   ├─ AddPlacesToRouteDrawer.tsx
+  ├─ EditDayDrawer.tsx
   └─ DaySection.tsx (for each day)
       └─ SortablePlaceItem (for each place)
           └─ DndContext (drag-and-drop)
@@ -246,15 +248,17 @@ handleToggleVisitedFromDrawer() // Sync visited state for route & source (NEW)
   onRemovePlace: (day, place) => void;
   onReorderPlaces: (day, places[]) => void;
   onRemoveDay: (day) => void;
-  onPlaceClick: (placeId) => void;  // NEW: Opens place detail drawer
+  onPlaceClick: (placeId) => void;  // Opens place detail drawer
+  onEditDay: (dayNumber) => void;  // NEW: Opens day edit drawer
 }
 ```
 
 **Features**:
-- **Header**: Day label, date, Add button, Delete button (if empty)
+- **Header**: Day label, date, Edit button, Add button, Delete button (if empty)
 - **Places List**: Sortable with drag handles
 - **Empty State**: Prompt to add first place
 - **Drag-and-Drop**: Touch-optimized reordering
+- **Edit Button**: Pencil icon to edit day label and date (NEW)
 
 **Delete Day Logic**:
 ```typescript
@@ -264,7 +268,41 @@ route.days.length > 1 && sortedPlaces.length === 0
 
 ---
 
-### 5. SortablePlaceItem (Sub-component of DaySection)
+### 5. EditDayDrawer.tsx
+
+**Purpose**: Edit day label and date
+
+**Props**:
+```typescript
+{
+  isOpen: boolean;
+  onClose: () => void;
+  day: RouteDay | null;
+  onSave: (dayNumber, label, date) => void;
+}
+```
+
+**Features**:
+- **Day Label Input**: Optional custom name (e.g., "Museum Day")
+- **Date Picker**: Optional specific date override
+- **Save Button**: Purple gradient button with Calendar icon
+- **Cancel Button**: Outline variant
+
+**Behavior**:
+- Opens when user clicks Edit (pencil) button on day header
+- Pre-fills current label and date values
+- Empty values revert to defaults (auto-calculated)
+- Saves via `updateDay()` function
+- Triggers route update event on save
+
+**Validation**:
+- No validation required (all fields optional)
+- Empty label → removes custom label → shows "Day X"
+- Empty date → removes override → uses calculated date
+
+---
+
+### 6. SortablePlaceItem (Sub-component of DaySection)
 
 **Purpose**: Individual draggable place item
 

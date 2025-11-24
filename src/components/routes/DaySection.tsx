@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, CheckCircle2, Circle, Trash2, Calendar, GripVertical } from "lucide-react";
+import { Plus, CheckCircle2, Circle, Trash2, Calendar, GripVertical, Edit2 } from "lucide-react";
 import { Route, RouteDay, RoutePlaceReference } from "@/types/route";
 import { RecommendationPlace } from "@/utils/recommendation/types";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ interface DaySectionProps {
   onReorderPlaces: (dayNumber: number, reorderedPlaces: RoutePlaceReference[]) => void;
   onRemoveDay: (dayNumber: number) => void;
   onPlaceClick: (placeId: string) => void;
+  onEditDay: (dayNumber: number) => void;
 }
 
 interface SortablePlaceItemProps {
@@ -176,6 +177,7 @@ const DaySection: React.FC<DaySectionProps> = ({
   onReorderPlaces,
   onRemoveDay,
   onPlaceClick,
+  onEditDay,
 }) => {
   const sortedPlaces = [...day.places].sort((a, b) => a.order - b.order);
 
@@ -244,6 +246,16 @@ const DaySection: React.FC<DaySectionProps> = ({
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          {/* Edit Day Button */}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onEditDay(day.dayNumber)}
+            className="text-muted-foreground hover:text-primary"
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+
           {route.days.length > 1 && sortedPlaces.length === 0 && (
             <Button
               size="sm"
@@ -254,14 +266,16 @@ const DaySection: React.FC<DaySectionProps> = ({
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onAddPlaces}
-          >
-            <Plus className="h-4 w-4 mr-1.5" />
-            Add
-          </Button>
+          {sortedPlaces.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onAddPlaces}
+            >
+              <Plus className="h-4 w-4 mr-1.5" />
+              Add
+            </Button>
+          )}
         </div>
       </div>
 

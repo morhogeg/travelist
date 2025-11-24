@@ -35,11 +35,12 @@ export interface RouteWithProgress extends Route {
 }
 
 // Grouping for route list view
-export type RouteStatus = 'upcoming' | 'ongoing' | 'past' | 'undated';
+export type RouteStatus = 'ongoing' | 'completed' | 'upcoming' | 'past' | 'undated';
 
 export interface GroupedRoutes {
-  upcoming: RouteWithProgress[];
   ongoing: RouteWithProgress[];
+  completed: RouteWithProgress[];
+  upcoming: RouteWithProgress[];
   past: RouteWithProgress[];
   undated: RouteWithProgress[];
 }

@@ -1,5 +1,302 @@
 # Recent Improvements & Changes
 
+## Day Editing Feature (Nov 2025)
+
+### Feature
+Users can now edit individual days in routes to customize labels and dates, providing flexibility beyond auto-calculated values.
+
+### Key Capabilities
+- **Edit Day Labels**: Add custom names like "Museum Day", "Beach Day", "Arrival Day"
+- **Edit Day Dates**: Override auto-calculated dates with specific dates
+- **Quick Access**: Edit button (pencil icon) on every day section
+- **Clear Overrides**: Empty fields to remove customizations and revert to defaults
+
+### Implementation Details
+
+**New Component**: `EditDayDrawer.tsx`
+
+Location: `/src/components/routes/EditDayDrawer.tsx`
+
+```typescript
+interface EditDayDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  day: RouteDay | null;
+  onSave: (dayNumber: number, label: string, date: string) => void;
+}
+```
+
+**New Function**: `updateDay(routeId, dayNumber, label, date)`
+
+Location: `/src/utils/route/route-manager.ts` (Lines 348-374)
+
+```typescript
+export const updateDay = (
+  routeId: string,
+  dayNumber: number,
+  label: string,
+  date: string
+): boolean => {
+  const routes = getRoutes();
+  const route = routes.find(r => r.id === routeId);
+
+  if (!route) return false;
+
+  const day = route.days.find(d => d.dayNumber === dayNumber);
+  if (!day) return false;
+
+  // Update label (empty string means remove custom label)
+  day.label = label.trim() || undefined;
+
+  // Update date (empty string means remove custom date)
+  day.date = date.trim() || undefined;
+
+  route.dateModified = new Date().toISOString();
+
+  localStorage.setItem(ROUTES_STORAGE_KEY, JSON.stringify(routes));
+  window.dispatchEvent(new CustomEvent("routeUpdated", { detail: route }));
+
+  return true;
+};
+```
+
+**Modified Components**:
+- `DaySection.tsx` (Lines 250-257) - Added Edit button
+- `RouteDetail.tsx` (Lines 129-144, 375-380) - Wired up drawer and handlers
+
+### User Flow
+
+1. User clicks pencil icon on day header
+2. Edit drawer opens with current values
+3. User modifies label and/or date
+4. Click "Save Changes"
+5. Day updates with new label/date
+6. Changes persist and trigger route update event
+
+### UI Elements
+- Edit button with Edit2 icon (pencil)
+- Ghost variant button (muted → primary on hover)
+- Positioned before Add/Delete buttons
+- Light haptic feedback on click
+- Purple gradient save button
+
+### Testing
+- [x] Edit day label updates header
+- [x] Edit day date overrides calculated date
+- [x] Clear label reverts to default "Day X"
+- [x] Clear date reverts to calculated date
+- [x] Changes persist across sessions
+- [x] Route modified timestamp updates
+- [x] Haptic feedback works
+
+### Benefits
+- ✅ Customize day names for better organization
+- ✅ Override dates when trip schedule changes
+- ✅ Flexible beyond rigid start/end dates
+- ✅ Easy to revert to defaults
+
+---
+
+## Completion-Based Route Status (Nov 2025)
+
+### Feature
+Routes now automatically move to "Completed" status when all places are marked as visited (100% progress), regardless of dates.
+
+### Key Capabilities
+- **Automatic Completion**: 100% visited → "Completed" status
+- **Priority Status**: Completion overrides date-based status
+- **New Section**: "Completed" section in Routes list
+- **Smart Sorting**: Completed routes sorted by most recently completed
+
+### Implementation Details
+
+**Modified Type**: `RouteStatus`
+
+Location: `/src/types/route.ts` (Line 38)
+
+```typescript
+export type RouteStatus = 'ongoing' | 'completed' | 'upcoming' | 'past' | 'undated';
+
+export interface GroupedRoutes {
+  ongoing: RouteWithProgress[];
+  completed: RouteWithProgress[];  // NEW
+  upcoming: RouteWithProgress[];
+  past: RouteWithProgress[];
+  undated: RouteWithProgress[];
+}
+```
+
+**Modified Function**: `getRouteStatus(routeWithProgress)`
+
+Location: `/src/utils/route/route-manager.ts` (Lines 372-416)
+
+```typescript
+export const getRouteStatus = (routeWithProgress: RouteWithProgress): RouteStatus => {
+  // Check completion first - if 100% visited, it's completed regardless of dates
+  if (routeWithProgress.progressPercentage === 100) {
+    return 'completed';
+  }
+
+  // Otherwise use date-based logic
+  // ... existing date logic
+};
+```
+
+**Modified Pages**:
+- `Routes.tsx` (Lines 15-19, 59-63, 151-155) - Added completed section
+
+### Status Hierarchy
+
+Routes organized in this order:
+1. **Ongoing** - In-progress routes (dates current, not 100% complete)
+2. **Completed** ✅ - All places visited (100% progress)
+3. **Upcoming** - Future trips (start date not arrived)
+4. **Undated** - No dates set
+5. **Past** - End date has passed
+
+### User Flow
+
+1. User marks last place as visited in route
+2. Route automatically moves to "Completed"
+3. Completed section appears/updates on Routes page
+4. Route stays completed even if dates change
+5. Unchecking a place moves route back to previous status
+
+### Testing
+- [x] 100% visited routes show as "Completed"
+- [x] Unchecking place moves back to "Ongoing"
+- [x] Completed section shows on Routes page
+- [x] Sorting by most recent completion works
+- [x] Completion overrides date status
+
+### Benefits
+- ✅ Clear distinction between active and finished trips
+- ✅ Easy to see which routes are done
+- ✅ Completion-based organization makes sense
+- ✅ Automatic status updates
+
+---
+
+## Seamless Multi-Step Route Creation (Nov 2025)
+
+### Feature
+Route creation is now a single seamless flow with 3 steps, eliminating the need to create a route and then go back in to add places.
+
+### Problem Solved
+**Before**: Broken flow with 3 redundant add buttons
+- Create route → Go back in → Add places (2 separate steps)
+- 3 different ways to add places (confusing)
+
+**After**: Seamless 3-step flow
+- Step 1: Route Details → Step 2: Select Places → Step 3: Review & Reorder → Done
+- Single "Add Places" button in empty state
+- Can reorder places before finalizing
+
+### Key Capabilities
+- **Step 1 - Route Details**: Name, city, optional dates
+- **Step 2 - Select Places**: Multi-select with checkboxes and search
+- **Step 3 - Review & Reorder**: Drag-and-drop to reorder before creating
+- **Progress Indicator**: Shows current step (1 of 3, 2 of 3, 3 of 3)
+- **Back Navigation**: Can go back between steps without losing selections
+- **Place Details**: Click place names in Step 2 to view full info
+
+### Implementation Details
+
+**Completely Rewritten**: `CreateRouteDrawer.tsx`
+
+Location: `/src/components/routes/CreateRouteDrawer.tsx` (673 lines)
+
+```typescript
+// Multi-step state management
+const [currentStep, setCurrentStep] = useState(1);
+const [selectedPlaceIds, setSelectedPlaceIds] = useState<Set<string>>(new Set());
+const [orderedPlaces, setOrderedPlaces] = useState<PlaceOption[]>([]);
+
+// Step 2: Select places with checkboxes
+const handleTogglePlace = (placeId: string) => {
+  setSelectedPlaceIds(prev => {
+    const next = new Set(prev);
+    if (next.has(placeId)) {
+      next.delete(placeId);
+    } else {
+      next.add(placeId);
+    }
+    return next;
+  });
+};
+
+// Step 3: Drag-and-drop reordering
+const handleDragEnd = (event: DragEndEvent) => {
+  const { active, over } = event;
+  if (over && active.id !== over.id) {
+    const oldIndex = orderedPlaces.findIndex(p => p.id === active.id);
+    const newIndex = orderedPlaces.findIndex(p => p.id === over.id);
+    setOrderedPlaces(arrayMove(orderedPlaces, oldIndex, newIndex));
+    mediumHaptic();
+  }
+};
+
+// Final creation navigates to new route
+const handleCreateRoute = () => {
+  const route = createRoute(...);
+  orderedPlaces.forEach((place, index) => {
+    addPlaceToRoute(route.id, 1, place.id, undefined);
+  });
+  navigate(`/routes/${route.id}`);
+};
+```
+
+**Modified Components**:
+- `DaySection.tsx` (Lines 257-278) - Hide "Add" button in header when empty
+
+### UI Elements
+
+**Step 1**:
+- Route name input
+- City selector (required)
+- Optional start/end dates
+
+**Step 2**:
+- Search bar to filter places
+- Checkbox for each place
+- Click place name to view details
+- Shows "X places selected"
+
+**Step 3**:
+- Drag handles (⋮⋮) for reordering
+- Numbered list (1, 2, 3...)
+- Category icons and colors
+- Hint: "Long-press and drag to reorder places"
+
+**Progress Bar**:
+- 3 segments showing current step
+- Filled segments = completed steps
+- Primary color for active/completed
+
+### Drag-and-Drop Details
+- Touch-optimized: 250ms long-press, 5px tolerance
+- Visual feedback: opacity + shadow while dragging
+- Medium haptic on successful reorder
+- Numbers auto-update after drop
+
+### Testing
+- [x] Step 1 validation (name + city required)
+- [x] Step 2 multi-select with checkboxes
+- [x] Place names clickable in Step 2
+- [x] Step 3 drag-and-drop reordering
+- [x] Back navigation preserves selections
+- [x] Create navigates to new route
+- [x] Places appear in correct order
+- [x] Haptic feedback works
+
+### Benefits
+- ✅ One seamless flow, no back-and-forth
+- ✅ Preview and reorder before finalizing
+- ✅ See place details before adding
+- ✅ Less confusing with single CTA
+
+---
+
 ## Two-Way Visited State Sync (Nov 2025)
 
 ### Feature
