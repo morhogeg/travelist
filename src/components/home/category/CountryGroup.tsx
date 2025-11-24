@@ -67,12 +67,12 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
       <div className="px-4">
       {!hideCountryHeader && (
         <motion.div
-          className="flex items-center justify-between mb-2 cursor-pointer min-h-11 -mx-2 px-2 rounded-lg hover:bg-[#667eea]/5 ios26-transition-smooth"
+          className="flex items-center justify-between mb-3 cursor-pointer min-h-11 -mx-2 px-3 py-2 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/30 hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth mt-2"
           onClick={toggleCollapse}
           whileTap={{ scale: 0.98 }}
         >
           <h2
-            className="text-xl font-bold flex items-center gap-2"
+            className="text-[17px] font-semibold flex items-center gap-2"
             onClick={(e) => {
               e.stopPropagation();
               handleCountryClick();
@@ -88,7 +88,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
             animate={{ rotate: isCollapsed ? 0 : 180 }}
             transition={{ duration: 0.2 }}
           >
-            <ChevronDown className="h-5 w-5" />
+            <ChevronDown className="h-4 w-4" />
           </motion.div>
         </motion.div>
       )}

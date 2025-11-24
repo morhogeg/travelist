@@ -8,8 +8,14 @@ import SearchResults from "./SearchResults";
 import countryToCode from "@/utils/flags/countryToCode";
 import { ArrowLeft, Search as SearchIcon } from "lucide-react";
 import { lightHaptic } from "@/utils/ios/haptics";
+import { FilterButton } from "@/components/home/filters";
 
-const SearchHeader = ({ heading }: SearchHeaderProps) => {
+interface ExtendedSearchHeaderProps extends SearchHeaderProps {
+  activeFilterCount?: number;
+  onFilterClick?: () => void;
+}
+
+const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: ExtendedSearchHeaderProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -167,11 +173,21 @@ const SearchHeader = ({ heading }: SearchHeaderProps) => {
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={toggleSearch}
-          className="absolute left-3 top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
+          className="absolute left-3 top-3 min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
           aria-label="Open search"
         >
           <SearchIcon className="h-5 w-5" />
         </motion.button>
+      )}
+
+      {/* Filter Button - only on home view, positioned top-right */}
+      {!(isCityView || countryName) && !isSearchExpanded && onFilterClick && (
+        <div className="absolute right-3 top-3 z-40">
+          <FilterButton
+            activeCount={activeFilterCount}
+            onClick={onFilterClick}
+          />
+        </div>
       )}
 
       <div className="flex items-center gap-4">
@@ -187,7 +203,7 @@ const SearchHeader = ({ heading }: SearchHeaderProps) => {
               {cityName}, {countryName}
             </h1>
           ) : (
-            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
               {heading || "Travelist"}
             </h1>
           )}

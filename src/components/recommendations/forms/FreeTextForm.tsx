@@ -120,9 +120,13 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
           )}
         />
 
-        <Button 
-          type="submit" 
-          className="w-full dark:bg-muted dark:text-white dark:hover:bg-muted/80"
+        <Button
+          type="submit"
+          className="w-full text-white"
+          style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            border: 'none'
+          }}
           disabled={isAnalyzing}
         >
           {isAnalyzing ? "Analyzing..." : "Add Recommendation"}

@@ -36,7 +36,7 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
         onClick={handleCityNameClick}
         whileTap={{ scale: 0.98 }}
       >
-        <h2 className="text-lg font-semibold">{cityName}</h2>
+        <h2 className="text-base font-medium">{cityName}</h2>
         <span className="text-sm text-muted-foreground">({itemCount})</span>
       </motion.div>
 
@@ -49,7 +49,7 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
           className="text-muted-foreground p-2 rounded-lg hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 ios26-transition-smooth"
           whileTap={{ scale: 0.95 }}
         >
-          <ChevronDown className="h-5 w-5" />
+          <ChevronDown className="h-4 w-4" />
         </motion.button>
       )}
     </div>

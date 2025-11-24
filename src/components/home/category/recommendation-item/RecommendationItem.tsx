@@ -54,58 +54,56 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
       }}
       onClick={() => onViewDetails?.(item)}
     >
-      <div className="px-3 py-2.5 space-y-1.5">
-        {/* Header with name and category icon */}
-        <div className="flex items-center gap-2">
-          {/* Category icon */}
-          <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center" style={{ color: borderColor }}>
-            {getCategoryIcon(item.category)}
+      <div className="px-3 py-2 flex gap-2">
+        {/* Left side: Content */}
+        <div className="flex-1 min-w-0 space-y-1">
+          {/* Header with name and category icon */}
+          <div className="flex items-center gap-2">
+            {/* Category icon */}
+            <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: borderColor }}>
+              {getCategoryIcon(item.category)}
+            </div>
+            <h3 className="text-base font-semibold leading-tight flex-1 truncate">{item.name}</h3>
           </div>
-          <h3 className="text-base font-bold leading-tight flex-1">{item.name}</h3>
+
+          {item.description && (
+            <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
+          )}
+
+          {/* Tip - shown first as it's actionable info */}
+          {item.context?.specificTip && (
+            <p className="text-[11px] text-amber-700 dark:text-amber-400 italic line-clamp-1">
+              💡 {item.context.specificTip}
+            </p>
+          )}
+
+          {/* Attribution Info - shown after tip */}
+          {item.source?.name && (
+            <p className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+              <UserCircle className="h-3 w-3" />
+              Recommended by{' '}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: item.source.name }));
+                }}
+                className="hover:text-foreground transition-colors font-semibold truncate"
+              >
+                {item.source.name}
+              </button>
+            </p>
+          )}
         </div>
 
-        {/* Subtle gradient divider */}
-        <div
-          className="h-px w-full rounded-full"
-          style={{
-            background: `linear-gradient(90deg, ${borderColor}40 0%, ${borderColor}10 50%, transparent 100%)`
-          }}
-        />
-
-        {item.description && (
-          <p className="text-sm text-muted-foreground">{item.description}</p>
-        )}
-
-        {/* Tip - shown first as it's actionable info */}
-        {item.context?.specificTip && (
-          <p className="text-xs text-amber-700 dark:text-amber-400 italic">
-            💡 {item.context.specificTip}
-          </p>
-        )}
-
-        {/* Attribution Info - shown after tip */}
-        {item.source?.name && (
-          <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-            <UserCircle className="h-3 w-3" />
-            Recommended by{' '}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: item.source.name }));
-              }}
-              className="hover:text-foreground transition-colors font-semibold"
-            >
-              {item.source.name}
-            </button>
-          </p>
-        )}
-
-        <ItemActions
-          item={item}
-          onDelete={onDelete}
-          onToggleVisited={onToggleVisited}
-          onEditClick={onEditClick}
-        />
+        {/* Right side: Actions (vertically stacked) */}
+        <div className="flex flex-col justify-between items-center py-1">
+          <ItemActions
+            item={item}
+            onDelete={onDelete}
+            onToggleVisited={onToggleVisited}
+            onEditClick={onEditClick}
+          />
+        </div>
       </div>
     </motion.div>
   );

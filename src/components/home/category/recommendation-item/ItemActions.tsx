@@ -39,19 +39,19 @@ const ItemActions: React.FC<ItemActionsProps> = ({
   const mapUrl = generateMapLink(item.name, item.location);
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-1.5">
       {/* Visited Toggle Button */}
       <button
-        className={`transition-colors p-1.5 rounded-full hover:bg-muted/60 ${
+        className={`transition-colors p-0.5 rounded-full hover:bg-muted/60 ${
           item.visited ? 'text-success' : 'text-muted-foreground'
         }`}
         onClick={handleToggleVisited}
         aria-label={item.visited ? "Mark as not visited" : "Mark as visited"}
       >
         {item.visited ? (
-          <Check className="h-4 w-4" />
+          <Check className="h-3.5 w-3.5" />
         ) : (
-          <Circle className="h-4 w-4" />
+          <Circle className="h-3.5 w-3.5" />
         )}
       </button>
 
@@ -60,11 +60,11 @@ const ItemActions: React.FC<ItemActionsProps> = ({
         href={mapUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-full hover:bg-muted/60"
+        className="text-muted-foreground hover:text-primary transition-colors p-0.5 rounded-full hover:bg-muted/60"
         onClick={(e) => e.stopPropagation()}
         aria-label="Open in Google Maps"
       >
-        <Navigation className="h-4 w-4" />
+        <Navigation className="h-3.5 w-3.5" />
       </a>
     </div>
   );

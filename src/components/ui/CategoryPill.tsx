@@ -19,7 +19,7 @@ const CategoryPill = ({
     <motion.button
       whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className={`flex items-center gap-2 min-h-11 py-2.5 px-4 rounded-xl text-sm font-semibold ios26-transition-spring relative shadow-none ${
+      className={`flex items-center gap-1.5 min-h-11 py-2.5 px-3 rounded-xl text-[13px] font-semibold ios26-transition-spring relative shadow-none ${
         isActive
           ? "text-white"
           : "liquid-glass-clear bg-neutral-100/40 dark:bg-neutral-800/40 text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60"

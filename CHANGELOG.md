@@ -1,0 +1,80 @@
+# Changelog
+
+All notable changes to the Travelist iOS app will be documented in this file.
+
+## [2025-11-24] - Home Screen Design Refinement
+
+### Major UI/UX Improvements
+
+#### Visual Hierarchy & Typography
+- **Header**: Reduced "Travelist" header from 34px bold → 28px semibold with refined letter-spacing for a more elegant appearance
+- **Country headers**: Optimized to 17px semibold with flag emoji and item count
+- **City headers**: Set to 16px medium weight (lighter than country for clear hierarchy)
+- **Place names**: Maintained at 16px semibold for content emphasis
+- **Chevrons**: Reduced from 20px → 16px for better visual balance
+
+#### Space Efficiency
+- **Card height reduction**: ~40% reduction (from 100-120px → 60-70px per card)
+  - Moved action buttons (visited/directions) from bottom to right side in vertical layout
+  - Removed gradient divider
+  - Tightened internal spacing (space-y-1.5 → space-y-1)
+  - Reduced padding (py-2.5 → py-2)
+- **Country spacing**: Halved from 48px → 24px between country groups
+- **Card spacing**: Reduced from 16px → 12px between cards
+- **Result**: 50% more content visible on screen without scrolling
+
+#### Action Icons
+- **Size refinement**: Reduced from 20px → 16px → 14px based on proportional testing
+- **Layout**: Changed from horizontal bottom layout to vertical right-side layout
+- **Final size**: 14px (h-3.5 w-3.5) for optimal balance with text content
+
+#### Navigation & Controls
+- **Search & Filter**: Converted to icon-only buttons (removed liquid-glass backgrounds)
+- **Filter button**: Relocated from category row to top-right corner (opposite search icon)
+- **FAB button**: Reduced from 64px → 56px with icon size 28px → 24px
+- **FAB visibility**: Now hides when filter drawer is open, returns when closed
+
+#### Category Pills
+- **Discoverability**: Always show "More" button when >3 categories exist
+- **Sizing**: Reduced font 14px → 13px, padding px-3.5 → px-3, gap-2 → gap-1.5
+- **Layout**: Moved left (pl-3) to ensure "X More" button fully visible
+- **Sheet component**: Created CategorySheet for multi-select category picking
+
+#### Brand Consistency
+- **Purple gradient**: Applied throughout UI - `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
+  - Active category pills
+  - FAB button
+  - "Add Recommendation" buttons (both FreeTextForm and StructuredInputForm)
+  - Header text gradient
+  - Active filter badges
+
+#### Sorting & Organization
+- **Countries**: Alphabetically sorted
+- **Cities**: Alphabetically sorted within each country
+- **Collapsible sections**: Both country and city levels with smooth animations
+
+### Technical Changes
+
+#### New Components
+- `src/components/home/categories/CategorySheet.tsx` - Full-screen category picker with multi-select
+
+#### Modified Components
+- `src/components/home/search/SearchHeader.tsx` - Icon-only search, filter button integration
+- `src/components/home/filters/FilterButton.tsx` - Removed glass background
+- `src/components/home/categories/CategoriesScrollbar.tsx` - Show 3 visible + More button
+- `src/components/home/category/CountryGroupList.tsx` - Alphabetical sorting, reduced spacing
+- `src/components/home/category/CountryGroup.tsx` - Typography and chevron size updates
+- `src/components/home/category/CityHeader.tsx` - Lighter typography, smaller chevrons
+- `src/components/home/category/recommendation-item/RecommendationItem.tsx` - Compact card layout redesign
+- `src/components/home/category/recommendation-item/ItemActions.tsx` - Vertical action layout
+- `src/components/home/category/GridView.tsx` - Tightened card spacing
+- `src/components/ui/CategoryPill.tsx` - Refined sizing
+- `src/components/recommendations/forms/FreeTextForm.tsx` - Purple gradient button
+- `src/pages/Index.tsx` - Filter integration, FAB visibility logic, category row padding
+
+### Design Principles Applied
+- **iOS 26 native feel**: System-appropriate interactions, 44pt touch targets, ProMotion animations
+- **Hierarchy through contrast**: Using both size AND weight differences for clear visual hierarchy
+- **Space efficiency**: Maximize content visibility while maintaining breathing room
+- **Brand consistency**: Purple gradient identity throughout the app
+- **Progressive disclosure**: Collapsible sections, category sheet for advanced filtering

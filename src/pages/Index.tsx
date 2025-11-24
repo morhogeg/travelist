@@ -6,7 +6,7 @@ import SearchHeader from "@/components/home/SearchHeader";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
-import { FilterButton, FilterSheet } from "@/components/home/filters";
+import { FilterSheet } from "@/components/home/filters";
 import ActiveFilters from "@/components/home/filters/ActiveFilters";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -269,20 +269,14 @@ const Index: React.FC = () => {
 
         <SearchHeader
           heading="Travelist"
+          activeFilterCount={activeFilterCount}
+          onFilterClick={() => setIsFilterSheetOpen(true)}
         />
 
         <div className="mb-3 space-y-3">
-          {/* Filter + Categories Row */}
-          <div className="flex items-center gap-3 pl-3 pr-4">
-            <FilterButton
-              activeCount={activeFilterCount}
-              onClick={() => setIsFilterSheetOpen(true)}
-            />
-            <div className="flex-1 min-w-0 relative">
-              <CategoriesScrollbar />
-              {/* Gradient hint for scrollable content */}
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
-            </div>
+          {/* Categories Row */}
+          <div className="pl-3 pr-4">
+            <CategoriesScrollbar />
           </div>
           <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         </div>
@@ -326,11 +320,11 @@ const Index: React.FC = () => {
         />
       </motion.div>
 
-      {!detailsDialogOpen && !isDrawerOpen && (
+      {!detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && (
         <motion.button
           whileTap={{ scale: 0.9 }}
           whileHover={{ scale: 1.05 }}
-          className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+          className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
           aria-label="Add recommendation"
           onClick={() => {
             mediumHaptic();
@@ -342,7 +336,7 @@ const Index: React.FC = () => {
             boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
           }}
         >
-          <Plus className="h-7 w-7" strokeWidth={2.5} />
+          <Plus className="h-6 w-6" strokeWidth={2.5} />
         </motion.button>
       )}
     </Layout>

@@ -42,8 +42,13 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
 
   const sortedCountries = Object.keys(countriesMap).sort((a, b) => a.localeCompare(b));
 
+  // Sort cities alphabetically within each country
+  sortedCountries.forEach(country => {
+    countriesMap[country].sort((a, b) => a.cityName.localeCompare(b.cityName));
+  });
+
   return (
-    <div className="mt-2 space-y-8">
+    <div className="mt-2 space-y-6">
       {sortedCountries.map((country, index) => (
         <CountryGroup
           key={country}
