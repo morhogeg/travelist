@@ -2,6 +2,41 @@
 
 All notable changes to the Travelist iOS app will be documented in this file.
 
+## [2025-11-24] - Design Consistency Across All Screens
+
+### Cross-App Design Standardization
+
+Following the home screen redesign, this update ensures consistent design standards across all app screens.
+
+#### FAB Button Standardization
+- **CountryView**: Updated FAB from 64px → 56px with icon 28px → 24px
+- **PlaceDetail**: Updated FAB from 64px → 56px with icon 28px → 24px
+- **Routes**: Updated FAB from 64px → 56px (icon was already correct at 24px)
+- **Result**: All floating action buttons now use consistent 56px size (w-14 h-14) with 24px icons (h-6 w-6)
+
+#### Typography Consistency
+- **Routes page**: Updated header from text-3xl (30px) → text-[28px] with tracking-[-0.01em]
+- **Settings page**: Updated header from text-3xl (30px) → text-[28px] with tracking-[-0.01em]
+- **Result**: All main page headers now use consistent 28px semibold font with refined letter-spacing
+
+#### Design Audit Findings
+- ✅ Purple gradient usage consistent across all screens
+- ✅ Category pills standardized at 13px font, px-3 padding
+- ✅ Action icons consistent at 14px (h-3.5 w-3.5)
+- ✅ Chevrons consistent at 16px (h-4 w-4)
+- ✅ Search/Filter icons consistent at 20px (h-5 w-5)
+- ✅ Country headers: 17px semibold
+- ✅ City headers: 16px medium
+- ✅ Place names: 16px semibold
+
+### Files Modified
+- `src/pages/CountryView.tsx` - FAB button size
+- `src/pages/place-detail/PlaceDetail.tsx` - FAB button size
+- `src/pages/Routes.tsx` - FAB button size and page header typography
+- `src/pages/Settings.tsx` - Page header typography
+
+---
+
 ## [2025-11-24] - Home Screen Design Refinement
 
 ### Major UI/UX Improvements

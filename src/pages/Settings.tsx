@@ -27,7 +27,7 @@ const Settings = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 mb-4 shadow-md">
             <SettingsIcon className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">
+          <h1 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">
             Settings
           </h1>
           <p className="text-muted-foreground text-sm">Customize your experience</p>

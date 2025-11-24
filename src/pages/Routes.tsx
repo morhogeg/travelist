@@ -106,7 +106,7 @@ const Routes: React.FC = () => {
       >
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             My Routes
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -178,7 +178,7 @@ const Routes: React.FC = () => {
               whileTap={{ scale: 0.9 }}
               whileHover={{ scale: 1.05 }}
               onClick={handleCreateRoute}
-              className="fixed bottom-20 right-4 rounded-full w-16 h-16 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+              className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
               aria-label="Add route"
               style={{
                 bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
