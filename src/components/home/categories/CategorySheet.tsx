@@ -67,15 +67,6 @@ const CategorySheet: React.FC<CategorySheetProps> = ({
                   {category.icon}
                 </span>
                 <span className="flex-1 text-left">{category.label}</span>
-                {isActive && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="text-sm"
-                  >
-                    ✓
-                  </motion.span>
-                )}
               </motion.button>
             );
           })}
