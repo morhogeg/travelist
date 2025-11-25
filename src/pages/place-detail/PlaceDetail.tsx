@@ -100,14 +100,17 @@ const PlaceDetail = () => {
 
   // Handle adding an AI suggestion to the list
   const handleAddAISuggestion = (suggestion: AISuggestion) => {
-    // Pre-fill the drawer with suggestion data
+    // Pre-fill the drawer with suggestion data, including AI source
     setEditRecommendation({
       name: suggestion.name,
       category: suggestion.category,
       description: suggestion.description,
       city: place?.name,
       country: place?.country,
-      isFromAI: true, // Flag to indicate this came from AI
+      source: {
+        type: 'ai',
+        name: 'AI Suggested',
+      },
     });
     setIsDrawerOpen(true);
   };
@@ -207,13 +210,7 @@ const PlaceDetail = () => {
         <CategoriesScrollbar />
       </div>
 
-      {/* AI Suggestions Section */}
-      <AISuggestionsSection
-        cityName={place.name}
-        countryName={place.country || ""}
-        onAddSuggestion={handleAddAISuggestion}
-      />
-
+      {/* User's saved places */}
       <div>
         <CategoryResults
           category={selectedCategory}
@@ -228,6 +225,13 @@ const PlaceDetail = () => {
           noSidePadding={true}
         />
       </div>
+
+      {/* AI Suggestions Section - at the bottom */}
+      <AISuggestionsSection
+        cityName={place.name}
+        countryName={place.country || ""}
+        onAddSuggestion={handleAddAISuggestion}
+      />
 
       {!isDrawerOpen && (
         <motion.button

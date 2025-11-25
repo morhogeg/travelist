@@ -1,6 +1,6 @@
 
 // Recommendation Attribution Types
-export type SourceType = 'friend' | 'instagram' | 'blog' | 'email' | 'text' | 'tiktok' | 'youtube' | 'article' | 'other';
+export type SourceType = 'friend' | 'instagram' | 'blog' | 'email' | 'text' | 'tiktok' | 'youtube' | 'article' | 'ai' | 'other';
 
 export interface RecommendationSource {
   type: SourceType;

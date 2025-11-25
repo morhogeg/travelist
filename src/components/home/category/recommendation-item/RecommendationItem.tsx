@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
-import { UserCircle } from "lucide-react";
+import { UserCircle, Sparkles } from "lucide-react";
 import { categories, getCategoryColor } from "@/components/recommendations/utils/category-data";
 
 const RecommendationItem: React.FC<RecommendationItemProps> = ({
@@ -78,7 +78,12 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           )}
 
           {/* Attribution Info - shown after tip */}
-          {item.source?.name && (
+          {item.source?.type === 'ai' ? (
+            <p className="text-[11px] font-medium flex items-center gap-1 text-[#667eea]">
+              <Sparkles className="h-3 w-3" />
+              AI Suggested
+            </p>
+          ) : item.source?.name && (
             <p className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
               <UserCircle className="h-3 w-3" />
               Recommended by{' '}
