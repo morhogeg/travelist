@@ -24,6 +24,7 @@
 
 ### UI Polish & Refinements
 - [x] Implement swipe-to-delete gestures
+- [x] Implement swipe-to-add-to-collection gesture
 - [ ] Add long-press context menus (native iOS style)
 - [ ] Improve loading states with shimmer effects
 - [ ] Add empty states with illustrations
@@ -197,16 +198,12 @@
 ## 📋 Session Progress (November 25, 2025)
 
 ### ✅ Completed This Session
-1. **AI source in filter drawer** - Added 'ai' to SourceType, updated SourceSection with sparkle icon
-2. **Filter drawer in city view (PlaceDetail)** - Added FilterSheet, filter button, ActiveFilters
-3. **Filter drawer in country view (CountryView)** - Same filter functionality as city view
-4. **Clickable cards in city/country views** - Added onViewDetails handler and RecommendationDetailsDialog
-5. **Cities filter scoped by country** - getAvailableCities() now accepts optional filterCountry param
-6. **Plus button behavior** - Hides when details dialog is open (consistent with home)
-7. **AI source display** - Fixed "Recommended by AI Suggested" to show just "AI Suggested" with sparkle
-8. **Country header styling** - Removed bg-neutral-50/50 background from country headers
-9. **AI suggestions toggle** - Collapsible with localStorage persistence
-10. **AI badge on cards** - Sparkle icon for AI-sourced recommendations
+1. **Swipe-to-delete** - Swipe left on cards to reveal delete button
+2. **Swipe-to-add-to-collection** - Swipe right on cards to reveal purple "Add" button
+3. **CollectionPickerDrawer** - Reusable drawer for selecting/creating collections
+4. **Add to Collection in details view** - Button in expanded card shows collection status
+5. **Toggle collection membership** - Items can be in multiple collections
+6. **Collection ID matching fix** - Fixed items not showing by matching recId or id
 
 ### 🔜 Still To Do (Future Sessions)
 1. **Cloud sync with Supabase** - User authentication, data sync, real-time updates
