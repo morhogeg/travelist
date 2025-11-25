@@ -137,7 +137,7 @@ const CollectionDetailPage: React.FC = () => {
   }
 
   const matchedItems = allItems
-    .filter((item) => collection.placeIds.includes(item.id))
+    .filter((item) => collection.placeIds.includes(item.recId) || collection.placeIds.includes(item.id))
     .filter((item) => {
       const matchesSearch =
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -154,7 +154,7 @@ const CollectionDetailPage: React.FC = () => {
   const availableCategories = Array.from(
     new Set(
       allItems
-        .filter((item) => collection.placeIds.includes(item.id))
+        .filter((item) => collection.placeIds.includes(item.recId) || collection.placeIds.includes(item.id))
         .map((item) => item.category?.toLowerCase())
         .filter(Boolean)
     )
