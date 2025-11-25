@@ -10,14 +10,15 @@ interface CategoryResultsProps {
   onToggleVisited: (id: string, name: string, visited: boolean) => void;
   onDeleteRecommendation: (id: string, name: string) => void;
   onEditClick: (recommendation: any) => void;
+  onViewDetails?: (recommendation: any) => void;
   onCityClick: (cityId: string) => void;
-  viewMode: "grid" | "list";
-  toggleViewMode: () => void;
+  viewMode?: "grid" | "list";
+  toggleViewMode?: () => void;
   onCategorySelect?: (category: string | string[]) => void;
   hideCityHeader?: boolean;
   hideCountryHeader?: boolean;
   showToggle?: boolean;
-  noSidePadding?: boolean; // ✅ NEW
+  noSidePadding?: boolean;
   hideCountry?: boolean;
 }
 
@@ -27,14 +28,15 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
   onToggleVisited,
   onDeleteRecommendation,
   onEditClick,
+  onViewDetails,
   onCityClick,
-  viewMode,
+  viewMode = "list",
   toggleViewMode,
   onCategorySelect,
   hideCityHeader = false,
   hideCountryHeader = false,
   showToggle = true,
-  noSidePadding = false, // ✅ NEW
+  noSidePadding = false,
   hideCountry = false,
 }) => {
   useEffect(() => {
@@ -83,6 +85,7 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
               onDeleteRecommendation={onDeleteRecommendation}
               onCityClick={onCityClick}
               onEditClick={onEditClick}
+              onViewDetails={onViewDetails}
               viewMode={viewMode}
               hideCityHeader={hideCityHeader}
               hideCountryHeader={hideCountryHeader}

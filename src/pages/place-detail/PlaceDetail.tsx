@@ -1,22 +1,27 @@
 // FILE: src/pages/place-detail/PlaceDetail.tsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
+import { getUserPlaces, getRecommendations, markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import Layout from "@/components/layout/Layout";
 import { useToast } from "@/hooks/use-toast";
 import CategoryResults from "@/components/home/CategoryResults";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
+import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
+import { FilterSheet } from "@/components/home/filters";
+import ActiveFilters from "@/components/home/filters/ActiveFilters";
 import { GroupedRecommendation } from "@/utils/recommendation/types";
-import { getFilteredRecommendations } from "@/utils/recommendation/filter-helpers";
+import { getFilteredRecommendations, getAvailableOccasions, getAvailableSourceNames } from "@/utils/recommendation/filter-helpers";
+import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchInput from "@/components/home/search/SearchInput";
-import { Plus, ArrowLeft, Search as SearchIcon } from "lucide-react";
+import { Plus, ArrowLeft, Search as SearchIcon, SlidersHorizontal } from "lucide-react";
 import countryToCode from "@/utils/flags/countryToCode";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 import { AISuggestionsSection } from "@/components/ai";
 import { AISuggestion } from "@/services/ai/types";
+import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
 
 interface Place {
   id: string;
@@ -37,6 +42,17 @@ const PlaceDetail = () => {
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+  // Details dialog state
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
+
+  // Filter state
+  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [availableOccasions, setAvailableOccasions] = useState<string[]>([]);
+  const [availableSourceNames, setAvailableSourceNames] = useState<string[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!id) return;
@@ -68,21 +84,35 @@ const PlaceDetail = () => {
     setLoading(false);
   }, [id, toast]);
 
-  useEffect(() => {
+  const loadRecommendations = useCallback(async () => {
     if (!place) return;
 
-    const loadRecommendations = async () => {
-      const results = await getFilteredRecommendations(selectedCategory);
-      const filtered = results.filter(group =>
-        group.cityId === place.id
-      );
-      setGroupedRecommendations(filtered);
-    };
+    const results = await getFilteredRecommendations(
+      selectedCategory === "all" ? "all" : selectedCategory,
+      undefined,
+      filters
+    );
+    const filtered = results.filter(group =>
+      group.cityId === place.id
+    );
+    setGroupedRecommendations(filtered);
+    setRefreshKey(prev => prev + 1);
+  }, [place, selectedCategory, filters]);
 
+  useEffect(() => {
     loadRecommendations();
+  }, [loadRecommendations]);
+
+  useEffect(() => {
     window.addEventListener("recommendationAdded", loadRecommendations);
     return () => window.removeEventListener("recommendationAdded", loadRecommendations);
-  }, [place, selectedCategory]);
+  }, [loadRecommendations]);
+
+  // Load available filter options
+  useEffect(() => {
+    setAvailableOccasions(getAvailableOccasions());
+    setAvailableSourceNames(getAvailableSourceNames());
+  }, [refreshKey]);
 
   useEffect(() => {
     const categoryHandler = (e: Event) => {
@@ -96,6 +126,49 @@ const PlaceDetail = () => {
   const handleEditClick = (recommendation: any) => {
     setEditRecommendation(recommendation);
     setIsDrawerOpen(true);
+  };
+
+  const handleViewDetails = (recommendation: any) => {
+    setDetailsRecommendation(recommendation);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleDetailsEdit = () => {
+    setDetailsDialogOpen(false);
+    setEditRecommendation(detailsRecommendation);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDetailsDelete = () => {
+    if (detailsRecommendation?.recId) {
+      deleteRecommendation(detailsRecommendation.recId);
+      setDetailsDialogOpen(false);
+      loadRecommendations();
+    }
+  };
+
+  const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
+    const newVisitedState = !currentVisited;
+    markRecommendationVisited(id, name, newVisitedState);
+    syncVisitedStateToRoutes(id, newVisitedState);
+    loadRecommendations();
+  };
+
+  const handleDetailsToggleVisited = (recId: string, name: string, visited: boolean) => {
+    markRecommendationVisited(recId, name, visited);
+    syncVisitedStateToRoutes(recId, visited);
+    if (detailsRecommendation) {
+      setDetailsRecommendation({
+        ...detailsRecommendation,
+        visited: visited,
+      });
+    }
+    loadRecommendations();
+  };
+
+  const handleDeleteRecommendation = (id: string, name: string) => {
+    deleteRecommendation(id);
+    loadRecommendations();
   };
 
   // Handle adding an AI suggestion to the list
@@ -127,6 +200,24 @@ const PlaceDetail = () => {
       setSearchTerm("");
     }
   };
+
+  const handleRemoveFilter = (filterKey: keyof FilterState, value?: string) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev };
+      if (filterKey === "visitStatus") {
+        newFilters.visitStatus = "all";
+      } else if (value) {
+        const currentArray = newFilters[filterKey] as string[];
+        newFilters[filterKey] = currentArray.filter((v) => v !== value) as any;
+        if (filterKey === "sourceNames" && (newFilters.sourceNames as string[]).length === 0) {
+          newFilters.sources = newFilters.sources.filter(s => s !== 'friend');
+        }
+      }
+      return newFilters;
+    });
+  };
+
+  const activeFilterCount = countActiveFilters(filters);
 
   const filteredGroups = groupedRecommendations.map(group => ({
     ...group,
@@ -177,6 +268,24 @@ const PlaceDetail = () => {
           </motion.button>
         )}
 
+        {/* Filter Button */}
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={() => {
+            lightHaptic();
+            setIsFilterSheetOpen(true);
+          }}
+          className="absolute right-3 top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth"
+          aria-label="Open filters"
+        >
+          <SlidersHorizontal className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
+          {activeFilterCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#667eea] text-white text-xs flex items-center justify-center font-medium">
+              {activeFilterCount}
+            </span>
+          )}
+        </motion.button>
+
         <div className="flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">{place.name}</h1>
@@ -206,8 +315,9 @@ const PlaceDetail = () => {
         )}
       </AnimatePresence>
 
-      <div className="mb-3">
+      <div className="mb-3 space-y-3">
         <CategoriesScrollbar />
+        <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
       </div>
 
       {/* User's saved places */}
@@ -215,9 +325,10 @@ const PlaceDetail = () => {
         <CategoryResults
           category={selectedCategory}
           groupedRecommendations={filteredGroups}
-          onToggleVisited={() => {}}
-          onDeleteRecommendation={() => {}}
+          onToggleVisited={handleToggleVisited}
+          onDeleteRecommendation={handleDeleteRecommendation}
           onEditClick={handleEditClick}
+          onViewDetails={handleViewDetails}
           onCityClick={() => {}}
           hideCityHeader
           hideCountryHeader
@@ -233,7 +344,7 @@ const PlaceDetail = () => {
         onAddSuggestion={handleAddAISuggestion}
       />
 
-      {!isDrawerOpen && (
+      {!isDrawerOpen && !detailsDialogOpen && (
         <motion.button
           whileTap={{ scale: 0.9 }}
           whileHover={{ scale: 1.05 }}
@@ -261,6 +372,26 @@ const PlaceDetail = () => {
         initialCity={place.name}
         initialCountry={place.country || ""}
         editRecommendation={editRecommendation}
+      />
+
+      <RecommendationDetailsDialog
+        recommendation={detailsRecommendation}
+        isOpen={detailsDialogOpen}
+        onClose={() => setDetailsDialogOpen(false)}
+        onEdit={handleDetailsEdit}
+        onDelete={handleDetailsDelete}
+        onToggleVisited={handleDetailsToggleVisited}
+      />
+
+      <FilterSheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        filters={filters}
+        onFiltersChange={setFilters}
+        availableCountries={place.country ? [place.country] : []}
+        availableCities={[place.name]}
+        availableOccasions={availableOccasions}
+        availableSourceNames={availableSourceNames}
       />
     </Layout>
   );

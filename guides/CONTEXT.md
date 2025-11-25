@@ -214,7 +214,19 @@ color: #764ba2;
 
 **Latest Session Changes (November 25, 2025):**
 
-**Route Place Details - Button Styling Fixes:**
+**AI Suggestions & Filter Consistency Improvements:**
+1. ✅ **AI source added to filter drawer** - AI now appears as a filterable source type with sparkle icon
+2. ✅ **Filter drawer added to city view** - PlaceDetail now has same filter button and FilterSheet as home
+3. ✅ **Filter drawer added to country view** - CountryView now has same filter functionality
+4. ✅ **Cards clickable everywhere** - City and country views now show RecommendationDetailsDialog on card tap
+5. ✅ **Cities filter scoped by country** - In country view, cities filter only shows cities from that country
+6. ✅ **Plus button hides on expanded view** - FAB hides when details dialog is open (matches home behavior)
+7. ✅ **AI source display fixed** - Shows "AI Suggested" with sparkle icon (not "Recommended by AI Suggested")
+8. ✅ **Country header background removed** - Removed subtle gray highlight from country names in home view
+9. ✅ **AI suggestions collapsible** - Users can hide AI carousel with toggle (persists in localStorage)
+10. ✅ **AI badge on cards** - Cards from AI suggestions show sparkle icon indicator
+
+**Previous Session - Route Place Details:**
 1. ✅ **Navigate button fixed** - changed from purple gradient to white outline button (consistent with app style)
 2. ✅ **Mark Visited button fixed** - removed purple border/text styling, now uses white outline
 3. ✅ **Toggle visited working** - button now properly toggles between visited (green) and unvisited (white)

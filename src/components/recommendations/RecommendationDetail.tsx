@@ -14,6 +14,7 @@ import {
   DollarSign,
   Clock,
   StickyNote,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -119,22 +120,32 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
     <div className="space-y-4 mt-4">
       {/* Source Section */}
       {hasSource && (
-        <Card className="border-purple-500/20 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20">
+        <Card className={`${source?.type === 'ai' ? 'border-[#667eea]/20 bg-gradient-to-br from-[#667eea]/5 to-[#764ba2]/5' : 'border-purple-500/20 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20'}`}>
           <CardContent className="pt-4 space-y-3">
             <div className="flex items-start gap-3">
-              <UserCircle className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+              {source?.type === 'ai' ? (
+                <Sparkles className="h-5 w-5 text-[#667eea] mt-0.5 flex-shrink-0" />
+              ) : (
+                <UserCircle className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+              )}
               <div className="flex-1 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-sm">
-                    Recommended by{' '}
-                    <button
-                      onClick={() => source.name && handleSourceClick(source.name)}
-                      className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold cursor-pointer transition-colors"
-                    >
-                      {source.name || "someone"}
-                    </button>
-                  </span>
-                  {source.type && (
+                  {source?.type === 'ai' ? (
+                    <span className="font-semibold text-sm text-[#667eea]">
+                      AI Suggested
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-sm">
+                      Recommended by{' '}
+                      <button
+                        onClick={() => source?.name && handleSourceClick(source.name)}
+                        className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold cursor-pointer transition-colors"
+                      >
+                        {source?.name || "someone"}
+                      </button>
+                    </span>
+                  )}
+                  {source?.type && source.type !== 'ai' && (
                     <Badge
                       variant="secondary"
                       className="text-xs cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors"
@@ -145,13 +156,13 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
                   )}
                 </div>
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                  {source.date && (
+                  {source?.date && (
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(source.date).toLocaleDateString()}
                     </div>
                   )}
-                  {source.url && (
+                  {source?.url && (
                     <a
                       href={source.url}
                       target="_blank"

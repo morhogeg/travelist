@@ -67,7 +67,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
       <div className="px-4">
       {!hideCountryHeader && (
         <motion.div
-          className="flex items-center justify-between mb-3 cursor-pointer min-h-11 -mx-2 px-3 py-2 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/30 hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth mt-2"
+          className="flex items-center justify-between mb-3 cursor-pointer min-h-11 -mx-2 px-3 py-2 rounded-xl hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth mt-2"
           onClick={toggleCollapse}
           whileTap={{ scale: 0.98 }}
         >

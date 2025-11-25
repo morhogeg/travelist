@@ -189,10 +189,36 @@
 ## Notes
 
 **Current Branch:** feature/list-anchors-links
-**Current Status:** Onboarding flow and AI suggestions MVP complete
+**Current Status:** AI suggestions MVP complete with filter consistency across all views
 **Next Priority:** Cloud sync with Supabase
 **Target Launch:** TBD
 
 ---
 
-Last Updated: November 2025
+## 📋 Session Progress (November 25, 2025)
+
+### ✅ Completed This Session
+1. **AI source in filter drawer** - Added 'ai' to SourceType, updated SourceSection with sparkle icon
+2. **Filter drawer in city view (PlaceDetail)** - Added FilterSheet, filter button, ActiveFilters
+3. **Filter drawer in country view (CountryView)** - Same filter functionality as city view
+4. **Clickable cards in city/country views** - Added onViewDetails handler and RecommendationDetailsDialog
+5. **Cities filter scoped by country** - getAvailableCities() now accepts optional filterCountry param
+6. **Plus button behavior** - Hides when details dialog is open (consistent with home)
+7. **AI source display** - Fixed "Recommended by AI Suggested" to show just "AI Suggested" with sparkle
+8. **Country header styling** - Removed bg-neutral-50/50 background from country headers
+9. **AI suggestions toggle** - Collapsible with localStorage persistence
+10. **AI badge on cards** - Sparkle icon for AI-sourced recommendations
+
+### 🔜 Still To Do (Future Sessions)
+1. **Cloud sync with Supabase** - User authentication, data sync, real-time updates
+2. **Pull-to-refresh** - On main list views
+3. **Swipe-to-delete gestures** - Native iOS interaction pattern
+4. **Long-press context menus** - iOS native style
+5. **Loading states** - Shimmer effects for better UX
+6. **Empty states** - Illustrations for empty lists
+7. **Image optimization** - Lazy loading, placeholders
+8. **Real LLM integration** - Replace mock AI provider with actual API (OpenAI/Claude)
+
+---
+
+Last Updated: November 25, 2025

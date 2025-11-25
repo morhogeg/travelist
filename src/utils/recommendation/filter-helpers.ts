@@ -154,14 +154,21 @@ export const getAvailableCountries = (): string[] => {
   return Array.from(countries).sort();
 };
 
-// Helper to get all unique cities
-export const getAvailableCities = (): string[] => {
+// Helper to get all unique cities, optionally filtered by country
+export const getAvailableCities = (filterCountry?: string): string[] => {
   const all = getRecommendations();
   const cities = new Set<string>();
 
   all.forEach(rec => {
     if (rec.city) {
-      cities.add(rec.city);
+      // If filterCountry is provided, only include cities from that country
+      if (filterCountry) {
+        if (rec.country?.toLowerCase() === filterCountry.toLowerCase()) {
+          cities.add(rec.city);
+        }
+      } else {
+        cities.add(rec.city);
+      }
     }
   });
 

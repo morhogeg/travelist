@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, Instagram, BookOpen, Mail, MessageSquare, Music, Youtube, FileText, MoreHorizontal } from "lucide-react";
+import { Users, Instagram, BookOpen, Mail, MessageSquare, Music, Youtube, FileText, MoreHorizontal, Sparkles } from "lucide-react";
 import { SourceType } from "@/utils/recommendation/types";
 import { lightHaptic } from "@/utils/ios/haptics";
 
@@ -21,6 +21,7 @@ const sourceIcons: Record<SourceType, React.ReactNode> = {
   tiktok: <Music className="h-4 w-4" />,
   youtube: <Youtube className="h-4 w-4" />,
   article: <FileText className="h-4 w-4" />,
+  ai: <Sparkles className="h-4 w-4" />,
   other: <MoreHorizontal className="h-4 w-4" />,
 };
 
@@ -33,6 +34,7 @@ const sourceLabels: Record<SourceType, string> = {
   tiktok: "TikTok",
   youtube: "YouTube",
   article: "Article",
+  ai: "AI",
   other: "Other",
 };
 
@@ -59,7 +61,7 @@ const SourceSection: React.FC<SourceSectionProps> = ({
     onSourceNamesChange(newValues);
   };
 
-  // Organized order: Social media, Personal, Content, Other
+  // Organized order: Social media, Personal, Content, AI, Other
   const orderedSources: SourceType[] = [
     'instagram',
     'tiktok',
@@ -69,6 +71,7 @@ const SourceSection: React.FC<SourceSectionProps> = ({
     'email',
     'blog',
     'article',
+    'ai',
     'other',
   ];
 
