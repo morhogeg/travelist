@@ -5,6 +5,7 @@ import { RecommendationItemProps } from "./types";
 import { UserCircle, Sparkles } from "lucide-react";
 import { categories, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import SwipeableCard from "./SwipeableCard";
+import CollectionPickerDrawer from "@/components/collections/CollectionPickerDrawer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   getCategoryPlaceholder
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
 
   // Get category info
   const getCategoryIcon = (category: string) => {
@@ -48,7 +50,10 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
 
   return (
     <>
-      <SwipeableCard onDeleteTrigger={() => setShowDeleteDialog(true)}>
+      <SwipeableCard
+        onDeleteTrigger={() => setShowDeleteDialog(true)}
+        onAddTrigger={() => setShowCollectionPicker(true)}
+      >
         <motion.div
           key={item.id}
           initial={{ opacity: 0, y: 10 }}
@@ -144,6 +149,14 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Collection Picker Drawer */}
+      <CollectionPickerDrawer
+        isOpen={showCollectionPicker}
+        onClose={() => setShowCollectionPicker(false)}
+        placeId={item.recId || item.id}
+        placeName={item.name}
+      />
     </>
   );
 };

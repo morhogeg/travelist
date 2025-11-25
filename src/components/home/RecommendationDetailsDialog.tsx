@@ -1,17 +1,19 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   DrawerContent,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit } from "lucide-react";
+import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit, FolderPlus, Folder } from "lucide-react";
 import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { Badge } from "@/components/ui/badge";
 import { RecommendationDetail } from "@/components/recommendations/RecommendationDetail";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
+import CollectionPickerDrawer from "@/components/collections/CollectionPickerDrawer";
+import { getCollectionsByPlaceId } from "@/utils/collections/collectionStore";
 
 interface RecommendationDetailsDialogProps {
   recommendation: any;
@@ -34,12 +36,36 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   hideEditDelete = false,
   routeNotes,
 }) => {
+  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
+  const [collectionsCount, setCollectionsCount] = useState(0);
+  const [firstCollectionName, setFirstCollectionName] = useState<string | null>(null);
+
+  // Check collection membership when dialog opens or recommendation changes
+  useEffect(() => {
+    if (isOpen && recommendation) {
+      const placeId = recommendation.recId || recommendation.id;
+      const collections = getCollectionsByPlaceId(placeId);
+      setCollectionsCount(collections.length);
+      setFirstCollectionName(collections.length > 0 ? collections[0].name : null);
+    }
+  }, [isOpen, recommendation]);
+
+  const refreshCollectionState = () => {
+    if (recommendation) {
+      const placeId = recommendation.recId || recommendation.id;
+      const collections = getCollectionsByPlaceId(placeId);
+      setCollectionsCount(collections.length);
+      setFirstCollectionName(collections.length > 0 ? collections[0].name : null);
+    }
+  };
+
   if (!recommendation) return null;
 
   const mapUrl = generateMapLink(recommendation.name, recommendation.location);
   const websiteUrl = recommendation.website ? formatUrl(recommendation.website) : null;
   const categoryColor = getCategoryColor(recommendation.category || 'general');
   const categoryIcon = getCategoryIcon(recommendation.category || 'general');
+  const placeId = recommendation.recId || recommendation.id;
 
   const handleExternalClick = (e: React.MouseEvent, url: string) => {
     e.preventDefault();
@@ -161,6 +187,39 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 <span>{recommendation.visited ? 'Visited' : 'Mark Visited'}</span>
               </Button>
+
+              {/* Add to Collection Button */}
+              <Button
+                variant="outline"
+                size="default"
+                className="flex-1 min-w-[140px] ios26-transition-smooth"
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  ...(collectionsCount > 0 ? {
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    borderColor: 'transparent',
+                  } : {}),
+                }}
+                onClick={(e) => {
+                  (e.target as HTMLButtonElement).blur();
+                  setShowCollectionPicker(true);
+                }}
+              >
+                {collectionsCount > 0 ? (
+                  <>
+                    <Folder className="h-4 w-4 mr-2" />
+                    <span className="truncate max-w-[100px]">
+                      {collectionsCount === 1 ? firstCollectionName : `${collectionsCount} collections`}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <FolderPlus className="h-4 w-4 mr-2" />
+                    <span>Add to Collection</span>
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </div>
@@ -216,6 +275,15 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
           </div>
         )}
       </DrawerContent>
+
+      {/* Collection Picker Drawer */}
+      <CollectionPickerDrawer
+        isOpen={showCollectionPicker}
+        onClose={() => setShowCollectionPicker(false)}
+        placeId={placeId}
+        placeName={recommendation.name}
+        onSuccess={refreshCollectionState}
+      />
     </Drawer>
   );
 };

@@ -67,10 +67,23 @@ export function removePlaceFromCollection(collectionId: string, placeId: string)
   saveCollections(updated);
 }
 
-// ✅ New: Find which collection contains a given place ID
+// Find which collection contains a given place ID (returns first match)
 export function findCollectionIdByPlaceId(placeId: string): string | undefined {
   const collections = getCollections();
   for (const col of collections) {
     if (col.placeIds?.includes(placeId)) return col.id;
   }
+}
+
+// Get all collections that contain a given place ID
+export function getCollectionsByPlaceId(placeId: string): Collection[] {
+  const collections = getCollections();
+  return collections.filter((col) => col.placeIds?.includes(placeId));
+}
+
+// Check if a place is in a specific collection
+export function isPlaceInCollection(collectionId: string, placeId: string): boolean {
+  const collections = getCollections();
+  const collection = collections.find((col) => col.id === collectionId);
+  return collection?.placeIds?.includes(placeId) ?? false;
 }

@@ -214,6 +214,15 @@ color: #764ba2;
 
 **Latest Session Changes (November 25, 2025):**
 
+**Add to Collection Feature:**
+1. ✅ **Swipe right to add** - Cards can be swiped right to reveal purple "Add" button
+2. ✅ **Collection picker drawer** - Tapping "Add" opens drawer with all collections
+3. ✅ **Toggle membership** - Tap collections to add/remove item (multiple collections allowed)
+4. ✅ **Create new collection** - Inline creation from picker drawer
+5. ✅ **Details drawer button** - "Add to Collection" button in expanded card view
+6. ✅ **Visual feedback** - Button shows collection name when item is in a collection
+7. ✅ **Toast notifications** - Feedback on add/remove actions
+
 **Swipe-to-Delete Feature:**
 1. ✅ **Swipe left to delete** - Cards can be swiped left to reveal delete button
 2. ✅ **Delete confirmation dialog** - Tapping delete opens confirmation dialog
