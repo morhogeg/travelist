@@ -183,9 +183,12 @@ const RouteDetail: React.FC = () => {
     setSelectedPlaceNotes(undefined);
   };
 
-  const handleToggleVisitedFromDrawer = (recId: string, name: string, visited: boolean) => {
+  const handleToggleVisitedFromDrawer = (recId: string, name: string, currentVisited: boolean) => {
     lightHaptic();
     if (!id || !route) return;
+
+    // Toggle the visited state
+    const newVisited = !currentVisited;
 
     // Find which day this place is in
     let targetDayNumber = 1;
@@ -205,14 +208,14 @@ const RouteDetail: React.FC = () => {
     }
 
     // Sync both route and source visited states
-    markRoutePlaceVisited(id, targetDayNumber, targetPlaceId, visited);
-    markRecommendationVisited(recId, name, visited);
+    markRoutePlaceVisited(id, targetDayNumber, targetPlaceId, newVisited);
+    markRecommendationVisited(recId, name, newVisited);
 
     // Update the dialog state to reflect the change
     if (selectedPlaceDetails) {
       setSelectedPlaceDetails({
         ...selectedPlaceDetails,
-        visited: visited,
+        visited: newVisited,
       });
     }
   };

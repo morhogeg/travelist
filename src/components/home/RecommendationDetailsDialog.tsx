@@ -123,11 +123,9 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
             <div className="flex flex-wrap gap-3 pt-4">
               <Button
                 size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth text-white"
+                variant="outline"
+                className="flex-1 min-w-[140px] ios26-transition-smooth"
                 onClick={(e) => handleExternalClick(e, mapUrl)}
-                style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                }}
               >
                 <Navigation className="h-4 w-4 mr-2" />
                 <span>Navigate</span>
@@ -148,12 +146,17 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               <Button
                 variant="outline"
                 size="default"
-                className={`flex-1 min-w-[140px] ios26-transition-smooth ${
-                  recommendation.visited
-                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
-                    : 'border-purple-400 hover:bg-purple-50 text-purple-700'
-                }`}
-                onClick={() => onToggleVisited(recommendation.recId, recommendation.name, !!recommendation.visited)}
+                className="flex-1 min-w-[140px] ios26-transition-smooth"
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  backgroundColor: recommendation.visited ? '#16a34a' : 'white',
+                  color: recommendation.visited ? 'white' : 'inherit',
+                  borderColor: recommendation.visited ? '#16a34a' : undefined,
+                }}
+                onClick={(e) => {
+                  (e.target as HTMLButtonElement).blur();
+                  onToggleVisited(recommendation.recId, recommendation.name, !!recommendation.visited);
+                }}
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 <span>{recommendation.visited ? 'Visited' : 'Mark Visited'}</span>

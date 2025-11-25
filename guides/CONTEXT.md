@@ -212,7 +212,16 @@ color: #764ba2;
 
 ## 🎯 Recent Changes Summary
 
-**Latest Session Changes (November 23, 2025):**
+**Latest Session Changes (November 25, 2025):**
+
+**Route Place Details - Button Styling Fixes:**
+1. ✅ **Navigate button fixed** - changed from purple gradient to white outline button (consistent with app style)
+2. ✅ **Mark Visited button fixed** - removed purple border/text styling, now uses white outline
+3. ✅ **Toggle visited working** - button now properly toggles between visited (green) and unvisited (white)
+4. ✅ **iOS tap highlight fixed** - removed blue flash on button tap using inline styles and WebkitTapHighlightColor
+5. ✅ **Blur on click** - added button blur after click to prevent iOS focus state issues
+
+**Previous Session (November 23, 2025):**
 
 **Home Screen De-cluttering - UX Improvements:**
 1. ✅ **Removed date from cards** - "Nov 23, 2025" removed from card view, kept in detail drawer only
