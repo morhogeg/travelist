@@ -7,6 +7,7 @@ import { AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
+import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
 
 // Pages
 import Index from "./pages/Index";
@@ -36,6 +37,7 @@ function AppContent() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
+  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
 
   // Automatically manage status bar based on theme
   useStatusBarTheme(theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
@@ -51,6 +53,21 @@ function AppContent() {
       delete window.showRecDrawer;
     };
   }, []);
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+  };
+
+  // Show onboarding for first-time users
+  if (showOnboarding) {
+    return (
+      <div className="min-h-screen bg-background font-sans antialiased">
+        <OnboardingFlow onComplete={handleOnboardingComplete} />
+        <Toaster />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background font-sans antialiased">

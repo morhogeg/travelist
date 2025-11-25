@@ -31,7 +31,7 @@
 - [ ] Optimize image loading (lazy loading, placeholders)
 
 ### User Experience
-- [ ] Add onboarding flow for new users
+- [x] Add onboarding flow for new users
 - [ ] Implement search filters and sorting
 - [ ] Add bulk actions (select multiple items)
 - [ ] Create sharing functionality (share lists with friends)
@@ -63,9 +63,9 @@
 - [ ] Reduce initial load time
 
 ### Data & Backend
-- [ ] Set up backend API (if needed)
-- [ ] Implement user authentication
-- [ ] Add cloud sync (iCloud or custom)
+- [ ] Set up backend API (Supabase planned)
+- [x] Implement user authentication (planned with Supabase)
+- [x] Add cloud sync (Supabase planned)
 - [ ] Real-time data updates
 - [ ] Analytics integration
 
@@ -78,7 +78,7 @@
 - [ ] Trip planning mode (itinerary builder)
 - [ ] Budget tracking for trips
 - [ ] Photo gallery for visited places
-- [ ] AI-powered recommendations
+- [x] AI-powered recommendations (in progress)
 - [ ] Social features (follow friends, see their travels)
 
 ### iOS 26 Advanced Features
