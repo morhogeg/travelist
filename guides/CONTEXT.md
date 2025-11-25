@@ -223,6 +223,12 @@ color: #764ba2;
 6. ✅ **Visual feedback** - Button shows collection name when item is in a collection
 7. ✅ **Toast notifications** - Feedback on add/remove actions
 
+**Category Sheet Polish:**
+1. ✅ **Smaller fonts** - Reduced font sizes to match app style
+2. ✅ **Hide FAB when open** - Plus button hides when category sheet is visible
+3. ✅ **Removed shadows** - Clean flat appearance for selected categories
+4. ✅ **Removed checkmarks** - Purple background alone indicates selection
+
 **Swipe-to-Delete Feature:**
 1. ✅ **Swipe left to delete** - Cards can be swiped left to reveal delete button
 2. ✅ **Delete confirmation dialog** - Tapping delete opens confirmation dialog
