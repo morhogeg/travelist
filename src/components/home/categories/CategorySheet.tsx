@@ -32,12 +32,12 @@ const CategorySheet: React.FC<CategorySheetProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent side="bottom" className="rounded-t-3xl">
         <SheetHeader>
-          <SheetTitle className="text-center text-xl font-semibold">
+          <SheetTitle className="text-center text-base font-semibold">
             Filter by Category
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 pb-6">
+        <div className="mt-4 grid grid-cols-2 gap-2 pb-4">
           {categories.map((category) => {
             const isActive = activeCategories.includes(category.id);
             return (
@@ -45,7 +45,7 @@ const CategorySheet: React.FC<CategorySheetProps> = ({
                 key={category.id}
                 whileTap={{ scale: 0.96 }}
                 onClick={() => handleCategoryClick(category.id)}
-                className={`flex items-center gap-3 min-h-14 py-3 px-4 rounded-2xl text-base font-semibold ios26-transition-spring ${
+                className={`flex items-center gap-2 min-h-11 py-2.5 px-3 rounded-xl text-sm font-medium ios26-transition-spring ${
                   isActive
                     ? "text-white"
                     : "liquid-glass-clear bg-neutral-100/40 dark:bg-neutral-800/40 text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60"
@@ -63,7 +63,7 @@ const CategorySheet: React.FC<CategorySheetProps> = ({
                       }
                 }
               >
-                <span className={`text-xl ${isActive ? "opacity-100" : "opacity-70"}`}>
+                <span className={`text-base ${isActive ? "opacity-100" : "opacity-70"}`}>
                   {category.icon}
                 </span>
                 <span className="flex-1 text-left">{category.label}</span>
@@ -71,7 +71,7 @@ const CategorySheet: React.FC<CategorySheetProps> = ({
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="text-lg"
+                    className="text-sm"
                   >
                     ✓
                   </motion.span>

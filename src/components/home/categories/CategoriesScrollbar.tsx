@@ -1,6 +1,6 @@
 // FILE: src/components/home/categories/CategoriesScrollbar.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Compass, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { getCategoryIcon } from "@/components/recommendations/utils/category-data";
@@ -10,10 +10,19 @@ import CategorySheet from "./CategorySheet";
 import { useUserCategories, dispatchCategorySelectedEvent } from "./category-utils";
 import type { CategoryItem } from "./category-utils";
 
-const CategoriesScrollbar: React.FC = () => {
+interface CategoriesScrollbarProps {
+  onSheetOpenChange?: (isOpen: boolean) => void;
+}
+
+const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({ onSheetOpenChange }) => {
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const userCategories = useUserCategories();
+
+  // Notify parent when sheet open state changes
+  useEffect(() => {
+    onSheetOpenChange?.(isSheetOpen);
+  }, [isSheetOpen, onSheetOpenChange]);
 
   const allCategories: CategoryItem[] = [
     { id: "all", label: "All", icon: <Compass className="h-4 w-4" /> },

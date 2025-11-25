@@ -37,6 +37,7 @@ const Index: React.FC = () => {
   // Filter state
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [availableOccasions, setAvailableOccasions] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<string[]>([]);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
@@ -276,7 +277,7 @@ const Index: React.FC = () => {
         <div className="mb-3 space-y-3">
           {/* Categories Row */}
           <div className="pl-3 pr-4">
-            <CategoriesScrollbar />
+            <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />
           </div>
           <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         </div>
@@ -320,7 +321,7 @@ const Index: React.FC = () => {
         />
       </motion.div>
 
-      {!detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && (
+      {!detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && !isCategorySheetOpen && (
         <motion.button
           whileTap={{ scale: 0.9 }}
           whileHover={{ scale: 1.05 }}
