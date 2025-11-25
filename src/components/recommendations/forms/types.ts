@@ -3,7 +3,7 @@ import { z } from "zod";
 
 // Schema for recommendation source
 const sourceSchema = z.object({
-  type: z.enum(['friend', 'instagram', 'blog', 'email', 'text', 'tiktok', 'youtube', 'article', 'other']).optional(),
+  type: z.enum(['friend', 'instagram', 'blog', 'email', 'text', 'tiktok', 'youtube', 'article', 'ai', 'other']).optional(),
   name: z.string().optional(),
   relationship: z.string().optional(),
   url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
