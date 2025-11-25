@@ -15,6 +15,8 @@ import SearchInput from "@/components/home/search/SearchInput";
 import { Plus, ArrowLeft, Search as SearchIcon } from "lucide-react";
 import countryToCode from "@/utils/flags/countryToCode";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
+import { AISuggestionsSection } from "@/components/ai";
+import { AISuggestion } from "@/services/ai/types";
 
 interface Place {
   id: string;
@@ -93,6 +95,20 @@ const PlaceDetail = () => {
 
   const handleEditClick = (recommendation: any) => {
     setEditRecommendation(recommendation);
+    setIsDrawerOpen(true);
+  };
+
+  // Handle adding an AI suggestion to the list
+  const handleAddAISuggestion = (suggestion: AISuggestion) => {
+    // Pre-fill the drawer with suggestion data
+    setEditRecommendation({
+      name: suggestion.name,
+      category: suggestion.category,
+      description: suggestion.description,
+      city: place?.name,
+      country: place?.country,
+      isFromAI: true, // Flag to indicate this came from AI
+    });
     setIsDrawerOpen(true);
   };
 
@@ -190,6 +206,13 @@ const PlaceDetail = () => {
       <div className="mb-3">
         <CategoriesScrollbar />
       </div>
+
+      {/* AI Suggestions Section */}
+      <AISuggestionsSection
+        cityName={place.name}
+        countryName={place.country || ""}
+        onAddSuggestion={handleAddAISuggestion}
+      />
 
       <div>
         <CategoryResults

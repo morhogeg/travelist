@@ -78,7 +78,7 @@
 - [ ] Trip planning mode (itinerary builder)
 - [ ] Budget tracking for trips
 - [ ] Photo gallery for visited places
-- [x] AI-powered recommendations (in progress)
+- [x] AI-powered recommendations (MVP complete with mock provider)
 - [ ] Social features (follow friends, see their travels)
 
 ### iOS 26 Advanced Features
@@ -188,9 +188,9 @@
 
 ## Notes
 
-**Current Branch:** main
-**Current Status:** iOS 26 Liquid Glass transformation complete with purple gradient theme
-**Next Priority:** UI polish and native iOS feature integration
+**Current Branch:** feature/list-anchors-links
+**Current Status:** Onboarding flow and AI suggestions MVP complete
+**Next Priority:** Cloud sync with Supabase
 **Target Launch:** TBD
 
 ---
