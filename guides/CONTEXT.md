@@ -214,6 +214,12 @@ color: #764ba2;
 
 **Latest Session Changes (November 25, 2025):**
 
+**Swipe-to-Delete Feature:**
+1. ✅ **Swipe left to delete** - Cards can be swiped left to reveal delete button
+2. ✅ **Delete confirmation dialog** - Tapping delete opens confirmation dialog
+3. ✅ **Click outside to close** - Tapping anywhere outside closes the swipe action
+4. ✅ **Swipe right to close** - Can also swipe back to close the delete option
+
 **AI Suggestions & Filter Consistency Improvements:**
 1. ✅ **AI source added to filter drawer** - AI now appears as a filterable source type with sparkle icon
 2. ✅ **Filter drawer added to city view** - PlaceDetail now has same filter button and FilterSheet as home

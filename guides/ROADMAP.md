@@ -23,8 +23,7 @@
 ## 🎯 Immediate Next Steps
 
 ### UI Polish & Refinements
-- [ ] Add pull-to-refresh on main list views
-- [ ] Implement swipe-to-delete gestures
+- [x] Implement swipe-to-delete gestures
 - [ ] Add long-press context menus (native iOS style)
 - [ ] Improve loading states with shimmer effects
 - [ ] Add empty states with illustrations
@@ -211,13 +210,11 @@
 
 ### 🔜 Still To Do (Future Sessions)
 1. **Cloud sync with Supabase** - User authentication, data sync, real-time updates
-2. **Pull-to-refresh** - On main list views
-3. **Swipe-to-delete gestures** - Native iOS interaction pattern
-4. **Long-press context menus** - iOS native style
-5. **Loading states** - Shimmer effects for better UX
-6. **Empty states** - Illustrations for empty lists
-7. **Image optimization** - Lazy loading, placeholders
-8. **Real LLM integration** - Replace mock AI provider with actual API (OpenAI/Claude)
+2. **Long-press context menus** - iOS native style
+3. **Loading states** - Shimmer effects for better UX
+4. **Empty states** - Illustrations for empty lists
+5. **Image optimization** - Lazy loading, placeholders
+6. **Real LLM integration** - Replace mock AI provider with actual API (OpenAI/Claude)
 
 ---
 
