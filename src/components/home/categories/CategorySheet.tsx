@@ -55,7 +55,7 @@ const CategorySheet: React.FC<CategorySheetProps> = ({
                     ? {
                         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                         border: "none",
-                        boxShadow: "0 4px 16px rgba(102, 126, 234, 0.25)",
+                        boxShadow: "none",
                       }
                     : {
                         border: "none",
