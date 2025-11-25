@@ -5,14 +5,16 @@
  * Shows when user has saved enough places in a city.
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RefreshCw, ChevronRight, Info } from 'lucide-react';
+import { Sparkles, RefreshCw, ChevronRight, ChevronDown, Info, EyeOff } from 'lucide-react';
 import { AISuggestion } from '@/services/ai/types';
 import { useAISuggestions } from '@/hooks/useAISuggestions';
 import { AISuggestionCard } from './AISuggestionCard';
 import { lightHaptic, mediumHaptic } from '@/utils/ios/haptics';
 import { DEFAULT_AI_CONFIG } from '@/services/ai';
+
+const AI_HIDDEN_KEY = 'travelist-ai-suggestions-hidden';
 
 interface AISuggestionsSectionProps {
   cityName: string;
@@ -26,6 +28,13 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
   onAddSuggestion,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isHidden, setIsHidden] = useState(() => {
+    try {
+      return localStorage.getItem(AI_HIDDEN_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   const {
     suggestions,
@@ -48,6 +57,17 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
     lightHaptic();
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: 280, behavior: 'smooth' });
+    }
+  };
+
+  const toggleHidden = () => {
+    lightHaptic();
+    const newValue = !isHidden;
+    setIsHidden(newValue);
+    try {
+      localStorage.setItem(AI_HIDDEN_KEY, String(newValue));
+    } catch {
+      // Ignore storage errors
     }
   };
 
@@ -125,75 +145,95 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 mb-3">
-        <div className="flex items-center gap-2">
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          onClick={toggleHidden}
+          className="flex items-center gap-2"
+        >
           <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5 text-white" />
           </div>
           <h3 className="font-semibold text-sm text-foreground">
             You might also like
           </h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={handleRefresh}
-            disabled={isLoading}
-            className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 text-muted-foreground ${isLoading ? 'animate-spin' : ''}`} />
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={scrollRight}
-            className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
-          >
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </motion.button>
-        </div>
+          <ChevronDown
+            className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isHidden ? '-rotate-90' : ''}`}
+          />
+        </motion.button>
+        {!isHidden && (
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 text-muted-foreground ${isLoading ? 'animate-spin' : ''}`} />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={scrollRight}
+              className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            >
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </motion.button>
+          </div>
+        )}
       </div>
 
-      {/* Suggestions carousel */}
-      <div
-        ref={scrollRef}
-        className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-2"
-        style={{ scrollSnapType: 'x mandatory' }}
-      >
-        <AnimatePresence mode="popLayout">
-          {isLoading && suggestions.length === 0 ? (
-            // Loading skeletons
-            <>
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={`skeleton-${i}`}
-                  className="min-w-[260px] max-w-[280px] flex-shrink-0"
-                >
-                  <div className="liquid-glass-clear rounded-2xl p-4 animate-pulse">
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-neutral-200 dark:bg-neutral-700" />
-                      <div className="flex-1">
-                        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-2" />
-                        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2" />
+      {/* Suggestions carousel - collapsible */}
+      <AnimatePresence>
+        {!isHidden && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div
+              ref={scrollRef}
+              className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-2"
+              style={{ scrollSnapType: 'x mandatory' }}
+            >
+              <AnimatePresence mode="popLayout">
+                {isLoading && suggestions.length === 0 ? (
+                  // Loading skeletons
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={`skeleton-${i}`}
+                        className="min-w-[260px] max-w-[280px] flex-shrink-0"
+                      >
+                        <div className="liquid-glass-clear rounded-2xl p-4 animate-pulse">
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-neutral-200 dark:bg-neutral-700" />
+                            <div className="flex-1">
+                              <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-2" />
+                              <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2" />
+                            </div>
+                          </div>
+                          <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded mb-3" />
+                          <div className="h-12 bg-neutral-200 dark:bg-neutral-700 rounded mb-3" />
+                          <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded" />
+                        </div>
                       </div>
-                    </div>
-                    <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded mb-3" />
-                    <div className="h-12 bg-neutral-200 dark:bg-neutral-700 rounded mb-3" />
-                    <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded" />
-                  </div>
-                </div>
-              ))}
-            </>
-          ) : (
-            suggestions.map((suggestion, index) => (
-              <AISuggestionCard
-                key={suggestion.id}
-                suggestion={suggestion}
-                onAdd={onAddSuggestion}
-                index={index}
-              />
-            ))
-          )}
-        </AnimatePresence>
-      </div>
+                    ))}
+                  </>
+                ) : (
+                  suggestions.map((suggestion, index) => (
+                    <AISuggestionCard
+                      key={suggestion.id}
+                      suggestion={suggestion}
+                      onAdd={onAddSuggestion}
+                      index={index}
+                    />
+                  ))
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

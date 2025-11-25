@@ -79,10 +79,9 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
 
           {/* Attribution Info - shown after tip */}
           {item.source?.type === 'ai' ? (
-            <p className="text-[11px] font-medium flex items-center gap-1 text-[#667eea]">
-              <Sparkles className="h-3 w-3" />
-              AI Suggested
-            </p>
+            <div className="flex items-center">
+              <Sparkles className="h-3.5 w-3.5 text-[#667eea]" />
+            </div>
           ) : item.source?.name && (
             <p className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
               <UserCircle className="h-3 w-3" />
