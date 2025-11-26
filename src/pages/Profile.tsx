@@ -93,7 +93,7 @@ const Profile = () => {
         onClick={onClick}
         className="w-full py-3 px-1 ios26-transition-smooth flex items-center gap-3"
       >
-        <Icon className="h-5 w-5 text-primary shrink-0" />
+        <Icon className="h-5 w-5 shrink-0" style={{ color: '#667eea' }} />
         <div className="flex-1 text-left min-w-0">
           <p className="font-medium text-[15px]">{label}</p>
           {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
@@ -119,30 +119,30 @@ const Profile = () => {
         className="px-4 pt-3 pb-24"
       >
         {/* Header - matching other pages */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-3 text-white text-2xl font-bold shadow-lg">
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-2 text-white text-xl font-bold shadow-lg">
             T
           </div>
-          <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <h1 className="text-[24px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Travelist
           </h1>
         </div>
 
         {/* Stats Row - Clean numbers without icon boxes */}
-        <div className="flex justify-around mb-6 py-4">
+        <div className="flex justify-around mb-4 py-2">
           <div className="text-center">
-            <p className="text-3xl font-bold text-foreground">{stats.totalRecommendations}</p>
-            <p className="text-xs text-muted-foreground mt-1">Places</p>
+            <p className="text-2xl font-bold text-foreground">{stats.totalRecommendations}</p>
+            <p className="text-xs text-muted-foreground">Places</p>
           </div>
           <div className="w-px bg-border/30" />
           <div className="text-center">
-            <p className="text-3xl font-bold text-foreground">{stats.countriesVisited}</p>
-            <p className="text-xs text-muted-foreground mt-1">Countries</p>
+            <p className="text-2xl font-bold text-foreground">{stats.countriesVisited}</p>
+            <p className="text-xs text-muted-foreground">Countries</p>
           </div>
           <div className="w-px bg-border/30" />
           <div className="text-center">
-            <p className="text-3xl font-bold text-foreground">{stats.citiesVisited}</p>
-            <p className="text-xs text-muted-foreground mt-1">Cities</p>
+            <p className="text-2xl font-bold text-foreground">{stats.citiesVisited}</p>
+            <p className="text-xs text-muted-foreground">Cities</p>
           </div>
         </div>
 
@@ -151,7 +151,7 @@ const Profile = () => {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-medium text-foreground/80">Travel Progress</p>
-              <p className="text-sm font-semibold text-primary">{completionRate}%</p>
+              <p className="text-sm font-semibold" style={{ color: '#667eea' }}>{completionRate}%</p>
             </div>
             <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
               <motion.div
@@ -168,7 +168,7 @@ const Profile = () => {
         )}
 
         {/* Quick Actions - iOS list style */}
-        <div className="px-3 mb-6">
+        <div className="px-3">
           <ActionRow
             icon={Folder}
             label="Collections"
@@ -180,12 +180,7 @@ const Profile = () => {
             label="Routes"
             value={stats.totalRoutes}
             onClick={() => navigate('/routes')}
-            isLast
           />
-        </div>
-
-        {/* Settings Section */}
-        <div className="px-3">
           <ActionRow
             icon={Settings}
             label="Settings"

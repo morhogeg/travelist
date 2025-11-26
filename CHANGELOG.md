@@ -4,6 +4,13 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ## [2025-11-26] - Collection & Route Management Enhancements
 
+### Profile Page Polish
+- **Purple icons**: Changed action row icons from blue to purple (#667eea) to match app theme
+- **Unified action list**: Merged Collections, Routes, Settings, and Welcome Tour into single list
+- **Compact header**: Reduced logo from 56px → 48px, title from 28px → 24px
+- **Compact stats**: Reduced stat numbers from 30px → 24px, tightened padding and margins
+- **Consistent theming**: Progress percentage now uses purple instead of blue
+
 ### Bug Fixes
 - **Blank screen on homescreen cards**: Fixed React hooks violation where `useNavigate()` and `useLocation()` were called after early return in RecommendationDetailsDialog
 - **Collection not updating**: Added `collectionUpdated` event dispatching to collectionStore and event listeners in CollectionDetailPage
