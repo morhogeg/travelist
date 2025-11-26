@@ -48,7 +48,7 @@ const DrawerContent = React.forwardRef<
       {...props}
     >
       <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
-      <div className="overflow-y-auto">
+      <div className="flex-1 overflow-y-auto flex flex-col">
         {children}
       </div>
     </DrawerPrimitive.Content>

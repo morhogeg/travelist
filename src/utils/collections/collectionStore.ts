@@ -49,8 +49,10 @@ export function addCollection(name: string): Collection {
 // Add a place to a collection (if not already added)
 export function addPlaceToCollection(collectionId: string, placeId: string) {
   const collections = getCollections();
+  let wasAdded = false;
   const updated = collections.map((col) => {
     if (col.id === collectionId && !col.placeIds.includes(placeId)) {
+      wasAdded = true;
       return {
         ...col,
         placeIds: [...col.placeIds, placeId],
@@ -60,6 +62,11 @@ export function addPlaceToCollection(collectionId: string, placeId: string) {
     return col;
   });
   saveCollections(updated);
+
+  // Dispatch event so UI can update
+  if (wasAdded) {
+    window.dispatchEvent(new CustomEvent("collectionUpdated"));
+  }
 }
 
 // Remove a place from a collection

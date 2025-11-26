@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import SearchInput from "@/components/home/search/SearchInput";
 import CategoryList from "@/components/home/categories/CategoryList";
 import { categories, getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
-import { ArrowLeft, MapPin, MapPinned, Compass, Trash2, Search as SearchIcon } from "lucide-react";
+import { ArrowLeft, MapPin, MapPinned, Compass, Trash2, Search as SearchIcon, Plus } from "lucide-react";
 import { lightHaptic } from "@/utils/ios/haptics";
 import Layout from "@/components/layout/Layout";
 import countryToCode from "@/utils/flags/countryToCode";
@@ -18,6 +18,7 @@ import ItemActions from "@/components/home/category/recommendation-item/ItemActi
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import SwipeableCard from "@/components/home/category/recommendation-item/SwipeableCard";
+import AddPlacesToCollectionDrawer from "@/components/collections/AddPlacesToCollectionDrawer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,9 +47,10 @@ const CollectionDetailPage: React.FC = () => {
   const [isRemoveItemDialogOpen, setIsRemoveItemDialogOpen] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<{ id: string; name: string } | null>(null);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isAddPlacesDrawerOpen, setIsAddPlacesDrawerOpen] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const loadData = () => {
     if (!id || typeof id !== "string") return;
 
     const collections = getCollections();
@@ -70,6 +72,23 @@ const CollectionDetailPage: React.FC = () => {
     );
 
     setAllItems(flattened);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [id]);
+
+  // Listen for collection changes
+  useEffect(() => {
+    const handleCollectionChange = () => loadData();
+
+    window.addEventListener("collectionUpdated", handleCollectionChange);
+    window.addEventListener("recommendationAdded", handleCollectionChange);
+
+    return () => {
+      window.removeEventListener("collectionUpdated", handleCollectionChange);
+      window.removeEventListener("recommendationAdded", handleCollectionChange);
+    };
   }, [id]);
 
   const toggleCategory = (categoryId: string) => {
@@ -442,57 +461,61 @@ const CollectionDetailPage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.05 * index }}
               >
-                <motion.div
-                  className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${
-                    item.visited ? 'ring-2 ring-success/30' : ''
-                  }`}
-                  style={{
-                    border: 'none',
-                    borderLeft: `4px solid ${borderColor}`,
-                    boxShadow: 'none'
-                  }}
-                  onClick={() => handleViewDetails(item)}
+                <SwipeableCard
+                  onDeleteTrigger={() => handleRemoveItem(itemId, item.name)}
                 >
-                  <div className="px-3 py-2 flex gap-2">
-                    {/* Left side: Content */}
-                    <div className="flex-1 min-w-0 space-y-1">
-                      {/* Header with name and category icon */}
-                      <div className="flex items-center gap-2">
-                        {/* Category icon */}
-                        <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: borderColor }}>
-                          {getCategoryIcon(item.category || 'general')}
+                  <motion.div
+                    className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${
+                      item.visited ? 'ring-2 ring-success/30' : ''
+                    }`}
+                    style={{
+                      border: 'none',
+                      borderLeft: `4px solid ${borderColor}`,
+                      boxShadow: 'none'
+                    }}
+                    onClick={() => handleViewDetails(item)}
+                  >
+                    <div className="px-3 py-2 flex gap-2">
+                      {/* Left side: Content */}
+                      <div className="flex-1 min-w-0 space-y-1">
+                        {/* Header with name and category icon */}
+                        <div className="flex items-center gap-2">
+                          {/* Category icon */}
+                          <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: borderColor }}>
+                            {getCategoryIcon(item.category || 'general')}
+                          </div>
+                          <h3 className="text-base font-semibold leading-tight flex-1 truncate">{item.name}</h3>
                         </div>
-                        <h3 className="text-base font-semibold leading-tight flex-1 truncate">{item.name}</h3>
+
+                        {item.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
+                        )}
+
+                        {/* Location info */}
+                        {(item.city || item.country) && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">
+                              {item.city && item.country
+                                ? `${item.city}, ${getFlag(item.country)} ${item.country}`
+                                : item.city || `${getFlag(item.country)} ${item.country}`}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
-                      {item.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
-                      )}
-
-                      {/* Location info */}
-                      {(item.city || item.country) && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">
-                            {item.city && item.country
-                              ? `${item.city}, ${getFlag(item.country)} ${item.country}`
-                              : item.city || `${getFlag(item.country)} ${item.country}`}
-                          </span>
-                        </div>
-                      )}
+                      {/* Right side: Actions (vertically stacked) */}
+                      <div className="flex flex-col justify-between items-center py-1">
+                        <ItemActions
+                          item={item}
+                          onToggleVisited={handleToggleVisited}
+                          onDelete={() => handleRemoveItem(itemId, item.name)}
+                          onEditClick={() => {}}
+                        />
+                      </div>
                     </div>
-
-                    {/* Right side: Actions (vertically stacked) */}
-                    <div className="flex flex-col justify-between items-center py-1">
-                      <ItemActions
-                        item={item}
-                        onToggleVisited={handleToggleVisited}
-                        onDelete={() => handleRemoveItem(itemId, item.name)}
-                        onEditClick={() => {}}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </SwipeableCard>
               </motion.div>
             );
           })}
@@ -564,6 +587,35 @@ const CollectionDetailPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Places to Collection Drawer */}
+      <AddPlacesToCollectionDrawer
+        isOpen={isAddPlacesDrawerOpen}
+        onClose={() => setIsAddPlacesDrawerOpen(false)}
+        collection={collection}
+        onPlacesAdded={loadData}
+      />
+
+      {/* Floating Add Button - hide when drawer is open */}
+      {!isAddPlacesDrawerOpen && !detailsDialogOpen && !isDrawerOpen && (
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          onClick={() => {
+            mediumHaptic();
+            setIsAddPlacesDrawerOpen(true);
+          }}
+          className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+          aria-label="Add places"
+          style={{
+            bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
+          }}
+        >
+          <Plus className="h-6 w-6 text-white" />
+        </motion.button>
+      )}
     </Layout>
   );
 };

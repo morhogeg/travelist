@@ -11,33 +11,35 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { addPlaceToRoute } from "@/utils/route/route-manager";
-import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
-import { Route } from "@/types/route";
-import { RecommendationPlace } from "@/utils/recommendation/types";
+import { addPlaceToCollection, Collection } from "@/utils/collections/collectionStore";
+import { getRecommendations } from "@/utils/recommendation-parser";
 import { useToast } from "@/hooks/use-toast";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { getCategoryColor, getCategoryIcon, categories } from "@/components/recommendations/utils/category-data";
 import { mediumHaptic } from "@/utils/ios/haptics";
 
-interface AddPlacesToRouteDrawerProps {
+interface AddPlacesToCollectionDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  route: Route;
-  dayNumber: number;
+  collection: Collection;
   onPlacesAdded: () => void;
 }
 
-interface PlaceItem extends RecommendationPlace {
+interface PlaceItem {
+  id: string;
   recId: string;
-  alreadyInRoute: boolean;
+  name: string;
+  description?: string;
+  category?: string;
+  city?: string;
+  country?: string;
+  alreadyInCollection: boolean;
 }
 
-const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
+const AddPlacesToCollectionDrawer: React.FC<AddPlacesToCollectionDrawerProps> = ({
   isOpen,
   onClose,
-  route,
-  dayNumber,
+  collection,
   onPlacesAdded,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,37 +52,38 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
   useEffect(() => {
     if (isOpen) {
       const recommendations = getRecommendations();
+      const existingPlaceIds = new Set(collection.placeIds);
 
-      // Get places from the same city only
-      const cityPlaces: PlaceItem[] = [];
-      const existingPlaceIds = new Set(
-        route.days.flatMap(day => day.places.map(p => p.placeId))
-      );
+      // Flatten all places from recommendations
+      const allPlaces: PlaceItem[] = [];
 
       recommendations.forEach(rec => {
-        // Only include places from the same city
-        if (rec.cityId === route.cityId || rec.city === route.city) {
-          rec.places.forEach(place => {
-            if (place.id) {
-              cityPlaces.push({
-                ...place,
-                recId: place.recId || place.id,
-                alreadyInRoute: existingPlaceIds.has(place.id)
-              });
-            }
-          });
-        }
+        rec.places.forEach(place => {
+          const placeId = place.recId || place.id;
+          if (placeId) {
+            allPlaces.push({
+              id: place.id,
+              recId: placeId,
+              name: place.name,
+              description: place.description,
+              category: place.category || rec.category,
+              city: rec.city,
+              country: rec.country,
+              alreadyInCollection: existingPlaceIds.has(placeId) || existingPlaceIds.has(place.id)
+            });
+          }
+        });
       });
 
-      // Remove duplicates
+      // Remove duplicates by id
       const uniquePlaces = Array.from(
-        new Map(cityPlaces.map(place => [place.id, place])).values()
+        new Map(allPlaces.map(place => [place.recId, place])).values()
       );
 
-      // Sort: not in route first, then by name
+      // Sort: not in collection first, then by name
       uniquePlaces.sort((a, b) => {
-        if (a.alreadyInRoute !== b.alreadyInRoute) {
-          return a.alreadyInRoute ? 1 : -1;
+        if (a.alreadyInCollection !== b.alreadyInCollection) {
+          return a.alreadyInCollection ? 1 : -1;
         }
         return a.name.localeCompare(b.name);
       });
@@ -92,14 +95,13 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
       setSelectedPlaceIds([]);
       setSelectedCategory(null);
     }
-  }, [isOpen, route]);
+  }, [isOpen, collection]);
 
-  const handleTogglePlace = (placeId: string, alreadyInRoute: boolean) => {
-    if (alreadyInRoute) {
-      // Don't allow selecting places already in route
+  const handleTogglePlace = (placeId: string, alreadyInCollection: boolean) => {
+    if (alreadyInCollection) {
       toast({
-        title: "Already in route",
-        description: "This place is already added to your route.",
+        title: "Already in collection",
+        description: "This place is already in this collection.",
         variant: "destructive",
       });
       return;
@@ -126,21 +128,21 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
 
     try {
       selectedPlaceIds.forEach(placeId => {
-        addPlaceToRoute(route.id, dayNumber, placeId);
+        addPlaceToCollection(collection.id, placeId);
       });
 
       toast({
         title: "Places added!",
-        description: `${selectedPlaceIds.length} place${selectedPlaceIds.length !== 1 ? 's' : ''} added to Day ${dayNumber}.`,
+        description: `${selectedPlaceIds.length} place${selectedPlaceIds.length !== 1 ? 's' : ''} added to "${collection.name}".`,
       });
 
       onPlacesAdded();
       onClose();
     } catch (error) {
-      console.error("Error adding places to route:", error);
+      console.error("Error adding places to collection:", error);
       toast({
         title: "Error",
-        description: "Failed to add places to route. Please try again.",
+        description: "Failed to add places. Please try again.",
         variant: "destructive",
       });
     }
@@ -151,7 +153,8 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
     const matchesSearch =
       place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       place.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      place.category?.toLowerCase().includes(searchTerm.toLowerCase());
+      place.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      place.city?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesCategory = !selectedCategory ||
       place.category?.toLowerCase() === selectedCategory.toLowerCase();
@@ -166,15 +169,15 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border max-h-[85vh] flex flex-col">
-        <DrawerHeader className="flex-shrink-0">
-          <DrawerTitle>Add Places to Day {dayNumber}</DrawerTitle>
+      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border max-h-[85vh]">
+        <DrawerHeader>
+          <DrawerTitle>Add Places to {collection.name}</DrawerTitle>
           <DrawerDescription>
-            Select places from {route.city} to add to your itinerary
+            Select places from your recommendations to add
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="px-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+        <div className="px-6 space-y-4">
           {/* Search and Filter */}
           <div className="space-y-3 sticky top-0 bg-background z-10 pb-2">
             <div className="relative">
@@ -230,36 +233,36 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
           {/* Places List */}
           {availablePlaces.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No places available in {route.city}.</p>
+              <p>No places available.</p>
               <p className="text-sm mt-2">Add some recommendations first!</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-[40vh] overflow-y-auto">
               {filteredPlaces.length === 0 ? (
                 <p className="text-center text-muted-foreground py-4">
                   No places match your search
                 </p>
               ) : (
                 filteredPlaces.map(place => {
-                  const categoryColor = getCategoryColor(place.category);
-                  const isDisabled = place.alreadyInRoute;
-                  const isSelected = selectedPlaceIds.includes(place.id!);
+                  const categoryColor = getCategoryColor(place.category || 'general');
+                  const isDisabled = place.alreadyInCollection;
+                  const isSelected = selectedPlaceIds.includes(place.recId);
 
                   return (
                     <div
-                      key={place.id}
+                      key={place.recId}
                       className={`flex items-center space-x-3 p-3 rounded-xl border-l-4 transition-all ${
                         isDisabled
                           ? 'opacity-50 cursor-not-allowed bg-muted/50'
                           : 'cursor-pointer'
                       }`}
                       style={!isDisabled ? { borderLeftColor: categoryColor } : {}}
-                      onClick={() => !isDisabled && handleTogglePlace(place.id!, isDisabled)}
+                      onClick={() => !isDisabled && handleTogglePlace(place.recId, isDisabled)}
                     >
                       <Checkbox
                         checked={isSelected}
                         disabled={isDisabled}
-                        onCheckedChange={() => handleTogglePlace(place.id!, isDisabled)}
+                        onCheckedChange={() => handleTogglePlace(place.recId, isDisabled)}
                         onClick={(e) => e.stopPropagation()}
                         className={isSelected ? "border-[#667eea] data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-[#667eea] data-[state=checked]:to-[#764ba2]" : ""}
                       />
@@ -267,20 +270,20 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="shrink-0" style={{ color: categoryColor }}>
-                            {getCategoryIcon(place.category)}
+                            {getCategoryIcon(place.category || 'general')}
                           </div>
                           <p className="font-medium text-sm truncate">{place.name}</p>
                         </div>
 
-                        {place.description && (
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {place.description}
+                        {place.city && (
+                          <p className="text-xs text-muted-foreground">
+                            {place.city}{place.country ? `, ${place.country}` : ''}
                           </p>
                         )}
 
                         {isDisabled && (
                           <p className="text-xs text-primary mt-1">
-                            ✓ Already in route
+                            ✓ Already in collection
                           </p>
                         )}
                       </div>
@@ -292,12 +295,12 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
           )}
         </div>
 
-        <DrawerFooter className="border-t border-border flex-shrink-0 pointer-events-auto">
+        <DrawerFooter className="border-t border-border">
           <Button
             type="button"
             onClick={handleAddPlaces}
             disabled={selectedPlaceIds.length === 0}
-            className={`font-semibold pointer-events-auto ${selectedPlaceIds.length === 0 ? 'bg-muted text-muted-foreground' : 'text-white'}`}
+            className={`font-semibold ${selectedPlaceIds.length === 0 ? 'bg-muted text-muted-foreground' : 'text-white'}`}
             style={selectedPlaceIds.length > 0 ? {
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
@@ -314,4 +317,4 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
   );
 };
 
-export default AddPlacesToRouteDrawer;
+export default AddPlacesToCollectionDrawer;

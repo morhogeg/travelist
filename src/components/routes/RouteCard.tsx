@@ -33,7 +33,7 @@ const RouteCard: React.FC<RouteCardProps> = ({ route, onClick }) => {
     <motion.div
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="liquid-glass-clear rounded-2xl p-4 shadow-md hover:shadow-lg ios26-transition-smooth cursor-pointer"
+      className="p-4 ios26-transition-smooth cursor-pointer"
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">

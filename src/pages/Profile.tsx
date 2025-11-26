@@ -1,11 +1,11 @@
-
 import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Settings, MapPin, CheckCircle2, Folder, Globe, TrendingUp, BookOpen } from "lucide-react";
+import { Settings, ChevronRight, BookOpen, Folder, MapPinned } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import { getCollections } from "@/utils/collections/collectionStore";
+import { getGroupedRoutes } from "@/utils/route/route-manager";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ const Profile = () => {
     totalRecommendations: 0,
     visitedCount: 0,
     totalCollections: 0,
+    totalRoutes: 0,
     countriesVisited: 0,
     citiesVisited: 0,
   });
@@ -23,6 +24,15 @@ const Profile = () => {
     const places = getUserPlaces();
     const recommendations = getRecommendations();
     const collections = getCollections();
+    const groupedRoutes = getGroupedRoutes();
+
+    // Count total routes
+    const totalRoutes =
+      groupedRoutes.ongoing.length +
+      groupedRoutes.completed.length +
+      groupedRoutes.upcoming.length +
+      groupedRoutes.past.length +
+      groupedRoutes.undated.length;
 
     // Flatten all recommendations
     const allRecs = recommendations.flatMap(rec =>
@@ -50,6 +60,7 @@ const Profile = () => {
       totalRecommendations: allRecs.length,
       visitedCount,
       totalCollections: collections.length,
+      totalRoutes,
       countriesVisited: uniqueCountries.size,
       citiesVisited: uniqueCities.size,
     });
@@ -60,29 +71,44 @@ const Profile = () => {
     return Math.round((stats.visitedCount / stats.totalRecommendations) * 100);
   }, [stats]);
 
-  const StatCard = ({ icon: Icon, label, value, subtitle, onClick }: any) => (
-    <motion.div
-      whileTap={onClick ? { scale: 0.98 } : {}}
-      onClick={onClick}
-      className={`py-3 ios26-transition-smooth ${
-        onClick ? 'cursor-pointer hover:bg-white/5 dark:hover:bg-white/5 rounded-xl px-1 -mx-1' : ''
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-          <Icon className="h-5 w-5 text-primary" />
+  // Action row component - iOS Settings style
+  const ActionRow = ({
+    icon: Icon,
+    label,
+    subtitle,
+    value,
+    onClick,
+    isLast = false
+  }: {
+    icon: React.ElementType;
+    label: string;
+    subtitle?: string;
+    value?: string | number;
+    onClick: () => void;
+    isLast?: boolean;
+  }) => (
+    <>
+      <motion.button
+        whileTap={{ scale: 0.98 }}
+        onClick={onClick}
+        className="w-full py-3 px-1 ios26-transition-smooth flex items-center gap-3"
+      >
+        <Icon className="h-5 w-5 text-primary shrink-0" />
+        <div className="flex-1 text-left min-w-0">
+          <p className="font-medium text-[15px]">{label}</p>
+          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-2xl font-bold leading-none mb-1">{value}</p>
-          <p className="text-sm font-medium text-foreground/80 truncate">{label}</p>
-          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+        <div className="flex items-center gap-1 text-muted-foreground">
+          {value !== undefined && (
+            <span className="text-sm">{value}</span>
+          )}
+          <ChevronRight className="h-4 w-4" />
         </div>
-      </div>
-    </motion.div>
-  );
-
-  const Divider = () => (
-    <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+      </motion.button>
+      {!isLast && (
+        <div className="h-px bg-border/30 ml-8" />
+      )}
+    </>
   );
 
   return (
@@ -90,125 +116,101 @@ const Profile = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="px-6 pt-2 pb-24"
+        className="px-4 pt-3 pb-24"
       >
-        {/* Header */}
-        <div className="text-center mb-4">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-2 text-white text-xl font-bold shadow-lg">
+        {/* Header - matching other pages */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-3 text-white text-2xl font-bold shadow-lg">
             T
           </div>
-          <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Travelist
           </h1>
         </div>
 
-        {/* Stats - grouped in single container */}
-        <div className="liquid-glass-clear rounded-2xl p-4 mb-5">
-          <StatCard
-            icon={MapPin}
-            label="Total Recommendations"
-            value={stats.totalRecommendations}
-            subtitle="Places to explore"
-          />
-
-          <Divider />
-
-          <div className="grid grid-cols-2 gap-3 py-3">
-            <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-                <Globe className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-2xl font-bold leading-none mb-1">{stats.countriesVisited}</p>
-                <p className="text-sm font-medium text-foreground/80 truncate">Countries</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-                <MapPin className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-2xl font-bold leading-none mb-1">{stats.citiesVisited}</p>
-                <p className="text-sm font-medium text-foreground/80 truncate">Cities</p>
-              </div>
-            </div>
+        {/* Stats Row - Clean numbers without icon boxes */}
+        <div className="flex justify-around mb-6 py-4">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-foreground">{stats.totalRecommendations}</p>
+            <p className="text-xs text-muted-foreground mt-1">Places</p>
           </div>
+          <div className="w-px bg-border/30" />
+          <div className="text-center">
+            <p className="text-3xl font-bold text-foreground">{stats.countriesVisited}</p>
+            <p className="text-xs text-muted-foreground mt-1">Countries</p>
+          </div>
+          <div className="w-px bg-border/30" />
+          <div className="text-center">
+            <p className="text-3xl font-bold text-foreground">{stats.citiesVisited}</p>
+            <p className="text-xs text-muted-foreground mt-1">Cities</p>
+          </div>
+        </div>
 
-          <Divider />
+        {/* Progress Section - Only show if there are recommendations */}
+        {stats.totalRecommendations > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground/80">Travel Progress</p>
+              <p className="text-sm font-semibold text-primary">{completionRate}%</p>
+            </div>
+            <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${completionRate}%` }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="h-2 rounded-full bg-gradient-to-r from-primary to-purple-500"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {stats.visitedCount} of {stats.totalRecommendations} places visited
+            </p>
+          </div>
+        )}
 
-          <StatCard
+        {/* Quick Actions - iOS list style */}
+        <div className="px-3 mb-6">
+          <ActionRow
             icon={Folder}
             label="Collections"
             value={stats.totalCollections}
-            subtitle="Organized groups"
             onClick={() => navigate('/collections')}
           />
-
-          {completionRate > 0 && (
-            <>
-              <Divider />
-              <div className="py-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-semibold">Travel Progress</p>
-                </div>
-                <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
-                  <div
-                    className="h-2 rounded-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-500"
-                    style={{ width: `${completionRate}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  You've visited {stats.visitedCount} out of {stats.totalRecommendations} recommendations
-                </p>
-              </div>
-            </>
-          )}
+          <ActionRow
+            icon={MapPinned}
+            label="Routes"
+            value={stats.totalRoutes}
+            onClick={() => navigate('/routes')}
+            isLast
+          />
         </div>
 
-        {/* Settings - grouped in single container */}
-        <div className="liquid-glass-clear rounded-2xl overflow-hidden">
-          <motion.button
-            whileTap={{ scale: 0.98 }}
+        {/* Settings Section */}
+        <div className="px-3">
+          <ActionRow
+            icon={Settings}
+            label="Settings"
+            subtitle="Customize your experience"
             onClick={() => navigate('/settings')}
-            className="w-full p-3.5 ios26-transition-smooth flex items-center gap-3 hover:bg-white/5 dark:hover:bg-white/5"
-          >
-            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-              <Settings className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <p className="font-semibold text-base">Settings</p>
-              <p className="text-xs text-muted-foreground">Customize your experience</p>
-            </div>
-          </motion.button>
-
-          <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent mx-4" />
-
-          <motion.button
-            whileTap={{ scale: 0.98 }}
+          />
+          <ActionRow
+            icon={BookOpen}
+            label="View Welcome Tour"
+            subtitle="See the app introduction again"
             onClick={() => {
               localStorage.removeItem('onboarding_completed');
               window.dispatchEvent(new CustomEvent('resetOnboarding'));
             }}
-            className="w-full p-3.5 ios26-transition-smooth flex items-center gap-3 hover:bg-white/5 dark:hover:bg-white/5"
-          >
-            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-              <BookOpen className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <p className="font-semibold text-base">View Welcome Tour</p>
-              <p className="text-xs text-muted-foreground">See the app introduction again</p>
-            </div>
-          </motion.button>
+            isLast
+          />
         </div>
 
         {/* App Version */}
-        <div className="mt-4 text-center">
+        <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground">
             Travelist v1.0.0
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Made with ❤️ for travelers
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Made with love for travelers
           </p>
         </div>
       </motion.div>

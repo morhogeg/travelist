@@ -22,7 +22,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       <motion.div
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        className="liquid-glass-clear rounded-2xl p-4 cursor-pointer ios26-transition-smooth"
+        className="py-3 px-4 cursor-pointer ios26-transition-smooth"
       >
         {/* Header Row */}
         <div className="min-h-[44px]">
@@ -36,7 +36,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 
         {/* Category Segment Bar - only show if places exist */}
         {hasPlaces && collection.categoryBreakdown.length > 0 && (
-          <div className="mt-3">
+          <div className="mt-2">
             <CategorySegmentBar categories={collection.categoryBreakdown} />
           </div>
         )}

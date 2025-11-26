@@ -39,6 +39,8 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const [showCollectionPicker, setShowCollectionPicker] = useState(false);
   const [collectionsCount, setCollectionsCount] = useState(0);
   const [firstCollectionName, setFirstCollectionName] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Check collection membership when dialog opens or recommendation changes
   useEffect(() => {
@@ -66,27 +68,24 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const categoryColor = getCategoryColor(recommendation.category || 'general');
   const categoryIcon = getCategoryIcon(recommendation.category || 'general');
   const placeId = recommendation.recId || recommendation.id;
+  const currentPath = location.pathname;
 
   const handleExternalClick = (e: React.MouseEvent, url: string) => {
     e.preventDefault();
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const currentPath = location.pathname;
-
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent
-        className="max-h-[85vh] p-0 flex flex-col"
+        className="max-h-[85vh] p-0"
         style={{
           borderLeft: `4px solid ${categoryColor}`,
           boxShadow: 'none'
         }}
       >
         {/* Compact Header */}
-        <div className="relative flex-shrink-0 px-6 pt-2 pb-5 bg-background border-b">
+        <div className="relative px-6 pt-2 pb-5 bg-background border-b">
           <div className="flex items-start gap-4">
             {/* Category Icon - Larger */}
             <div
@@ -125,9 +124,8 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
           </div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-4">
+        {/* Content */}
+        <div className="p-6 space-y-4">
             {/* Route-Specific Notes */}
             {routeNotes && (
               <div className="px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -222,12 +220,11 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               </Button>
             </div>
           </div>
-        </div>
 
-        {/* Fixed Footer */}
+        {/* Footer */}
         {!hideEditDelete ? (
           <div
-            className="flex-shrink-0 p-4 border-t liquid-glass-clear flex items-center gap-3"
+            className="p-4 border-t liquid-glass-clear flex items-center gap-3"
             style={{ boxShadow: 'none' }}
           >
             <Button
@@ -261,7 +258,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
           </div>
         ) : (
           <div
-            className="flex-shrink-0 p-4 border-t liquid-glass-clear"
+            className="p-4 border-t liquid-glass-clear"
             style={{ boxShadow: 'none' }}
           >
             <Button

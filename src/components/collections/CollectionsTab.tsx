@@ -120,14 +120,18 @@ const CollectionsTab: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="space-y-2">
-              {collections.map((collection) => (
-                <CollectionCard
-                  key={collection.id}
-                  collection={collection}
-                  onDelete={() => handleDeleteCollection(collection.id, collection.name)}
-                  onClick={() => handleOpenCollection(collection.id)}
-                />
+            <div>
+              {collections.map((collection, index) => (
+                <React.Fragment key={collection.id}>
+                  <CollectionCard
+                    collection={collection}
+                    onDelete={() => handleDeleteCollection(collection.id, collection.name)}
+                    onClick={() => handleOpenCollection(collection.id)}
+                  />
+                  {index < collections.length - 1 && (
+                    <div className="h-px bg-border/30 mx-4" />
+                  )}
+                </React.Fragment>
               ))}
             </div>
 

@@ -2,6 +2,53 @@
 
 All notable changes to the Travelist iOS app will be documented in this file.
 
+## [2025-11-26] - Collection & Route Management Enhancements
+
+### Bug Fixes
+- **Blank screen on homescreen cards**: Fixed React hooks violation where `useNavigate()` and `useLocation()` were called after early return in RecommendationDetailsDialog
+- **Collection not updating**: Added `collectionUpdated` event dispatching to collectionStore and event listeners in CollectionDetailPage
+- **Drawer closing prematurely**: Added `type="button"` to buttons in AddToCollectionPicker to prevent form submission
+
+### Collection Detail Page
+- **Swipe-to-delete**: Added SwipeableCard wrapper for removing places from collection
+- **Add places FAB**: New floating action button to add places to collection
+- **AddPlacesToCollectionDrawer**: New drawer component for selecting places to add
+  - Search functionality
+  - Category filter pills with purple gradient styling
+  - Purple gradient checkboxes for selection
+  - Already-in-collection indicators
+  - Disabled state styling for "Add Places" button (gray when no selection)
+
+### Route Management
+- **AddPlacesToRouteDrawer enhancements**:
+  - Added category filter pills (matching collection drawer)
+  - Removed "x selected" label (count shown in button)
+  - Removed blue highlight on selection
+  - Purple gradient checkboxes
+  - Proper disabled button styling
+
+### UI Polish
+- **Borderless sections**: Removed borders from Profile, Collections, and Routes pages for cleaner look
+- **Centered dividers**: Added subtle divider lines between collection/route items
+- **FAB visibility**: FAB hides when drawers are open
+- **Scrollbar hidden**: Category filter chips use scrollbar-hide class
+
+### Files Modified
+- `src/components/home/RecommendationDetailsDialog.tsx` - Hook order fix
+- `src/components/recommendations/forms/AddToCollectionPicker.tsx` - Button type fix
+- `src/pages/collections/CollectionDetailPage.tsx` - Swipe-to-delete, FAB, drawer integration
+- `src/utils/collections/collectionStore.ts` - Event dispatching
+- `src/components/routes/AddPlacesToRouteDrawer.tsx` - Category pills, styling fixes
+- `src/pages/Profile.tsx` - Borderless sections
+- `src/components/collections/CollectionsTab.tsx` - Borderless sections, dividers
+- `src/components/routes/RouteCard.tsx` - Divider styling
+- `src/components/ui/drawer.tsx` - Flex layout fix
+
+### New Files
+- `src/components/collections/AddPlacesToCollectionDrawer.tsx` - New drawer for adding places to collections
+
+---
+
 ## [2025-11-24] - Design Consistency Across All Screens
 
 ### Cross-App Design Standardization

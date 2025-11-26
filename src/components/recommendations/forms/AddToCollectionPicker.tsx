@@ -43,6 +43,7 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
         {collections.map((collection) => (
           <Button
             key={collection.id}
+            type="button"
             variant="outline"
             onClick={() => handleSelect(collection.id)}
             className={`text-sm ${selected === collection.id ? "text-white border-transparent" : ""}`}
@@ -62,6 +63,7 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
           onChange={(e) => setNewName(e.target.value)}
         />
         <Button
+          type="button"
           onClick={handleCreateNew}
           className="text-white font-semibold shrink-0"
           style={{
