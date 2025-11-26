@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, TrendingUp, Compass, MapPin } from 'lucide-react';
+import { TrendingUp, Compass } from 'lucide-react';
 import { TravelStoryStats, getSourceIcon } from '@/utils/story/stats-calculator';
 
 interface Props {
@@ -75,17 +75,14 @@ export function StatsHeroCard({ stats }: Props) {
         />
 
         <div className="relative p-5">
-          {/* Header with year badge and progress ring */}
+          {/* Header with year and progress ring */}
           <div className="flex items-center justify-between mb-4">
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 mb-1">
-                <Sparkles className="w-3.5 h-3.5 text-white" />
-                <span className="text-white/90 text-xs font-medium">{currentYear} Journey</span>
-              </div>
-              <h2 className="text-white text-xl font-bold">Your Travel Story</h2>
+              <p className="text-white/50 text-xs font-medium tracking-wide uppercase mb-0.5">{currentYear} Journey</p>
+              <h2 className="text-white text-xl font-bold">My Travel Story</h2>
             </motion.div>
             <ProgressRing progress={completionRate} />
           </div>
@@ -184,11 +181,6 @@ export function StatsHeroCard({ stats }: Props) {
           </motion.div>
         </div>
       </motion.div>
-
-      {/* Hint text */}
-      <p className="text-center text-xs text-muted-foreground mt-2">
-        Screenshot to share your journey
-      </p>
     </div>
   );
 }

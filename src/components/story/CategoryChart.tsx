@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { BarChart3 } from 'lucide-react';
 import { TravelStoryStats } from '@/utils/story/stats-calculator';
+import { getCategoryIcon, getCategoryLabel } from '@/components/recommendations/utils/category-data';
 
 interface Props {
   stats: TravelStoryStats;
@@ -17,11 +19,11 @@ export function CategoryChart({ stats }: Props) {
   const topCategories = categoryBreakdown.slice(0, 6);
   const maxCount = topCategories[0]?.count || 1;
 
-  // Category colors
+  // Category colors (matching the app's color scheme)
   const categoryColors: Record<string, string> = {
+    food: '#F97316',
     restaurant: '#F97316',
     restaurants: '#F97316',
-    food: '#F97316',
     cafe: '#92400E',
     coffee: '#92400E',
     bar: '#8B5CF6',
@@ -36,8 +38,10 @@ export function CategoryChart({ stats }: Props) {
     park: '#10B981',
     parks: '#10B981',
     nature: '#10B981',
+    outdoors: '#10B981',
     shopping: '#F472B6',
     shop: '#F472B6',
+    general: '#667eea',
   };
 
   const getColor = (category: string) => {
@@ -49,7 +53,7 @@ export function CategoryChart({ stats }: Props) {
     <div className="mb-6">
       {/* Section header */}
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-lg">📊</span>
+        <BarChart3 className="w-5 h-5 text-purple-500" />
         <h3 className="text-lg font-semibold text-foreground">Categories</h3>
       </div>
 
@@ -58,9 +62,8 @@ export function CategoryChart({ stats }: Props) {
         {topCategories.map((cat, i) => {
           const percentage = (cat.count / totalPlaces) * 100;
           const barWidth = (cat.count / maxCount) * 100;
-          const visitedPercentage = cat.count > 0
-            ? Math.round((cat.visitedCount / cat.count) * 100)
-            : 0;
+          const categoryLabel = getCategoryLabel(cat.category);
+          const categoryIcon = getCategoryIcon(cat.category);
 
           return (
             <motion.div
@@ -73,8 +76,10 @@ export function CategoryChart({ stats }: Props) {
               {/* Label row */}
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{cat.emoji}</span>
-                  <span className="text-sm font-medium text-foreground">{cat.category}</span>
+                  <span className="text-muted-foreground" style={{ color: getColor(cat.category) }}>
+                    {categoryIcon}
+                  </span>
+                  <span className="text-sm font-medium text-foreground">{categoryLabel}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="text-muted-foreground">
