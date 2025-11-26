@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Settings, MapPin, CheckCircle2, Folder, Globe, TrendingUp } from "lucide-react";
+import { Settings, MapPin, CheckCircle2, Folder, Globe, TrendingUp, BookOpen } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
@@ -160,6 +160,23 @@ const Profile = () => {
             <div className="flex-1 text-left min-w-0">
               <p className="font-semibold text-base">Settings</p>
               <p className="text-xs text-muted-foreground">Customize your experience</p>
+            </div>
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              localStorage.removeItem('onboarding_completed');
+              window.dispatchEvent(new CustomEvent('resetOnboarding'));
+            }}
+            className="w-full liquid-glass-clear rounded-2xl p-3.5 shadow-md hover:shadow-lg ios26-transition-smooth flex items-center gap-3"
+          >
+            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+              <BookOpen className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <p className="font-semibold text-base">View Welcome Tour</p>
+              <p className="text-xs text-muted-foreground">See the app introduction again</p>
             </div>
           </motion.button>
         </div>

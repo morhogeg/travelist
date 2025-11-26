@@ -53,8 +53,8 @@ export const OrganizeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
             transition={{ delay: 0.3 }}
             className="bg-muted/50 rounded-2xl p-4 flex flex-col items-center text-center"
           >
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-              <Folder className="w-7 h-7 text-primary" />
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <Folder className="w-7 h-7" style={{ color: '#667eea' }} />
             </div>
             <h3 className="font-semibold text-foreground mb-1">Collections</h3>
             <p className="text-xs text-muted-foreground">
@@ -69,8 +69,8 @@ export const OrganizeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
             transition={{ delay: 0.4 }}
             className="bg-muted/50 rounded-2xl p-4 flex flex-col items-center text-center"
           >
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-              <Route className="w-7 h-7 text-primary" />
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <Route className="w-7 h-7" style={{ color: '#667eea' }} />
             </div>
             <h3 className="font-semibold text-foreground mb-1">Routes</h3>
             <p className="text-xs text-muted-foreground">
@@ -99,8 +99,8 @@ export const OrganizeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
           </div>
 
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/30">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Calendar className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <Calendar className="w-5 h-5" style={{ color: '#667eea' }} />
             </div>
             <div>
               <h3 className="font-medium text-foreground">Plan your days</h3>

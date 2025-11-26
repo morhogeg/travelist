@@ -87,3 +87,10 @@ export function isPlaceInCollection(collectionId: string, placeId: string): bool
   const collection = collections.find((col) => col.id === collectionId);
   return collection?.placeIds?.includes(placeId) ?? false;
 }
+
+// Delete a collection
+export function deleteCollection(collectionId: string): void {
+  const collections = getCollections();
+  const updated = collections.filter((col) => col.id !== collectionId);
+  saveCollections(updated);
+}

@@ -96,10 +96,10 @@ export const AddPlacesScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBac
             transition={{ delay: 0.65 }}
             className="flex flex-col items-center gap-2"
           >
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border-2 border-dashed border-primary/30">
-              <Plus className="w-6 h-6 text-primary" />
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center border-2 border-dashed" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)', borderColor: 'rgba(102, 126, 234, 0.3)' }}>
+              <Plus className="w-6 h-6" style={{ color: '#667eea' }} />
             </div>
-            <span className="text-caption text-primary font-medium">Add</span>
+            <span className="text-caption font-medium" style={{ color: '#667eea' }}>Add</span>
           </motion.div>
         </motion.div>
 
@@ -111,8 +111,8 @@ export const AddPlacesScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBac
           className="space-y-4 flex-1"
         >
           <div className="flex items-start gap-4 p-4 rounded-2xl bg-muted/50">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <MessageSquare className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <MessageSquare className="w-5 h-5" style={{ color: '#667eea' }} />
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-1">Track who recommended</h3>
@@ -123,8 +123,8 @@ export const AddPlacesScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBac
           </div>
 
           <div className="flex items-start gap-4 p-4 rounded-2xl bg-muted/50">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Globe className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <Globe className="w-5 h-5" style={{ color: '#667eea' }} />
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-1">Organized by city</h3>

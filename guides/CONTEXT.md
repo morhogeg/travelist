@@ -212,7 +212,24 @@ color: #764ba2;
 
 ## 🎯 Recent Changes Summary
 
-**Latest Session Changes (November 25, 2025):**
+**Latest Session Changes (November 26, 2025):**
+
+**Collections & Routes Consistency:**
+1. ✅ **CollectionsTab styling updated** - Matches Routes tab with same header, spacing, and FAB button
+2. ✅ **CollectionDetailPage redesign** - Matches RouteDetail with ghost buttons, liquid glass info card
+3. ✅ **Swipe-to-delete on collections** - Swipe left on collection cards to delete with confirmation dialog
+4. ✅ **Swipe-to-delete on collection items** - Swipe left on items within a collection to remove them
+5. ✅ **Delete button in collection detail** - Trash icon in header to delete entire collection
+6. ✅ **Collection cards clickable** - Tapping a card opens RecommendationDetailsDialog
+
+**Onboarding Purple Theme:**
+1. ✅ **Purple gradient buttons** - OnboardingButton now uses purple gradient (#667eea → #764ba2)
+2. ✅ **Purple icons throughout** - All onboarding icons use purple instead of blue
+3. ✅ **WelcomeScreen positioned higher** - Reduced top gap, content starts from top
+4. ✅ **View Welcome Tour button** - Added to Profile page to replay onboarding
+5. ✅ **Event-based reset** - Uses CustomEvent to trigger onboarding without page reload
+
+**Previous Session Changes (November 25, 2025):**
 
 **Add to Collection Feature:**
 1. ✅ **Swipe right to add** - Cards can be swiped right to reveal purple "Add" button

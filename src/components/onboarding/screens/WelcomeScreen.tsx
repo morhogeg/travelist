@@ -10,7 +10,7 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col h-full px-6 pt-16 pb-8"
+      className="flex flex-col h-full px-6 pt-12 pb-8"
     >
       {/* Skip link at top */}
       <div className="flex justify-end">
@@ -22,8 +22,8 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
         </button>
       </div>
 
-      {/* Main content - centered */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center">
+      {/* Main content - positioned higher */}
+      <div className="flex-1 flex flex-col items-center justify-start pt-12 text-center">
         {/* Animated icon */}
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
@@ -34,9 +34,10 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
             damping: 20,
             delay: 0.2,
           }}
-          className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center mb-8"
+          className="w-24 h-24 rounded-3xl flex items-center justify-center mb-8"
+          style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}
         >
-          <Compass className="w-12 h-12 text-primary" />
+          <Compass className="w-12 h-12" style={{ color: '#667eea' }} />
         </motion.div>
 
         {/* Title */}

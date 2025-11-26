@@ -59,6 +59,18 @@ function AppContent() {
     setShowOnboarding(false);
   };
 
+  // Listen for reset onboarding event
+  useEffect(() => {
+    const handleResetOnboarding = () => {
+      setShowOnboarding(true);
+    };
+
+    window.addEventListener('resetOnboarding', handleResetOnboarding);
+    return () => {
+      window.removeEventListener('resetOnboarding', handleResetOnboarding);
+    };
+  }, []);
+
   // Show onboarding for first-time users
   if (showOnboarding) {
     return (

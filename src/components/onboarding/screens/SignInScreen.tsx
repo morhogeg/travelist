@@ -61,8 +61,8 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
           className="space-y-4 mb-10"
         >
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Cloud className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <Cloud className="w-5 h-5" style={{ color: '#667eea' }} />
             </div>
             <div>
               <h3 className="font-medium text-foreground">Sync everywhere</h3>
@@ -73,8 +73,8 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
           </div>
 
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Shield className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <Shield className="w-5 h-5" style={{ color: '#667eea' }} />
             </div>
             <div>
               <h3 className="font-medium text-foreground">Never lose data</h3>
@@ -85,8 +85,8 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
           </div>
 
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Smartphone className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(102, 126, 234, 0.1)' }}>
+              <Smartphone className="w-5 h-5" style={{ color: '#667eea' }} />
             </div>
             <div>
               <h3 className="font-medium text-foreground">Works offline</h3>

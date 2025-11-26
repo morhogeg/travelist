@@ -20,10 +20,15 @@ export const OnboardingButton: React.FC<OnboardingButtonProps> = ({
   const baseStyles = 'w-full py-4 px-6 rounded-2xl font-semibold text-base transition-all';
 
   const variants = {
-    primary: 'bg-primary text-primary-foreground shadow-lg',
+    primary: 'text-white shadow-lg',
     secondary: 'bg-muted text-foreground',
     ghost: 'bg-transparent text-muted-foreground',
   };
+
+  const primaryStyle = variant === 'primary' ? {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+  } : undefined;
 
   return (
     <motion.button
@@ -36,6 +41,7 @@ export const OnboardingButton: React.FC<OnboardingButtonProps> = ({
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}
+      style={primaryStyle}
     >
       {children}
     </motion.button>
