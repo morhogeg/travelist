@@ -64,8 +64,8 @@ const Profile = () => {
     <motion.div
       whileTap={onClick ? { scale: 0.98 } : {}}
       onClick={onClick}
-      className={`liquid-glass-clear rounded-2xl p-3.5 shadow-md hover:shadow-lg ios26-transition-smooth ${
-        onClick ? 'cursor-pointer' : ''
+      className={`py-3 ios26-transition-smooth ${
+        onClick ? 'cursor-pointer hover:bg-white/5 dark:hover:bg-white/5 rounded-xl px-1 -mx-1' : ''
       }`}
     >
       <div className="flex items-center gap-3">
@@ -79,6 +79,10 @@ const Profile = () => {
         </div>
       </div>
     </motion.div>
+  );
+
+  const Divider = () => (
+    <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
   );
 
   return (
@@ -98,8 +102,8 @@ const Profile = () => {
           </h1>
         </div>
 
-        {/* Stats Grid */}
-        <div className="space-y-3 mb-5">
+        {/* Stats - grouped in single container */}
+        <div className="liquid-glass-clear rounded-2xl p-4 mb-5">
           <StatCard
             icon={MapPin}
             label="Total Recommendations"
@@ -107,18 +111,30 @@ const Profile = () => {
             subtitle="Places to explore"
           />
 
-          <div className="grid grid-cols-2 gap-3">
-            <StatCard
-              icon={Globe}
-              label="Countries"
-              value={stats.countriesVisited}
-            />
-            <StatCard
-              icon={MapPin}
-              label="Cities"
-              value={stats.citiesVisited}
-            />
+          <Divider />
+
+          <div className="grid grid-cols-2 gap-3 py-3">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+                <Globe className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-2xl font-bold leading-none mb-1">{stats.countriesVisited}</p>
+                <p className="text-sm font-medium text-foreground/80 truncate">Countries</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-2xl font-bold leading-none mb-1">{stats.citiesVisited}</p>
+                <p className="text-sm font-medium text-foreground/80 truncate">Cities</p>
+              </div>
+            </div>
           </div>
+
+          <Divider />
 
           <StatCard
             icon={Folder}
@@ -129,30 +145,33 @@ const Profile = () => {
           />
 
           {completionRate > 0 && (
-            <div className="liquid-glass-clear rounded-2xl p-3.5 shadow-md">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                <p className="text-sm font-semibold">Travel Progress</p>
+            <>
+              <Divider />
+              <div className="py-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-semibold">Travel Progress</p>
+                </div>
+                <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
+                  <div
+                    className="h-2 rounded-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-500"
+                    style={{ width: `${completionRate}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  You've visited {stats.visitedCount} out of {stats.totalRecommendations} recommendations
+                </p>
               </div>
-              <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-500"
-                  style={{ width: `${completionRate}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                You've visited {stats.visitedCount} out of {stats.totalRecommendations} recommendations
-              </p>
-            </div>
+            </>
           )}
         </div>
 
-        {/* Settings */}
-        <div className="space-y-2">
+        {/* Settings - grouped in single container */}
+        <div className="liquid-glass-clear rounded-2xl overflow-hidden">
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/settings')}
-            className="w-full liquid-glass-clear rounded-2xl p-3.5 shadow-md hover:shadow-lg ios26-transition-smooth flex items-center gap-3"
+            className="w-full p-3.5 ios26-transition-smooth flex items-center gap-3 hover:bg-white/5 dark:hover:bg-white/5"
           >
             <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
               <Settings className="h-5 w-5 text-primary" />
@@ -163,13 +182,15 @@ const Profile = () => {
             </div>
           </motion.button>
 
+          <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent mx-4" />
+
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => {
               localStorage.removeItem('onboarding_completed');
               window.dispatchEvent(new CustomEvent('resetOnboarding'));
             }}
-            className="w-full liquid-glass-clear rounded-2xl p-3.5 shadow-md hover:shadow-lg ios26-transition-smooth flex items-center gap-3"
+            className="w-full p-3.5 ios26-transition-smooth flex items-center gap-3 hover:bg-white/5 dark:hover:bg-white/5"
           >
             <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
               <BookOpen className="h-5 w-5 text-primary" />

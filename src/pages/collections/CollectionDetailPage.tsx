@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { getCollections, deleteCollection, removePlaceFromCollection } from "@/utils/collections/collectionStore";
 import { getRecommendations, markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import { Button } from "@/components/ui/button";
 import SearchInput from "@/components/home/search/SearchInput";
 import CategoryList from "@/components/home/categories/CategoryList";
 import { categories, getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
-import { ArrowLeft, MapPin, MapPinned, Compass, Trash2 } from "lucide-react";
+import { ArrowLeft, MapPin, MapPinned, Compass, Trash2, Search as SearchIcon } from "lucide-react";
+import { lightHaptic } from "@/utils/ios/haptics";
 import Layout from "@/components/layout/Layout";
 import countryToCode from "@/utils/flags/countryToCode";
 import { createRouteFromCollection, syncVisitedStateToRoutes } from "@/utils/route/route-manager";
@@ -44,6 +45,8 @@ const CollectionDetailPage: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isRemoveItemDialogOpen, setIsRemoveItemDialogOpen] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!id || typeof id !== "string") return;
@@ -82,7 +85,30 @@ const CollectionDetailPage: React.FC = () => {
     );
   };
 
-  const handleClearSearch = () => setSearchTerm("");
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setIsSearchExpanded(false);
+  };
+
+  const toggleSearch = () => {
+    lightHaptic();
+    setIsSearchExpanded(!isSearchExpanded);
+    if (isSearchExpanded) {
+      setSearchTerm("");
+    }
+  };
+
+  // Close search when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchExpanded(false);
+        setSearchTerm("");
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleViewDetails = (item: any) => {
     // Convert to the format expected by RecommendationDetailsDialog
@@ -316,17 +342,38 @@ const CollectionDetailPage: React.FC = () => {
         animate={{ opacity: 1 }}
         className="px-6 pt-2 pb-24"
       >
-        {/* Header - matching RouteDetail */}
-        <div className="flex items-center justify-between mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+        {/* Header row - title centered, buttons on sides */}
+        <div className="flex items-center justify-between mb-1 relative">
+          {/* Left side: Back + Search */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="shrink-0"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
 
+            {/* Search icon button */}
+            {!isSearchExpanded && (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={toggleSearch}
+                className="min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
+                aria-label="Open search"
+              >
+                <SearchIcon className="h-5 w-5" />
+              </motion.button>
+            )}
+          </div>
+
+          {/* Center: Title (absolutely positioned for true centering) */}
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-xl font-bold truncate max-w-[50%] text-center">
+            {collection.name}
+          </h1>
+
+          {/* Right side: Delete */}
           <Button
             variant="ghost"
             size="icon"
@@ -337,44 +384,50 @@ const CollectionDetailPage: React.FC = () => {
           </Button>
         </div>
 
-        {/* Collection Info - matching RouteDetail style */}
-        <div className="liquid-glass-clear rounded-2xl p-4 mb-4 shadow-md">
-          <h1 className="text-2xl font-bold mb-2">{collection.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            {matchedItems.length} place{matchedItems.length !== 1 ? "s" : ""}
-          </p>
-
-          {matchedItems.length > 0 && (
+        {/* Create Route button - centered below */}
+        {matchedItems.length > 0 && (
+          <div className="mb-4 text-center">
             <Button
               onClick={handleConvertToRoute}
               variant="outline"
               size="sm"
-              className="mt-3"
             >
               <MapPinned className="h-4 w-4 mr-2" />
               Create Route
             </Button>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Search and Filter */}
-        <div className="space-y-4">
-          <SearchInput
-            searchTerm={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onClear={handleClearSearch}
-          />
-
-          {filteredCategories.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              <CategoryList
-                categories={filteredCategories}
-                activeCategories={resolvedActiveCategories}
-                onCategoryToggle={toggleCategory}
+        {/* Expandable Search */}
+        <AnimatePresence>
+          {isSearchExpanded && (
+            <motion.div
+              ref={searchContainerRef}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mb-4 overflow-hidden"
+            >
+              <SearchInput
+                searchTerm={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClear={handleClearSearch}
               />
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
+
+        {/* Category Filter */}
+        {filteredCategories.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-3">
+            <CategoryList
+              categories={filteredCategories}
+              activeCategories={resolvedActiveCategories}
+              onCategoryToggle={toggleCategory}
+            />
+          </div>
+        )}
 
         {/* Places List */}
         <div className="space-y-3">

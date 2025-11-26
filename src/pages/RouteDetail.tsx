@@ -274,8 +274,9 @@ const RouteDetail: React.FC = () => {
         animate={{ opacity: 1 }}
         className="px-6 pt-2 pb-24"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Header row - title centered, buttons on sides */}
+        <div className="flex items-center justify-between mb-1 relative">
+          {/* Left side: Back */}
           <Button
             variant="ghost"
             size="icon"
@@ -285,6 +286,12 @@ const RouteDetail: React.FC = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
 
+          {/* Center: Title (absolutely positioned for true centering) */}
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-xl font-bold truncate max-w-[50%] text-center">
+            {route.name}
+          </h1>
+
+          {/* Right side: Delete */}
           <Button
             variant="ghost"
             size="icon"
@@ -295,17 +302,15 @@ const RouteDetail: React.FC = () => {
           </Button>
         </div>
 
-        {/* Route Info */}
-        <div className="liquid-glass-clear rounded-2xl p-4 mb-4 shadow-md">
-          <h1 className="text-2xl font-bold mb-2">{route.name}</h1>
-
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+        {/* Route metadata - centered below */}
+        <div className="mb-4 text-center">
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 shrink-0" />
             <span>{route.city}, {route.country}</span>
           </div>
 
           {dateString && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-1">
               <Calendar className="h-4 w-4 shrink-0" />
               <span>{dateString}</span>
             </div>
@@ -313,7 +318,7 @@ const RouteDetail: React.FC = () => {
 
           {/* Progress */}
           {totalPlaces > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-1.5 mt-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-foreground/70 font-medium">
                   {visitedPlaces} of {totalPlaces} visited
@@ -336,21 +341,26 @@ const RouteDetail: React.FC = () => {
         </div>
 
         {/* Days */}
-        <div className="space-y-4">
-          {route.days.map((day) => (
-            <DaySection
-              key={day.dayNumber}
-              route={route}
-              day={day}
-              places={places}
-              onAddPlaces={() => handleAddPlaces(day.dayNumber)}
-              onToggleVisited={handleToggleVisited}
-              onRemovePlace={handleRemovePlace}
-              onReorderPlaces={handleReorderPlaces}
-              onRemoveDay={handleRemoveDay}
-              onPlaceClick={handlePlaceClick}
-              onEditDay={handleEditDay}
-            />
+        <div className="space-y-2">
+          {route.days.map((day, index) => (
+            <React.Fragment key={day.dayNumber}>
+              {/* Divider between days */}
+              {index > 0 && (
+                <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent my-4" />
+              )}
+              <DaySection
+                route={route}
+                day={day}
+                places={places}
+                onAddPlaces={() => handleAddPlaces(day.dayNumber)}
+                onToggleVisited={handleToggleVisited}
+                onRemovePlace={handleRemovePlace}
+                onReorderPlaces={handleReorderPlaces}
+                onRemoveDay={handleRemoveDay}
+                onPlaceClick={handlePlaceClick}
+                onEditDay={handleEditDay}
+              />
+            </React.Fragment>
           ))}
         </div>
 

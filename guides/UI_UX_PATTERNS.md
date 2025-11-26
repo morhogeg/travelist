@@ -604,6 +604,79 @@ data-[highlighted]:to-[#764ba2]
 
 ---
 
+## 📄 Page Layout Patterns
+
+### Detail Page Headers (Collection Detail, Route Detail)
+Detail pages use a consistent header pattern with centered titles:
+
+```
+[← Back] [🔍 Search]    Page Title    [🗑️ Delete]
+
+              Metadata (centered)
+              [Action Button]
+```
+
+**Structure:**
+```tsx
+{/* Header row - title centered, buttons on sides */}
+<div className="flex items-center justify-between mb-1 relative">
+  {/* Left side buttons */}
+  <div className="flex items-center gap-1">
+    <Button variant="ghost" size="icon">
+      <ArrowLeft />
+    </Button>
+    {/* Optional: Search icon */}
+  </div>
+
+  {/* Center: Title (absolutely positioned for true centering) */}
+  <h1 className="absolute left-1/2 -translate-x-1/2 text-xl font-bold truncate max-w-[50%] text-center">
+    {title}
+  </h1>
+
+  {/* Right side: Delete */}
+  <Button variant="ghost" size="icon">
+    <Trash2 />
+  </Button>
+</div>
+```
+
+**Key spacing:**
+- Header to metadata: `mb-1` (very tight)
+- Metadata section: `mb-4 text-center`
+- Content centered below header
+
+### Profile Page
+Stats and settings are grouped into containers with dividers:
+
+```tsx
+{/* Stats container */}
+<div className="liquid-glass-clear rounded-2xl p-4 mb-5">
+  <StatCard ... />
+  <Divider />
+  <StatCard ... />
+</div>
+
+{/* Settings container */}
+<div className="liquid-glass-clear rounded-2xl overflow-hidden">
+  <SettingsButton ... />
+  <Divider />
+  <SettingsButton ... />
+</div>
+```
+
+**Divider style:**
+```tsx
+<div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+```
+
+### Day Sections (Route Detail)
+Day sections flow without individual containers:
+- No `liquid-glass-clear` wrapper
+- Subtle gradient divider between days
+- Place items have category color left-border
+
+---
+
 ## 📱 Responsive Considerations
 
 ### Safe Areas

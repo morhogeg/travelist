@@ -233,9 +233,9 @@ const DaySection: React.FC<DaySectionProps> = ({
   const dayDate = getDayDate();
 
   return (
-    <div className="liquid-glass-clear rounded-2xl p-4 shadow-md">
+    <div className="pt-2">
       {/* Day Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <h2 className="text-lg font-bold flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
