@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import { getCollections } from "@/utils/collections/collectionStore";
 import { getGroupedRoutes } from "@/utils/route/route-manager";
+import { TravelStoryCard } from "@/components/story";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -145,6 +146,9 @@ const Profile = () => {
             <p className="text-xs text-muted-foreground">Cities</p>
           </div>
         </div>
+
+        {/* Travel Story Card - Entry point to the story feature */}
+        <TravelStoryCard />
 
         {/* Progress Section - Only show if there are recommendations */}
         {stats.totalRecommendations > 0 && (

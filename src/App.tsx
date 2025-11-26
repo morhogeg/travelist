@@ -21,6 +21,7 @@ import CollectionsTab from "@/components/collections/CollectionsTab"; // ✅ new
 import CollectionDetailPage from "@/pages/collections/CollectionDetailPage";
 import RoutesPage from "./pages/Routes";
 import RouteDetail from "./pages/RouteDetail";
+import TravelStory from "./pages/TravelStory";
 
 // Declare global window interface
 declare global {
@@ -95,6 +96,7 @@ function AppContent() {
           <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ New route */}
           <Route path="/routes" element={<RoutesPage />} /> {/* ✅ Routes feature */}
           <Route path="/routes/:id" element={<RouteDetail />} /> {/* ✅ Route detail */}
+          <Route path="/story" element={<TravelStory />} /> {/* ✅ Travel Story */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
