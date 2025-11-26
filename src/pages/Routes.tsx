@@ -4,11 +4,23 @@ import { Plus, MapPin, Calendar, CheckCircle2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { getGroupedRoutes } from "@/utils/route/route-manager";
+import { getGroupedRoutes, deleteRoute } from "@/utils/route/route-manager";
 import { RouteWithProgress, GroupedRoutes } from "@/types/route";
 import { mediumHaptic } from "@/utils/ios/haptics";
 import RouteCard from "@/components/routes/RouteCard";
 import CreateRouteDrawer from "@/components/routes/CreateRouteDrawer";
+import SwipeableCard from "@/components/home/category/recommendation-item/SwipeableCard";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Routes: React.FC = () => {
   const [groupedRoutes, setGroupedRoutes] = useState<GroupedRoutes>({
@@ -19,7 +31,10 @@ const Routes: React.FC = () => {
     undated: []
   });
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [routeToDelete, setRouteToDelete] = useState<{ id: string; name: string } | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const loadRoutes = useCallback(() => {
     const routes = getGroupedRoutes();
@@ -55,6 +70,25 @@ const Routes: React.FC = () => {
     navigate(`/routes/${routeId}`);
   };
 
+  const handleDeleteRoute = (routeId: string, routeName: string) => {
+    mediumHaptic();
+    setRouteToDelete({ id: routeId, name: routeName });
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteRoute = () => {
+    if (routeToDelete) {
+      mediumHaptic();
+      deleteRoute(routeToDelete.id);
+      loadRoutes();
+      toast({
+        title: "Route deleted",
+        description: `"${routeToDelete.name}" has been removed.`,
+      });
+      setRouteToDelete(null);
+    }
+  };
+
   const totalRoutes =
     groupedRoutes.ongoing.length +
     groupedRoutes.completed.length +
@@ -86,11 +120,15 @@ const Routes: React.FC = () => {
         </div>
         <div className="space-y-2">
           {routes.map((route) => (
-            <RouteCard
+            <SwipeableCard
               key={route.id}
-              route={route}
-              onClick={() => handleRouteClick(route.id)}
-            />
+              onDeleteTrigger={() => handleDeleteRoute(route.id, route.name)}
+            >
+              <RouteCard
+                route={route}
+                onClick={() => handleRouteClick(route.id)}
+              />
+            </SwipeableCard>
           ))}
         </div>
       </div>
@@ -102,16 +140,13 @@ const Routes: React.FC = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="px-6 pt-2 pb-24"
+        className="px-4 pt-3 pb-24"
       >
-        {/* Header */}
-        <div className="mb-6">
+        {/* Header - matching Travelist heading style */}
+        <div className="text-center mb-6">
           <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             My Routes
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Plan your perfect trip itineraries
-          </p>
         </div>
 
         {/* Empty State */}
@@ -198,6 +233,28 @@ const Routes: React.FC = () => {
         onClose={() => setIsCreateDrawerOpen(false)}
         onRouteCreated={loadRoutes}
       />
+
+      {/* Delete Route Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Route</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{routeToDelete?.name}"? This action cannot be undone.
+              All scheduled places in this route will be removed from your itinerary.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRouteToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteRoute}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };

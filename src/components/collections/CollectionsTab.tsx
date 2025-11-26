@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getCollections, deleteCollection } from "@/utils/collections/collectionStore";
-import { Collection } from "@/utils/collections/collectionStore";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
 import { motion } from "framer-motion";
-import { Plus, Folder, ArrowRight } from "lucide-react";
+import { Plus, Folder } from "lucide-react";
 import CreateCollectionDrawer from "./CreateCollectionDrawer";
+import CollectionCard from "./CollectionCard";
 import { mediumHaptic } from "@/utils/ios/haptics";
-import SwipeableCard from "@/components/home/category/recommendation-item/SwipeableCard";
 import { useToast } from "@/hooks/use-toast";
+import { getRecommendations } from "@/utils/recommendation-parser";
+import { getEnrichedAndGroupedCollections, EnrichedCollection } from "@/utils/collections/collectionHelpers";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const CollectionsTab: React.FC = () => {
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [collections, setCollections] = useState<EnrichedCollection[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [collectionToDelete, setCollectionToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -31,7 +31,22 @@ const CollectionsTab: React.FC = () => {
   const { toast } = useToast();
 
   const loadCollections = () => {
-    setCollections(getCollections());
+    const rawCollections = getCollections();
+    const recommendations = getRecommendations();
+
+    // Flatten all places from recommendations
+    const allPlaces = recommendations.flatMap((rec) =>
+      rec.places.map((place) => ({
+        id: place.id,
+        recId: place.recId || place.id,
+        category: place.category || rec.category,
+      }))
+    );
+
+    // Enrich and group collections, then flatten into single sorted list
+    const grouped = getEnrichedAndGroupedCollections(rawCollections, allPlaces);
+    // Combine recent and older, maintaining the sort order (recent first, then older)
+    setCollections([...grouped.recent, ...grouped.older]);
   };
 
   useEffect(() => {
@@ -71,16 +86,13 @@ const CollectionsTab: React.FC = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="px-6 pt-2 pb-24"
+        className="px-4 pt-3 pb-24"
       >
-        {/* Header - matching Routes tab */}
-        <div className="mb-6">
+        {/* Header - matching Travelist heading style */}
+        <div className="text-center mb-6">
           <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             My Collections
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Organize your favorite places
-          </p>
         </div>
 
         {collections.length === 0 ? (
@@ -110,27 +122,12 @@ const CollectionsTab: React.FC = () => {
           <>
             <div className="space-y-2">
               {collections.map((collection) => (
-                <SwipeableCard
+                <CollectionCard
                   key={collection.id}
-                  onDeleteTrigger={() => handleDeleteCollection(collection.id, collection.name)}
-                >
-                  <div
-                    className="liquid-glass-clear rounded-2xl px-4 py-3 cursor-pointer ios26-transition-smooth"
-                    onClick={() => handleOpenCollection(collection.id)}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <div className="font-semibold">{collection.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {collection.placeIds.length} place{collection.placeIds.length !== 1 ? "s" : ""}
-                        </div>
-                      </div>
-                      <div className="text-muted-foreground">
-                        <ArrowRight className="h-5 w-5" />
-                      </div>
-                    </div>
-                  </div>
-                </SwipeableCard>
+                  collection={collection}
+                  onDelete={() => handleDeleteCollection(collection.id, collection.name)}
+                  onClick={() => handleOpenCollection(collection.id)}
+                />
               ))}
             </div>
 

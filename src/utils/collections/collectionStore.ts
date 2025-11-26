@@ -3,6 +3,7 @@ export interface Collection {
   name: string;
   placeIds: string[];
   createdAt: string;
+  lastModified: string;
 }
 
 const STORAGE_KEY = "travelist-collections";
@@ -32,11 +33,13 @@ function saveCollections(collections: Collection[]) {
 // Create a new collection
 export function addCollection(name: string): Collection {
   const collections = getCollections();
+  const now = new Date().toISOString();
   const newCollection: Collection = {
     id: generateId(),
     name,
     placeIds: [],
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    lastModified: now,
   };
   const updated = [...collections, newCollection];
   saveCollections(updated);
@@ -48,7 +51,11 @@ export function addPlaceToCollection(collectionId: string, placeId: string) {
   const collections = getCollections();
   const updated = collections.map((col) => {
     if (col.id === collectionId && !col.placeIds.includes(placeId)) {
-      return { ...col, placeIds: [...col.placeIds, placeId] };
+      return {
+        ...col,
+        placeIds: [...col.placeIds, placeId],
+        lastModified: new Date().toISOString()
+      };
     }
     return col;
   });
@@ -60,7 +67,11 @@ export function removePlaceFromCollection(collectionId: string, placeId: string)
   const collections = getCollections();
   const updated = collections.map((col) => {
     if (col.id === collectionId) {
-      return { ...col, placeIds: col.placeIds.filter((id) => id !== placeId) };
+      return {
+        ...col,
+        placeIds: col.placeIds.filter((id) => id !== placeId),
+        lastModified: new Date().toISOString()
+      };
     }
     return col;
   });

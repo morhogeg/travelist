@@ -197,7 +197,15 @@
 
 ## 📋 Session Progress (November 26, 2025)
 
-### ✅ Completed This Session
+### ✅ Completed This Session (Part 2)
+1. **Routes swipe-to-delete** - Added swipe-to-delete functionality to Routes page (matching Collections)
+2. **Collection cards enriched** - Added category segment bar showing place distribution by category
+3. **Collection lastModified tracking** - Collections now track modification time for sorting
+4. **Collections sorted by recency** - Flat list sorted by most recently modified first
+5. **Simplified collection cards** - Removed arrow icon and category dots, kept segment bar
+6. **Unified page headers** - Both Collections and Routes now use centered Travelist-style gradient heading
+
+### ✅ Completed This Session (Part 1)
 1. **Collections/Routes UI consistency** - CollectionsTab now matches Routes styling (header, spacing, FAB)
 2. **CollectionDetailPage redesign** - Ghost buttons, liquid glass info card (matches RouteDetail)
 3. **Swipe-to-delete on collections** - Swipe left on collection cards with confirmation dialog
