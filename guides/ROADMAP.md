@@ -195,9 +195,21 @@
 
 ---
 
-## 📋 Session Progress (November 25, 2025)
+## 📋 Session Progress (November 26, 2025)
 
 ### ✅ Completed This Session
+1. **Collections/Routes UI consistency** - CollectionsTab now matches Routes styling (header, spacing, FAB)
+2. **CollectionDetailPage redesign** - Ghost buttons, liquid glass info card (matches RouteDetail)
+3. **Swipe-to-delete on collections** - Swipe left on collection cards with confirmation dialog
+4. **Swipe-to-delete on collection items** - Remove items from collections via swipe
+5. **Delete collection from detail view** - Trash icon in header with confirmation
+6. **Collection cards clickable** - Tapping opens RecommendationDetailsDialog
+7. **Onboarding purple theme** - All buttons and icons now use purple gradient
+8. **WelcomeScreen positioning** - Content starts higher, reduced top gap
+9. **View Welcome Tour button** - Added to Profile page to replay onboarding
+10. **Event-based onboarding reset** - CustomEvent for triggering onboarding without page reload
+
+### ✅ Previous Session (November 25, 2025)
 1. **Swipe-to-delete** - Swipe left on cards to reveal delete button
 2. **Swipe-to-add-to-collection** - Swipe right on cards to reveal purple "Add" button
 3. **CollectionPickerDrawer** - Reusable drawer for selecting/creating collections
@@ -212,7 +224,10 @@
 4. **Empty states** - Illustrations for empty lists
 5. **Image optimization** - Lazy loading, placeholders
 6. **Real LLM integration** - Replace mock AI provider with actual API (OpenAI/Claude)
+7. **Collection covers/thumbnails** - Visual previews for collections
+8. **Pull-to-refresh** - On list views
+9. **Bulk actions** - Select multiple items
 
 ---
 
-Last Updated: November 25, 2025
+Last Updated: November 26, 2025
