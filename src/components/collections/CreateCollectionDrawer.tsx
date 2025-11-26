@@ -15,8 +15,8 @@ import { addCollection, addPlaceToCollection } from "@/utils/collections/collect
 import { getUserPlaces } from "@/utils/recommendation-parser";
 import { getRecommendations } from "@/utils/recommendation-parser";
 import { useToast } from "@/hooks/use-toast";
-import { Search, MapPin } from "lucide-react";
-import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
+import { Search } from "lucide-react";
+import { getCategoryIcon, getCategoryColor, categories } from "@/components/recommendations/utils/category-data";
 
 interface CreateCollectionDrawerProps {
   isOpen: boolean;
@@ -42,6 +42,7 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([]);
   const [availablePlaces, setAvailablePlaces] = useState<PlaceItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Load all available places when drawer opens
@@ -82,6 +83,7 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
       setCollectionName("");
       setSearchTerm("");
       setSelectedPlaceIds([]);
+      setSelectedCategory(null);
     }
   }, [isOpen]);
 
@@ -132,11 +134,23 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
     }
   };
 
-  // Filter places based on search term
-  const filteredPlaces = availablePlaces.filter(place =>
-    place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    place.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    place.country?.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter places based on search term and category
+  const filteredPlaces = availablePlaces.filter(place => {
+    const matchesSearch =
+      place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      place.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      place.category?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory = !selectedCategory ||
+      place.category?.toLowerCase() === selectedCategory.toLowerCase();
+
+    return matchesSearch && matchesCategory;
+  });
+
+  // Get available categories from places
+  const availableCategories = Array.from(
+    new Set(availablePlaces.map(p => p.category?.toLowerCase()).filter(Boolean))
   );
 
   return (
@@ -162,9 +176,9 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
           </div>
 
           {/* Places Search */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-sm font-medium">
-              Add Places ({selectedPlaceIds.length} selected)
+              Add Places {selectedPlaceIds.length > 0 && `(${selectedPlaceIds.length} selected)`}
             </label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -175,6 +189,45 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
                 className="pl-10"
               />
             </div>
+
+            {/* Category Filter Chips */}
+            {availableCategories.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedCategory(null)}
+                  className={`shrink-0 text-xs ${!selectedCategory ? 'text-white border-transparent' : ''}`}
+                  style={!selectedCategory ? {
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  } : undefined}
+                >
+                  All
+                </Button>
+                {categories
+                  .filter(cat => availableCategories.includes(cat.id.toLowerCase()))
+                  .map(cat => {
+                    const isActive = selectedCategory?.toLowerCase() === cat.id.toLowerCase();
+                    return (
+                      <Button
+                        key={cat.id}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`shrink-0 text-xs ${isActive ? 'text-white border-transparent' : ''}`}
+                        style={isActive ? {
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        } : undefined}
+                      >
+                        {cat.icon} {cat.label}
+                      </Button>
+                    );
+                  })
+                }
+              </div>
+            )}
           </div>
 
           {/* Places List */}
@@ -188,42 +241,39 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
               {filteredPlaces.length === 0 ? (
                 <p className="text-center text-muted-foreground py-4">No places match your search</p>
               ) : (
-                filteredPlaces.map(place => (
-                  <div
-                    key={place.id}
-                    className="flex items-center space-x-3 p-3 rounded-lg border border-border transition-colors cursor-pointer"
-                    onClick={() => handleTogglePlace(place.id)}
-                  >
-                    <Checkbox
-                      checked={selectedPlaceIds.includes(place.id)}
-                      onCheckedChange={() => handleTogglePlace(place.id)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="data-[state=checked]:bg-[#667eea] data-[state=checked]:border-[#667eea]"
-                    />
+                filteredPlaces.map(place => {
+                  const categoryColor = getCategoryColor(place.category || 'general');
+                  const isSelected = selectedPlaceIds.includes(place.id);
+
+                  return (
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{
-                        backgroundColor: getCategoryColor(place.category || 'general'),
-                        color: '#666'
-                      }}
+                      key={place.id}
+                      className="flex items-center space-x-3 p-3 rounded-xl border-l-4 transition-all cursor-pointer"
+                      style={{ borderLeftColor: categoryColor }}
+                      onClick={() => handleTogglePlace(place.id)}
                     >
-                      {place.category ? (
-                        <div className="scale-150">
-                          {getCategoryIcon(place.category)}
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => handleTogglePlace(place.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className={isSelected ? "border-[#667eea] data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-[#667eea] data-[state=checked]:to-[#764ba2]" : ""}
+                      />
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="shrink-0" style={{ color: categoryColor }}>
+                            {getCategoryIcon(place.category || 'general')}
+                          </div>
+                          <p className="font-medium text-sm truncate">{place.name}</p>
                         </div>
-                      ) : (
-                        <MapPin className="h-5 w-5" />
-                      )}
+
+                        <p className="text-xs text-muted-foreground">
+                          {place.city}{place.country ? `, ${place.country}` : ''}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{place.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {place.city && `${place.city}, `}{place.country}
-                        {place.category && ` • ${place.category}`}
-                      </p>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
@@ -235,15 +285,14 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('Button clicked!');
               handleCreateCollection();
             }}
             disabled={!collectionName.trim()}
-            className="text-white font-semibold pointer-events-auto"
-            style={{
-              background: !collectionName.trim() ? undefined : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: !collectionName.trim() ? undefined : '0 4px 15px rgba(102, 126, 234, 0.3)'
-            }}
+            className={`font-semibold pointer-events-auto ${!collectionName.trim() ? 'bg-muted text-muted-foreground' : 'text-white'}`}
+            style={collectionName.trim() ? {
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+            } : undefined}
           >
             Create Collection
           </Button>

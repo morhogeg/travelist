@@ -136,20 +136,22 @@ const CollectionsTab: React.FC = () => {
             </div>
 
             {/* Floating Add Button - matching Routes tab */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={handleCreateCollection}
-              className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
-              aria-label="Add collection"
-              style={{
-                bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
-              }}
-            >
-              <Plus className="h-6 w-6 text-white" />
-            </motion.button>
+            {!isDrawerOpen && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={handleCreateCollection}
+                className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+                aria-label="Add collection"
+                style={{
+                  bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
+                }}
+              >
+                <Plus className="h-6 w-6 text-white" />
+              </motion.button>
+            )}
           </>
         )}
       </motion.div>

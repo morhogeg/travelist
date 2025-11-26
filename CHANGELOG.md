@@ -11,6 +11,13 @@ All notable changes to the Travelist iOS app will be documented in this file.
 - **Compact stats**: Reduced stat numbers from 30px → 24px, tightened padding and margins
 - **Consistent theming**: Progress percentage now uses purple instead of blue
 
+### Create Collection Drawer Enhancements
+- **Category filter pills**: Added category pills matching other drawers (All, Food, Attractions, etc.)
+- **Simplified place items**: Replaced large icon boxes with border-left-4 style and small category icons
+- **Purple gradient checkboxes**: Consistent checkbox styling with other drawers
+- **Proper disabled button**: Gray when no name entered, purple gradient when valid
+- **FAB visibility**: Hide FAB when Create Collection drawer is open
+
 ### Bug Fixes
 - **Blank screen on homescreen cards**: Fixed React hooks violation where `useNavigate()` and `useLocation()` were called after early return in RecommendationDetailsDialog
 - **Collection not updating**: Added `collectionUpdated` event dispatching to collectionStore and event listeners in CollectionDetailPage
