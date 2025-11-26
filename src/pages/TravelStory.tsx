@@ -4,10 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { useStoryStats } from '@/hooks/useStoryStats';
 import {
-  StatsHeroSection,
+  StatsHeroCard,
   SourceBreakdown,
   DiscoveryTimeline,
-  YearInReviewCard,
   CategoryChart,
 } from '@/components/story';
 
@@ -87,11 +86,8 @@ const TravelStory = () => {
         {/* Main content */}
         {!isLoading && stats && (
           <>
-            {/* Hero stats section */}
-            <StatsHeroSection stats={stats} />
-
-            {/* Year in Review - screenshot-worthy card */}
-            <YearInReviewCard stats={stats} />
+            {/* Combined hero stats card - screenshot worthy */}
+            <StatsHeroCard stats={stats} />
 
             {/* Source breakdown - who recommends */}
             <SourceBreakdown stats={stats} />

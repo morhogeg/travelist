@@ -146,6 +146,8 @@ export interface TravelStoryStats {
     mostActiveMonth: string;
     topCategory: string;
     topSource: { name: string; type: SourceType } | null;
+    countriesVisited: number;
+    monthsActive: number;
   } | null;
 
   // Routes & Collections
@@ -401,12 +403,28 @@ export function calculateTravelStats(): TravelStoryStats {
     const topSrc = Array.from(srcCounts.values())
       .sort((a, b) => b.count - a.count)[0] || null;
 
+    // Countries visited this year
+    const yearCountries = new Set<string>();
+    thisYearPlaces.forEach(p => {
+      if (p.country) yearCountries.add(p.country);
+    });
+
+    // Months active this year
+    const yearMonths = new Set<string>();
+    thisYearPlaces.forEach(p => {
+      if (p.dateAdded) {
+        yearMonths.add(new Date(p.dateAdded).getMonth().toString());
+      }
+    });
+
     yearStats = {
       year: currentYear,
       totalAdded: thisYearPlaces.length,
       mostActiveMonth,
       topCategory: topCat,
       topSource: topSrc ? { name: topSrc.name, type: topSrc.type } : null,
+      countriesVisited: yearCountries.size,
+      monthsActive: yearMonths.size,
     };
   }
 
