@@ -221,6 +221,10 @@ color: #764ba2;
 **Latest Session Changes (November 27, 2025):**
 
 **AI-Powered Free Text Input:**
+- **AI Provider:** OpenRouter API (https://openrouter.ai)
+- **Model:** Grok 4.1 Fast (x-ai/grok-4.1-fast:free) - free tier
+- **API Key:** Set `VITE_OPENROUTER_API_KEY` in `.env` file
+
 1. ✅ **Grok 4.1 integration** - Uses OpenRouter API with x-ai/grok-4.1-fast:free model
 2. ✅ **Smart extraction** - AI extracts place name, category, tip, and source from natural language
 3. ✅ **Multi-language support** - Tips preserved in user's input language (Hebrew, Spanish, etc.)
@@ -235,6 +239,14 @@ color: #764ba2;
 12. ✅ **Original name chip** - Amber chip shows AI-extracted name if user changes it, allows one-click revert
 13. ✅ **Dynamic source fields** - Name field only shows for "Friend" source type
 14. ✅ **Tip editing fix** - AI-created recommendations now show tip in edit form (description → context.specificTip fallback)
+
+**UX Improvements (November 27, 2025 - Session 2):**
+15. ✅ **City/Country header buttons** - Matched collections/routes style (ghost buttons, no borders)
+16. ✅ **Clearable inputs** - All text inputs have subtle X button to clear (grey, minimal)
+17. ✅ **City dropdown on focus** - Shows existing cities immediately when tapping city field
+18. ✅ **Cities sorted by recency** - Most recently used city appears at top of dropdown
+19. ✅ **iOS tap highlight removed** - Blue tap highlight removed globally (-webkit-tap-highlight-color: transparent)
+20. ✅ **FreeTextForm label** - Changed "Your Recommendations" to "What did you hear?"
 
 **Example usage:**
 - Input: "Hanan told me that the falafel in Nivo grill is great"

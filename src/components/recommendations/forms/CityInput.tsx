@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { getUserPlaces } from "@/utils/recommendation-parser";
+import { ClearableInput } from "@/components/ui/clearable-input";
+import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "./types";
 
@@ -16,13 +16,29 @@ const CityInput: React.FC<CityInputProps> = ({ form, initialCity }) => {
   const [cityInputValue, setCityInputValue] = useState(initialCity);
 
   useEffect(() => {
-    const places = getUserPlaces();
-    if (places && places.length > 0) {
-      const uniqueCities = Array.from(new Set(
-        places.map(place => place.name?.trim()).filter(Boolean)
-      )) as string[];
-      setSavedCities(uniqueCities.sort());
-    }
+    // Get cities sorted by most recent activity (last card added)
+    const recommendations = getRecommendations();
+
+    // Build a map of city -> most recent dateAdded
+    const cityLastActivity: Record<string, string> = {};
+    recommendations.forEach(rec => {
+      const city = rec.city?.trim();
+      if (city) {
+        // Get the most recent date from all places in this recommendation
+        const dates = rec.places?.map(p => p.dateAdded || rec.dateAdded).filter(Boolean) || [rec.dateAdded];
+        const mostRecent = dates.sort().reverse()[0];
+        if (!cityLastActivity[city] || mostRecent > cityLastActivity[city]) {
+          cityLastActivity[city] = mostRecent;
+        }
+      }
+    });
+
+    // Sort cities by most recent activity (descending)
+    const sortedCities = Object.keys(cityLastActivity).sort((a, b) => {
+      return (cityLastActivity[b] || '').localeCompare(cityLastActivity[a] || '');
+    });
+
+    setSavedCities(sortedCities);
   }, []);
 
   const handleCitySelect = (cityName: string) => {
@@ -38,9 +54,12 @@ const CityInput: React.FC<CityInputProps> = ({ form, initialCity }) => {
     setShowSuggestions(value.length > 0);
   };
 
-  const filteredCities = savedCities.filter(city =>
-    city.toLowerCase().startsWith(cityInputValue.toLowerCase())
-  );
+  // Show all cities when input is empty, filter when typing
+  const filteredCities = cityInputValue.length === 0
+    ? savedCities.slice(0, 8) // Show first 8 when empty
+    : savedCities.filter(city =>
+        city.toLowerCase().startsWith(cityInputValue.toLowerCase())
+      );
 
   return (
     <FormField
@@ -50,13 +69,17 @@ const CityInput: React.FC<CityInputProps> = ({ form, initialCity }) => {
         <FormItem className="relative">
           <FormLabel>City or Location</FormLabel>
           <FormControl>
-            <Input 
-              placeholder="Enter city name" 
-              {...field} 
+            <ClearableInput
+              placeholder="Enter city name"
+              {...field}
               value={cityInputValue}
               onChange={handleCityChange}
-              onFocus={() => setShowSuggestions(cityInputValue.length > 0)}
+              onFocus={() => setShowSuggestions(savedCities.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onClear={() => {
+                setCityInputValue("");
+                form.setValue("city", "");
+              }}
             />
           </FormControl>
           {showSuggestions && filteredCities.length > 0 && (

@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -172,10 +172,11 @@ export const ContextInput: React.FC<ContextInputProps> = ({
               <FormItem>
                 <FormLabel>Best Time to Visit (optional)</FormLabel>
                 <FormControl>
-                  <Input
+                  <ClearableInput
                     placeholder='e.g. "Sunset", "Lunch only", "Weekdays"'
                     {...field}
                     value={field.value || ""}
+                    onClear={() => form.setValue("context.bestTime", "")}
                   />
                 </FormControl>
                 <FormMessage />

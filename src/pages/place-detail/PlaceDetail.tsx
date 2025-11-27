@@ -17,6 +17,7 @@ import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchInput from "@/components/home/search/SearchInput";
 import { Plus, ArrowLeft, Search as SearchIcon, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import countryToCode from "@/utils/flags/countryToCode";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 import { AISuggestionsSection } from "@/components/ai";
@@ -246,53 +247,58 @@ const PlaceDetail = () => {
 
   return (
     <Layout>
-      <div className="px-4 pt-3 pb-4 relative">
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => navigate(-1)}
-          className="absolute left-3 top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-50 ios26-transition-smooth"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-5 w-5 text-[#667eea]" />
-        </motion.button>
+      <div className="px-4 pt-2 pb-4 relative">
+        {/* Header row - title centered, buttons on sides */}
+        <div className="flex items-center justify-between mb-1 relative">
+          {/* Left side: Back + Search */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="shrink-0"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
 
-        {/* Search Icon Button */}
-        {!isSearchExpanded && (
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={toggleSearch}
-            className="absolute left-[4rem] top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
-            aria-label="Open search"
-          >
-            <SearchIcon className="h-5 w-5" />
-          </motion.button>
-        )}
+            {/* Search icon button */}
+            {!isSearchExpanded && (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={toggleSearch}
+                className="min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
+                aria-label="Open search"
+              >
+                <SearchIcon className="h-5 w-5" />
+              </motion.button>
+            )}
+          </div>
 
-        {/* Filter Button */}
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => {
-            lightHaptic();
-            setIsFilterSheetOpen(true);
-          }}
-          className="absolute right-3 top-3 min-h-11 min-w-11 rounded-full liquid-glass-clear flex items-center justify-center hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 z-40 ios26-transition-smooth"
-          aria-label="Open filters"
-        >
-          <SlidersHorizontal className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
-          {activeFilterCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#667eea] text-white text-xs flex items-center justify-center font-medium">
-              {activeFilterCount}
-            </span>
-          )}
-        </motion.button>
-
-        <div className="flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight">{place.name}</h1>
+          {/* Center: Title (absolutely positioned for true centering) */}
+          <div className="absolute left-1/2 -translate-x-1/2 text-center max-w-[50%]">
+            <h1 className="text-xl font-bold truncate">{place.name}</h1>
             {place.country && (
               <p className="text-sm text-muted-foreground">{flagEmoji} {place.country}</p>
             )}
           </div>
+
+          {/* Right side: Filter */}
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => {
+              lightHaptic();
+              setIsFilterSheetOpen(true);
+            }}
+            className="min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 ios26-transition-smooth relative"
+            aria-label="Open filters"
+          >
+            <SlidersHorizontal className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#667eea] text-white text-xs flex items-center justify-center font-medium">
+                {activeFilterCount}
+              </span>
+            )}
+          </motion.button>
         </div>
       </div>
 

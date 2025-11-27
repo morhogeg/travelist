@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import {
   Select,
   SelectContent,
@@ -143,13 +143,17 @@ export const SourceInput: React.FC<SourceInputProps> = ({
                 <FormItem className="relative">
                   <FormLabel>Name or Source</FormLabel>
                   <FormControl>
-                    <Input
+                    <ClearableInput
                       placeholder='e.g. "Sarah Chen", "@foodblogger", "NY Times"'
                       {...field}
                       value={sourceNameValue}
                       onChange={handleSourceNameChange}
                       onFocus={() => setShowSuggestions(sourceNameValue.length > 0)}
                       onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      onClear={() => {
+                        setSourceNameValue("");
+                        field.onChange("");
+                      }}
                     />
                   </FormControl>
                   {showSuggestions && filteredNames.length > 0 && (
@@ -208,11 +212,12 @@ export const SourceInput: React.FC<SourceInputProps> = ({
               <FormItem>
                 <FormLabel>Link to Original (optional)</FormLabel>
                 <FormControl>
-                  <Input
+                  <ClearableInput
                     type="url"
                     placeholder="https://instagram.com/p/..."
                     {...field}
                     value={field.value || ""}
+                    onClear={() => form.setValue("source.url", "")}
                   />
                 </FormControl>
                 <FormMessage />

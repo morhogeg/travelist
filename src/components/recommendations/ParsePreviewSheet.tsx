@@ -11,7 +11,7 @@ import {
   DrawerFooter,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import {
   Select,
   SelectContent,
@@ -116,11 +116,12 @@ export const ParsePreviewSheet: React.FC<ParsePreviewSheetProps> = ({
                   <label className="text-xs text-muted-foreground mb-1 block">
                     Place Name
                   </label>
-                  <Input
+                  <ClearableInput
                     value={place.name}
                     onChange={(e) => onUpdatePlace(index, { name: e.target.value })}
                     className="font-medium"
                     placeholder="Enter place name"
+                    onClear={() => onUpdatePlace(index, { name: "" })}
                   />
                 </div>
 
@@ -157,11 +158,12 @@ export const ParsePreviewSheet: React.FC<ParsePreviewSheetProps> = ({
                     <Lightbulb className="h-3 w-3 text-amber-500" />
                     Tip (optional)
                   </label>
-                  <Input
+                  <ClearableInput
                     value={place.description || ""}
                     onChange={(e) => onUpdatePlace(index, { description: e.target.value })}
                     placeholder="e.g., Try the falafel"
                     className="text-sm"
+                    onClear={() => onUpdatePlace(index, { description: "" })}
                   />
                 </div>
 
@@ -206,13 +208,16 @@ export const ParsePreviewSheet: React.FC<ParsePreviewSheetProps> = ({
                       <label className="text-xs text-muted-foreground mb-1 block">
                         Name
                       </label>
-                      <Input
+                      <ClearableInput
                         value={place.source.name || ""}
                         onChange={(e) => onUpdatePlace(index, {
                           source: { ...place.source!, name: e.target.value }
                         })}
                         placeholder="e.g., Sarah"
                         className="text-sm"
+                        onClear={() => onUpdatePlace(index, {
+                          source: { ...place.source!, name: "" }
+                        })}
                       />
                     </div>
                   )}

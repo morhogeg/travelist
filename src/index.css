@@ -4,6 +4,11 @@
 @tailwind utilities;
 
 @layer base {
+  /* Remove iOS blue tap highlight globally */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   :root {
     /* iOS 26 Minimalist Design System */
     /* Clean, refined palette with subtle accents */

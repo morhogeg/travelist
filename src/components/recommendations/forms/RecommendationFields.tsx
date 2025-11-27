@@ -6,7 +6,7 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "./types";
@@ -37,7 +37,11 @@ const RecommendationFields: React.FC<RecommendationFieldsProps> = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder={namePlaceholder} {...field} />
+                <ClearableInput
+                  placeholder={namePlaceholder}
+                  {...field}
+                  onClear={() => form.setValue("name", "")}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -76,10 +80,11 @@ const RecommendationFields: React.FC<RecommendationFieldsProps> = ({
             <FormItem>
               <FormLabel>Website (optional)</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="e.g. www.example.com or https://example.com" 
-                  {...field} 
-                  value={field.value || ""} 
+                <ClearableInput
+                  placeholder="e.g. www.example.com or https://example.com"
+                  {...field}
+                  value={field.value || ""}
+                  onClear={() => form.setValue("website", "")}
                 />
               </FormControl>
               <FormMessage />

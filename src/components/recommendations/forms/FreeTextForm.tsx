@@ -5,11 +5,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles } from "lucide-react";
-import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
+import { getRecommendations } from "@/utils/recommendation-parser";
 import { parseWithGrok, ParsedPlace } from "@/services/ai/providers/openrouter-parser";
 import { ParsePreviewSheet } from "../ParsePreviewSheet";
 import { useToast } from "@/hooks/use-toast";
@@ -53,16 +53,36 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
   const [formValues, setFormValues] = useState<FreeTextFormValues | null>(null);
 
   useEffect(() => {
-    const places = getUserPlaces();
-    const unique = Array.from(new Set(
-      places.map(place => place.name?.trim()).filter(Boolean)
-    )) as string[];
-    setSavedCities(unique.sort());
+    // Get cities sorted by most recent activity (last card added)
+    const recommendations = getRecommendations();
+
+    // Build a map of city -> most recent dateAdded
+    const cityLastActivity: Record<string, string> = {};
+    recommendations.forEach(rec => {
+      const city = rec.city?.trim();
+      if (city) {
+        const dates = rec.places?.map(p => p.dateAdded || rec.dateAdded).filter(Boolean) || [rec.dateAdded];
+        const mostRecent = dates.sort().reverse()[0];
+        if (!cityLastActivity[city] || mostRecent > cityLastActivity[city]) {
+          cityLastActivity[city] = mostRecent;
+        }
+      }
+    });
+
+    // Sort cities by most recent activity (descending)
+    const sortedCities = Object.keys(cityLastActivity).sort((a, b) => {
+      return (cityLastActivity[b] || '').localeCompare(cityLastActivity[a] || '');
+    });
+
+    setSavedCities(sortedCities);
   }, []);
 
-  const filteredCities = savedCities.filter(city =>
-    city.toLowerCase().startsWith(cityInputValue.toLowerCase())
-  );
+  // Show all cities when input is empty, filter when typing
+  const filteredCities = cityInputValue.length === 0
+    ? savedCities.slice(0, 8) // Show first 8 when empty
+    : savedCities.filter(city =>
+        city.toLowerCase().startsWith(cityInputValue.toLowerCase())
+      );
 
   // Auto-fill country when city matches existing recommendation
   const autoFillCountry = (cityName: string) => {
@@ -194,12 +214,16 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
                 <FormItem className="relative flex-1">
                   <FormLabel>City</FormLabel>
                   <FormControl>
-                    <Input
+                    <ClearableInput
                       placeholder="e.g. Paris"
                       value={cityInputValue}
                       onChange={handleCityChange}
-                      onFocus={() => setShowCitySuggestions(cityInputValue.length > 0)}
+                      onFocus={() => setShowCitySuggestions(savedCities.length > 0)}
                       onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                      onClear={() => {
+                        setCityInputValue("");
+                        form.setValue("city", "");
+                      }}
                     />
                   </FormControl>
                   {showCitySuggestions && filteredCities.length > 0 && (
@@ -227,10 +251,14 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
                 <FormItem className="flex-1">
                   <FormLabel>Country</FormLabel>
                   <FormControl>
-                    <Input
+                    <ClearableInput
                       placeholder="e.g. France"
                       value={countryInputValue}
                       onChange={handleCountryChange}
+                      onClear={() => {
+                        setCountryInputValue("");
+                        form.setValue("country", "");
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -244,7 +272,7 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
             name="recommendations"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Your Recommendations</FormLabel>
+                <FormLabel>What did you hear?</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="e.g. Sarah said the pizza at Luigi's is amazing"
