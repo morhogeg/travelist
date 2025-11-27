@@ -231,6 +231,10 @@ color: #764ba2;
 8. ✅ **Country field added** - Free text form now has both city and country inputs
 9. ✅ **Auto-fill country** - Country auto-populates when city matches existing recommendations
 10. ✅ **Amber tips display** - Tips shown in amber with lightbulb icon (consistent styling)
+11. ✅ **Friend name autocomplete** - Shows existing friends as suggestion chips to prevent duplicates
+12. ✅ **Original name chip** - Amber chip shows AI-extracted name if user changes it, allows one-click revert
+13. ✅ **Dynamic source fields** - Name field only shows for "Friend" source type
+14. ✅ **Tip editing fix** - AI-created recommendations now show tip in edit form (description → context.specificTip fallback)
 
 **Example usage:**
 - Input: "Hanan told me that the falafel in Nivo grill is great"

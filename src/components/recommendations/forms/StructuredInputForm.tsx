@@ -68,6 +68,18 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
     return () => subscription.unsubscribe();
   }, [form, editRecommendation]);
 
+  // Merge description into context.specificTip if context doesn't have one
+  // This handles AI-created recommendations that store tips in description
+  const getContextWithTip = () => {
+    if (editRecommendation?.context?.specificTip) {
+      return editRecommendation.context;
+    }
+    if (editRecommendation?.description) {
+      return { ...editRecommendation.context, specificTip: editRecommendation.description };
+    }
+    return editRecommendation?.context;
+  };
+
   useEffect(() => {
     const values = editRecommendation
       ? {
@@ -78,7 +90,7 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
           description: editRecommendation.description || "",
           website: editRecommendation.website || "",
           source: editRecommendation.source || undefined,
-          context: editRecommendation.context || undefined,
+          context: getContextWithTip(),
         }
       : {
           name: "",
@@ -128,7 +140,7 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
         <CategorySelection form={form} />
         <RecommendationFields form={form} onlyWebsite />
         <SourceInput form={form} initialSource={editRecommendation?.source} />
-        <ContextInput form={form} initialContext={editRecommendation?.context} />
+        <ContextInput form={form} initialContext={getContextWithTip()} />
         {!editRecommendation && (
           <AddToCollectionPicker
             onSelect={(id) => setSelectedCollectionId(id)}

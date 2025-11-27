@@ -21,6 +21,22 @@ export const {
   markRecommendationVisited,
 } = manager;
 
+// Helper to get all unique source names from existing recommendations
+export const getExistingSourceNames = (): string[] => {
+  const recommendations = manager.getRecommendations();
+  const names = new Set<string>();
+
+  recommendations.forEach(rec => {
+    rec.places?.forEach(place => {
+      if (place.source?.name && place.source.type === 'friend') {
+        names.add(place.source.name);
+      }
+    });
+  });
+
+  return Array.from(names).sort();
+};
+
 export const {
   getUserPlaces,
   addToUserPlaces,
