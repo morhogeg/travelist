@@ -63,7 +63,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-6" id={`country-${country}`}>
       <div className="px-4">
       {!hideCountryHeader && (
         <motion.div

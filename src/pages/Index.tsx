@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Plus, ArrowLeft } from "lucide-react";
 import Layout from "@/components/layout/Layout";
@@ -20,6 +20,7 @@ import {
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CountryGroupList from "@/components/home/category/CountryGroupList";
+import SectionIndex from "@/components/home/category/SectionIndex";
 import { mediumHaptic } from "@/utils/ios/haptics";
 import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
 
@@ -244,6 +245,31 @@ const Index: React.FC = () => {
 
   const activeFilterCount = countActiveFilters(filters);
 
+  // Extract sorted country names for the section index
+  const sortedCountryNames = useMemo(() => {
+    const countriesSet = new Set<string>();
+    groupedRecommendations.forEach((group) => {
+      const country = group.items[0]?.country;
+      if (country) {
+        countriesSet.add(country);
+      }
+    });
+    return Array.from(countriesSet).sort((a, b) => a.localeCompare(b));
+  }, [groupedRecommendations]);
+
+  // Handle section index navigation
+  const handleSectionSelect = useCallback((letter: string) => {
+    const country = sortedCountryNames.find((c) =>
+      c.toUpperCase().startsWith(letter)
+    );
+    if (country) {
+      const element = document.getElementById(`country-${country}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [sortedCountryNames]);
+
   return (
     <Layout>
       <motion.div
@@ -320,6 +346,14 @@ const Index: React.FC = () => {
           availableSourceNames={availableSourceNames}
         />
       </motion.div>
+
+      {/* Section Index Scrubber - only show when we have countries and no drawers open */}
+      {!detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && !isCategorySheetOpen && sortedCountryNames.length > 1 && (
+        <SectionIndex
+          sections={sortedCountryNames}
+          onSectionSelect={handleSectionSelect}
+        />
+      )}
 
       {!detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && !isCategorySheetOpen && (
         <motion.button

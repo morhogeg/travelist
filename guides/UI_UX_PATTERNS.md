@@ -714,6 +714,53 @@ Use browser DevTools to inspect:
 
 ---
 
+## 🔤 Section Index (Country Navigator)
+
+**iOS Pattern:** Contacts app alphabet scrubber
+
+A vertical A-Z index on the right edge for quick country navigation.
+
+### Behavior
+- **Hidden by default** - Only appears after scrolling 150px
+- **Fade in/out animation** - Slides in from right with opacity transition
+- **Tap to jump** - Taps a letter to smooth scroll to first country starting with that letter
+- **Drag to scrub** - Drag along the bar for continuous selection
+- **Haptic feedback** - Selection haptic on letter change
+
+### Visual Design
+- **Active letters** (with countries): Purple (`#667eea`)
+- **Inactive letters** (no countries): 25% opacity muted
+- **On tap**: Scale up 1.5x with purple background
+- **Position**: Fixed, right edge, vertically centered
+
+### Implementation
+```tsx
+// SectionIndex.tsx
+<SectionIndex
+  sections={sortedCountryNames}  // Array of country names
+  onSectionSelect={handleSectionSelect}
+  scrollThreshold={150}  // Show after scrolling this many pixels
+/>
+
+// Scroll handler
+const handleSectionSelect = (letter: string) => {
+  const country = sortedCountryNames.find(c =>
+    c.toUpperCase().startsWith(letter)
+  );
+  if (country) {
+    document.getElementById(`country-${country}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+```
+
+### Key Files
+- `src/components/home/category/SectionIndex.tsx` - The index component
+- `src/components/home/category/CountryGroup.tsx` - Has `id={country-${country}}` for scroll targets
+- `src/pages/Index.tsx` - Wires up the section index
+
+---
+
 ## 📚 Related Guides
 - `CONTEXT.md` - App overview and quick reference
 - `IOS26_TRANSFORMATION.md` - Liquid Glass design system

@@ -212,7 +212,17 @@ color: #764ba2;
 
 ## 🎯 Recent Changes Summary
 
-**Latest Session Changes (November 26, 2025):**
+**Latest Session Changes (November 27, 2025):**
+
+**Section Index (Country Navigator):**
+1. ✅ **A-Z alphabet scrubber** - Vertical index on right edge for quick country navigation
+2. ✅ **Scroll-triggered visibility** - Hidden by default, appears after scrolling 150px
+3. ✅ **Smooth animations** - Fades in/out with slide from right
+4. ✅ **Active/inactive states** - Purple for available letters, dimmed for empty
+5. ✅ **Haptic feedback** - Selection haptic on letter change
+6. ✅ **Drag support** - Drag along bar for continuous scrubbing
+
+**Previous Session Changes (November 26, 2025):**
 
 **Collections & Routes Consistency:**
 1. ✅ **CollectionsTab styling updated** - Matches Routes tab with same header, spacing, and FAB button
