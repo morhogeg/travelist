@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { processStructuredRecommendation } from "@/utils/recommendation/structured-recommendation";
 import { processFreeTextRecommendation } from "@/utils/recommendation/free-text-recommendation";
+import { processAIParsedRecommendation, AIParsedFormValues } from "@/utils/recommendation/ai-parsed-recommendation";
 import { StructuredFormValues, FreeTextFormValues } from "@/utils/recommendation/types";
 
 export const useRecommendationSubmit = () => {
@@ -54,9 +55,31 @@ export const useRecommendationSubmit = () => {
     }
   };
 
+  const submitAIParsedRecommendation = async (
+    values: AIParsedFormValues
+  ): Promise<string[] | null> => {
+    setIsLoading(true);
+    try {
+      const result = await processAIParsedRecommendation(values, toast);
+      if (result && result.ids) return result.ids;
+      return null;
+    } catch (error) {
+      console.error("Error submitting AI-parsed recommendation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit recommendations. Please try again.",
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     submitStructuredRecommendation,
     submitFreeTextRecommendation,
+    submitAIParsedRecommendation,
   };
 };

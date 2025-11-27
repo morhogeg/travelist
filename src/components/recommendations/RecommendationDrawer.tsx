@@ -37,6 +37,7 @@ const RecommendationDrawer = ({
     isLoading,
     submitStructuredRecommendation,
     submitFreeTextRecommendation,
+    submitAIParsedRecommendation,
   } = useRecommendationSubmit();
 
   // Always reset or set localEditRecommendation when drawer opens
@@ -85,7 +86,28 @@ const RecommendationDrawer = ({
     }
   };
 
-  const handleSubmitFreeText = async (values: { city: string; recommendations: string }) => {
+  const handleSubmitFreeText = async (values: { city: string; country?: string; recommendations: string; parsedPlaces?: any[] }) => {
+    // Check if this is AI-parsed submission (has parsedPlaces)
+    if (values.parsedPlaces && values.parsedPlaces.length > 0) {
+      const savedIds = await submitAIParsedRecommendation({
+        city: values.city,
+        country: values.country || "",
+        recommendations: values.recommendations,
+        parsedPlaces: values.parsedPlaces,
+      });
+
+      if (savedIds && savedIds.length > 0) {
+        if (selectedCollectionId) {
+          savedIds.forEach(id => {
+            addPlaceToCollection(selectedCollectionId, id);
+          });
+        }
+        setIsDrawerOpen(false);
+      }
+      return;
+    }
+
+    // Legacy free text submission (without AI parsing)
     const savedId = await submitFreeTextRecommendation(values);
 
     if (savedId) {
@@ -159,9 +181,11 @@ const RecommendationDrawer = ({
           )}
         </div>
 
-        <DrawerFooter className="border-t border-border">
+        <DrawerFooter className="pt-2 pb-4">
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
+              Cancel
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

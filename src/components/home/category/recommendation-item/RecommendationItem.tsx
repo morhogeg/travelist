@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
-import { UserCircle, Sparkles } from "lucide-react";
+import { UserCircle, Sparkles, Lightbulb } from "lucide-react";
 import { categories, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import SwipeableCard from "./SwipeableCard";
 import CollectionPickerDrawer from "@/components/collections/CollectionPickerDrawer";
@@ -81,14 +81,19 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
                 <h3 className="text-base font-semibold leading-tight flex-1 truncate">{item.name}</h3>
               </div>
 
+              {/* Tip/Description - shown in amber */}
               {item.description && (
-                <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1">
+                  <Lightbulb className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  {item.description}
+                </p>
               )}
 
-              {/* Tip - shown first as it's actionable info */}
-              {item.context?.specificTip && (
-                <p className="text-[11px] text-amber-700 dark:text-amber-400 italic line-clamp-1">
-                  💡 {item.context.specificTip}
+              {/* Context tip - fallback for structured input */}
+              {!item.description && item.context?.specificTip && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1">
+                  <Lightbulb className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  {item.context.specificTip}
                 </p>
               )}
 

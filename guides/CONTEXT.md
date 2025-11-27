@@ -69,6 +69,12 @@ npm run build:prod       # Production build
 ### Forms & Drawers
 - `src/components/recommendations/RecommendationDrawer.tsx` - Add recommendation drawer
 - `src/components/recommendations/forms/StructuredInputForm.tsx` - Structured input form
+- `src/components/recommendations/forms/FreeTextForm.tsx` - AI-powered free text input
+- `src/components/recommendations/ParsePreviewSheet.tsx` - Preview/edit AI-parsed results
+
+### AI Services
+- `src/services/ai/providers/openrouter-parser.ts` - Grok 4.1 integration via OpenRouter
+- `src/utils/recommendation/ai-parsed-recommendation.ts` - Save AI-parsed places
 
 ### Native iOS
 - `src/hooks/native/useHaptics.ts` - Haptic feedback hook
@@ -213,6 +219,22 @@ color: #764ba2;
 ## 🎯 Recent Changes Summary
 
 **Latest Session Changes (November 27, 2025):**
+
+**AI-Powered Free Text Input:**
+1. ✅ **Grok 4.1 integration** - Uses OpenRouter API with x-ai/grok-4.1-fast:free model
+2. ✅ **Smart extraction** - AI extracts place name, category, tip, and source from natural language
+3. ✅ **Multi-language support** - Tips preserved in user's input language (Hebrew, Spanish, etc.)
+4. ✅ **Preview & edit sheet** - Users review and correct AI-parsed results before saving
+5. ✅ **Editable fields** - Name, category, tip, and source all editable in preview
+6. ✅ **Source detection** - Automatically detects friends, Instagram, TikTok, YouTube, etc.
+7. ✅ **Tip extraction** - Extracts actionable tips like "Try the falafel" from context
+8. ✅ **Country field added** - Free text form now has both city and country inputs
+9. ✅ **Auto-fill country** - Country auto-populates when city matches existing recommendations
+10. ✅ **Amber tips display** - Tips shown in amber with lightbulb icon (consistent styling)
+
+**Example usage:**
+- Input: "Hanan told me that the falafel in Nivo grill is great"
+- Output: Name: "Nivo Grill", Category: Food, Tip: "Try the falafel", Source: Friend (Hanan)
 
 **Section Index (Country Navigator):**
 1. ✅ **A-Z alphabet scrubber** - Vertical index on right edge for quick country navigation
