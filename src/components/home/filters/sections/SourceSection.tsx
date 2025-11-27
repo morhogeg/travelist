@@ -69,7 +69,6 @@ const SourceSection: React.FC<SourceSectionProps> = ({
     'friend',
     'text',
     'email',
-    'blog',
     'article',
     'ai',
     'other',

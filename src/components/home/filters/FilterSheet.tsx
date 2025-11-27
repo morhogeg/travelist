@@ -59,13 +59,13 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
     <Drawer open={isOpen} onOpenChange={handleDrawerChange}>
       <DrawerContent className="max-h-[92vh] p-0 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-2 pb-4 border-b border-white/10">
+        <div className="relative flex items-center justify-center px-6 pt-2 pb-4 border-b border-white/10">
           <h2 className="text-xl font-bold text-[#667eea] leading-none">Filters</h2>
           {hasFilters && (
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleReset}
-              className="text-sm font-semibold text-[#667eea] ios26-transition-smooth hover:opacity-70"
+              className="absolute right-6 text-sm font-semibold text-[#667eea] ios26-transition-smooth hover:opacity-70"
             >
               Reset
             </motion.button>
@@ -73,7 +73,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
         </div>
 
         {/* Filter Sections - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 pt-2 pb-4 space-y-6">
           <VisitStatusSection
             value={localFilters.visitStatus}
             onChange={(value) => setLocalFilters({ ...localFilters, visitStatus: value })}

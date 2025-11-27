@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, Sparkles } from "lucide-react";
+import { CheckCircle2, Circle, Layers } from "lucide-react";
 import { VisitStatusFilter } from "@/types/filters";
 import { lightHaptic } from "@/utils/ios/haptics";
 
@@ -10,7 +10,7 @@ interface VisitStatusSectionProps {
 }
 
 const options: { value: VisitStatusFilter; label: string; icon: React.ReactNode }[] = [
-  { value: "all", label: "All Places", icon: <Sparkles className="h-4 w-4" /> },
+  { value: "all", label: "All Places", icon: <Layers className="h-4 w-4" /> },
   { value: "not-visited", label: "Not Visited", icon: <Circle className="h-4 w-4" /> },
   { value: "visited", label: "Visited", icon: <CheckCircle2 className="h-4 w-4" /> },
 ];

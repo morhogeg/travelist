@@ -222,6 +222,12 @@ color: #764ba2;
 5. ✅ **Haptic feedback** - Selection haptic on letter change
 6. ✅ **Drag support** - Drag along bar for continuous scrubbing
 
+**Filter Drawer Polish:**
+1. ✅ **Centered "Filters" title** - Title now centered with Reset button absolutely positioned
+2. ✅ **Removed "Blog" source** - Simplified source options
+3. ✅ **All Places icon** - Changed from AI sparkles to subtle Layers icon
+4. ✅ **Tighter spacing** - Reduced gap between header and Visit Status section
+
 **Previous Session Changes (November 26, 2025):**
 
 **Collections & Routes Consistency:**
