@@ -17,17 +17,19 @@ AI-powered place suggestions that appear on city detail pages when users have sa
 ```
 src/
 ├── services/ai/
-│   ├── index.ts              # Main exports
-│   ├── types.ts              # Type definitions
-│   ├── suggestion-cache.ts   # localStorage caching
+│   ├── index.ts                        # Main exports
+│   ├── types.ts                        # Type definitions
+│   ├── suggestion-cache.ts             # localStorage caching
 │   └── providers/
-│       └── mock-provider.ts  # Mock LLM responses
+│       ├── grok-suggestions-provider.ts # Grok 4.1 via OpenRouter (primary)
+│       ├── mock-provider.ts             # Mock responses (fallback)
+│       └── openrouter-parser.ts         # Free text parsing (shared API)
 ├── hooks/
-│   └── useAISuggestions.ts   # React hook for fetching suggestions
+│   └── useAISuggestions.ts             # React hook for fetching suggestions
 └── components/ai/
-    ├── index.ts              # Component exports
-    ├── AISuggestionCard.tsx  # Individual suggestion card
-    └── AISuggestionsSection.tsx # Carousel container
+    ├── index.ts                        # Component exports
+    ├── AISuggestionCard.tsx            # Individual suggestion card with directions
+    └── AISuggestionsSection.tsx        # Carousel container
 ```
 
 ### Key Types
@@ -51,30 +53,27 @@ interface LLMProvider {
 
 ## Provider System
 
-The feature uses a provider pattern for easy swapping between:
+The feature uses a provider pattern for easy swapping between providers:
 
-- **Mock Provider** (current): Returns realistic-looking suggestions for development
-- **OpenAI Provider** (future): Use GPT models for real recommendations
-- **Anthropic Provider** (future): Use Claude for recommendations
+- **Grok Provider** (current): Uses Grok 4.1 Fast via OpenRouter for real AI recommendations
+- **Mock Provider** (fallback): Returns realistic-looking suggestions if API fails
 
-### Adding a Real Provider
+### Current Implementation: Grok 4.1 Fast
 
-1. Create `src/services/ai/providers/openai-provider.ts`:
+The app uses **Grok 4.1 Fast** (`x-ai/grok-4.1-fast:free`) via OpenRouter API for generating personalized recommendations.
 
-```typescript
-import { LLMProvider, AISuggestionRequest, AISuggestionResult } from '../types';
+**API Configuration:**
+- Endpoint: `https://openrouter.ai/api/v1/chat/completions`
+- Model: `x-ai/grok-4.1-fast:free` (free tier)
+- API Key: Set `VITE_OPENROUTER_API_KEY` in `.env` file
 
-export class OpenAIProvider implements LLMProvider {
-  name = 'openai';
+**How it works:**
+1. Analyzes user's saved places to understand preferences (budget, cuisine, activity types)
+2. Generates personalized "why recommended" explanations referencing saved places
+3. Suggests real, actual establishments that exist in the city
+4. Falls back to mock provider if API fails
 
-  async generateSuggestions(request: AISuggestionRequest): Promise<AISuggestionResult> {
-    // Call OpenAI API
-    // Parse response into AISuggestionResult
-  }
-}
-```
-
-2. Update `useAISuggestions.ts` to use the new provider based on config
+**Provider file:** `src/services/ai/providers/grok-suggestions-provider.ts`
 
 ## Caching
 
@@ -150,7 +149,8 @@ The mock provider includes city-specific suggestions for:
 
 ## Future Enhancements
 
-- [ ] Connect to real LLM provider (OpenAI/Anthropic)
+- [x] Connect to real LLM provider (Grok 4.1 via OpenRouter)
+- [x] Directions button on suggestion cards (Google Maps)
 - [ ] Add user preference learning
 - [ ] Filter suggestions by category
 - [ ] Save dismissed suggestions to avoid re-showing

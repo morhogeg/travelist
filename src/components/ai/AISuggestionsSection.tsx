@@ -224,6 +224,8 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
                     <AISuggestionCard
                       key={suggestion.id}
                       suggestion={suggestion}
+                      cityName={cityName}
+                      countryName={countryName}
                       onAdd={onAddSuggestion}
                       index={index}
                     />

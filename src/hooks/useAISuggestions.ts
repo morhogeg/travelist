@@ -12,6 +12,7 @@ import {
   DEFAULT_AI_CONFIG,
   getCachedSuggestions,
   cacheSuggestions,
+  grokSuggestionsProvider,
   mockProvider,
 } from '@/services/ai';
 import { getRecommendations } from '@/utils/recommendation-parser';
@@ -75,7 +76,7 @@ export function useAISuggestions(
   }, [cityName]);
 
   // Fetch suggestions
-  const fetchSuggestions = useCallback(async (places: SavedPlaceContext[]) => {
+  const fetchSuggestions = useCallback(async (places: SavedPlaceContext[], skipCache = false) => {
     if (!enabled || places.length < minPlaces) {
       return;
     }
@@ -84,13 +85,15 @@ export function useAISuggestions(
     setError(null);
 
     try {
-      // Check cache first
-      const cached = getCachedSuggestions(cityName, countryName, places);
-      if (cached) {
-        setSuggestions(cached.suggestions);
-        setBasedOnPlaces(cached.basedOnPlaces);
-        setIsLoading(false);
-        return;
+      // Check cache first (unless skipping)
+      if (!skipCache) {
+        const cached = getCachedSuggestions(cityName, countryName, places);
+        if (cached) {
+          setSuggestions(cached.suggestions);
+          setBasedOnPlaces(cached.basedOnPlaces);
+          setIsLoading(false);
+          return;
+        }
       }
 
       // Fetch from provider
@@ -101,7 +104,14 @@ export function useAISuggestions(
         maxSuggestions: DEFAULT_AI_CONFIG.maxSuggestions,
       };
 
-      const result = await mockProvider.generateSuggestions(request);
+      // Try Grok first, fallback to mock if API fails
+      let result;
+      try {
+        result = await grokSuggestionsProvider.generateSuggestions(request);
+      } catch (grokError) {
+        console.warn('[AI Suggestions] Grok provider failed, falling back to mock:', grokError);
+        result = await mockProvider.generateSuggestions(request);
+      }
 
       // Cache the result
       cacheSuggestions(cityName, countryName, places, result);
@@ -140,10 +150,10 @@ export function useAISuggestions(
     };
   }, [loadSavedPlaces, fetchSuggestions]);
 
-  // Manual refresh function
+  // Manual refresh function (skips cache)
   const refresh = useCallback(async () => {
     const places = loadSavedPlaces();
-    await fetchSuggestions(places);
+    await fetchSuggestions(places, true); // Skip cache on manual refresh
   }, [loadSavedPlaces, fetchSuggestions]);
 
   return {

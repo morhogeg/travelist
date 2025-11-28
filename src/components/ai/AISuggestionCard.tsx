@@ -16,12 +16,16 @@ import {
   MapPin,
   Plus,
   Sparkles,
+  Navigation,
 } from 'lucide-react';
 import { AISuggestion, PlaceCategory } from '@/services/ai/types';
 import { lightHaptic } from '@/utils/ios/haptics';
+import { generateMapLink } from '@/utils/link-helpers';
 
 interface AISuggestionCardProps {
   suggestion: AISuggestion;
+  cityName: string;
+  countryName: string;
   onAdd?: (suggestion: AISuggestion) => void;
   index?: number;
 }
@@ -48,6 +52,8 @@ const CATEGORY_COLORS: Record<PlaceCategory, string> = {
 
 export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
   suggestion,
+  cityName,
+  countryName,
   onAdd,
   index = 0,
 }) => {
@@ -58,6 +64,8 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
     lightHaptic();
     onAdd?.(suggestion);
   };
+
+  const mapUrl = generateMapLink(suggestion.name, `${cityName}, ${countryName}`);
 
   return (
     <motion.div
@@ -114,17 +122,31 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
           </div>
         )}
 
-        {/* Add button */}
-        {onAdd && (
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleAdd}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white text-xs font-medium ios26-transition-smooth"
+        {/* Action buttons */}
+        <div className="flex gap-2">
+          {/* Directions button */}
+          <a
+            href={mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-neutral-200 dark:border-neutral-700 text-muted-foreground hover:text-foreground hover:border-neutral-300 dark:hover:border-neutral-600 text-xs font-medium ios26-transition-smooth"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Plus className="w-4 h-4" />
-            Add to List
-          </motion.button>
-        )}
+            <Navigation className="w-3.5 h-3.5" />
+          </a>
+
+          {/* Add button */}
+          {onAdd && (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleAdd}
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white text-xs font-medium ios26-transition-smooth"
+            >
+              <Plus className="w-4 h-4" />
+              Add to List
+            </motion.button>
+          )}
+        </div>
       </div>
     </motion.div>
   );

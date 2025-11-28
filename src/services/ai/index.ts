@@ -15,6 +15,7 @@ export {
 
 // Providers
 export { mockProvider, MockLLMProvider } from './providers/mock-provider';
+export { grokSuggestionsProvider, GrokSuggestionsProvider } from './providers/grok-suggestions-provider';
 export { parseWithGrok } from './providers/openrouter-parser';
 export type { ParsedPlace, ParseResult } from './providers/openrouter-parser';
 
