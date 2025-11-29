@@ -1,10 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import CityGroup from "./CityGroup";
 import { useNavigate } from "react-router-dom";
 import type { GroupedRecommendation } from "@/utils/recommendation/types";
 import countryToCode from "@/utils/flags/countryToCode";
+
+// Helper functions to persist collapsed state
+const COLLAPSED_COUNTRIES_KEY = "travelist_collapsed_countries";
+
+const getCollapsedCountries = (): Set<string> => {
+  try {
+    const stored = localStorage.getItem(COLLAPSED_COUNTRIES_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const setCollapsedCountry = (country: string, collapsed: boolean) => {
+  const current = getCollapsedCountries();
+  if (collapsed) {
+    current.add(country);
+  } else {
+    current.delete(country);
+  }
+  localStorage.setItem(COLLAPSED_COUNTRIES_KEY, JSON.stringify([...current]));
+};
 
 const getFlagEmoji = (countryName: string): string => {
   const code = countryToCode[countryName.trim()];
@@ -43,7 +65,10 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   hideCountry = false,
   isLastCountry = false
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Initialize collapsed state from localStorage
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return getCollapsedCountries().has(country);
+  });
 
   if (!groups || groups.length === 0) return null;
 
@@ -59,15 +84,17 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
 
   const toggleCollapse = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsCollapsed(!isCollapsed);
+    const newCollapsed = !isCollapsed;
+    setIsCollapsed(newCollapsed);
+    setCollapsedCountry(country, newCollapsed);
   };
 
   return (
-    <div className="mb-6" id={`country-${country}`}>
+    <div className="mb-1" id={`country-${country}`}>
       <div className="px-4">
       {!hideCountryHeader && (
         <motion.div
-          className="flex items-center justify-between mb-3 cursor-pointer min-h-11 -mx-2 px-3 py-2 rounded-xl hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth mt-2"
+          className="flex items-center justify-between mb-1 cursor-pointer min-h-[40px] -mx-2 px-3 py-1 rounded-xl hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth"
           onClick={toggleCollapse}
           whileTap={{ scale: 0.98 }}
         >
@@ -102,7 +129,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="space-y-3">
+            <div className="space-y-1">
               {groups.map((group, index) => (
                 <div key={group.cityId}>
                   <CityGroup
@@ -132,7 +159,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
 
       {/* Gradient divider between countries - only show if NOT the last country */}
       {!isLastCountry && (
-        <div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30 mt-6" />
+        <div className="h-px w-full bg-gradient-to-r from-neutral-300/60 via-neutral-200/30 to-transparent dark:from-neutral-600/60 dark:via-neutral-700/30" />
       )}
     </div>
   );

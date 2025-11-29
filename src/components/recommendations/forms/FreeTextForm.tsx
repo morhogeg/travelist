@@ -13,6 +13,7 @@ import { getRecommendations } from "@/utils/recommendation-parser";
 import { parseWithGrok, ParsedPlace } from "@/services/ai/providers/openrouter-parser";
 import { ParsePreviewSheet } from "../ParsePreviewSheet";
 import { useToast } from "@/hooks/use-toast";
+import { countryList } from "@/utils/countries";
 
 const freeTextFormSchema = z.object({
   city: z.string().min(2, "City must be at least 2 characters"),
@@ -45,6 +46,7 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
   const [cityInputValue, setCityInputValue] = useState("");
   const [countryInputValue, setCountryInputValue] = useState("");
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
 
   // AI parsing state
   const [isParsing, setIsParsing] = useState(false);
@@ -84,6 +86,13 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
         city.toLowerCase().startsWith(cityInputValue.toLowerCase())
       );
 
+  // Filter countries based on typed input
+  const filteredCountries = countryInputValue.length === 0
+    ? [] // Don't show dropdown when empty
+    : countryList.filter(country =>
+        country.toLowerCase().startsWith(countryInputValue.toLowerCase())
+      ).slice(0, 6);
+
   // Auto-fill country when city matches existing recommendation
   const autoFillCountry = (cityName: string) => {
     const recommendations = getRecommendations();
@@ -118,6 +127,13 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
     const value = e.target.value;
     setCountryInputValue(value);
     form.setValue("country", value);
+    setShowCountrySuggestions(value.length > 0);
+  };
+
+  const handleCountrySelect = (name: string) => {
+    form.setValue("country", name);
+    setCountryInputValue(name);
+    setShowCountrySuggestions(false);
   };
 
   // Handle form submission - parse with AI
@@ -248,19 +264,34 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
               control={form.control}
               name="country"
               render={() => (
-                <FormItem className="flex-1">
+                <FormItem className="relative flex-1">
                   <FormLabel>Country</FormLabel>
                   <FormControl>
                     <ClearableInput
                       placeholder="e.g. France"
                       value={countryInputValue}
                       onChange={handleCountryChange}
+                      onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 200)}
                       onClear={() => {
                         setCountryInputValue("");
                         form.setValue("country", "");
+                        setShowCountrySuggestions(false);
                       }}
                     />
                   </FormControl>
+                  {showCountrySuggestions && filteredCountries.length > 0 && (
+                    <div className="absolute z-10 mt-1 w-full bg-popover border rounded-md shadow-lg max-h-40 overflow-auto">
+                      {filteredCountries.map((country) => (
+                        <div
+                          key={country}
+                          className="px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground text-sm"
+                          onClick={() => handleCountrySelect(country)}
+                        >
+                          {country}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

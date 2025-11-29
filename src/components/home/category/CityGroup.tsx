@@ -97,7 +97,7 @@ const CityGroup: React.FC<Props> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="mb-3"
+      className="mb-1"
     >
       <div className="px-4">
       {!hideCityHeader && (
@@ -138,7 +138,7 @@ const CityGroup: React.FC<Props> = ({
 
       {/* Gradient divider between cities - only show if NOT the last city in the country */}
       {!isLastInCountry && (
-        <div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-3" />
+        <div className="h-px w-full bg-gradient-to-r from-neutral-200/40 via-neutral-200/20 to-transparent dark:from-neutral-700/40 dark:via-neutral-700/20 mt-1" />
       )}
     </motion.div>
   );
