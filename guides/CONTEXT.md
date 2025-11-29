@@ -228,6 +228,10 @@ color: #764ba2;
 5. ✅ **Persistent collapse state** - Country collapse state saved to localStorage, survives navigation
 6. ✅ **Collapse state retention** - Collapsed countries stay collapsed when switching tabs or categories
 
+**Custom Slash Commands:**
+- `/begin` - Load project context from guides folder at session start
+- `/done` - Update docs and push to git at session end
+
 **Spacing Changes:**
 - CountryGroup container: `mb-6` → `mb-1`
 - CityGroup container: `mb-3` → `mb-1`
