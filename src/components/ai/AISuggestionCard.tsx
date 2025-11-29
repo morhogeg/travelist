@@ -9,13 +9,13 @@ import { motion } from 'framer-motion';
 import {
   Utensils,
   Bed,
-  Camera,
+  Eye,
   ShoppingBag,
-  Moon,
-  TreePine,
+  Music,
+  Palmtree,
   MapPin,
   Plus,
-  Sparkles,
+  Lightbulb,
   Navigation,
 } from 'lucide-react';
 import { AISuggestion, PlaceCategory } from '@/services/ai/types';
@@ -33,10 +33,10 @@ interface AISuggestionCardProps {
 const CATEGORY_ICONS: Record<PlaceCategory, React.ElementType> = {
   food: Utensils,
   lodging: Bed,
-  attractions: Camera,
+  attractions: Eye,
   shopping: ShoppingBag,
-  nightlife: Moon,
-  outdoors: TreePine,
+  nightlife: Music,
+  outdoors: Palmtree,
   general: MapPin,
 };
 
@@ -74,11 +74,11 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
       transition={{ delay: index * 0.1, duration: 0.3 }}
       className="min-w-[260px] max-w-[280px] flex-shrink-0"
     >
-      <div className="liquid-glass-clear rounded-2xl p-4 h-full border border-white/10 dark:border-white/5">
+      <div className="liquid-glass-clear rounded-2xl px-3.5 pt-3.5 pb-2.5 h-full border border-white/10 dark:border-white/5">
         {/* Header with icon and name */}
-        <div className="flex items-start gap-3 mb-3">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradientColor} flex items-center justify-center flex-shrink-0`}>
-            <Icon className="w-5 h-5 text-white" />
+        <div className="flex items-start gap-2.5 mb-2.5">
+          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${gradientColor} flex items-center justify-center flex-shrink-0`}>
+            <Icon className="w-[18px] h-[18px] text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="font-semibold text-sm text-foreground truncate">
@@ -96,21 +96,19 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
         </div>
 
         {/* Description */}
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-2.5">
           {suggestion.description}
         </p>
 
-        {/* Why recommended - with AI badge */}
-        <div className="flex items-start gap-2 mb-3 p-2 rounded-lg bg-primary/5 dark:bg-primary/10">
-          <Sparkles className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-[11px] text-primary dark:text-primary/90 leading-relaxed">
-            {suggestion.whyRecommended}
-          </p>
-        </div>
+        {/* Why recommended - matching tip style */}
+        <p className="text-xs text-amber-600 dark:text-amber-400 line-clamp-3 mb-2.5 flex items-start gap-1.5">
+          <Lightbulb className="w-3 h-3 flex-shrink-0 mt-0.5" />
+          <span>{suggestion.whyRecommended}</span>
+        </p>
 
         {/* Tags */}
         {suggestion.tags && suggestion.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="flex flex-wrap gap-1.5 mb-2.5">
             {suggestion.tags.slice(0, 3).map((tag, i) => (
               <span
                 key={i}
@@ -123,16 +121,17 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
         )}
 
         {/* Action buttons */}
-        <div className="flex gap-2">
-          {/* Directions button */}
+        <div className="flex items-center gap-2">
+          {/* Directions button - matching regular cards */}
           <a
             href={mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-neutral-200 dark:border-neutral-700 text-muted-foreground hover:text-foreground hover:border-neutral-300 dark:hover:border-neutral-600 text-xs font-medium ios26-transition-smooth"
+            className="text-muted-foreground hover:text-primary transition-colors p-2 rounded-full hover:bg-muted/60"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Open in Google Maps"
           >
-            <Navigation className="w-3.5 h-3.5" />
+            <Navigation className="w-4 h-4" />
           </a>
 
           {/* Add button */}

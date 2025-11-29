@@ -1,9 +1,9 @@
 
 import React from "react";
-import { 
-  Utensils, Coffee, Bed, Beer, Landmark, Map, 
-  ShoppingBag, Palmtree, Camera, Plane, Music,
-  Ticket, Library, Heart, Star, Compass
+import {
+  Utensils, Coffee, Bed, Eye, Map,
+  ShoppingBag, Palmtree, Plane, Music,
+  Ticket, Library, Heart, Star, MapPin
 } from "lucide-react";
 
 interface CategoryIconProps {
@@ -21,18 +21,16 @@ const CategoryIcon: React.FC<CategoryIconProps> = ({ category, className = "h-4 
     return <Coffee className={className} />;
   } else if (normalizedCategory.includes("hotel") || normalizedCategory.includes("stay") || normalizedCategory.includes("lodging")) {
     return <Bed className={className} />;
-  } else if (normalizedCategory.includes("bar") || normalizedCategory.includes("pub")) {
-    return <Beer className={className} />;
+  } else if (normalizedCategory.includes("bar") || normalizedCategory.includes("pub") || normalizedCategory.includes("nightlife")) {
+    return <Music className={className} />;
   } else if (normalizedCategory.includes("attraction") || normalizedCategory.includes("landmark") || normalizedCategory.includes("monument")) {
-    return <Landmark className={className} />;
+    return <Eye className={className} />;
   } else if (normalizedCategory.includes("tour") || normalizedCategory.includes("trip")) {
     return <Map className={className} />;
   } else if (normalizedCategory.includes("shop") || normalizedCategory.includes("shopping") || normalizedCategory.includes("store")) {
     return <ShoppingBag className={className} />;
-  } else if (normalizedCategory.includes("beach") || normalizedCategory.includes("nature")) {
+  } else if (normalizedCategory.includes("beach") || normalizedCategory.includes("nature") || normalizedCategory.includes("outdoors")) {
     return <Palmtree className={className} />;
-  } else if (normalizedCategory.includes("photo") || normalizedCategory.includes("photography")) {
-    return <Camera className={className} />;
   } else if (normalizedCategory.includes("travel") || normalizedCategory.includes("flight")) {
     return <Plane className={className} />;
   } else if (normalizedCategory.includes("music") || normalizedCategory.includes("concert")) {
@@ -47,7 +45,7 @@ const CategoryIcon: React.FC<CategoryIconProps> = ({ category, className = "h-4 
     return <Star className={className} />;
   } else {
     // Default icon for unmatched categories
-    return <Compass className={className} />;
+    return <MapPin className={className} />;
   }
 };
 

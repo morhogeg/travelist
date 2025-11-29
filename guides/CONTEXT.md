@@ -232,6 +232,17 @@ color: #764ba2;
 - `/begin` - Load project context from guides folder at session start
 - `/done` - Update docs and push to git at session end
 
+**Category Icon Consistency:**
+- Unified icons across all components (category pills, AI cards, place details)
+- Nightlife: Music icon (was Moon in AI cards)
+- Attractions: Eye icon (was Camera in AI cards)
+- Outdoors: Palmtree icon (was TreePine in AI cards)
+
+**AI Suggestion Card Redesign:**
+- Navigation button matches regular cards (simple icon, no border)
+- "Why recommended" uses amber tip style (was blue highlight box)
+- Compact spacing with balanced proportions
+
 **Spacing Changes:**
 - CountryGroup container: `mb-6` → `mb-1`
 - CityGroup container: `mb-3` → `mb-1`
