@@ -1,0 +1,1 @@
+Read all documentation files in the `guides/` folder and `.claude/guides/` folder to understand the Travelist project context. Do not provide a summary - just confirm you've read the docs and are ready to help.
