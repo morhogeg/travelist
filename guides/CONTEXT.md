@@ -230,6 +230,13 @@ color: #764ba2;
 
 **Provider:** `src/services/ai/providers/grok-suggestions-provider.ts`
 
+**iOS Button Blue Highlight Fix:**
+1. ✅ **Ghost button fix** - Changed ghost variant from `hover:bg-accent` (blue) to `hover:opacity-70 active:opacity-50`
+2. ✅ **Root cause identified** - The `--accent` color was iOS blue (#007AFF), triggered on touch devices during hover/active states
+3. ✅ **Matches working pattern** - Now uses same opacity-based feedback as `motion.button` elements (search icon)
+4. ✅ **Button component hardened** - Added inline styles: `WebkitTapHighlightColor`, `WebkitTouchCallout`, `WebkitUserSelect`, `outline`
+5. ✅ **Style prop fix** - Fixed bug where `{...props}` was overwriting inline `style` object by extracting `style` separately
+
 ---
 
 **Previous Session Changes (November 27, 2025):**

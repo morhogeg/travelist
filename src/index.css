@@ -5,8 +5,45 @@
 
 @layer base {
   /* Remove iOS blue tap highlight globally */
-  * {
-    -webkit-tap-highlight-color: transparent;
+  *,
+  *::before,
+  *::after {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Re-enable text selection for content areas */
+  p, span, h1, h2, h3, h4, h5, h6, li, td, th, label,
+  input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Additional tap highlight removal for interactive elements */
+  button,
+  a,
+  [role="button"],
+  input,
+  select,
+  textarea,
+  [tabindex],
+  [class*="motion"] {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-appearance: none;
+    outline: none !important;
+  }
+
+  /* Remove focus outline for mouse users, keep for keyboard */
+  :focus:not(:focus-visible) {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure no blue highlight on any clickable element */
+  :active {
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   :root {

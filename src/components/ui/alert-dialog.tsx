@@ -99,10 +99,11 @@ AlertDialogDescription.displayName =
 const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
->(({ className, ...props }, ref) => (
+>(({ className, style, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(buttonVariants(), className)}
+    style={{ WebkitTapHighlightColor: 'transparent', ...style }}
     {...props}
   />
 ))
@@ -111,7 +112,7 @@ AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName
 const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
->(({ className, ...props }, ref) => (
+>(({ className, style, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(
@@ -119,6 +120,7 @@ const AlertDialogCancel = React.forwardRef<
       "mt-2 sm:mt-0",
       className
     )}
+    style={{ WebkitTapHighlightColor: 'transparent', ...style }}
     {...props}
   />
 ))
