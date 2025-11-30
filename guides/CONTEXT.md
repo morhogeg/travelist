@@ -9,7 +9,7 @@
 **App State:** iOS 26 Liquid Glass transformation complete
 **Primary Theme:** Purple Gradient (#667eea → #764ba2)
 **Current Branch:** main
-**Active Development:** UI polish and feature enhancement
+**Active Development:** UI polish and feature enhancement + Supabase sync/auth (email/password)
 
 ---
 
@@ -40,6 +40,13 @@ npm run build:prod       # Production build
 ---
 
 ## 📁 Key Files & Locations
+
+### Cloud Sync & Auth
+- `src/lib/supabase.ts` - Supabase client + connectivity check
+- `src/utils/recommendation/supabase-recommendations.ts` - Supabase read/write + backfill (user-scoped)
+- `src/utils/recommendation/recommendation-manager.ts` - Local storage + Supabase merge on sign-in
+- `src/pages/Settings.tsx` - Email/password auth UI with inline password toggle
+- Env (local only): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 
 ### Design System
 - `src/index.css` - Liquid Glass materials, iOS 26 design tokens, animations
@@ -199,11 +206,15 @@ color: #764ba2;
 
 ## 🐛 Known Issues & Limitations
 
+### Supabase Sync
+- Requires signed-in session; offline/new-device without sign-in stays local-only
+- Apple Sign-In not wired yet (email/password only)
+- Confirmation links must target the dev host (Supabase Auth → URL Configuration)
+
 ### Current Limitations
-- Data is stored in localStorage (no backend yet)
 - Images are placeholder-based (category-specific)
-- No user authentication yet
-- No cloud sync
+- No Apple Sign-In; no multi-device merge without sign-in
+- Local-first storage remains; Supabase used when available
 
 ### Safari/Web Limitations
 - Liquid Glass blur less pronounced than native iOS
@@ -217,6 +228,13 @@ color: #764ba2;
 ---
 
 ## 🎯 Recent Changes Summary
+
+**Latest (December 2025): Supabase Sync + Auth**
+- Email/password auth added in Settings (inline password toggle)
+- Backfill local recommendations to Supabase on sign-in
+- One-time pull/merge from Supabase to local on startup when signed in
+- User-scoped writes (user_id + RLS policies required in Supabase)
+- Environment: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (local only)
 
 **Latest Session Changes (November 29, 2025):**
 

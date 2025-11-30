@@ -2,7 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import { ParsedRecommendation } from "./types";
 import { getCategoryPlaceholder } from "@/utils/image/getCategoryPlaceholder";
 import { getSmartImage } from "@/utils/image/getSmartImage";
-import { syncRecommendationToSupabase } from "./supabase-recommendations";
+import { syncRecommendationToSupabase, fetchSupabaseRecommendations, backfillLocalToSupabase } from "./supabase-recommendations";
+import { supabase } from "@/lib/supabase";
 
 export const getRecommendations = (): ParsedRecommendation[] => {
   try {
@@ -93,6 +94,61 @@ export const storeRecommendation = async (
     console.warn("[Supabase] Sync error:", err);
   });
 };
+
+let hasSyncedSupabase = false;
+
+export async function syncSupabaseRecommendationsOnce(): Promise<void> {
+  if (hasSyncedSupabase) return;
+  hasSyncedSupabase = true;
+
+  if (!supabase) return;
+
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !sessionData.session?.user?.id) {
+    return;
+  }
+
+  // Fetch cloud data
+  const cloudRecs = await fetchSupabaseRecommendations();
+  const local = getRecommendations();
+
+  // Merge: keep local as source of truth, add any cloud recs/places missing locally
+  const localRecIds = new Set<string>();
+  local.forEach((rec) => rec.places.forEach((p) => p.recId && localRecIds.add(p.recId)));
+
+  const merged = [...local];
+
+  cloudRecs.forEach((cloudRec) => {
+    const targetIndex = merged.findIndex(
+      (r) => r.city.toLowerCase().trim() === cloudRec.city.toLowerCase().trim()
+    );
+
+    if (targetIndex === -1) {
+      // Entire rec is new locally; add it
+      merged.push(cloudRec);
+    } else {
+      const target = merged[targetIndex];
+      const existingPlaceIds = new Set(target.places.map((p) => p.recId || p.id));
+
+      cloudRec.places.forEach((place) => {
+        const placeId = place.recId || place.id;
+        if (placeId && !existingPlaceIds.has(placeId)) {
+          target.places.push(place);
+          target.categories = Array.from(
+            new Set([...target.categories, ...cloudRec.categories])
+          );
+        }
+      });
+
+      merged[targetIndex] = target;
+    }
+  });
+
+  localStorage.setItem("recommendations", JSON.stringify(merged));
+
+  // Backfill local (merged) to cloud to ensure Supabase has everything
+  await backfillLocalToSupabase(merged);
+}
 
 export const markRecommendationVisited = (
   recId: string,

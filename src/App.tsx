@@ -9,6 +9,7 @@ import { checkSupabaseConnection } from "@/lib/supabase";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
+import { syncSupabaseRecommendationsOnce } from "@/utils/recommendation/recommendation-manager";
 
 // Pages
 import Index from "./pages/Index";
@@ -54,6 +55,11 @@ function AppContent() {
         console.warn('[Supabase] Connection issue:', result.error);
       }
     });
+  }, []);
+
+  // One-time sync with Supabase when signed in
+  useEffect(() => {
+    syncSupabaseRecommendationsOnce();
   }, []);
 
   useEffect(() => {

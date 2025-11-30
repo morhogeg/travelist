@@ -63,9 +63,9 @@
 - [ ] Reduce initial load time
 
 ### Data & Backend
-- [ ] Set up backend API (Supabase planned)
-- [x] Implement user authentication (planned with Supabase)
-- [x] Add cloud sync (Supabase planned)
+- [x] Set up backend API (Supabase: email/password auth + recommendations table)
+- [x] Implement user authentication (Supabase email/password, RLS-ready)
+- [x] Add cloud sync (Supabase with user_id, backfill + merge on sign-in)
 - [ ] Real-time data updates
 - [ ] Analytics integration
 
@@ -188,9 +188,9 @@
 
 ## Notes
 
-**Current Branch:** feature/list-anchors-links
+**Current Branch:** main
 **Current Status:** Travel Story feature complete - killer feature differentiating from Google Maps
-**Next Priority:** Cloud sync with Supabase
+**Next Priority:** Supabase polish (real-time, Apple Sign-In, sync status UX)
 **Target Launch:** TBD
 
 ---
