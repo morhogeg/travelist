@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ParsedRecommendation } from "./types";
 import { getCategoryPlaceholder } from "@/utils/image/getCategoryPlaceholder";
 import { getSmartImage } from "@/utils/image/getSmartImage";
+import { syncRecommendationToSupabase } from "./supabase-recommendations";
 
 export const getRecommendations = (): ParsedRecommendation[] => {
   try {
@@ -86,6 +87,11 @@ export const storeRecommendation = async (
 
   localStorage.setItem("recommendations", JSON.stringify(recommendations));
   window.dispatchEvent(new CustomEvent("recommendationAdded"));
+
+  // Non-blocking cloud sync (if Supabase is configured)
+  syncRecommendationToSupabase(recommendation).catch((err) => {
+    console.warn("[Supabase] Sync error:", err);
+  });
 };
 
 export const markRecommendationVisited = (
