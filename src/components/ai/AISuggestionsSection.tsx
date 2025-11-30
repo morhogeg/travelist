@@ -221,14 +221,18 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
                   </>
                 ) : (
                   suggestions.map((suggestion, index) => (
-                    <AISuggestionCard
-                      key={suggestion.id}
-                      suggestion={suggestion}
-                      cityName={cityName}
-                      countryName={countryName}
-                      onAdd={onAddSuggestion}
-                      index={index}
-                    />
+                    <div key={suggestion.id} className="relative">
+                      <AISuggestionCard
+                        suggestion={suggestion}
+                        cityName={cityName}
+                        countryName={countryName}
+                        onAdd={onAddSuggestion}
+                        index={index}
+                      />
+                      {index !== suggestions.length - 1 && (
+                        <div className="absolute right-[-10px] top-4 bottom-4 w-px bg-gradient-to-b from-neutral-200/60 via-neutral-200/30 to-transparent dark:from-neutral-700/60 dark:via-neutral-700/30" />
+                      )}
+                    </div>
                   ))
                 )}
               </AnimatePresence>

@@ -65,7 +65,10 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
       transition={{ delay: index * 0.1, duration: 0.3 }}
       className="min-w-[260px] max-w-[280px] flex-shrink-0"
     >
-      <div className="liquid-glass-clear rounded-2xl px-3.5 pt-3.5 pb-2.5 h-full border border-white/10 dark:border-white/5">
+      <div
+        className="liquid-glass-clear rounded-2xl px-3.5 pt-3.5 pb-2.5 h-full border border-white/10 dark:border-white/5"
+        style={{ boxShadow: 'none' }}
+      >
         {/* Header with icon and name */}
         <div className="flex items-center gap-2 mb-2.5">
           <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: categoryColor }}>
