@@ -8,13 +8,18 @@ const config: CapacitorConfig = {
   appId: 'com.travelist.app',
   appName: 'Travelist',
   webDir: 'dist',
-  // Live reload enabled - changes auto-update in simulator!
-  ...(isDev && {
-    server: {
-      url: 'http://192.168.0.108:5173',
-      cleartext: true
-    }
-  }),
+  packageClassList: [
+    'AppPlugin',
+    'HapticsPlugin',
+    'KeyboardPlugin',
+    'SharePlugin',
+    'SplashScreenPlugin',
+    'StatusBarPlugin',
+    'SharedInboxPlugin',
+  ],
+  server: {
+    iosScheme: 'travelist'
+  },
   ios: {
     contentInset: 'automatic'
   },

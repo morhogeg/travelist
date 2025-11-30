@@ -15,6 +15,8 @@ export interface ParsedPlace {
   originalText: string;
   description?: string;
   source?: RecommendationSource;
+  city?: string;
+  country?: string;
 }
 
 export interface ParseResult {
@@ -24,24 +26,9 @@ export interface ParseResult {
 }
 
 /**
- * Parse free-text recommendations using Grok via OpenRouter
+ * Shared prompt for standard parsing (city/country provided).
  */
-export async function parseWithGrok(
-  text: string,
-  city: string,
-  country: string
-): Promise<ParseResult> {
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-
-  if (!apiKey) {
-    console.error('[Grok Parser] OpenRouter API key not configured');
-    return { places: [], error: 'API key not configured' };
-  }
-
-  console.log('[Grok Parser] Starting parse with model:', MODEL);
-  console.log('[Grok Parser] Input text:', text);
-
-  const systemPrompt = `You are a travel recommendation parser. Extract place names, categories, source attribution, and tips from user input.
+const BASE_SYSTEM_PROMPT = `You are a travel recommendation parser. Extract place names, categories, source attribution, and tips from user input.
 
 Categories (use exactly these lowercase values):
 - food: restaurants, cafes, bakeries, any eating establishment
@@ -87,6 +74,34 @@ Respond ONLY with valid JSON array, no markdown, no explanation:
 
 Omit source field if no source mentioned. Omit tip field if no specific recommendation mentioned.`;
 
+const SHARE_SYSTEM_PROMPT = `${BASE_SYSTEM_PROMPT}
+
+Additional rules for shared text without guaranteed location:
+10. Infer CITY and COUNTRY only if the text clearly mentions them (e.g., "in Rome" → city: "Rome", country: "Italy" if obvious). If not present, leave city and country as empty strings.
+11. If only city is clear but country isn't, fill city and leave country empty.
+12. Never hallucinate locations; keep them blank if uncertain.
+13. Always include "city" and "country" keys in each object, even if blank strings.
+
+Respond with a JSON array where each object includes: name, category, confidence, tip/description (optional), source (optional), city, country.`;
+
+/**
+ * Parse free-text recommendations using Grok via OpenRouter
+ */
+export async function parseWithGrok(
+  text: string,
+  city: string,
+  country: string
+): Promise<ParseResult> {
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+
+  if (!apiKey) {
+    console.error('[Grok Parser] OpenRouter API key not configured');
+    return { places: [], error: 'API key not configured' };
+  }
+
+  console.log('[Grok Parser] Starting parse with model:', MODEL);
+  console.log('[Grok Parser] Input text:', text);
+
   const userPrompt = `Location: ${city}, ${country}
 
 Parse these recommendations:
@@ -106,7 +121,7 @@ ${text}`;
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: BASE_SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.1,
@@ -154,7 +169,9 @@ ${text}`;
           confidence: typeof p.confidence === 'number' ? p.confidence : 0.8,
           originalText: text.split('\n')[index] || text,
           // Use tip field if present, fallback to description
-          description: p.tip || p.description || undefined
+          description: p.tip || p.description || undefined,
+          city: p.city || p.location?.city,
+          country: p.country || p.location?.country,
         };
 
         // Add source if present and valid
@@ -174,6 +191,104 @@ ${text}`;
     return { places, model: actualModel };
   } catch (error) {
     console.error('[Grok Parser] Network error:', error);
+    return { places: [], error: 'Network error' };
+  }
+}
+
+/**
+ * Parse shared text (no guaranteed location) and infer city/country when present.
+ */
+export async function parseSharedText(text: string): Promise<ParseResult> {
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+
+  if (!apiKey) {
+    console.error('[Grok Parser] OpenRouter API key not configured');
+    return { places: [], error: 'API key not configured' };
+  }
+
+  console.log('[Grok Parser] Starting shared-text parse with model:', MODEL);
+  console.log('[Grok Parser] Shared input:', text);
+
+  const userPrompt = `A user shared this message. Extract place names and infer city/country if the text mentions them. If missing, leave city and country blank.
+
+Shared text:
+${text}`;
+
+  try {
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'Travelist App'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: 'system', content: SHARE_SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.1,
+        max_tokens: 900
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('[Grok Parser] Shared-text API error:', response.status, errorData);
+      return { places: [], error: `API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}` };
+    }
+
+    const data = await response.json();
+    const actualModel = data.model || MODEL;
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      return { places: [], error: 'Empty response from API', model: actualModel };
+    }
+
+    let parsed: any[];
+    try {
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      parsed = JSON.parse(cleanContent);
+    } catch (e) {
+      console.error('[Grok Parser] Failed to parse shared response:', content);
+      return { places: [], error: 'Failed to parse response', model: actualModel };
+    }
+
+    const places: ParsedPlace[] = parsed
+      .filter((p: any) => p.name && typeof p.name === 'string')
+      .map((p: any) => {
+        const place: ParsedPlace = {
+          name: p.name.trim(),
+          category: validateCategory(p.category),
+          confidence: typeof p.confidence === 'number' ? p.confidence : 0.8,
+          originalText: text,
+          description: p.tip || p.description || undefined,
+          city: (p.city ?? '').trim() || (p.location?.city ?? '').trim() || undefined,
+          country: (p.country ?? '').trim() || (p.location?.country ?? '').trim() || undefined,
+        };
+
+        if (p.source && p.source.type) {
+          place.source = {
+            type: validateSourceType(p.source.type),
+            name: p.source.name || p.source.type,
+            relationship: p.source.relationship,
+            url: p.source.url
+          };
+        }
+
+        return place;
+      });
+
+    console.log('[Grok Parser] Shared-text parsed places:', places);
+    return { places, model: actualModel };
+  } catch (error) {
+    console.error('[Grok Parser] Shared-text network error:', error);
     return { places: [], error: 'Network error' };
   }
 }

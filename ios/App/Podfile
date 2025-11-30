@@ -1,4 +1,15 @@
 require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
+require 'xcodeproj'
+
+# Xcode 16 uses object version 70 which older xcodeproj doesn't map; force a known compatible version.
+Xcodeproj::Project::DEFAULT_OBJECT_VERSION = 60
+
+module Xcodeproj
+  module Constants
+    OBJECT_VERSION_TO_HUMAN = {} unless defined?(OBJECT_VERSION_TO_HUMAN)
+    OBJECT_VERSION_TO_HUMAN[70] = 'Xcode 16.0'
+  end
+end
 
 platform :ios, '14.0'
 use_frameworks!

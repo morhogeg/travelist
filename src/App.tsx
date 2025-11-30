@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { ThemeProvider, useTheme } from "./components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,6 +9,11 @@ import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
 import { syncSupabaseRecommendationsOnce } from "@/utils/recommendation/recommendation-manager";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
+import { addInboxItem, parseInboxItem } from "@/utils/inbox/inbox-store";
+import { useToast } from "@/hooks/use-toast";
+import { importSharedInbox } from "@/utils/inbox/shared-import";
 
 // Pages
 import Index from "./pages/Index";
@@ -23,6 +28,7 @@ import CollectionDetailPage from "@/pages/collections/CollectionDetailPage";
 import RoutesPage from "./pages/Routes";
 import RouteDetail from "./pages/RouteDetail";
 import TravelStory from "./pages/TravelStory";
+import Inbox from "./pages/Inbox";
 
 // Declare global window interface
 declare global {
@@ -34,12 +40,14 @@ declare global {
 // Inner component that uses theme
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { theme } = useTheme();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
   const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
+  const { toast } = useToast();
 
   // Automatically manage status bar based on theme
   useStatusBarTheme(theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
@@ -48,6 +56,69 @@ function AppContent() {
   useEffect(() => {
     syncSupabaseRecommendationsOnce();
   }, []);
+
+  // Import from native share extension (App Group) on launch/foreground
+  useEffect(() => {
+    let isMounted = true;
+
+    const importNow = async () => {
+      const imported = await importSharedInbox();
+      if (imported > 0 && isMounted) {
+        toast({
+          title: "Imported shared items",
+          description: `${imported} item${imported > 1 ? "s" : ""} added to Inbox`,
+        });
+      }
+    };
+
+    importNow();
+
+    const sub = CapacitorApp.addListener("appStateChange", (state) => {
+      if (state.isActive) {
+        importNow();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      sub?.remove();
+    };
+  }, [toast]);
+
+  // Handle deep links like travelist://share?text=...
+  useEffect(() => {
+    if (Capacitor.getPlatform() === 'web') return;
+
+    const handleUrl = async (url: string) => {
+      try {
+        const incoming = new URL(url);
+        // For custom schemes, host often carries the "path" (e.g., travelist://share?text=...)
+        const path = incoming.pathname.replace(/^\//, '') || incoming.host;
+        if (path !== 'share') return;
+
+        const text = incoming.searchParams.get('text') || incoming.searchParams.get('sharedText');
+        if (!text) return;
+
+        const item = addInboxItem(text, incoming.host || 'deeplink');
+        await parseInboxItem(item.id);
+        navigate('/inbox');
+        toast({
+          title: "Shared text saved",
+          description: "Added to Inbox and parsed",
+        });
+      } catch (err) {
+        console.warn('[DeepLink] Failed to handle url', url, err);
+      }
+    };
+
+    const listener = CapacitorApp.addListener('appUrlOpen', ({ url }) => {
+      handleUrl(url);
+    });
+
+    return () => {
+      listener?.remove();
+    };
+  }, [toast, navigate]);
 
   useEffect(() => {
     window.showRecDrawer = (cityName?: string, countryName?: string) => {
@@ -103,6 +174,7 @@ function AppContent() {
           <Route path="/routes" element={<RoutesPage />} /> {/* ✅ Routes feature */}
           <Route path="/routes/:id" element={<RouteDetail />} /> {/* ✅ Route detail */}
           <Route path="/story" element={<TravelStory />} /> {/* ✅ Travel Story */}
+          <Route path="/inbox" element={<Inbox />} /> {/* ✅ Shared inbox */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>

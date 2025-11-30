@@ -4,7 +4,19 @@ const config: CapacitorConfig = {
   appId: 'com.travelist.app',
   appName: 'Travelist',
   webDir: 'dist',
+  packageClassList: [
+    'AppPlugin',
+    'HapticsPlugin',
+    'KeyboardPlugin',
+    'SharePlugin',
+    'SplashScreenPlugin',
+    'StatusBarPlugin',
+    'SharedInboxPlugin',
+  ],
   // NO live reload for production
+  server: {
+    iosScheme: 'travelist',
+  },
   ios: {
     contentInset: 'automatic'
   },

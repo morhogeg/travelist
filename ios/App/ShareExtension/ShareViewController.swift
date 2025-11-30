@@ -1,30 +1,73 @@
-//
-//  ShareViewController.swift
-//  ShareExtension
-//
-//  Created by Mor Hogeg on 30/11/2025.
-//
-
 import UIKit
 import Social
+import UniformTypeIdentifiers
 
 class ShareViewController: SLComposeServiceViewController {
+    let appGroupID = "group.com.travelist.shared"
+    let sharedKey = "shared_inbox_items"
 
-    override func isContentValid() -> Bool {
-        // Do validation of contentText and/or NSExtensionContext attachments here
-        return true
-    }
+    override func isContentValid() -> Bool { return true }
 
     override func didSelectPost() {
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
-    
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+        guard let content = extensionContext?.inputItems.first as? NSExtensionItem,
+              let attachments = content.attachments else {
+            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+            return
+        }
+
+        // Try URL first, then text, then attributed text fallback
+        for provider in attachments {
+            if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { (item, _) in
+                    let url = (item as? URL)?.absoluteString ?? ""
+                    self.saveToGroup(text: url)
+                    self.finish()
+                }
+                return
+            } else if provider.hasItemConformingToTypeIdentifier(UTType.text.identifier) ||
+                        provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                let typeId = provider.hasItemConformingToTypeIdentifier(UTType.text.identifier)
+                  ? UTType.text.identifier
+                  : UTType.plainText.identifier
+                provider.loadItem(forTypeIdentifier: typeId, options: nil) { (item, _) in
+                    if let text = item as? String {
+                        self.saveToGroup(text: text)
+                    } else if let data = item as? Data, let text = String(data: data, encoding: .utf8) {
+                        self.saveToGroup(text: text)
+                    }
+                    self.finish()
+                }
+                return
+            }
+        }
+
+        // Fallback: check attributed text from the extension item
+        if let attributed = content.attributedContentText?.string, !attributed.isEmpty {
+            self.saveToGroup(text: attributed)
+        }
+
+        self.finish()
     }
 
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return []
+    private func saveToGroup(text: String) {
+        guard !text.isEmpty,
+              let defaults = UserDefaults(suiteName: appGroupID) else { return }
+
+        var items = defaults.array(forKey: sharedKey) as? [[String: Any]] ?? []
+        items.append([
+            "id": UUID().uuidString,
+            "rawText": text,
+            "receivedAt": ISO8601DateFormatter().string(from: Date()),
+            "sourceApp": "share-extension"
+        ])
+        defaults.set(items, forKey: sharedKey)
+        defaults.synchronize()
+
+        NSLog("[ShareExtension] Saved text to group (%@), total now: %d", appGroupID, items.count)
     }
 
+    private func finish() {
+        NSLog("[ShareExtension] Completing request")
+        self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+    }
 }
