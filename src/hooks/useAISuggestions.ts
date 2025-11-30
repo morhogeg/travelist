@@ -4,7 +4,7 @@
  * Fetches AI-powered place suggestions for a city based on user's saved places.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   AISuggestion,
   AISuggestionRequest,
@@ -16,6 +16,18 @@ import {
   mockProvider,
 } from '@/services/ai';
 import { getRecommendations } from '@/utils/recommendation-parser';
+
+// Global in-memory cache to persist suggestions across component remounts
+const suggestionsMemoryCache = new Map<string, {
+  suggestions: AISuggestion[];
+  basedOnPlaces: string[];
+  placesHash: string;
+}>();
+
+function getPlacesHash(places: SavedPlaceContext[]): string {
+  const sorted = [...places].sort((a, b) => a.name.localeCompare(b.name));
+  return sorted.map(p => `${p.name}:${p.category}:${p.visited ?? false}`).join('|');
+}
 
 interface UseAISuggestionsOptions {
   enabled?: boolean;
@@ -45,10 +57,15 @@ export function useAISuggestions(
     minPlaces = DEFAULT_AI_CONFIG.minPlacesForSuggestions,
   } = options;
 
-  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+  const cacheKey = `${cityName.toLowerCase()}_${countryName.toLowerCase()}`;
+  const hasFetchedRef = useRef(false);
+
+  // Initialize from memory cache if available
+  const memoryCached = suggestionsMemoryCache.get(cacheKey);
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>(memoryCached?.suggestions || []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [basedOnPlaces, setBasedOnPlaces] = useState<string[]>([]);
+  const [basedOnPlaces, setBasedOnPlaces] = useState<string[]>(memoryCached?.basedOnPlaces || []);
   const [savedPlaces, setSavedPlaces] = useState<SavedPlaceContext[]>([]);
 
   // Get saved places for this city
@@ -81,16 +98,35 @@ export function useAISuggestions(
       return;
     }
 
+    const currentPlacesHash = getPlacesHash(places);
+
+    // Check memory cache first (unless skipping cache or places changed)
+    if (!skipCache) {
+      const memoryCached = suggestionsMemoryCache.get(cacheKey);
+      if (memoryCached && memoryCached.placesHash === currentPlacesHash && memoryCached.suggestions.length > 0) {
+        // Already have valid cached suggestions, no need to fetch
+        setSuggestions(memoryCached.suggestions);
+        setBasedOnPlaces(memoryCached.basedOnPlaces);
+        return;
+      }
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Check cache first (unless skipping)
+      // Check localStorage cache (unless skipping)
       if (!skipCache) {
         const cached = getCachedSuggestions(cityName, countryName, places);
         if (cached) {
           setSuggestions(cached.suggestions);
           setBasedOnPlaces(cached.basedOnPlaces);
+          // Update memory cache
+          suggestionsMemoryCache.set(cacheKey, {
+            suggestions: cached.suggestions,
+            basedOnPlaces: cached.basedOnPlaces,
+            placesHash: currentPlacesHash,
+          });
           setIsLoading(false);
           return;
         }
@@ -113,8 +149,13 @@ export function useAISuggestions(
         result = await mockProvider.generateSuggestions(request);
       }
 
-      // Cache the result
+      // Cache the result (both localStorage and memory)
       cacheSuggestions(cityName, countryName, places, result);
+      suggestionsMemoryCache.set(cacheKey, {
+        suggestions: result.suggestions,
+        basedOnPlaces: result.basedOnPlaces,
+        placesHash: currentPlacesHash,
+      });
 
       setSuggestions(result.suggestions);
       setBasedOnPlaces(result.basedOnPlaces);
@@ -124,7 +165,7 @@ export function useAISuggestions(
     } finally {
       setIsLoading(false);
     }
-  }, [cityName, countryName, enabled, minPlaces]);
+  }, [cityName, countryName, cacheKey, enabled, minPlaces]);
 
   // Initial load
   useEffect(() => {

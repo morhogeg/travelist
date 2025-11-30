@@ -21,6 +21,7 @@ import {
 import { AISuggestion, PlaceCategory } from '@/services/ai/types';
 import { lightHaptic } from '@/utils/ios/haptics';
 import { generateMapLink } from '@/utils/link-helpers';
+import { getCategoryColor } from '@/components/recommendations/utils/category-data';
 
 interface AISuggestionCardProps {
   suggestion: AISuggestion;
@@ -40,16 +41,6 @@ const CATEGORY_ICONS: Record<PlaceCategory, React.ElementType> = {
   general: MapPin,
 };
 
-const CATEGORY_COLORS: Record<PlaceCategory, string> = {
-  food: 'from-orange-500 to-red-500',
-  lodging: 'from-blue-500 to-indigo-500',
-  attractions: 'from-purple-500 to-pink-500',
-  shopping: 'from-pink-500 to-rose-500',
-  nightlife: 'from-violet-500 to-purple-500',
-  outdoors: 'from-green-500 to-emerald-500',
-  general: 'from-gray-500 to-slate-500',
-};
-
 export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
   suggestion,
   cityName,
@@ -58,7 +49,7 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
   index = 0,
 }) => {
   const Icon = CATEGORY_ICONS[suggestion.category] || MapPin;
-  const gradientColor = CATEGORY_COLORS[suggestion.category] || CATEGORY_COLORS.general;
+  const categoryColor = getCategoryColor(suggestion.category);
 
   const handleAdd = () => {
     lightHaptic();
@@ -76,9 +67,9 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
     >
       <div className="liquid-glass-clear rounded-2xl px-3.5 pt-3.5 pb-2.5 h-full border border-white/10 dark:border-white/5">
         {/* Header with icon and name */}
-        <div className="flex items-start gap-2.5 mb-2.5">
-          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${gradientColor} flex items-center justify-center flex-shrink-0`}>
-            <Icon className="w-[18px] h-[18px] text-white" />
+        <div className="flex items-center gap-2 mb-2.5">
+          <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: categoryColor }}>
+            <Icon className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="font-semibold text-sm text-foreground truncate">
