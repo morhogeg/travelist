@@ -7,6 +7,7 @@ import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser
 import { getCollections } from "@/utils/collections/collectionStore";
 import { getGroupedRoutes } from "@/utils/route/route-manager";
 import { TravelStoryCard } from "@/components/story";
+import { supabase } from "@/lib/supabase";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Profile = () => {
     countriesVisited: 0,
     citiesVisited: 0,
   });
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     // Calculate real statistics
@@ -65,6 +67,19 @@ const Profile = () => {
       countriesVisited: uniqueCountries.size,
       citiesVisited: uniqueCities.size,
     });
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data }) => {
+      const email = data.session?.user?.email ?? null;
+      setUserEmail(email);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const email = session?.user?.email ?? null;
+      setUserEmail(email);
+    });
+    return () => listener?.subscription.unsubscribe();
   }, []);
 
   const completionRate = useMemo(() => {
@@ -121,12 +136,14 @@ const Profile = () => {
       >
         {/* Header - matching other pages */}
         <div className="text-center mb-4">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-2 text-white text-xl font-bold shadow-lg">
-            T
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-1.5 text-white text-xl font-bold shadow-lg">
+            {userEmail ? userEmail.charAt(0).toUpperCase() : "T"}
           </div>
-          <h1 className="text-[24px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Travelist
-          </h1>
+          {userEmail && (
+            <p className="text-xs text-muted-foreground">
+              Signed in as {userEmail}
+            </p>
+          )}
         </div>
 
         {/* Stats Row - Clean numbers without icon boxes */}

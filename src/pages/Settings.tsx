@@ -150,46 +150,57 @@ const Settings = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="relative">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                />
-                <Mail className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-              </div>
+              {!userEmail && (
+                <>
+                  <div className="relative">
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                    />
+                    <Mail className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                  </div>
 
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                />
-                <Lock className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 pr-10"
+                    />
+                    <Lock className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </>
+              )}
+
               <div className="flex items-center gap-2">
-                <Button
-                  onClick={handleSignInOrUp}
-                  disabled={authLoading}
-                  className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
-                >
-                  {authLoading ? "Working..." : userEmail ? "Sign in again" : "Sign in / Create account"}
-                </Button>
+                {!userEmail && (
+                  <Button
+                    onClick={handleSignInOrUp}
+                    disabled={authLoading}
+                    className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                  >
+                    {authLoading ? "Working..." : "Sign in / Create account"}
+                  </Button>
+                )}
                 {userEmail && (
-                  <Button variant="outline" onClick={handleSignOut} disabled={authLoading}>
-                    Sign out
+                  <Button
+                    onClick={handleSignOut}
+                    disabled={authLoading}
+                    className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                  >
+                    {authLoading ? "Working..." : "Sign out"}
                   </Button>
                 )}
               </div>

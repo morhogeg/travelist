@@ -235,6 +235,7 @@ color: #764ba2;
 - One-time pull/merge from Supabase to local on startup when signed in
 - User-scoped writes (user_id + RLS policies required in Supabase)
 - Environment: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (local only)
+- Auth UI polish: hide email/password when signed in; profile avatar shows user initial + signed-in email line
 
 **Latest Session Changes (November 29, 2025):**
 

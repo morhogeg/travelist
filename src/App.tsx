@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { checkSupabaseConnection } from "@/lib/supabase";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
@@ -44,18 +43,6 @@ function AppContent() {
 
   // Automatically manage status bar based on theme
   useStatusBarTheme(theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
-
-  // Dev-only: verify Supabase connectivity once on load
-  useEffect(() => {
-    if (!import.meta.env.DEV) return;
-    checkSupabaseConnection().then((result) => {
-      if (result.ok) {
-        console.log('[Supabase] Connected');
-      } else {
-        console.warn('[Supabase] Connection issue:', result.error);
-      }
-    });
-  }, []);
 
   // One-time sync with Supabase when signed in
   useEffect(() => {
