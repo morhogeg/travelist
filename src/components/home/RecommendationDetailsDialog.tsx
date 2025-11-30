@@ -36,6 +36,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   hideEditDelete = false,
   routeNotes,
 }) => {
+  const [isVisited, setIsVisited] = useState<boolean>(!!recommendation?.visited);
   const [showCollectionPicker, setShowCollectionPicker] = useState(false);
   const [collectionsCount, setCollectionsCount] = useState(0);
   const [firstCollectionName, setFirstCollectionName] = useState<string | null>(null);
@@ -60,6 +61,10 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
       setFirstCollectionName(collections.length > 0 ? collections[0].name : null);
     }
   };
+
+  useEffect(() => {
+    setIsVisited(!!recommendation?.visited);
+  }, [recommendation]);
 
   if (!recommendation) return null;
 
@@ -170,20 +175,24 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               <Button
                 variant="outline"
                 size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth"
+                className={`flex-1 min-w-[140px] ios26-transition-smooth ${
+                  isVisited
+                    ? 'bg-green-500 text-white border-green-500 hover:bg-green-600'
+                    : 'bg-background text-foreground border-border dark:bg-white/5 dark:text-white dark:border-white/15'
+                }`}
                 style={{
                   WebkitTapHighlightColor: 'transparent',
-                  backgroundColor: recommendation.visited ? '#16a34a' : 'white',
-                  color: recommendation.visited ? 'white' : 'inherit',
-                  borderColor: recommendation.visited ? '#16a34a' : undefined,
+                  backgroundImage: 'none',
                 }}
                 onClick={(e) => {
                   (e.target as HTMLButtonElement).blur();
-                  onToggleVisited(recommendation.recId, recommendation.name, !!recommendation.visited);
+                  const next = !isVisited;
+                  setIsVisited(next);
+                  onToggleVisited(recommendation.recId, recommendation.name, next);
                 }}
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
-                <span>{recommendation.visited ? 'Visited' : 'Mark Visited'}</span>
+                <span>{isVisited ? 'Visited' : 'Mark Visited'}</span>
               </Button>
 
               {/* Add to Collection Button */}

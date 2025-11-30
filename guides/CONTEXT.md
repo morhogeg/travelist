@@ -236,6 +236,7 @@ color: #764ba2;
 - User-scoped writes (user_id + RLS policies required in Supabase)
 - Environment: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (local only)
 - Auth UI polish: hide email/password when signed in; profile avatar shows user initial + signed-in email line
+- Dark mode fix: "Mark Visited" button in detail drawer now matches outline style when unvisited and shows green when visited (no blue flash)
 
 **Latest Session Changes (November 29, 2025):**
 
