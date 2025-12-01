@@ -5,6 +5,7 @@
 - Deep link share via `travelist://share?text=...` lands items in Inbox and creates cards.
 - iOS Share Extension installs, shows in the share sheet, and saves shared text/URLs to the App Group (`group.com.travelist.shared`).
 - Import from the App Group into the Inbox now works (toast appears, items show) when the app returns to foreground.
+- Inbox list shows friendly titles/addresses for shared links; opening an item auto-parses and pre-fills the form, with link/open/delete actions aligned on the right.
 
 ## Why it broke before
 - The native config (`ios/App/App/capacitor.config.json`) sometimes regenerated without `SharedInboxPlugin`, so the app reported `UNIMPLEMENTED` and never imported.
@@ -24,7 +25,8 @@
 ## How to test sharing
 1) In Safari (or any app using the iOS share sheet), tap Share → Travelist.
 2) Return to the app; you should see a toast like “Imported shared items” and items in Inbox.
-3) Deep link also works: `xcrun simctl openurl booted "travelist://share?text=Test"`.
+3) Open an item: it will auto-parse and pre-fill name/city/country; link/open/delete icons are on the right. You can still re-run AI parse inside the drawer if needed.
+4) Deep link also works: `xcrun simctl openurl booted "travelist://share?text=Test"`.
 
 ## If you see `UNIMPLEMENTED` again
 - Run `npx cap copy ios` from the project root to regenerate `ios/App/App/capacitor.config.json` with `SharedInboxPlugin`, then rebuild/run in Xcode.
