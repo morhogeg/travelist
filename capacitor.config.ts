@@ -18,6 +18,8 @@ const config: CapacitorConfig = {
     'SharedInboxPlugin',
   ],
   server: {
+    url: 'http://192.168.0.108:5173',
+    cleartext: true,
     iosScheme: 'travelist'
   },
   ios: {

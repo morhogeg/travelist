@@ -222,20 +222,20 @@ const InboxPage: React.FC = () => {
               className="liquid-glass-clear border border-white/25 rounded-2xl p-4 shadow-md space-y-3"
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
+                <div className="space-y-1 flex-1 min-w-0 overflow-hidden">
                   <div className="flex items-center gap-2">
                     {renderStatusBadge(item.status)}
                     <span className="text-xs text-muted-foreground">
                       {new Date(item.receivedAt).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm leading-snug line-clamp-2">{item.rawText}</p>
+                  <p className="text-sm leading-snug line-clamp-2 break-all">{item.rawText}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <MapPin className="h-3 w-3" />
                     <span>{item.parsedPlaces.length ? `${item.parsedPlaces.length} parsed` : "Awaiting parse"}</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 flex-shrink-0">
                   <Button
                     size="sm"
                     variant="outline"
@@ -273,7 +273,7 @@ const InboxPage: React.FC = () => {
                 <InboxIcon className="h-5 w-5 text-[#667eea]" />
                 {selectedItem ? "Inbox item" : ""}
               </DrawerTitle>
-              <p className="text-sm text-muted-foreground">{selectedItem?.rawText}</p>
+              <p className="text-sm text-muted-foreground break-all line-clamp-2 overflow-hidden">{selectedItem?.rawText}</p>
             </DrawerHeader>
 
             <div className="px-4 space-y-4 pb-4">
