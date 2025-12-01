@@ -27,6 +27,7 @@ import { Loader2, Inbox as InboxIcon, Sparkles, Trash2, MapPin, CheckCircle2, Ed
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { mediumHaptic } from "@/utils/ios/haptics";
+import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
 
 const statusStyles: Record<InboxStatus, string> = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200 border border-blue-200/70",
@@ -163,26 +164,9 @@ const InboxPage: React.FC = () => {
     }
   };
 
-  const handleSavePlaceEdits = () => {
+  const handleSaveAsCard = async () => {
     if (!selectedItem) return;
-    const cleaned = editablePlaces.map((p) => ({
-      ...p,
-      name: p.name.trim(),
-      city: p.city?.trim(),
-      country: p.country?.trim(),
-      category: p.category?.trim() || "general",
-      description: p.description?.trim(),
-    }));
-    const updated = saveManualPlaces(selectedItem.id, cleaned);
-    if (updated) {
-      setItems(getInboxItems());
-      setSelectedItem(updated);
-      toast({ title: "Saved", description: "Inbox draft updated." });
-    }
-  };
-
-  const handleSaveAsCard = async (place: InboxParsedPlace) => {
-    if (!selectedItem) return;
+    const place = editablePlaces[0];
     if (!place.name || !place.city || !place.country) {
       toast({ title: "Missing details", description: "Add name, city, and country before saving.", variant: "destructive" });
       return;
@@ -198,7 +182,7 @@ const InboxPage: React.FC = () => {
         {
           name: place.name.trim(),
           category: place.category || "general",
-          description: place.description,
+          description: place.description?.trim(),
           source: place.source,
         },
       ],
@@ -209,6 +193,7 @@ const InboxPage: React.FC = () => {
     await storeRecommendation(newRecommendation);
     markImported(selectedItem.id);
     setItems(getInboxItems());
+    setSelectedItem(null);
     toast({ title: "Saved to list", description: `${place.name} added to your cards.` });
   };
 
@@ -357,24 +342,41 @@ const InboxPage: React.FC = () => {
             <div className="px-4 space-y-4 pb-4">
               {editablePlaces.map((place, index) => (
                 <div key={index} className="liquid-glass-clear rounded-xl border border-white/20 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold">Place {index + 1}</p>
-                    {place.confidence && (
+                  {place.confidence && (
+                    <div className="flex items-center justify-end">
                       <Badge variant="outline" className="text-[11px]">
                         Confidence {(place.confidence * 100).toFixed(0)}%
                       </Badge>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <Input
                     placeholder="Name"
                     value={place.name}
                     onChange={(e) => handleUpdatePlace(index, "name", e.target.value)}
                   />
-                  <Input
-                    placeholder="Category (food, nightlife, attractions...)"
-                    value={place.category || ""}
-                    onChange={(e) => handleUpdatePlace(index, "category", e.target.value)}
-                  />
+                  <div className="flex flex-wrap gap-2">
+                    {categoryPills.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => handleUpdatePlace(index, "category", cat.id)}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-full border transition-colors",
+                          place.category === cat.id
+                            ? "border-transparent text-black"
+                            : "border-border text-muted-foreground bg-white/60"
+                        )}
+                        style={
+                          place.category === cat.id
+                            ? { background: cat.color }
+                            : { background: "rgba(255,255,255,0.7)" }
+                        }
+                      >
+                        {cat.icon}
+                        <span className="text-sm font-medium">{cat.label}</span>
+                      </button>
+                    ))}
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Input
                       placeholder="City"
@@ -393,15 +395,6 @@ const InboxPage: React.FC = () => {
                     onChange={(e) => handleUpdatePlace(index, "description", e.target.value)}
                   />
                   <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSaveAsCard(place)}
-                      className="bg-gradient-to-r from-[#667eea]/10 to-[#764ba2]/10 border-none"
-                    >
-                      <CheckCircle2 className="h-4 w-4 mr-1" />
-                      Save as card
-                    </Button>
                   </div>
                 </div>
               ))}
@@ -409,11 +402,11 @@ const InboxPage: React.FC = () => {
 
             <DrawerFooter>
               <Button
-                variant="outline"
-                onClick={handleSavePlaceEdits}
+                className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                onClick={handleSaveAsCard}
                 disabled={!selectedItem}
               >
-                Save edits
+                Save as Card
               </Button>
               <Button
                 variant="ghost"

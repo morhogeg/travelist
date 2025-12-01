@@ -25,7 +25,7 @@
 ## How to test sharing
 1) In Safari (or any app using the iOS share sheet), tap Share → Travelist.
 2) Return to the app; you should see a toast like “Imported shared items” and items in Inbox.
-3) Open an item: it will auto-parse and pre-fill name/city/country; link/open/delete icons are on the right. You can still re-run AI parse inside the drawer if needed.
+3) Open an item: it auto-parses and pre-fills name/city/country; actions (open link/open/delete) are on the right. Choose a category pill and tap “Save as Card” (closes the drawer and marks item imported). You can still re-run AI parse inside the drawer if needed.
 4) Deep link also works: `xcrun simctl openurl booted "travelist://share?text=Test"`.
 
 ## If you see `UNIMPLEMENTED` again
