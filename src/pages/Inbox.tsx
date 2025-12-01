@@ -23,7 +23,7 @@ import {
   updateInboxItem,
 } from "@/utils/inbox/inbox-store";
 import { InboxItem, InboxParsedPlace, InboxStatus } from "@/types/inbox";
-import { Loader2, Inbox as InboxIcon, Sparkles, Trash2, RefreshCw, MapPin, CheckCircle2, Edit3, Plus } from "lucide-react";
+import { Loader2, Inbox as InboxIcon, Sparkles, Trash2, RefreshCw, MapPin, CheckCircle2, Edit3, Plus, ExternalLink } from "lucide-react";
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { mediumHaptic } from "@/utils/ios/haptics";
@@ -107,6 +107,32 @@ const InboxPage: React.FC = () => {
 
   const handleUpdatePlace = (index: number, field: keyof InboxParsedPlace, value: string) => {
     setEditablePlaces((prev) => prev.map((place, i) => i === index ? { ...place, [field]: value } : place));
+  };
+
+  const getHost = (item: InboxItem) => {
+    if (item.displayHost) return item.displayHost;
+    try {
+      const urlMatch = item.rawText.match(/https?:\/\/[^\s]+/);
+      if (!urlMatch) return "";
+      return new URL(urlMatch[0]).host.replace(/^www\./, "");
+    } catch {
+      return "";
+    }
+  };
+
+  const getLink = (item: InboxItem) => {
+    if (item.url) return item.url;
+    const match = item.rawText.match(/https?:\/\/[^\s]+/);
+    return match ? match[0] : "";
+  };
+
+  const handleOpenLink = (item: InboxItem) => {
+    const link = getLink(item);
+    if (link) {
+      window.open(link, "_blank");
+    } else {
+      toast({ title: "No link found", description: "This inbox item has no URL to open.", variant: "destructive" });
+    }
   };
 
   const handleSavePlaceEdits = () => {
@@ -229,13 +255,31 @@ const InboxPage: React.FC = () => {
                       {new Date(item.receivedAt).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm leading-snug line-clamp-2 break-all">{item.rawText}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {getHost(item) && (
+                      <Badge variant="outline" className="text-[11px]">
+                        {getHost(item)}
+                      </Badge>
+                    )}
+                    <span className="text-xs text-muted-foreground">source: {item.sourceApp || "share"}</span>
+                  </div>
+                  <p className="text-sm leading-snug line-clamp-2 break-all">
+                    {item.displayTitle || item.rawText}
+                  </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <MapPin className="h-3 w-3" />
                     <span>{item.parsedPlaces.length ? `${item.parsedPlaces.length} parsed` : "Awaiting parse"}</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 flex-shrink-0">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleOpenLink(item)}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    Open link
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"
@@ -273,7 +317,26 @@ const InboxPage: React.FC = () => {
                 <InboxIcon className="h-5 w-5 text-[#667eea]" />
                 {selectedItem ? "Inbox item" : ""}
               </DrawerTitle>
-              <p className="text-sm text-muted-foreground break-all line-clamp-2 overflow-hidden">{selectedItem?.rawText}</p>
+              <div className="flex items-center gap-2">
+                {selectedItem && getHost(selectedItem) ? (
+                  <Badge variant="outline" className="text-[11px]">
+                    {getHost(selectedItem)}
+                  </Badge>
+                ) : null}
+                {selectedItem?.url ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleOpenLink(selectedItem)}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    Open link
+                  </Button>
+                ) : null}
+              </div>
+              <p className="text-sm text-muted-foreground break-all line-clamp-2 overflow-hidden">
+                {selectedItem?.displayTitle || selectedItem?.rawText}
+              </p>
             </DrawerHeader>
 
             <div className="px-4 space-y-4 pb-4">
