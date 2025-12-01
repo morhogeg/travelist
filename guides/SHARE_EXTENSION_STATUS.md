@@ -9,6 +9,7 @@
 - Inbox page uses the same centered gradient header style as Collections/Routes for consistent iOS UI.
 - Saving from Inbox now maps the “Description or tip” into the card’s context, so tips show in the expanded view with the amber lightbulb (same as regular cards).
 - Shared items are parsed in the background on import, so details are usually ready when you tap “Open.” Status labels now read “Ready to Save” and “Saved” for clarity.
+- Inbox filter pills match the pill shape/color system used elsewhere (foreground text when inactive, gradient when active).
 
 ## Why it broke before
 - The native config (`ios/App/App/capacitor.config.json`) sometimes regenerated without `SharedInboxPlugin`, so the app reported `UNIMPLEMENTED` and never imported.

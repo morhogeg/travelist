@@ -44,6 +44,7 @@ const InboxPage: React.FC = () => {
   const [editablePlaces, setEditablePlaces] = useState<InboxParsedPlace[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<InboxStatus | "all">("all");
 
   const recommendationCities = useMemo(() => {
     const recs = getRecommendations();
@@ -71,6 +72,11 @@ const InboxPage: React.FC = () => {
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
   }, [items]);
+
+  const filteredItems = useMemo(() => {
+    if (statusFilter === "all") return sortedItems;
+    return sortedItems.filter((item) => item.status === statusFilter);
+  }, [sortedItems, statusFilter]);
 
   const triggerParse = async (id: string, silent = false) => {
     setProcessingId(id);
@@ -160,6 +166,12 @@ const InboxPage: React.FC = () => {
     return options.filter((opt) => opt.toLowerCase().includes(q)).slice(0, 5);
   };
 
+  const formatStatusLabel = (status: InboxStatus) => {
+    if (status === "draft_ready") return "Ready to Save";
+    if (status === "imported") return "Saved";
+    return status.replace("_", " ");
+  };
+
   const findCountryForCity = (city?: string) => {
     if (!city) return "";
     const recs = getRecommendations();
@@ -234,21 +246,47 @@ const InboxPage: React.FC = () => {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">Items ({sortedItems.length})</p>
-            <div className="flex gap-2">
-              <Badge variant="outline" className="text-xs">Ready: {sortedItems.filter((i) => i.status === "draft_ready").length}</Badge>
-              <Badge variant="outline" className="text-xs">Needs info: {sortedItems.filter((i) => i.status === "needs_info").length}</Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                  className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                  statusFilter === "all"
+                    ? "bg-primary/10 text-primary border-primary/20"
+                    : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
+                )}
+                onClick={() => setStatusFilter("all")}
+              >
+                All ({sortedItems.length})
+              </button>
+              {(["draft_ready", "needs_info", "imported"] as InboxStatus[]).map((status) => {
+                const count = sortedItems.filter((i) => i.status === status).length;
+                if (count === 0) return null;
+                return (
+                  <button
+                    key={status}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                      statusFilter === status
+                        ? cn(statusStyles[status], "border-transparent")
+                        : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
+                    )}
+                    onClick={() => setStatusFilter(status)}
+                  >
+                    {formatStatusLabel(status)} ({count})
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {sortedItems.length === 0 && (
+          {filteredItems.length === 0 && (
             <div className="liquid-glass-clear border border-dashed border-border rounded-xl p-4 text-center text-sm text-muted-foreground">
               No shared items yet. Paste a message to get started.
             </div>
           )}
 
-          {sortedItems.map((item) => (
+          {filteredItems.map((item) => (
             <div
               key={item.id}
               className="liquid-glass-clear border border-white/30 rounded-2xl p-4 shadow-lg space-y-3"
