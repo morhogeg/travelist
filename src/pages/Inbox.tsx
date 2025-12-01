@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,19 +13,15 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
-  addInboxItem,
   deleteInboxItem,
   getInboxItems,
   markImported,
   parseInboxItem,
-  saveManualPlaces,
-  updateInboxItem,
 } from "@/utils/inbox/inbox-store";
 import { InboxItem, InboxParsedPlace, InboxStatus } from "@/types/inbox";
-import { Loader2, Inbox as InboxIcon, Sparkles, Trash2, MapPin, CheckCircle2, Edit3, Plus, ExternalLink, RefreshCw } from "lucide-react";
+import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, RefreshCw } from "lucide-react";
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
-import { mediumHaptic } from "@/utils/ios/haptics";
 import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
 
 const statusStyles: Record<InboxStatus, string> = {
@@ -41,8 +36,6 @@ const statusStyles: Record<InboxStatus, string> = {
 const InboxPage: React.FC = () => {
   const { toast } = useToast();
   const [items, setItems] = useState<InboxItem[]>([]);
-  const [newText, setNewText] = useState("");
-  const [isSavingText, setIsSavingText] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<InboxItem | null>(null);
   const [editablePlaces, setEditablePlaces] = useState<InboxParsedPlace[]>([]);
@@ -57,21 +50,6 @@ const InboxPage: React.FC = () => {
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
   }, [items]);
-
-  const handleAddText = async () => {
-    if (!newText.trim()) {
-      toast({ title: "Add some text first", description: "Paste a note or share text to store in your inbox.", variant: "destructive" });
-      return;
-    }
-
-    setIsSavingText(true);
-    mediumHaptic();
-    const item = addInboxItem(newText, "share");
-    setNewText("");
-    setItems(getInboxItems());
-    await triggerParse(item.id, true);
-    setIsSavingText(false);
-  };
 
   const triggerParse = async (id: string, silent = false) => {
     setProcessingId(id);
@@ -210,34 +188,12 @@ const InboxPage: React.FC = () => {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-1">Inbox</p>
-              <h1 className="text-2xl font-extrabold">Shared recommendations</h1>
-              <p className="text-sm text-muted-foreground mt-1">Paste texts from friends. We’ll parse them into draft cards.</p>
+              <h1 className="text-2xl font-extrabold">Inbox</h1>
             </div>
             <div className="hidden sm:block text-[#667eea]">
               <InboxIcon className="h-10 w-10" />
             </div>
           </div>
-        </div>
-
-        <div className="liquid-glass-clear rounded-2xl border border-white/30 p-4 space-y-3 shadow-lg">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#667eea]" />
-            <p className="text-sm font-semibold">Quick add</p>
-          </div>
-          <Textarea
-            value={newText}
-            onChange={(e) => setNewText(e.target.value)}
-            placeholder={`e.g. "Eat at Nanarella when you're in Rome"`}
-            className="min-h-[100px]"
-          />
-          <Button
-            onClick={handleAddText}
-            disabled={isSavingText}
-            className="w-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
-          >
-            {isSavingText ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
-            Save to Inbox & Parse
-          </Button>
         </div>
 
         <div className="space-y-3">
