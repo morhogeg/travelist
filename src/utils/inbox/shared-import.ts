@@ -1,5 +1,5 @@
 import { registerPlugin } from "@capacitor/core";
-import { addInboxItem } from "./inbox-store";
+import { addInboxItem, parseInboxItem } from "./inbox-store";
 
 type SharedInboxPlugin = {
   readShared(): Promise<{
@@ -25,11 +25,16 @@ export async function importSharedInbox(): Promise<number> {
     const { items = [] } = await SharedInbox.readShared();
     if (!items.length) return 0;
 
-    items.forEach((item) => {
+    // Add to inbox and parse in background so details are ready when the user opens the item
+    for (const item of items) {
       if (item?.rawText) {
-        addInboxItem(item.rawText, item.sourceApp || "share-extension");
+        const added = addInboxItem(item.rawText, item.sourceApp || "share-extension");
+        // Kick off parse but don't block the loop
+        parseInboxItem(added.id).catch((err) => {
+          console.warn("[Inbox] Background parse failed", err);
+        });
       }
-    });
+    }
 
     await SharedInbox.clearShared();
     return items.length;

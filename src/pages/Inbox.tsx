@@ -216,7 +216,11 @@ const InboxPage: React.FC = () => {
 
   const renderStatusBadge = (status: InboxStatus) => (
     <Badge className={cn("text-xs font-semibold capitalize", statusStyles[status])}>
-      {status.replace("_", " ")}
+      {status === "draft_ready"
+        ? "Ready to Save"
+        : status === "imported"
+        ? "Saved"
+        : status.replace("_", " ")}
     </Badge>
   );
 
@@ -258,41 +262,34 @@ const InboxPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <p className="text-sm font-semibold leading-6 break-all">
+                  <p className="text-sm font-semibold leading-6 break-words">
                     {item.displayTitle || item.rawText}
                   </p>
 
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <MapPin className="h-3 w-3" />
-                    <span>{item.parsedPlaces.length ? `${item.parsedPlaces.length} parsed` : "Awaiting parse"}</span>
-                  </div>
                 </div>
 
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-10 w-10 rounded-full bg-white/60 hover:bg-white/80"
+                  <button
+                    className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
                     onClick={() => handleOpenLink(item)}
+                    aria-label="Open link"
                   >
-                    <ExternalLink className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-10 w-10 rounded-full bg-white/60 hover:bg-white/80"
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
                     onClick={() => handleOpenItem(item)}
+                    aria-label="Edit"
                   >
-                    <Edit3 className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="text-destructive hover:text-destructive h-10 w-10 rounded-full bg-white/60 hover:bg-white/80"
+                    <Edit3 className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    className="p-1 rounded-full text-destructive hover:bg-destructive/10 transition-colors"
                     onClick={() => handleDelete(item.id)}
+                    aria-label="Delete"
                   >
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
