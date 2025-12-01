@@ -11,6 +11,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerFooter,
+  DrawerDescription,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,7 @@ import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
+import { FilterButton } from "@/components/home/filters";
 
 const statusStyles: Record<InboxStatus, string> = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200 border border-blue-200/70",
@@ -45,6 +47,10 @@ const InboxPage: React.FC = () => {
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
   const [statusFilter, setStatusFilter] = useState<InboxStatus | "all">("all");
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [filterCountries, setFilterCountries] = useState<string[]>([]);
+  const [filterCities, setFilterCities] = useState<string[]>([]);
+  const [filterSources, setFilterSources] = useState<string[]>([]);
 
   const recommendationCities = useMemo(() => {
     const recs = getRecommendations();
@@ -62,6 +68,35 @@ const InboxPage: React.FC = () => {
     return Array.from(new Set(countries)).sort();
   }, []);
 
+  const getSourceLabel = (item: InboxItem) => {
+    const text = item.rawText.toLowerCase();
+    if (text.includes("google.com/maps") || text.includes("goo.gl/maps")) return "Google Maps";
+    if (text.includes("instagram.com")) return "Instagram";
+    if (text.includes("tiktok.com")) return "TikTok";
+    if (item.sourceApp && item.sourceApp.toLowerCase().includes("instagram")) return "Instagram";
+    if (item.sourceApp && item.sourceApp.toLowerCase().includes("google")) return "Google Maps";
+    return "Friend";
+  };
+
+  const availableCountries = useMemo(() => {
+    const countries = items.flatMap((item) =>
+      item.parsedPlaces.map((p) => p.country).filter(Boolean) as string[]
+    );
+    return Array.from(new Set(countries)).sort();
+  }, [items]);
+
+  const availableCities = useMemo(() => {
+    const cities = items.flatMap((item) =>
+      item.parsedPlaces.map((p) => p.city).filter(Boolean) as string[]
+    );
+    return Array.from(new Set(cities)).sort();
+  }, [items]);
+
+  const availableSources = useMemo(() => {
+    const sources = items.map((item) => getSourceLabel(item)).filter(Boolean) as string[];
+    return Array.from(new Set(sources)).sort();
+  }, [items]);
+
   useEffect(() => {
     setItems(getInboxItems());
     const handler = () => setItems(getInboxItems());
@@ -74,9 +109,20 @@ const InboxPage: React.FC = () => {
   }, [items]);
 
   const filteredItems = useMemo(() => {
-    if (statusFilter === "all") return sortedItems;
-    return sortedItems.filter((item) => item.status === statusFilter);
-  }, [sortedItems, statusFilter]);
+    return sortedItems.filter((item) => {
+      if (statusFilter !== "all" && item.status !== statusFilter) return false;
+
+      const cities = item.parsedPlaces.map((p) => p.city).filter(Boolean) as string[];
+      const countries = item.parsedPlaces.map((p) => p.country).filter(Boolean) as string[];
+      const sourceLabel = getSourceLabel(item);
+
+      if (filterCities.length && !filterCities.some((c) => cities.includes(c))) return false;
+      if (filterCountries.length && !filterCountries.some((c) => countries.includes(c))) return false;
+      if (filterSources.length && !filterSources.includes(sourceLabel)) return false;
+
+      return true;
+    });
+  }, [sortedItems, statusFilter, filterCities, filterCountries, filterSources]);
 
   const triggerParse = async (id: string, silent = false) => {
     setProcessingId(id);
@@ -247,9 +293,9 @@ const InboxPage: React.FC = () => {
 
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 flex-1">
               <button
-                  className={cn(
+                className={cn(
                   "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
                   statusFilter === "all"
                     ? "bg-primary/10 text-primary border-primary/20"
@@ -278,6 +324,10 @@ const InboxPage: React.FC = () => {
                 );
               })}
             </div>
+            <FilterButton
+              activeCount={filterCities.length + filterCountries.length}
+              onClick={() => setFilterDrawerOpen(true)}
+            />
           </div>
 
           {filteredItems.length === 0 && (
@@ -490,6 +540,104 @@ const InboxPage: React.FC = () => {
               </Button>
               <Button variant="ghost" onClick={() => setSelectedItem(null)}>Close</Button>
             </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+
+        {/* Filter Drawer */}
+        <Drawer open={filterDrawerOpen} onOpenChange={(open) => setFilterDrawerOpen(open)}>
+          <DrawerContent className="max-h-[85vh]">
+            <DrawerHeader className="pb-2">
+              <DrawerTitle>Inbox Filters</DrawerTitle>
+              <DrawerDescription>Filter by city/country from parsed items.</DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 space-y-6 pb-4">
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">Countries</p>
+                <div className="flex flex-wrap gap-2">
+                  {availableCountries.length === 0 && (
+                    <p className="text-xs text-muted-foreground">No countries yet</p>
+                  )}
+                  {availableCountries.map((country) => (
+                    <button
+                      key={country}
+                      className={cn(
+                        "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                        filterCountries.includes(country)
+                          ? "bg-primary/10 text-primary border-primary/20"
+                          : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
+                      )}
+                      onClick={() => {
+                        setFilterCountries((prev) =>
+                          prev.includes(country)
+                            ? prev.filter((c) => c !== country)
+                            : [...prev, country]
+                        );
+                      }}
+                    >
+                      {country}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">Cities</p>
+                <div className="flex flex-wrap gap-2">
+                  {availableCities.length === 0 && (
+                    <p className="text-xs text-muted-foreground">No cities yet</p>
+                  )}
+                  {availableCities.map((city) => (
+                    <button
+                      key={city}
+                      className={cn(
+                        "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                        filterCities.includes(city)
+                          ? "bg-primary/10 text-primary border-primary/20"
+                          : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
+                      )}
+                      onClick={() => {
+                        setFilterCities((prev) =>
+                          prev.includes(city)
+                            ? prev.filter((c) => c !== city)
+                            : [...prev, city]
+                        );
+                      }}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">Sources</p>
+                <div className="flex flex-wrap gap-2">
+                  {availableSources.length === 0 && (
+                    <p className="text-xs text-muted-foreground">No sources yet</p>
+                  )}
+                  {availableSources.map((source) => (
+                    <button
+                      key={source}
+                      className={cn(
+                        "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                        filterSources.includes(source)
+                          ? "bg-primary/10 text-primary border-primary/20"
+                          : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
+                      )}
+                      onClick={() => {
+                        setFilterSources((prev) =>
+                          prev.includes(source)
+                            ? prev.filter((s) => s !== source)
+                            : [...prev, source]
+                        );
+                      }}
+                    >
+                      {source}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </DrawerContent>
         </Drawer>
       </div>
