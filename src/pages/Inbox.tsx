@@ -183,17 +183,11 @@ const InboxPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="px-4 pt-6 pb-24 space-y-6">
-        <div className="liquid-glass-clear rounded-3xl p-5 border border-white/40 shadow-xl">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-1">Inbox</p>
-              <h1 className="text-2xl font-extrabold">Inbox</h1>
-            </div>
-            <div className="hidden sm:block text-[#667eea]">
-              <InboxIcon className="h-10 w-10" />
-            </div>
-          </div>
+      <div className="px-4 pt-3 pb-24 space-y-6">
+        <div className="flex justify-center mb-4">
+          <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            Inbox
+          </h1>
         </div>
 
         <div className="space-y-3">
