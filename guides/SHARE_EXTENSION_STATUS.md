@@ -12,6 +12,7 @@
 ## Why it broke before
 - The native config (`ios/App/App/capacitor.config.json`) sometimes regenerated without `SharedInboxPlugin`, so the app reported `UNIMPLEMENTED` and never imported.
 - App Groups capability must be enabled on both App + ShareExtension targets; otherwise `UserDefaults(suiteName:)` returns empty.
+- Running `npx cap copy ios` without patching the generated config drops the `SharedInboxPlugin`. Use the provided script/command to keep it.
 
 ## Fix applied
 - `capacitor.config.ts` and generated `ios/App/App/capacitor.config.json` include `SharedInboxPlugin` in `packageClassList`.
@@ -31,7 +32,7 @@
 4) Deep link also works: `xcrun simctl openurl booted "travelist://share?text=Test"`.
 
 ## If you see `UNIMPLEMENTED` again
-- Run `npx cap copy ios` from the project root to regenerate `ios/App/App/capacitor.config.json` with `SharedInboxPlugin`, then rebuild/run in Xcode.
+- Run `npm run cap:copy:ios` (or `npx cap copy ios && node scripts/ensure-shared-inbox-plugin.js`) from the project root to regenerate `ios/App/App/capacitor.config.json` with `SharedInboxPlugin`, then rebuild/run in Xcode.
 - Verify App Groups are still checked on both targets in Xcode.
 
 ## Notes

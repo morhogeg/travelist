@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "cap:sync": "npx cap sync ios",
+    "cap:copy:ios": "npx cap copy ios && node scripts/ensure-shared-inbox-plugin.js",
     "cap:open": "npx cap open ios",
     "cap:run": "npx cap run ios",
     "ios:dev": "npm run build:dev && NODE_ENV=development npx cap sync ios && npx cap open ios",
