@@ -8,6 +8,27 @@ import CityHeader from "./CityHeader";
 import GridView from "./GridView";
 import type { CityGroupProps } from "./types";
 
+const COLLAPSED_CITIES_KEY = "travelist_collapsed_cities";
+
+const getCollapsedCities = (): Set<string> => {
+  try {
+    const stored = localStorage.getItem(COLLAPSED_CITIES_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const setCollapsedCity = (cityId: string, collapsed: boolean) => {
+  const current = getCollapsedCities();
+  if (collapsed) {
+    current.add(cityId);
+  } else {
+    current.delete(cityId);
+  }
+  localStorage.setItem(COLLAPSED_CITIES_KEY, JSON.stringify([...current]));
+};
+
 interface Props extends CityGroupProps {
   hideCityHeader?: boolean; // ✅ NEW
   hideCountry?: boolean;
@@ -32,7 +53,7 @@ const CityGroup: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => getCollapsedCities().has(cityId));
 
   const toTitleCase = (str: string): string =>
     str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
@@ -106,7 +127,13 @@ const CityGroup: React.FC<Props> = ({
           cityId={cityId}
           onCityClick={handleCityClickInternal}
           isCollapsed={isCollapsed}
-          onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+          onToggleCollapse={() => {
+            setIsCollapsed((prev) => {
+              const next = !prev;
+              setCollapsedCity(cityId, next);
+              return next;
+            });
+          }}
           itemCount={items.length}
         />
       )}
