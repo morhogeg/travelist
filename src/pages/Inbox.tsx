@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   Drawer,
@@ -23,6 +25,7 @@ import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, Refre
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
+import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 
 const statusStyles: Record<InboxStatus, string> = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200 border border-blue-200/70",
@@ -39,6 +42,24 @@ const InboxPage: React.FC = () => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<InboxItem | null>(null);
   const [editablePlaces, setEditablePlaces] = useState<InboxParsedPlace[]>([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
+
+  const recommendationCities = useMemo(() => {
+    const recs = getRecommendations();
+    const cities = recs
+      .map((r) => r.city?.trim())
+      .filter(Boolean) as string[];
+    return Array.from(new Set(cities)).sort();
+  }, []);
+
+  const recommendationCountries = useMemo(() => {
+    const recs = getRecommendations();
+    const countries = recs
+      .map((r) => r.country?.trim())
+      .filter(Boolean) as string[];
+    return Array.from(new Set(countries)).sort();
+  }, []);
 
   useEffect(() => {
     setItems(getInboxItems());
@@ -133,6 +154,21 @@ const InboxPage: React.FC = () => {
     return match ? match[0] : "";
   };
 
+  const filterOptions = (options: string[], query?: string) => {
+    if (!query) return [];
+    const q = query.toLowerCase();
+    return options.filter((opt) => opt.toLowerCase().includes(q)).slice(0, 5);
+  };
+
+  const findCountryForCity = (city?: string) => {
+    if (!city) return "";
+    const recs = getRecommendations();
+    const match = recs.find(
+      (r) => r.city && r.city.toLowerCase().trim() === city.toLowerCase().trim()
+    );
+    return match?.country || "";
+  };
+
   const handleOpenLink = (item: InboxItem) => {
     const link = getLink(item);
     if (link) {
@@ -162,6 +198,9 @@ const InboxPage: React.FC = () => {
           category: place.category || "general",
           description: place.description?.trim(),
           source: place.source,
+          context: place.description?.trim()
+            ? { specificTip: place.description.trim() }
+            : undefined,
         },
       ],
       rawText: selectedItem.rawText,
@@ -299,7 +338,7 @@ const InboxPage: React.FC = () => {
                       </Badge>
                     </div>
                   )}
-                  <Input
+                  <ClearableInput
                     placeholder="Name"
                     value={place.name}
                     onChange={(e) => handleUpdatePlace(index, "name", e.target.value)}
@@ -328,16 +367,64 @@ const InboxPage: React.FC = () => {
                     ))}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <Input
+                    <div className="relative">
+                    <ClearableInput
                       placeholder="City"
                       value={place.city || ""}
                       onChange={(e) => handleUpdatePlace(index, "city", e.target.value)}
+                      onFocus={() => setShowCitySuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
                     />
-                    <Input
+                      {showCitySuggestions && filterOptions(recommendationCities, place.city).length > 0 && (
+                        <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
+                          {filterOptions(recommendationCities, place.city).map((city) => (
+                            <button
+                              key={city}
+                              type="button"
+                              className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-lg"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                handleUpdatePlace(index, "city", city);
+                                const autoCountry = findCountryForCity(city);
+                                if (autoCountry) {
+                                  handleUpdatePlace(index, "country", autoCountry);
+                                }
+                                setShowCitySuggestions(false);
+                              }}
+                            >
+                              {city}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="relative">
+                    <ClearableInput
                       placeholder="Country"
                       value={place.country || ""}
                       onChange={(e) => handleUpdatePlace(index, "country", e.target.value)}
+                      onFocus={() => setShowCountrySuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
                     />
+                      {showCountrySuggestions && filterOptions(recommendationCountries, place.country).length > 0 && (
+                        <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
+                          {filterOptions(recommendationCountries, place.country).map((country) => (
+                            <button
+                              key={country}
+                              type="button"
+                              className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-lg"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                handleUpdatePlace(index, "country", country);
+                                setShowCountrySuggestions(false);
+                              }}
+                            >
+                              {country}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <Textarea
                     placeholder="Description or tip"
