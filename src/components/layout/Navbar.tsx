@@ -25,11 +25,11 @@ const Navbar = () => {
       }}
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
       }}
     >
       {/* iOS 26 Liquid Glass Floating Tab Bar */}
-      <nav className="liquid-glass-float px-1.5 py-1.5">
+      <nav className="liquid-glass-float px-2 py-1.5 mx-3 mb-2 rounded-3xl shadow-lg">
         <ul className="flex items-center justify-around max-w-lg mx-auto">
           {navItems.map((item) => (
             <li key={item.path} className="flex-1">

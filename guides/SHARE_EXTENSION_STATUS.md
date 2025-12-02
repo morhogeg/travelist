@@ -16,6 +16,7 @@
 - Inbox review drawer simplified: header only shows “Open link” and title; confidence badge and host tag removed; re-run parse removed. Saving removes the item from Inbox. Drawer inputs/pills match add-recommendation styling (aligned sizes, category pills below country).
 - Splash screen is explicitly hidden at app start (`SplashScreen.hide()`) to avoid timeout warnings.
 - Inbox drawer edits a single place (first parsed place or placeholder) to avoid duplicate forms; category pills moved below country; consistent text sizing; inactive pills cleaned up in dark mode.
+- Home cards now use the same liquid-glass border/padding treatment as Inbox cards (no side accent bar) while keeping the colored category icon and existing actions; tab bar gains extra bottom padding/rounding to avoid clipped corners on devices with curved screens.
 
 ## Why it broke before
 - The native config (`ios/App/App/capacitor.config.json`) sometimes regenerated without `SharedInboxPlugin`, so the app reported `UNIMPLEMENTED` and never imported.

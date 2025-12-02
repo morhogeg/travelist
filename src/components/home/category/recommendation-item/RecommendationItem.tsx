@@ -59,17 +59,12 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.05 * index }}
-          className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${
+          className={`liquid-glass-clear rounded-2xl border border-white/30 dark:border-white/10 shadow-lg ios26-transition-smooth cursor-pointer relative ${
             item.visited ? 'ring-2 ring-success/30' : ''
           }`}
-          style={{
-            border: 'none',
-            borderLeft: `4px solid ${borderColor}`,
-            boxShadow: 'none'
-          }}
           onClick={() => onViewDetails?.(item)}
         >
-          <div className="px-3 py-2 flex gap-2">
+          <div className="p-4 flex gap-3">
             {/* Left side: Content */}
             <div className="flex-1 min-w-0 space-y-1">
               {/* Header with name and category icon */}
