@@ -32,7 +32,7 @@ import { FilterButton } from "@/components/home/filters";
 const statusStyles: Record<InboxStatus, string> = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200 border border-blue-200/70",
   processing: "bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-200 border border-amber-200/70",
-  needs_info: "bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-200 border border-amber-200/70",
+  needs_info: "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-200 border border-red-200/70",
   draft_ready: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200 border border-emerald-200/70",
   imported: "bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-200 border border-purple-200/70",
   failed: "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-200 border border-red-200/70",
@@ -46,7 +46,6 @@ const InboxPage: React.FC = () => {
   const [editablePlaces, setEditablePlaces] = useState<InboxParsedPlace[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<InboxStatus | "all">("all");
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [filterCountries, setFilterCountries] = useState<string[]>([]);
   const [filterCities, setFilterCities] = useState<string[]>([]);
@@ -110,8 +109,6 @@ const InboxPage: React.FC = () => {
 
   const filteredItems = useMemo(() => {
     return sortedItems.filter((item) => {
-      if (statusFilter !== "all" && item.status !== statusFilter) return false;
-
       const cities = item.parsedPlaces.map((p) => p.city).filter(Boolean) as string[];
       const countries = item.parsedPlaces.map((p) => p.country).filter(Boolean) as string[];
       const sourceLabel = getSourceLabel(item);
@@ -122,7 +119,7 @@ const InboxPage: React.FC = () => {
 
       return true;
     });
-  }, [sortedItems, statusFilter, filterCities, filterCountries, filterSources]);
+  }, [sortedItems, filterCities, filterCountries, filterSources]);
 
   const triggerParse = async (id: string, silent = false) => {
     setProcessingId(id);
@@ -213,7 +210,7 @@ const InboxPage: React.FC = () => {
   };
 
   const formatStatusLabel = (status: InboxStatus) => {
-    if (status === "draft_ready") return "Ready to Save";
+    if (status === "draft_ready") return "Ready for Review";
     if (status === "imported") return "Saved";
     return status.replace("_", " ");
   };
@@ -267,20 +264,36 @@ const InboxPage: React.FC = () => {
 
     await storeRecommendation(newRecommendation);
     markImported(selectedItem.id);
+    // Remove from inbox after saving as a card
+    deleteInboxItem(selectedItem.id);
     setItems(getInboxItems());
     setSelectedItem(null);
-    toast({ title: "Saved to list", description: `${place.name} added to your cards.` });
+    toast({ title: "Saved to list", description: `${place.name} added to your cards and removed from Inbox.` });
   };
 
-  const renderStatusBadge = (status: InboxStatus) => (
-    <Badge className={cn("text-xs font-semibold capitalize", statusStyles[status])}>
-      {status === "draft_ready"
-        ? "Ready to Save"
-        : status === "imported"
-        ? "Saved"
-        : status.replace("_", " ")}
-    </Badge>
-  );
+  const renderStatusBadge = (status: InboxStatus, onClick?: () => void) => {
+    const label = formatStatusLabel(status);
+    if (status === "draft_ready") {
+      return (
+        <button
+          onClick={onClick}
+          className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white shadow-sm transition-all"
+          style={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          }}
+          aria-label="Review this shared item"
+        >
+          <Edit3 className="h-3.5 w-3.5" />
+          <span>{label}</span>
+        </button>
+      );
+    }
+    return (
+      <Badge className={cn("text-xs font-semibold capitalize", statusStyles[status])}>
+        {label}
+      </Badge>
+    );
+  };
 
   return (
     <Layout>
@@ -292,40 +305,9 @@ const InboxPage: React.FC = () => {
         </div>
 
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap gap-2 flex-1">
-              <button
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-                  statusFilter === "all"
-                    ? "bg-primary/10 text-primary border-primary/20"
-                    : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
-                )}
-                onClick={() => setStatusFilter("all")}
-              >
-                All ({sortedItems.length})
-              </button>
-              {(["draft_ready", "needs_info", "imported"] as InboxStatus[]).map((status) => {
-                const count = sortedItems.filter((i) => i.status === status).length;
-                if (count === 0) return null;
-                return (
-                  <button
-                    key={status}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-                      statusFilter === status
-                        ? cn(statusStyles[status], "border-transparent")
-                        : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
-                    )}
-                    onClick={() => setStatusFilter(status)}
-                  >
-                    {formatStatusLabel(status)} ({count})
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex items-center justify-end">
             <FilterButton
-              activeCount={filterCities.length + filterCountries.length}
+              activeCount={filterCities.length + filterCountries.length + filterSources.length}
               onClick={() => setFilterDrawerOpen(true)}
             />
           </div>
@@ -344,7 +326,7 @@ const InboxPage: React.FC = () => {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center gap-2">
-                    {renderStatusBadge(item.status)}
+                    {renderStatusBadge(item.status, () => handleOpenItem(item))}
                     <span className="text-xs text-muted-foreground">
                       {new Date(item.receivedAt).toLocaleString()}
                     </span>
@@ -358,18 +340,18 @@ const InboxPage: React.FC = () => {
 
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
                   <button
+                    className="p-1 rounded-full text-primary hover:bg-primary/10 transition-colors"
+                    onClick={() => handleOpenItem(item)}
+                    aria-label="Edit"
+                  >
+                    <Edit3 className="h-3.5 w-3.5" />
+                  </button>
+                  <button
                     className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
                     onClick={() => handleOpenLink(item)}
                     aria-label="Open link"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
-                    onClick={() => handleOpenItem(item)}
-                    aria-label="Edit"
-                  >
-                    <Edit3 className="h-3.5 w-3.5" />
                   </button>
                   <button
                     className="p-1 rounded-full text-destructive hover:bg-destructive/10 transition-colors"
@@ -416,13 +398,6 @@ const InboxPage: React.FC = () => {
             <div className="px-4 space-y-4 pb-4">
               {editablePlaces.map((place, index) => (
                 <div key={index} className="liquid-glass-clear rounded-xl border border-white/20 p-4 space-y-3">
-                  {place.confidence && (
-                    <div className="flex items-center justify-end">
-                      <Badge variant="outline" className="text-[11px]">
-                        Confidence {(place.confidence * 100).toFixed(0)}%
-                      </Badge>
-                    </div>
-                  )}
                   <ClearableInput
                     placeholder="Name"
                     value={place.name}

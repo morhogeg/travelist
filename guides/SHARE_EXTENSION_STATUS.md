@@ -11,6 +11,7 @@
 - Shared items are parsed in the background on import, so details are usually ready when you tap “Open.” Status labels now read “Ready to Save” and “Saved” for clarity.
 - Inbox filter pills match the pill shape/color system used elsewhere (foreground text when inactive, gradient when active).
 - Inbox has a dedicated filter drawer (same UI as home) for status + city/country + source (Google Maps/Instagram/Friend/TikTok inferred). Status pills at the top also filter.
+- “Ready for Review” status pill is now a primary gradient button with a pencil icon; tapping it opens the item for approval (makes the review step obvious).
 - Home screen remembers collapsed city state inside a country; when you collapse a country and reopen it, cities retain their collapsed state.
 
 ## Why it broke before
