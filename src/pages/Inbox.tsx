@@ -26,8 +26,19 @@ import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, Refre
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
+import CategoryPill from "@/components/ui/CategoryPill";
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 import { FilterButton } from "@/components/home/filters";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const statusStyles: Record<InboxStatus, string> = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200 border border-blue-200/70",
@@ -50,6 +61,7 @@ const InboxPage: React.FC = () => {
   const [filterCountries, setFilterCountries] = useState<string[]>([]);
   const [filterCities, setFilterCities] = useState<string[]>([]);
   const [filterSources, setFilterSources] = useState<string[]>([]);
+  const [itemToDelete, setItemToDelete] = useState<InboxItem | null>(null);
 
   const recommendationCities = useMemo(() => {
     const recs = getRecommendations();
@@ -146,38 +158,14 @@ const InboxPage: React.FC = () => {
 
   const handleOpenItem = async (item: InboxItem) => {
     setSelectedItem(item);
-    setEditablePlaces(
-      item.parsedPlaces.length
-        ? item.parsedPlaces
-        : [
-            {
-              name: "",
-              category: "general",
-              city: "",
-              country: "",
-              description: "",
-            },
-          ]
-    );
+    setEditablePlaces(item.parsedPlaces.length ? [item.parsedPlaces[0]] : [placeholderPlace]);
 
     // Auto-parse on open if we don't have structured data yet
     if (!item.parsedPlaces.length) {
       const updated = await triggerParse(item.id, true);
       if (updated) {
         setSelectedItem(updated);
-        setEditablePlaces(
-          updated.parsedPlaces.length
-            ? updated.parsedPlaces
-            : [
-                {
-                  name: "",
-                  category: "general",
-                  city: "",
-                  country: "",
-                  description: "",
-                },
-              ]
-        );
+        setEditablePlaces(updated.parsedPlaces.length ? [updated.parsedPlaces[0]] : [placeholderPlace]);
       }
     }
   };
@@ -271,6 +259,14 @@ const InboxPage: React.FC = () => {
     toast({ title: "Saved to list", description: `${place.name} added to your cards and removed from Inbox.` });
   };
 
+  const placeholderPlace: InboxParsedPlace = {
+    name: "",
+    category: "general",
+    city: "",
+    country: "",
+    description: "",
+  };
+
   const renderStatusBadge = (status: InboxStatus, onClick?: () => void) => {
     const label = formatStatusLabel(status);
     if (status === "draft_ready") {
@@ -283,7 +279,6 @@ const InboxPage: React.FC = () => {
           }}
           aria-label="Review this shared item"
         >
-          <Edit3 className="h-3.5 w-3.5" />
           <span>{label}</span>
         </button>
       );
@@ -298,19 +293,19 @@ const InboxPage: React.FC = () => {
   return (
     <Layout>
       <div className="px-4 pt-3 pb-24 space-y-6">
-        <div className="flex justify-center mb-4">
+        <div className="relative flex items-center justify-center mb-4">
           <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Inbox
           </h1>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-end">
+          <div className="absolute right-0">
             <FilterButton
               activeCount={filterCities.length + filterCountries.length + filterSources.length}
               onClick={() => setFilterDrawerOpen(true)}
             />
           </div>
+        </div>
+
+        <div className="space-y-3">
 
           {filteredItems.length === 0 && (
             <div className="liquid-glass-clear border border-dashed border-border rounded-xl p-4 text-center text-sm text-muted-foreground">
@@ -321,7 +316,8 @@ const InboxPage: React.FC = () => {
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="liquid-glass-clear border border-white/30 rounded-2xl p-4 shadow-lg space-y-3"
+              className="liquid-glass-clear border border-white/30 rounded-2xl p-4 shadow-lg space-y-3 cursor-pointer"
+              onClick={() => handleOpenItem(item)}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0 space-y-2">
@@ -338,14 +334,7 @@ const InboxPage: React.FC = () => {
 
                 </div>
 
-                <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  <button
-                    className="p-1 rounded-full text-primary hover:bg-primary/10 transition-colors"
-                    onClick={() => handleOpenItem(item)}
-                    aria-label="Edit"
-                  >
-                    <Edit3 className="h-3.5 w-3.5" />
-                  </button>
+                <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                   <button
                     className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
                     onClick={() => handleOpenLink(item)}
@@ -355,7 +344,7 @@ const InboxPage: React.FC = () => {
                   </button>
                   <button
                     className="p-1 rounded-full text-destructive hover:bg-destructive/10 transition-colors"
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => setItemToDelete(item)}
                     aria-label="Delete"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -367,134 +356,116 @@ const InboxPage: React.FC = () => {
         </div>
 
         <Drawer open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
-          <DrawerContent className="max-h-[85vh]">
-            <DrawerHeader className="pb-2">
-              <DrawerTitle className="flex items-center gap-2">
-                <InboxIcon className="h-5 w-5 text-[#667eea]" />
-                {selectedItem ? "Inbox item" : ""}
-              </DrawerTitle>
-              <div className="flex items-center gap-2">
-                {selectedItem && getHost(selectedItem) ? (
-                  <Badge variant="outline" className="text-[11px]">
-                    {getHost(selectedItem)}
-                  </Badge>
-                ) : null}
-                {selectedItem && getLink(selectedItem) ? (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleOpenLink(selectedItem)}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Open link
-                  </Button>
-                ) : null}
-              </div>
-              <p className="text-sm text-muted-foreground break-all line-clamp-2 overflow-hidden">
+          <DrawerContent className="max-h-[85vh] px-4">
+            <DrawerHeader className="pb-2 space-y-2 text-center items-center">
+              {selectedItem && getLink(selectedItem) ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="mx-auto text-foreground"
+                  onClick={() => handleOpenLink(selectedItem)}
+                >
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  Open link
+                </Button>
+              ) : null}
+              <p className="text-sm text-muted-foreground break-all">
                 {selectedItem?.displayTitle || selectedItem?.rawText}
               </p>
             </DrawerHeader>
 
-            <div className="px-4 space-y-4 pb-4">
-              {editablePlaces.map((place, index) => (
-                <div key={index} className="liquid-glass-clear rounded-xl border border-white/20 p-4 space-y-3">
+            <div className="space-y-4 pb-4">
+              <div className="space-y-3">
+                <ClearableInput
+                  placeholder="Name"
+                  value={editablePlaces[0]?.name || ""}
+                  onChange={(e) => handleUpdatePlace(0, "name", e.target.value)}
+                  className="text-base"
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="relative">
                   <ClearableInput
-                    placeholder="Name"
-                    value={place.name}
-                    onChange={(e) => handleUpdatePlace(index, "name", e.target.value)}
+                    placeholder="City"
+                    value={editablePlaces[0]?.city || ""}
+                    onChange={(e) => handleUpdatePlace(0, "city", e.target.value)}
+                    onFocus={() => setShowCitySuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
+                    className="text-base"
                   />
-                  <div className="flex flex-wrap gap-2">
-                    {categoryPills.map((cat) => (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => handleUpdatePlace(index, "category", cat.id)}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-2 rounded-full border transition-colors",
-                          place.category === cat.id
-                            ? "border-transparent text-black"
-                            : "border-border text-muted-foreground bg-white/60"
-                        )}
-                        style={
-                          place.category === cat.id
-                            ? { background: cat.color }
-                            : { background: "rgba(255,255,255,0.7)" }
-                        }
-                      >
-                        {cat.icon}
-                        <span className="text-sm font-medium">{cat.label}</span>
-                      </button>
-                    ))}
+                    {showCitySuggestions && filterOptions(recommendationCities, editablePlaces[0]?.city).length > 0 && (
+                      <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
+                        {filterOptions(recommendationCities, editablePlaces[0]?.city).map((city) => (
+                          <button
+                            key={city}
+                            type="button"
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-lg"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              handleUpdatePlace(0, "city", city);
+                              const autoCountry = findCountryForCity(city);
+                              if (autoCountry) {
+                                handleUpdatePlace(0, "country", autoCountry);
+                              }
+                              setShowCitySuggestions(false);
+                            }}
+                          >
+                            {city}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="relative">
-                    <ClearableInput
-                      placeholder="City"
-                      value={place.city || ""}
-                      onChange={(e) => handleUpdatePlace(index, "city", e.target.value)}
-                      onFocus={() => setShowCitySuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
-                    />
-                      {showCitySuggestions && filterOptions(recommendationCities, place.city).length > 0 && (
-                        <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
-                          {filterOptions(recommendationCities, place.city).map((city) => (
-                            <button
-                              key={city}
-                              type="button"
-                              className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-lg"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => {
-                                handleUpdatePlace(index, "city", city);
-                                const autoCountry = findCountryForCity(city);
-                                if (autoCountry) {
-                                  handleUpdatePlace(index, "country", autoCountry);
-                                }
-                                setShowCitySuggestions(false);
-                              }}
-                            >
-                              {city}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="relative">
-                    <ClearableInput
-                      placeholder="Country"
-                      value={place.country || ""}
-                      onChange={(e) => handleUpdatePlace(index, "country", e.target.value)}
-                      onFocus={() => setShowCountrySuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
-                    />
-                      {showCountrySuggestions && filterOptions(recommendationCountries, place.country).length > 0 && (
-                        <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
-                          {filterOptions(recommendationCountries, place.country).map((country) => (
-                            <button
-                              key={country}
-                              type="button"
-                              className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-lg"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => {
-                                handleUpdatePlace(index, "country", country);
-                                setShowCountrySuggestions(false);
-                              }}
-                            >
-                              {country}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <Textarea
-                    placeholder="Description or tip"
-                    value={place.description || ""}
-                    onChange={(e) => handleUpdatePlace(index, "description", e.target.value)}
+                  <div className="relative">
+                  <ClearableInput
+                    placeholder="Country"
+                    value={editablePlaces[0]?.country || ""}
+                    onChange={(e) => handleUpdatePlace(0, "country", e.target.value)}
+                    onFocus={() => setShowCountrySuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
+                    className="text-base"
                   />
-                  <div className="flex flex-wrap gap-2">
+                    {showCountrySuggestions && filterOptions(recommendationCountries, editablePlaces[0]?.country).length > 0 && (
+                      <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
+                        {filterOptions(recommendationCountries, editablePlaces[0]?.country).map((country) => (
+                          <button
+                            key={country}
+                            type="button"
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-lg"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              handleUpdatePlace(0, "country", country);
+                              setShowCountrySuggestions(false);
+                            }}
+                          >
+                            {country}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
-              ))}
+                <div className="flex flex-wrap gap-2">
+                  {categoryPills.map((cat) => (
+                    <CategoryPill
+                      key={cat.id}
+                      label={cat.label}
+                      icon={cat.icon}
+                      isActive={editablePlaces[0]?.category === cat.id}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleUpdatePlace(0, "category", cat.id);
+                      }}
+                    />
+                  ))}
+                </div>
+                <Textarea
+                  placeholder="Description or tip"
+                  value={editablePlaces[0]?.description || ""}
+                  onChange={(e) => handleUpdatePlace(0, "description", e.target.value)}
+                  className="text-base"
+                />
+              </div>
             </div>
 
             <DrawerFooter>
@@ -504,14 +475,6 @@ const InboxPage: React.FC = () => {
                 disabled={!selectedItem}
               >
                 Save as Card
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => selectedItem && triggerParse(selectedItem.id)}
-                disabled={!selectedItem || processingId === selectedItem?.id}
-              >
-                {processingId === selectedItem?.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-                Re-run AI parse
               </Button>
               <Button variant="ghost" onClick={() => setSelectedItem(null)}>Close</Button>
             </DrawerFooter>
@@ -615,6 +578,32 @@ const InboxPage: React.FC = () => {
             </div>
           </DrawerContent>
         </Drawer>
+
+        {/* Delete confirmation dialog */}
+        <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete inbox item?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will remove the shared item from your Inbox. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setItemToDelete(null)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-white hover:bg-destructive/90"
+                onClick={() => {
+                  if (itemToDelete) {
+                    handleDelete(itemToDelete.id);
+                    setItemToDelete(null);
+                  }
+                }}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </Layout>
   );

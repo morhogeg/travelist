@@ -13,6 +13,9 @@
 - Inbox has a dedicated filter drawer (same UI as home) for status + city/country + source (Google Maps/Instagram/Friend/TikTok inferred). Status pills at the top also filter.
 - “Ready for Review” status pill is now a primary gradient button with a pencil icon; tapping it opens the item for approval (makes the review step obvious).
 - Home screen remembers collapsed city state inside a country; when you collapse a country and reopen it, cities retain their collapsed state.
+- Inbox review drawer simplified: header only shows “Open link” and title; confidence badge and host tag removed; re-run parse removed. Saving removes the item from Inbox. Drawer inputs/pills match add-recommendation styling (aligned sizes, category pills below country).
+- Splash screen is explicitly hidden at app start (`SplashScreen.hide()`) to avoid timeout warnings.
+- Inbox drawer edits a single place (first parsed place or placeholder) to avoid duplicate forms; category pills moved below country; consistent text sizing; inactive pills cleaned up in dark mode.
 
 ## Why it broke before
 - The native config (`ios/App/App/capacitor.config.json`) sometimes regenerated without `SharedInboxPlugin`, so the app reported `UNIMPLEMENTED` and never imported.
