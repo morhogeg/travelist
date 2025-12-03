@@ -14,6 +14,18 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import CollectionPickerDrawer from "@/components/collections/CollectionPickerDrawer";
 import { getCollectionsByPlaceId } from "@/utils/collections/collectionStore";
+import { useToast } from "@/components/ui/use-toast";
+import RoutePickerDrawer from "@/components/routes/RoutePickerDrawer";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RecommendationDetailsDialogProps {
   recommendation: any;
@@ -38,10 +50,13 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 }) => {
   const [isVisited, setIsVisited] = useState<boolean>(!!recommendation?.visited);
   const [showCollectionPicker, setShowCollectionPicker] = useState(false);
+  const [showRoutePicker, setShowRoutePicker] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [collectionsCount, setCollectionsCount] = useState(0);
   const [firstCollectionName, setFirstCollectionName] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   // Check collection membership when dialog opens or recommendation changes
   useEffect(() => {
@@ -68,7 +83,16 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
   if (!recommendation) return null;
 
-  const mapUrl = generateMapLink(recommendation.name, recommendation.location);
+  const fullAddress =
+    recommendation?.context?.address ||
+    recommendation?.location ||
+    [recommendation?.name, recommendation?.city, recommendation?.country]
+      .filter(Boolean)
+      .join(", ") ||
+    recommendation?.rawText ||
+    '';
+
+  const mapUrl = generateMapLink(recommendation.name, fullAddress || recommendation.location);
   const websiteUrl = recommendation.website ? formatUrl(recommendation.website) : null;
   const categoryColor = getCategoryColor(recommendation.category || 'general');
   const categoryIcon = getCategoryIcon(recommendation.category || 'general');
@@ -77,7 +101,12 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
   const handleExternalClick = (e: React.MouseEvent, url: string) => {
     e.preventDefault();
+    e.stopPropagation();
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleAddToRoute = () => {
+    setShowRoutePicker(true);
   };
 
   return (
@@ -105,12 +134,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               <h2 className="text-2xl font-extrabold leading-tight mb-2">{recommendation.name}</h2>
 
               {/* Location Info Inline */}
-              <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap mb-1">
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span>{recommendation.location}</span>
-                </div>
-              </div>
+              {/* Remove address line under title; only date remains */}
 
               {/* Added on Date - Moved to Header */}
               {recommendation.dateAdded && (
@@ -148,29 +172,47 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               currentPath={currentPath}
             />
 
+            {fullAddress && (
+              <button
+                onClick={(e) => handleExternalClick(e, mapUrl)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-border/70 bg-muted/30 dark:border-white/10 dark:bg-white/5 text-left hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              >
+                <Navigation className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="text-sm text-foreground/90 dark:text-white line-clamp-2">
+                  {fullAddress}
+                </span>
+              </button>
+            )}
+
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 pt-4">
               <Button
-                size="default"
                 variant="outline"
-                className="flex-1 min-w-[140px] ios26-transition-smooth"
-                onClick={(e) => handleExternalClick(e, mapUrl)}
+                size="default"
+                className={`flex-1 min-w-[140px] ios26-transition-smooth ${
+                  'bg-background text-foreground border-border dark:bg-white/5 dark:text-white dark:border-white/15'
+                } flex-1 min-w-[140px] ios26-transition-smooth`}
+                onClick={(e) => {
+                  (e.target as HTMLButtonElement).blur();
+                  setShowCollectionPicker(true);
+                }}
               >
-                <Navigation className="h-4 w-4 mr-2" />
-                <span>Navigate</span>
+                <FolderPlus className="h-4 w-4 mr-2" />
+                <span>Add to Collection</span>
               </Button>
 
-              {websiteUrl && (
-                <Button
-                  size="default"
-                  variant="outline"
-                  className="flex-1 min-w-[140px] ios26-transition-smooth"
-                  onClick={(e) => handleExternalClick(e, websiteUrl)}
-                >
-                  <Globe className="h-4 w-4 mr-2" />
-                  <span>Website</span>
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="default"
+                className="flex-1 min-w-[140px] ios26-transition-smooth"
+                onClick={(e) => {
+                  (e.target as HTMLButtonElement).blur();
+                  handleAddToRoute();
+                }}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                <span>Add to Route</span>
+              </Button>
 
               <Button
                 variant="outline"
@@ -180,10 +222,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                     ? 'bg-green-500 text-white border-green-500 hover:bg-green-600'
                     : 'bg-background text-foreground border-border dark:bg-white/5 dark:text-white dark:border-white/15'
                 }`}
-                style={{
-                  WebkitTapHighlightColor: 'transparent',
-                  backgroundImage: 'none',
-                }}
                 onClick={(e) => {
                   (e.target as HTMLButtonElement).blur();
                   const next = !isVisited;
@@ -193,39 +231,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 <span>{isVisited ? 'Visited' : 'Mark Visited'}</span>
-              </Button>
-
-              {/* Add to Collection Button */}
-              <Button
-                variant="outline"
-                size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth"
-                style={{
-                  WebkitTapHighlightColor: 'transparent',
-                  ...(collectionsCount > 0 ? {
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white',
-                    borderColor: 'transparent',
-                  } : {}),
-                }}
-                onClick={(e) => {
-                  (e.target as HTMLButtonElement).blur();
-                  setShowCollectionPicker(true);
-                }}
-              >
-                {collectionsCount > 0 ? (
-                  <>
-                    <Folder className="h-4 w-4 mr-2" />
-                    <span className="truncate max-w-[100px]">
-                      {collectionsCount === 1 ? firstCollectionName : `${collectionsCount} collections`}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <FolderPlus className="h-4 w-4 mr-2" />
-                    <span>Add to Collection</span>
-                  </>
-                )}
               </Button>
             </div>
           </div>
@@ -237,10 +242,10 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
             style={{ boxShadow: 'none' }}
           >
             <Button
-              variant="destructive"
+              variant="outline"
               size="default"
               className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth"
-              onClick={onDelete}
+              onClick={() => setShowDeleteDialog(true)}
             >
               <Trash2 className="h-4 w-4" />
               <span>Delete</span>
@@ -289,6 +294,46 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
         placeId={placeId}
         placeName={recommendation.name}
         onSuccess={refreshCollectionState}
+      />
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {recommendation?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the recommendation from your list. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                onDelete?.();
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <RoutePickerDrawer
+        isOpen={showRoutePicker}
+        onClose={() => setShowRoutePicker(false)}
+        placeId={placeId}
+        placeName={recommendation.name}
+        initialCity={recommendation.city}
+        initialCountry={recommendation.country}
+        initialCityId={recommendation.cityId}
+        onAdded={(routeName) => {
+          toast({
+            title: "Added to route",
+            description: `${recommendation.name} added to ${routeName}`,
+          });
+          setShowRoutePicker(false);
+        }}
       />
     </Drawer>
   );

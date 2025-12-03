@@ -39,8 +39,7 @@ const ItemActions: React.FC<ItemActionsProps> = ({
   const mapUrl = generateMapLink(item.name, item.location);
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {/* Visited Toggle Button */}
+    <div className="flex items-center gap-1.5">
       <button
         className={`transition-all p-1 rounded-full ${
           item.visited

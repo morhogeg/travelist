@@ -229,11 +229,17 @@ const InboxPage: React.FC = () => {
       return;
     }
 
+    const address =
+      selectedItem.displayTitle ||
+      [place.name, place.city, place.country].filter(Boolean).join(", ") ||
+      selectedItem.rawText;
+
     const recId = uuidv4();
     const newRecommendation = {
       id: recId,
       city: place.city.trim(),
       country: place.country.trim(),
+      location: address,
       categories: [place.category || "general"],
       places: [
         {
@@ -241,9 +247,10 @@ const InboxPage: React.FC = () => {
           category: place.category || "general",
           description: place.description?.trim(),
           source: place.source,
-          context: place.description?.trim()
-            ? { specificTip: place.description.trim() }
-            : undefined,
+          context: {
+            ...(place.description?.trim() ? { specificTip: place.description.trim() } : {}),
+            ...(address ? { address } : {}),
+          },
         },
       ],
       rawText: selectedItem.rawText,

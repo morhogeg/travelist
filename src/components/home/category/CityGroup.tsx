@@ -147,7 +147,7 @@ const CityGroup: React.FC<Props> = ({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="mt-2">
+            <div className="mt-1">
               <GridView
                 items={processedItems}
                 onDeleteRecommendation={handleDeleteRecommendation}
