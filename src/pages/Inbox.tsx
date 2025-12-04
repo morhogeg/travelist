@@ -338,14 +338,6 @@ const InboxPage: React.FC = () => {
             Inbox
           </h1>
           <div className="absolute right-0 flex items-center gap-2">
-            <button
-              onClick={importFromShareExtension}
-              className="min-h-10 min-w-10 rounded-full flex items-center justify-center hover:opacity-70 ios26-transition-smooth border border-border bg-background/80"
-              aria-label="Refresh inbox from share sheet"
-              disabled={isImporting}
-            >
-              {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            </button>
             <FilterButton
               activeCount={filterCities.length + filterCountries.length + filterSources.length}
               onClick={() => setFilterDrawerOpen(true)}
@@ -357,7 +349,7 @@ const InboxPage: React.FC = () => {
 
           {filteredItems.length === 0 && (
             <div className="liquid-glass-clear border border-dashed border-border rounded-xl p-4 text-center text-sm text-muted-foreground">
-              No shared items yet. Paste a message to get started.
+              Share places from apps like Google Maps or Instagram, then open the app to find them here.
             </div>
           )}
 
