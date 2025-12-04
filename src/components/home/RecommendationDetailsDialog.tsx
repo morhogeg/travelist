@@ -118,37 +118,38 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
       >
         {/* Compact Header */}
         <div className="relative px-6 pt-5 pb-4 bg-background border-b">
-          {recommendation.dateAdded && (
-            <div className="absolute top-3 right-4 flex items-center text-xs text-muted-foreground whitespace-nowrap">
-              <Calendar className="h-3 w-3 mr-1" />
-              <span>
-                {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </span>
+          <div className="grid grid-cols-[auto,1fr,auto] items-center gap-3">
+            <div
+              className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-2xl"
+              style={{ color: categoryColor }}
+            >
+              {categoryIcon}
             </div>
-          )}
 
-          {/* Category icon anchored left, not influencing centering */}
-          <div
-            className="absolute left-4 top-4 w-10 h-10 flex items-center justify-center text-2xl"
-            style={{ color: categoryColor }}
-          >
-            {categoryIcon}
-          </div>
+            <div className="flex flex-col items-center justify-center text-center">
+              <h2 className="text-2xl font-extrabold leading-tight text-center mx-auto">{recommendation.name}</h2>
+              {fullAddress && (
+                <button
+                  onClick={(e) => handleExternalClick(e, mapUrl)}
+                  className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mx-auto"
+                >
+                  <Navigation className="h-3.5 w-3.5" />
+                  <span className="line-clamp-2 text-center">{fullAddress}</span>
+                </button>
+              )}
+            </div>
 
-          <div className="flex flex-col items-center justify-center gap-1 text-center">
-            <h2 className="text-2xl font-extrabold leading-tight">{recommendation.name}</h2>
-            {fullAddress && (
-              <button
-                onClick={(e) => handleExternalClick(e, mapUrl)}
-                className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mx-auto"
-              >
-                <Navigation className="h-3.5 w-3.5" />
-                <span className="line-clamp-2">{fullAddress}</span>
-              </button>
+            {recommendation.dateAdded && (
+              <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap">
+                <Calendar className="h-3 w-3 mr-1" />
+                <span>
+                  {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
             )}
           </div>
         </div>

@@ -20,6 +20,7 @@
 - Home detail drawer: address pill opens Maps; actions now read “Add to Collection,” “Add to Route” (route picker drawer to create/select routes), and “Mark Visited.” Delete uses the confirmation dialog and neutral styling.
 - Route/Collection picker drawers support multi-select with purple “Done” and toasts listing all selected destinations; “Create New” uses solid borders and a map-pin-plus icon for routes.
 - Home detail header refined: category icon left, centered title/address, date top-right, inline tip/recommender, and flattened buttons/rows for a cleaner look.
+- Occasion tags now highlight in our purple when selected; detail header centering polished.
 
 ## Why it broke before
 - The native config (`ios/App/App/capacitor.config.json`) sometimes regenerated without `SharedInboxPlugin`, so the app reported `UNIMPLEMENTED` and never imported.
