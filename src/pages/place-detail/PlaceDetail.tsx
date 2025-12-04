@@ -183,7 +183,7 @@ const PlaceDetail = () => {
       country: place?.country,
       source: {
         type: 'ai',
-        name: 'AI Suggested',
+        name: 'Travelist AI',
       },
     });
     setIsDrawerOpen(true);

@@ -166,7 +166,7 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
               whileTap={{ scale: 0.9 }}
               onClick={handleRefresh}
               disabled={isLoading}
-              className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50"
+              className="p-2 rounded-lg disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 text-muted-foreground ${isLoading ? 'animate-spin' : ''}`} />
             </motion.button>

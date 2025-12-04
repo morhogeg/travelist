@@ -130,15 +130,15 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
               )}
               <div className="flex-1 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  {source?.type === 'ai' ? (
-                    <span className="font-semibold text-sm text-[#667eea]">
-                      AI Suggested
-                    </span>
-                  ) : (
-                    <span className="font-semibold text-sm">
-                      Recommended by{' '}
-                      <button
-                        onClick={() => source?.name && handleSourceClick(source.name)}
+              {source?.type === 'ai' ? (
+                <span className="font-semibold text-sm text-[#667eea]">
+                  Recommended by Travelist AI
+                </span>
+              ) : (
+                <span className="font-semibold text-sm">
+                  Recommended by{' '}
+                  <button
+                    onClick={() => source?.name && handleSourceClick(source.name)}
                         className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold cursor-pointer transition-colors"
                       >
                         {source?.name || "someone"}
