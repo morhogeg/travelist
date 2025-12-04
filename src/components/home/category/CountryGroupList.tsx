@@ -35,8 +35,10 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
     if (!countriesMap[country]) countriesMap[country] = [];
 
     group.items = [...group.items].sort((a, b) => {
-      if (a.visited !== b.visited) return a.visited ? 1 : -1;
-      return new Date(b.dateAdded || "").getTime() - new Date(a.dateAdded || "").getTime();
+      if (a.visited !== b.visited) return a.visited ? 1 : -1; // unvisited first
+      const nameA = (a.name || "").toLowerCase();
+      const nameB = (b.name || "").toLowerCase();
+      return nameA.localeCompare(nameB);
     });
 
     countriesMap[country].push(group);
