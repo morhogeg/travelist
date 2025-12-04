@@ -1,7 +1,7 @@
 /**
- * Grok Suggestions Provider
+ * Suggestions Provider (OpenRouter)
  *
- * Uses Grok 4.1 Fast via OpenRouter to generate personalized place recommendations
+ * Uses OpenRouter to generate personalized place recommendations
  * based on the user's saved places in a city.
  */
 
@@ -14,7 +14,7 @@ import {
 } from '../types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'x-ai/grok-4.1-fast:free'; // Grok 4.1 fast (free tier)
+const MODEL = 'tngtech/deepseek-r1t2-chimera:free'; // DeepSeek via OpenRouter (free tier)
 
 /**
  * Generates a unique ID for suggestions
@@ -54,14 +54,14 @@ export class GrokSuggestionsProvider implements LLMProvider {
       throw new Error('OpenRouter API key not configured. Please set VITE_OPENROUTER_API_KEY in your .env file.');
     }
 
-    console.log('[Grok Suggestions] Generating suggestions for:', request.cityName, request.countryName);
-    console.log('[Grok Suggestions] Based on saved places:', request.savedPlaces.map(p => p.name));
+    console.log('[AI Suggestions] Generating suggestions for:', request.cityName, request.countryName);
+    console.log('[AI Suggestions] Based on saved places:', request.savedPlaces.map(p => p.name));
 
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(request);
 
     try {
-      console.log('[Grok Suggestions] Calling OpenRouter API with model:', MODEL);
+      console.log('[AI Suggestions] Calling OpenRouter API with model:', MODEL);
 
       const response = await fetch(OPENROUTER_API_URL, {
         method: 'POST',
@@ -84,7 +84,7 @@ export class GrokSuggestionsProvider implements LLMProvider {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('[Grok Suggestions] API error:', response.status, errorData);
+        console.error('[AI Suggestions] API error:', response.status, errorData);
         throw new Error(`API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}`);
       }
 
@@ -92,8 +92,8 @@ export class GrokSuggestionsProvider implements LLMProvider {
       const content = data.choices?.[0]?.message?.content;
       const actualModel = data.model || MODEL;
 
-      console.log('[Grok Suggestions] Response received from model:', actualModel);
-      console.log('[Grok Suggestions] Raw response:', content);
+      console.log('[AI Suggestions] Response received from model:', actualModel);
+      console.log('[AI Suggestions] Raw response:', content);
 
       if (!content) {
         throw new Error('Empty response from API');
@@ -102,7 +102,7 @@ export class GrokSuggestionsProvider implements LLMProvider {
       // Parse the JSON response
       const suggestions = this.parseResponse(content, request.maxSuggestions || 5);
 
-      console.log('[Grok Suggestions] Parsed suggestions:', suggestions);
+      console.log('[AI Suggestions] Parsed suggestions:', suggestions);
 
       return {
         suggestions,
@@ -112,7 +112,7 @@ export class GrokSuggestionsProvider implements LLMProvider {
         basedOnPlaces: request.savedPlaces.map(p => p.name),
       };
     } catch (error) {
-      console.error('[Grok Suggestions] Error:', error);
+      console.error('[AI Suggestions] Error:', error);
       throw error;
     }
   }
