@@ -111,7 +111,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
                   isRow ? "pl-7" : "pl-5"
                 }`}
               >
-                <Lightbulb className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 {item.description || item.context?.specificTip}
               </p>
             )}
