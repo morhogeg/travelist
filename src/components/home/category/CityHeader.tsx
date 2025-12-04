@@ -34,7 +34,7 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
   return (
     <div className="flex items-center justify-between mb-1 min-h-10 -mx-2 px-2">
       <motion.div
-        className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 ios26-transition-smooth py-[6px] -ml-1 pl-6"
+        className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 ios26-transition-smooth py-[6px] -ml-1 pl-7"
         onClick={handleCityNameClick}
         whileTap={{ scale: 0.98 }}
       >
