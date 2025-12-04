@@ -81,16 +81,16 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           <div className={`${isRow ? "px-1.5 py-2" : "px-2 py-1 sm:px-2 sm:py-1.5"}`}>
             <div className="flex items-center gap-2">
               {/* Left side: Content */}
-              <div className="flex-1 min-w-0 flex items-center gap-2">
+              <div className={`flex-1 min-w-0 flex items-center gap-2 ${isRow ? "pl-7" : "pl-5"}`}>
                 {/* Category icon */}
                 <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: borderColor }}>
                   {getCategoryIcon(item.category)}
                 </div>
-                <h3 className="text-sm font-semibold leading-tight flex-1 truncate">{item.name}</h3>
+                <h3 className="text-[15px] font-semibold leading-snug flex-1 truncate">{item.name}</h3>
               </div>
 
               {/* Right side: Actions inline */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 justify-end w-[76px]">
                 <ItemActions
                   item={item}
                   onDelete={onDelete}
@@ -101,7 +101,11 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
             </div>
 
             {(item.description || item.context?.specificTip) && (
-              <p className="mt-1 text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1">
+              <p
+                className={`mt-1 text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1 opacity-90 ${
+                  isRow ? "pl-7" : "pl-5"
+                }`}
+              >
                 <Lightbulb className="h-3 w-3 flex-shrink-0 mt-0.5" />
                 {item.description || item.context?.specificTip}
               </p>

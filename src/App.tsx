@@ -62,13 +62,7 @@ function AppContent() {
     let isMounted = true;
 
     const importNow = async () => {
-      const imported = await importSharedInbox();
-      if (imported > 0 && isMounted) {
-        toast({
-          title: "Imported shared items",
-          description: `${imported} item${imported > 1 ? "s" : ""} added to Inbox`,
-        });
-      }
+      await importSharedInbox();
     };
 
     importNow();

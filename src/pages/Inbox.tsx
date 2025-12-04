@@ -29,6 +29,7 @@ import { categories as categoryPills } from "@/components/recommendations/utils/
 import CategoryPill from "@/components/ui/CategoryPill";
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 import { FilterButton } from "@/components/home/filters";
+import { importSharedInbox } from "@/utils/inbox/shared-import";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +63,7 @@ const InboxPage: React.FC = () => {
   const [filterCities, setFilterCities] = useState<string[]>([]);
   const [filterSources, setFilterSources] = useState<string[]>([]);
   const [itemToDelete, setItemToDelete] = useState<InboxItem | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   const recommendationCities = useMemo(() => {
     const recs = getRecommendations();
@@ -108,11 +110,42 @@ const InboxPage: React.FC = () => {
     return Array.from(new Set(sources)).sort();
   }, [items]);
 
+  const importFromShareExtension = async () => {
+    try {
+      setIsImporting(true);
+      const imported = await importSharedInbox();
+      if (imported > 0) {
+        setItems(getInboxItems());
+      } else {
+        console.log("[Inbox] No new shared items found");
+      }
+    } catch (err: any) {
+      toast({
+        title: "Import failed",
+        description: err?.message || "Could not pull items from the share sheet. Make sure the app build includes SharedInboxPlugin.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   useEffect(() => {
+    void importFromShareExtension();
     setItems(getInboxItems());
     const handler = () => setItems(getInboxItems());
     window.addEventListener("inboxUpdated", handler);
-    return () => window.removeEventListener("inboxUpdated", handler);
+    const handleVisibility = () => {
+      if (!document.hidden) void importFromShareExtension();
+    };
+    window.addEventListener("focus", importFromShareExtension);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("inboxUpdated", handler);
+      window.removeEventListener("focus", importFromShareExtension);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   const sortedItems = useMemo(() => {
@@ -304,7 +337,15 @@ const InboxPage: React.FC = () => {
           <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Inbox
           </h1>
-          <div className="absolute right-0">
+          <div className="absolute right-0 flex items-center gap-2">
+            <button
+              onClick={importFromShareExtension}
+              className="min-h-10 min-w-10 rounded-full flex items-center justify-center hover:opacity-70 ios26-transition-smooth border border-border bg-background/80"
+              aria-label="Refresh inbox from share sheet"
+              disabled={isImporting}
+            >
+              {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            </button>
             <FilterButton
               activeCount={filterCities.length + filterCountries.length + filterSources.length}
               onClick={() => setFilterDrawerOpen(true)}
@@ -333,6 +374,11 @@ const InboxPage: React.FC = () => {
                     <span className="text-xs text-muted-foreground">
                       {new Date(item.receivedAt).toLocaleString()}
                     </span>
+                    {item.error && (
+                      <span className="text-[11px] text-destructive font-medium">
+                        {item.error}
+                      </span>
+                    )}
                   </div>
 
                   <p className="text-sm font-semibold leading-6 break-words">
@@ -342,6 +388,15 @@ const InboxPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                  {(item.error || item.status === "needs_info") && (
+                    <button
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/10 ios26-transition-smooth"
+                      onClick={() => triggerParse(item.id)}
+                      disabled={processingId === item.id}
+                    >
+                      {processingId === item.id ? "Parsing…" : "Retry AI Parse"}
+                    </button>
+                  )}
                   <button
                     className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
                     onClick={() => handleOpenLink(item)}

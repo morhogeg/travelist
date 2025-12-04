@@ -48,6 +48,7 @@ interface CountryGroupProps {
   hideCountryHeader?: boolean; // ✅ NEW PROP
   hideCountry?: boolean;
   isLastCountry?: boolean;
+  showCounts?: boolean;
 }
 
 const CountryGroup: React.FC<CountryGroupProps> = ({
@@ -63,7 +64,8 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   hideCityHeader = false,
   hideCountryHeader = false, // ✅ default false
   hideCountry = false,
-  isLastCountry = false
+  isLastCountry = false,
+  showCounts = true
 }) => {
   // Initialize collapsed state from localStorage
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -94,20 +96,20 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
       <div className="px-4">
       {!hideCountryHeader && (
         <motion.div
-          className="flex items-center justify-between mb-1 cursor-pointer min-h-[40px] -mx-2 px-3 py-1 rounded-xl hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth"
+          className="flex items-center justify-between mb-1 cursor-pointer min-h-[38px] -mx-2 px-3 py-[6px] rounded-xl hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth"
           onClick={toggleCollapse}
           whileTap={{ scale: 0.98 }}
         >
           <h2
-            className="text-[17px] font-semibold flex items-center gap-2"
+            className="text-sm font-semibold tracking-[0.06em] uppercase flex items-center gap-2 opacity-75"
             onClick={(e) => {
               e.stopPropagation();
               handleCountryClick();
             }}
           >
             <span>{flag}</span>
-            <span>{country}</span>
-            <span className="text-sm font-normal text-muted-foreground">({totalItems})</span>
+            <span className="truncate">{country}</span>
+            {showCounts && <span className="text-[11px] font-medium opacity-70">({totalItems})</span>}
           </h2>
 
           <motion.div
@@ -147,6 +149,7 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
                     viewMode={viewMode}
                     hideCityHeader={hideCityHeader}
                     hideCountry={hideCountry}
+                    showCounts={showCounts}
                     isLastInCountry={index === groups.length - 1}
                   />
                 </div>

@@ -229,6 +229,10 @@ color: #764ba2;
 
 ## 🎯 Recent Changes Summary
 
+**Latest (Jan 2026): Inbox + Hierarchy polish**
+- Inbox share parsing now uses OpenRouter `tngtech/deepseek-r1t2-chimera:free`; failures keep items editable and import toasts were removed.
+- Home hierarchy clarified: countries/cities de-emphasized, city/place indentation added (tips align), and country/city counts hidden on the home screen only (still available for collections/routes).
+
 **Latest (December 2025): Supabase Sync + Auth**
 - Email/password auth added in Settings (inline password toggle)
 - Backfill local recommendations to Supabase on sign-in

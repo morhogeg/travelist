@@ -311,23 +311,24 @@ const Index: React.FC = () => {
           onFilterClick={() => setIsFilterSheetOpen(true)}
         />
 
-        <div className="mb-3 space-y-3">
-          {/* Categories Row */}
-          <div className="pl-3 pr-4">
-            <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />
-          </div>
+        {/* Categories Row */}
+        <div className="pl-3 pr-4 mb-2">
+          <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />
+        </div>
+        <div className="px-4 mb-3">
           <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         </div>
 
-        <CountryGroupList
-          groupedRecommendations={groupedRecommendations}
-          onToggleVisited={handleToggleVisited}
-          onDeleteRecommendation={handleDeleteRecommendation}
-          onEditClick={handleEditClick}
-          onViewDetails={handleViewDetails}
-          onCityClick={handleCityClick}
-          onRefresh={loadRecommendations}
-        />
+          <CountryGroupList
+            groupedRecommendations={groupedRecommendations}
+            onToggleVisited={handleToggleVisited}
+            onDeleteRecommendation={handleDeleteRecommendation}
+            onEditClick={handleEditClick}
+            onViewDetails={handleViewDetails}
+            onCityClick={handleCityClick}
+            onRefresh={loadRecommendations}
+            showCounts={false}
+          />
 
         <RecommendationDrawer
           isDrawerOpen={isDrawerOpen}

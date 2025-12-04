@@ -58,30 +58,38 @@ const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({ onSheetOpenCh
 
   return (
     <>
-      <CategoriesScrollContainer>
-        <div className="flex gap-3">
-          <CategoryList
-            categories={visibleCategories}
-            activeCategories={resolvedActive}
-            onCategoryToggle={handleCategoryToggle}
-          />
-          {hasMoreCategories && (
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setIsSheetOpen(true)}
-              className="flex items-center gap-1.5 min-h-11 py-2.5 px-3 rounded-xl text-[13px] font-semibold ios26-transition-spring liquid-glass-clear bg-neutral-100/40 dark:bg-neutral-800/40 text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 whitespace-nowrap outline-none select-none"
-              style={{
-                border: "none",
-                boxShadow: "none",
-                WebkitTapHighlightColor: "transparent",
-              }}
-            >
-              <span>{hiddenCount} More</span>
-              <ChevronDown className="h-4 w-4" />
-            </motion.button>
-          )}
-        </div>
-      </CategoriesScrollContainer>
+      <div
+        className="sticky left-0 right-0 z-30 bg-background/90 backdrop-blur-xl w-full top-0"
+        style={{
+          position: "-webkit-sticky",
+          top: "max(env(safe-area-inset-top, 0px), 0px)",
+        }}
+      >
+        <CategoriesScrollContainer>
+          <div className="flex gap-3 py-2">
+            <CategoryList
+              categories={visibleCategories}
+              activeCategories={resolvedActive}
+              onCategoryToggle={handleCategoryToggle}
+            />
+            {hasMoreCategories && (
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                onClick={() => setIsSheetOpen(true)}
+                className="flex items-center gap-1.5 min-h-11 py-2.5 px-3 rounded-xl text-[13px] font-semibold ios26-transition-spring liquid-glass-clear bg-neutral-100/40 dark:bg-neutral-800/40 text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 whitespace-nowrap outline-none select-none"
+                style={{
+                  border: "none",
+                  boxShadow: "none",
+                  WebkitTapHighlightColor: "transparent",
+                }}
+              >
+                <span>{hiddenCount} More</span>
+                <ChevronDown className="h-4 w-4" />
+              </motion.button>
+            )}
+          </div>
+        </CategoriesScrollContainer>
+      </div>
 
       <CategorySheet
         isOpen={isSheetOpen}

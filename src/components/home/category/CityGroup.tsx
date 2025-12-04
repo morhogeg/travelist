@@ -49,7 +49,8 @@ const CityGroup: React.FC<Props> = ({
   onRefresh,
   hideCityHeader = false, // ✅ default false
   hideCountry = false,
-  isLastInCountry = false
+  isLastInCountry = false,
+  showCounts = true
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -135,6 +136,7 @@ const CityGroup: React.FC<Props> = ({
             });
           }}
           itemCount={items.length}
+          showCount={showCounts}
         />
       )}
 

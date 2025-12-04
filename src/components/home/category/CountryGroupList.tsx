@@ -12,6 +12,7 @@ interface CountryGroupListProps {
   onRefresh?: () => void;
   viewMode?: "grid" | "list";
   toggleViewMode?: () => void;
+  showCounts?: boolean;
 }
 
 const CountryGroupList: React.FC<CountryGroupListProps> = ({
@@ -23,6 +24,7 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
   onCityClick,
   onRefresh,
   viewMode = "grid",
+  showCounts = true,
 }) => {
   if (!groupedRecommendations || groupedRecommendations.length === 0) return null;
 
@@ -61,6 +63,7 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
           onCityClick={onCityClick}
           onRefresh={onRefresh}
           viewMode={viewMode}
+          showCounts={showCounts}
           isLastCountry={index === sortedCountries.length - 1}
         />
       ))}

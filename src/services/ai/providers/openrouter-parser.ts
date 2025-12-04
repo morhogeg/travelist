@@ -6,7 +6,8 @@ import { PlaceCategory } from '../types';
 import { SourceType, RecommendationSource } from '@/utils/recommendation/types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'x-ai/grok-4.1-fast:free'; // Grok 4.1 fast (free tier)
+// DeepSeek via OpenRouter (free tier)
+const MODEL = 'tngtech/deepseek-r1t2-chimera:free';
 
 export interface ParsedPlace {
   name: string;

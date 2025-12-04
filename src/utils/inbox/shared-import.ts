@@ -40,6 +40,10 @@ export async function importSharedInbox(): Promise<number> {
     return items.length;
   } catch (err) {
     console.warn("[Inbox] Failed to import shared items", err);
+    if ((err as any)?.message?.toLowerCase?.().includes("unimplemented") || (err as any)?.code === "ERR_NOT_AVAILABLE") {
+      throw new Error("SharedInboxPlugin not available. Run `npx cap copy ios && node scripts/ensure-shared-inbox-plugin.js`, rebuild in Xcode, and ensure App Groups are enabled for both targets.");
+    }
+    console.warn("[Inbox] Failed to import shared items", err);
     return 0;
   }
 }

@@ -8,6 +8,7 @@ interface ExtendedCityHeaderProps extends CityHeaderProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   itemCount?: number;
+  showCount?: boolean;
 }
 
 const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
@@ -16,7 +17,8 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
   onCityClick,
   isCollapsed = false,
   onToggleCollapse,
-  itemCount = 0
+  itemCount = 0,
+  showCount = true
 }) => {
   const handleCityNameClick = () => {
     onCityClick(cityId);
@@ -30,14 +32,14 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between mb-2 min-h-11 -mx-2 px-2">
+    <div className="flex items-center justify-between mb-1 min-h-10 -mx-2 px-2">
       <motion.div
-        className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 ios26-transition-smooth py-1 -ml-1 pl-1"
+        className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 ios26-transition-smooth py-[6px] -ml-1 pl-5"
         onClick={handleCityNameClick}
         whileTap={{ scale: 0.98 }}
       >
-        <h2 className="text-base font-medium">{cityName}</h2>
-        <span className="text-sm text-muted-foreground">({itemCount})</span>
+        <h2 className="text-sm font-semibold opacity-85">{cityName}</h2>
+        {showCount && <span className="text-[11px] opacity-70">({itemCount})</span>}
       </motion.div>
 
       {onToggleCollapse && (

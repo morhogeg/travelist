@@ -321,8 +321,10 @@ const PlaceDetail = () => {
         )}
       </AnimatePresence>
 
-      <div className="mb-3 space-y-3">
+      <div className="px-4 mb-2">
         <CategoriesScrollbar />
+      </div>
+      <div className="px-4 mb-3">
         <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
       </div>
 

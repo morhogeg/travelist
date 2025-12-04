@@ -16,6 +16,7 @@ export interface CityGroupProps {
   onToggleVisited: (id: string) => void;
   onDeleteRecommendation: (id: string) => void;
   onCityClick?: (cityId: string) => void;
+  showCounts?: boolean;
 }
 
 export interface CityHeaderProps {

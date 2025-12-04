@@ -109,14 +109,14 @@ export async function parseInboxItem(id: string): Promise<InboxItem | null> {
   try {
     const result = await parseSharedText(target.rawText);
     if (result.error) {
-      return updateInboxItem(id, { status: "failed", error: result.error }) as InboxItem;
+      return updateInboxItem(id, { status: "needs_info", error: result.error }) as InboxItem;
     }
 
     const status = deriveStatusFromPlaces(result.places);
     return updateInboxItem(id, { parsedPlaces: result.places, status, error: undefined }) as InboxItem;
   } catch (err: any) {
     console.error("[Inbox] Parse failed", err);
-    return updateInboxItem(id, { status: "failed", error: err?.message || "Parse failed" }) as InboxItem;
+    return updateInboxItem(id, { status: "needs_info", error: err?.message || "Parse failed" }) as InboxItem;
   }
 }
 
