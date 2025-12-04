@@ -46,19 +46,15 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load available places when drawer opens
   useEffect(() => {
     if (isOpen) {
       const recommendations = getRecommendations();
-
-      // Get places from the same city only
       const cityPlaces: PlaceItem[] = [];
       const existingPlaceIds = new Set(
         route.days.flatMap(day => day.places.map(p => p.placeId))
       );
 
       recommendations.forEach(rec => {
-        // Only include places from the same city
         if (rec.cityId === route.cityId || rec.city === route.city) {
           rec.places.forEach(place => {
             if (place.id) {
@@ -72,12 +68,10 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
         }
       });
 
-      // Remove duplicates
       const uniquePlaces = Array.from(
         new Map(cityPlaces.map(place => [place.id, place])).values()
       );
 
-      // Sort: not in route first, then by name
       uniquePlaces.sort((a, b) => {
         if (a.alreadyInRoute !== b.alreadyInRoute) {
           return a.alreadyInRoute ? 1 : -1;
@@ -87,7 +81,6 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
 
       setAvailablePlaces(uniquePlaces);
     } else {
-      // Reset state when drawer closes
       setSearchTerm("");
       setSelectedPlaceIds([]);
       setSelectedCategory(null);
@@ -96,7 +89,6 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
 
   const handleTogglePlace = (placeId: string, alreadyInRoute: boolean) => {
     if (alreadyInRoute) {
-      // Don't allow selecting places already in route
       toast({
         title: "Already in route",
         description: "This place is already added to your route.",
@@ -146,7 +138,6 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
     }
   };
 
-  // Filter places based on search term and category
   const filteredPlaces = availablePlaces.filter(place => {
     const matchesSearch =
       place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -159,23 +150,19 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
     return matchesSearch && matchesCategory;
   });
 
-  // Get available categories from places
   const availableCategories = Array.from(
     new Set(availablePlaces.map(p => p.category?.toLowerCase()).filter(Boolean))
   );
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border max-h-[85vh] flex flex-col">
+      <DrawerContent className="bg-background text-foreground border-t border-border max-h-[85vh] flex flex-col">
         <DrawerHeader className="flex-shrink-0">
-          <DrawerTitle>Add Places to Day {dayNumber}</DrawerTitle>
-          <DrawerDescription>
-            Select places from {route.city} to add to your itinerary
-          </DrawerDescription>
+          <DrawerTitle>Add places to Day {dayNumber}</DrawerTitle>
+          <DrawerDescription>Select places from {route.city}</DrawerDescription>
         </DrawerHeader>
 
         <div className="px-6 space-y-4 overflow-y-auto flex-1 min-h-0">
-          {/* Search and Filter */}
           <div className="space-y-3 sticky top-0 bg-background z-10 pb-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -187,7 +174,6 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
               />
             </div>
 
-            {/* Category Filter Chips */}
             {availableCategories.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                 <Button
@@ -198,116 +184,77 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
                   className={`shrink-0 text-xs ${!selectedCategory ? 'text-white border-transparent' : ''}`}
                   style={!selectedCategory ? {
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  } : undefined}
+                    boxShadow: '0 6px 20px rgba(102, 126, 234, 0.3)',
+                  } : {}}
                 >
                   All
                 </Button>
-                {categories
-                  .filter(cat => availableCategories.includes(cat.id.toLowerCase()))
-                  .map(cat => {
-                    const isActive = selectedCategory?.toLowerCase() === cat.id.toLowerCase();
-                    return (
-                      <Button
-                        key={cat.id}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedCategory(cat.id)}
-                        className={`shrink-0 text-xs ${isActive ? 'text-white border-transparent' : ''}`}
-                        style={isActive ? {
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        } : undefined}
-                      >
-                        {cat.icon} {cat.label}
-                      </Button>
-                    );
-                  })
-                }
+
+                {availableCategories.map((catId) => {
+                  const cat = categories.find(c => c.id.toLowerCase() === catId);
+                  return (
+                    <Button
+                      key={catId}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedCategory(catId)}
+                      className={`shrink-0 text-xs ${selectedCategory === catId ? 'text-white border-transparent' : ''}`}
+                      style={selectedCategory === catId ? {
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        boxShadow: '0 6px 20px rgba(102, 126, 234, 0.3)',
+                      } : {}}
+                    >
+                      {cat?.icon} {cat?.label || catId}
+                    </Button>
+                  );
+                })}
               </div>
             )}
           </div>
 
-          {/* Places List */}
-          {availablePlaces.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No places available in {route.city}.</p>
-              <p className="text-sm mt-2">Add some recommendations first!</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filteredPlaces.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  No places match your search
-                </p>
-              ) : (
-                filteredPlaces.map(place => {
-                  const categoryColor = getCategoryColor(place.category);
-                  const isDisabled = place.alreadyInRoute;
-                  const isSelected = selectedPlaceIds.includes(place.id!);
-
-                  return (
-                    <div
-                      key={place.id}
-                      className={`flex items-center space-x-3 p-3 rounded-xl border-l-4 transition-all ${
-                        isDisabled
-                          ? 'opacity-50 cursor-not-allowed bg-muted/50'
-                          : 'cursor-pointer'
-                      }`}
-                      style={!isDisabled ? { borderLeftColor: categoryColor } : {}}
-                      onClick={() => !isDisabled && handleTogglePlace(place.id!, isDisabled)}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        disabled={isDisabled}
-                        onCheckedChange={() => handleTogglePlace(place.id!, isDisabled)}
-                        onClick={(e) => e.stopPropagation()}
-                        className={isSelected ? "border-[#667eea] data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-[#667eea] data-[state=checked]:to-[#764ba2]" : ""}
-                      />
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="shrink-0" style={{ color: categoryColor }}>
-                            {getCategoryIcon(place.category)}
-                          </div>
-                          <p className="font-medium text-sm truncate">{place.name}</p>
-                        </div>
-
-                        {place.description && (
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {place.description}
-                          </p>
-                        )}
-
-                        {isDisabled && (
-                          <p className="text-xs text-primary mt-1">
-                            ✓ Already in route
-                          </p>
-                        )}
-                      </div>
+          <div className="space-y-2">
+            {filteredPlaces.map((place) => {
+              const categoryColor = getCategoryColor(place.category || 'general');
+              const categoryIcon = getCategoryIcon(place.category || 'general');
+              return (
+                <label
+                  key={place.id}
+                  className={`flex items-start gap-3 p-3 rounded-xl border ios26-transition-smooth ${place.alreadyInRoute ? 'opacity-60' : ''}`}
+                  style={{
+                    borderColor: place.alreadyInRoute ? 'var(--border)' : 'var(--border)',
+                  }}
+                  onClick={() => handleTogglePlace(place.id!, place.alreadyInRoute)}
+                >
+                  <Checkbox
+                    checked={selectedPlaceIds.includes(place.id!)}
+                    onCheckedChange={() => handleTogglePlace(place.id!, place.alreadyInRoute)}
+                    disabled={place.alreadyInRoute}
+                  />
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span style={{ color: categoryColor }}>{categoryIcon}</span>
+                      <p className="font-medium text-sm">{place.name}</p>
                     </div>
-                  );
-                })
-              )}
-            </div>
-          )}
+                    {place.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">{place.description}</p>
+                    )}
+                  </div>
+                </label>
+              );
+            })}
+          </div>
         </div>
 
-        <DrawerFooter className="border-t border-border flex-shrink-0 pointer-events-auto">
-          <Button
-            type="button"
-            onClick={handleAddPlaces}
-            disabled={selectedPlaceIds.length === 0}
-            className={`font-semibold pointer-events-auto ${selectedPlaceIds.length === 0 ? 'bg-muted text-muted-foreground' : 'text-white'}`}
-            style={selectedPlaceIds.length > 0 ? {
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-            } : undefined}
-          >
-            Add {selectedPlaceIds.length > 0 && `(${selectedPlaceIds.length})`} Place{selectedPlaceIds.length !== 1 ? 's' : ''}
-          </Button>
-          <DrawerClose asChild>
-            <Button variant="outline" type="button">Cancel</Button>
-          </DrawerClose>
+        <DrawerFooter className="border-t border-border">
+          <div className="flex gap-2">
+            <Button className="flex-1" onClick={handleAddPlaces}>
+              Add to Day {dayNumber}
+            </Button>
+            <DrawerClose asChild>
+              <Button variant="outline" className="flex-1">Cancel</Button>
+            </DrawerClose>
+          </div>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

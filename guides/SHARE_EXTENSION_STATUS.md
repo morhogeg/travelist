@@ -18,6 +18,7 @@
 - Inbox drawer edits a single place (first parsed place or placeholder) to avoid duplicate forms; category pills moved below country; consistent text sizing; inactive pills cleaned up in dark mode.
 - Home cards now use the same liquid-glass border/padding treatment as Inbox cards (no side accent bar) while keeping the colored category icon and existing actions; tab bar gains extra bottom padding/rounding to avoid clipped corners on devices with curved screens.
 - Home detail drawer: address pill opens Maps; actions now read “Add to Collection,” “Add to Route” (route picker drawer to create/select routes), and “Mark Visited.” Delete uses the confirmation dialog and neutral styling.
+- Route/Collection picker drawers support multi-select with purple “Done” and toasts listing all selected destinations; “Create New” uses solid borders and a map-pin-plus icon for routes.
 
 ## Why it broke before
 - The native config (`ios/App/App/capacitor.config.json`) sometimes regenerated without `SharedInboxPlugin`, so the app reported `UNIMPLEMENTED` and never imported.

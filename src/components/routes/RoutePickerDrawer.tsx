@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getRoutes, createRoute, addPlaceToRoute } from "@/utils/route/route-manager";
 import { useToast } from "@/components/ui/use-toast";
-import { FolderPlus, MapPin, Plus, Check } from "lucide-react";
+import { MapPin, MapPinPlus, Check } from "lucide-react";
 import { Route } from "@/types/route";
 
 interface RoutePickerDrawerProps {
@@ -38,6 +38,7 @@ const RoutePickerDrawer: React.FC<RoutePickerDrawerProps> = ({
   const [routes, setRoutes] = useState<Route[]>([]);
   const [newRouteName, setNewRouteName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedRouteIds, setSelectedRouteIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,25 +46,20 @@ const RoutePickerDrawer: React.FC<RoutePickerDrawerProps> = ({
       setRoutes(getRoutes());
       setNewRouteName("");
       setIsCreating(false);
+      setSelectedRouteIds(new Set());
     }
   }, [isOpen]);
 
-  const handleAddToRoute = (route: Route) => {
-    if (!placeId) return;
-    const added = addPlaceToRoute(route.id, 1, placeId);
-    if (added) {
-      toast({
-        title: "Added to route",
-        description: `${placeName} added to ${route.name}`,
-      });
-      onAdded?.(route.name);
-      onClose();
-    } else {
-      toast({
-        title: "Already in route",
-        description: `${placeName} is already in ${route.name}`,
-      });
-    }
+  const toggleRoute = (routeId: string) => {
+    setSelectedRouteIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(routeId)) {
+        next.delete(routeId);
+      } else {
+        next.add(routeId);
+      }
+      return next;
+    });
   };
 
   const handleCreateRoute = () => {
@@ -72,19 +68,44 @@ const RoutePickerDrawer: React.FC<RoutePickerDrawerProps> = ({
     const country = initialCountry || "Unknown";
     const newRoute = createRoute(name, initialCityId || "", city, country);
     setRoutes((prev) => [...prev, newRoute]);
-    handleAddToRoute(newRoute);
+    setSelectedRouteIds((prev) => new Set(prev).add(newRoute.id));
+    setIsCreating(false);
+    setNewRouteName("");
+  };
+
+  const handleDone = () => {
+    if (!placeId) return;
+    const selected = Array.from(selectedRouteIds);
+    const names: string[] = [];
+    selected.forEach((routeId) => {
+      const route = routes.find((r) => r.id === routeId);
+      if (!route) return;
+      const added = addPlaceToRoute(route.id, 1, placeId);
+      if (added) {
+        names.push(route.name);
+      }
+    });
+    if (names.length) {
+      toast({
+        title: "Added to routes",
+        description: `${placeName} added to ${names.join(", ")}`,
+      });
+    }
+    onAdded?.("");
+    onClose();
   };
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border max-h-[60vh] flex flex-col">
         <DrawerHeader className="flex-shrink-0">
-          <DrawerTitle>Add to Route</DrawerTitle>
-          <DrawerDescription>
+          <DrawerTitle className="text-center">Add to Route</DrawerTitle>
+          <DrawerDescription className="text-center">
             Select a route or create a new one for this place
           </DrawerDescription>
         </DrawerHeader>
 
+        {/* Scrollable list */}
         <div className="px-6 overflow-y-auto flex-1 min-h-0 space-y-2">
           {routes.length === 0 && !isCreating ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -93,34 +114,42 @@ const RoutePickerDrawer: React.FC<RoutePickerDrawerProps> = ({
               <p className="text-sm mt-1">Create your first route below</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {routes.map((route) => (
-                <button
-                  key={route.id}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/40 ios26-transition-smooth text-left"
-                  onClick={() => handleAddToRoute(route)}
-                >
-                  <div className="flex-shrink-0 text-muted-foreground">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{route.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {route.city} {route.country ? `• ${route.country}` : ""}
-                    </p>
-                  </div>
-                  <Check className="h-4 w-4 text-transparent group-hover:text-primary" />
-                </button>
-              ))}
+            <div className="space-y-2 pb-2">
+              {routes.map((route) => {
+                const selected = selectedRouteIds.has(route.id);
+                return (
+                  <button
+                    key={route.id}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl border ios26-transition-smooth text-left ${
+                      selected ? "border-[#667eea] bg-[#667eea]/10" : "border-border hover:border-[#667eea]/30"
+                    }`}
+                    onClick={() => toggleRoute(route.id)}
+                  >
+                    <div className="flex-shrink-0 text-muted-foreground">
+                      <MapPin className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{route.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {route.city} {route.country ? `• ${route.country}` : ""}
+                      </p>
+                    </div>
+                    {selected && (
+                      <Check className="h-4 w-4 text-[#667eea]" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
 
-          <div className="mt-4 pt-4 border-t border-border space-y-2">
-            {isCreating ? (
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Route name"
-                  value={newRouteName}
+          {/* Create route section (non-scrolling) */}
+        <div className="px-6 pt-3 pb-2 border-t border-border space-y-2">
+          {isCreating ? (
+            <div className="flex gap-2 items-center">
+              <Input
+                placeholder="Route name"
+                value={newRouteName}
                   onChange={(e) => setNewRouteName(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateRoute();
@@ -129,18 +158,18 @@ const RoutePickerDrawer: React.FC<RoutePickerDrawerProps> = ({
                   autoFocus
                   className="flex-1"
                 />
-                <Button size="sm" onClick={handleCreateRoute}>
-                  <Plus className="h-4 w-4 mr-1" />
+                <Button size="sm" onClick={handleCreateRoute} className="bg-[#667eea] text-white">
+                  <MapPinPlus className="h-4 w-4 mr-1" />
                   Save
                 </Button>
               </div>
             ) : (
               <Button
                 variant="outline"
-                className="w-full justify-start gap-2 border-dashed"
+                className="w-full justify-start gap-2 border border-border"
                 onClick={() => setIsCreating(true)}
               >
-                <FolderPlus className="h-4 w-4" />
+                <MapPinPlus className="h-4 w-4" />
                 <span>Create New Route</span>
               </Button>
             )}
@@ -148,7 +177,20 @@ const RoutePickerDrawer: React.FC<RoutePickerDrawerProps> = ({
         </div>
 
         <DrawerFooter className="border-t border-border">
-          <Button onClick={onClose}>Done</Button>
+          <Button
+            className={`w-full ring-0 focus-visible:ring-0 active:bg-muted/60 ${
+              selectedRouteIds.size === 0 ? "opacity-60 pointer-events-none" : ""
+            }`}
+            variant="default"
+            onClick={handleDone}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+            }}
+          >
+            Done
+          </Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

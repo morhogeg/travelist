@@ -12,7 +12,7 @@ const GridView: React.FC<GridViewProps> = ({
   getCategoryPlaceholder
 }) => {
   return (
-    <div className="space-y-3">
+    <div className="divide-y divide-border/60 dark:divide-white/10 rounded-2xl overflow-hidden bg-transparent">
       {items.map((item, idx) => (
         <RecommendationItem
           key={item.id}
@@ -24,6 +24,7 @@ const GridView: React.FC<GridViewProps> = ({
           onEditClick={() => onEditClick && onEditClick(item)}
           onViewDetails={() => onViewDetails && onViewDetails(item)}
           getCategoryPlaceholder={getCategoryPlaceholder}
+          isRow
         />
       ))}
     </div>

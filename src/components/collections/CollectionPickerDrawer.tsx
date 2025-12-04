@@ -40,6 +40,7 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
   const [membershipMap, setMembershipMap] = useState<Record<string, boolean>>({});
   const [newCollectionName, setNewCollectionName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedAdds, setSelectedAdds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   // Load collections and check membership when drawer opens
@@ -56,34 +57,20 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
       setMembershipMap(membership);
       setNewCollectionName("");
       setIsCreating(false);
+      setSelectedAdds(new Set());
     }
   }, [isOpen, placeId]);
 
   const handleToggleCollection = (collectionId: string) => {
-    const isCurrentlyMember = membershipMap[collectionId];
-    const collection = collections.find((c) => c.id === collectionId);
-
-    if (isCurrentlyMember) {
-      removePlaceFromCollection(collectionId, placeId);
-      toast({
-        title: "Removed from collection",
-        description: `"${placeName}" removed from "${collection?.name}"`,
-      });
-    } else {
-      addPlaceToCollection(collectionId, placeId);
-      toast({
-        title: "Added to collection",
-        description: `"${placeName}" added to "${collection?.name}"`,
-      });
-    }
-
-    // Update local state
-    setMembershipMap((prev) => ({
-      ...prev,
-      [collectionId]: !isCurrentlyMember,
-    }));
-
-    onSuccess?.();
+    setSelectedAdds((prev) => {
+      const next = new Set(prev);
+      if (next.has(collectionId)) {
+        next.delete(collectionId);
+      } else {
+        next.add(collectionId);
+      }
+      return next;
+    });
   };
 
   const handleCreateCollection = () => {
@@ -91,23 +78,20 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
 
     try {
       const newCollection = addCollection(newCollectionName.trim());
-      addPlaceToCollection(newCollection.id, placeId);
-
-      // Update local state
       setCollections((prev) => [...prev, newCollection]);
       setMembershipMap((prev) => ({
         ...prev,
-        [newCollection.id]: true,
+        [newCollection.id]: false,
       }));
+      setSelectedAdds((prev) => new Set(prev).add(newCollection.id));
 
       toast({
         title: "Collection created",
-        description: `"${placeName}" added to "${newCollectionName}"`,
+        description: `"${newCollectionName}" created`,
       });
 
       setNewCollectionName("");
       setIsCreating(false);
-      onSuccess?.();
     } catch (error) {
       toast({
         title: "Error",
@@ -127,7 +111,7 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
           <DrawerDescription>
             {memberCount > 0
               ? `In ${memberCount} collection${memberCount !== 1 ? 's' : ''}`
-              : "Select collections for this place"
+              : "Select a collection or create a new one for this place"
             }
           </DrawerDescription>
         </DrawerHeader>
@@ -144,29 +128,30 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
             <div className="space-y-2">
               {collections.map((collection) => {
                 const isMember = membershipMap[collection.id];
+                const isSelected = selectedAdds.has(collection.id) || isMember;
                 return (
                   <motion.button
                     key={collection.id}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleToggleCollection(collection.id)}
                     className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ios26-transition-smooth ${
-                      isMember
+                      isSelected
                         ? "border-[#667eea] bg-gradient-to-r from-[#667eea]/10 to-[#764ba2]/10"
                         : "border-border hover:border-[#667eea]/30"
                     }`}
                   >
-                    <div className={`flex-shrink-0 ${isMember ? "text-[#667eea]" : "text-muted-foreground"}`}>
+                    <div className={`flex-shrink-0 ${isSelected ? "text-[#667eea]" : "text-muted-foreground"}`}>
                       <Folder className="h-5 w-5" />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className={`font-medium text-sm ${isMember ? "text-[#667eea]" : ""}`}>
+                      <p className={`font-medium text-sm ${isSelected ? "text-[#667eea]" : ""}`}>
                         {collection.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {collection.placeIds?.length || 0} place{(collection.placeIds?.length || 0) !== 1 ? 's' : ''}
                       </p>
                     </div>
-                    {isMember && (
+                    {isSelected && (
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
@@ -182,7 +167,7 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
           )}
 
           {/* Create New Collection */}
-          <div className="mt-4 pt-4 border-t border-border">
+          <div className="mt-2 pt-2 border-t border-border">
             {isCreating ? (
               <div className="flex gap-2">
                 <Input
@@ -212,6 +197,7 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
                 <Button
                   size="sm"
                   variant="ghost"
+                  className="ring-0 focus-visible:ring-0"
                   onClick={() => {
                     setIsCreating(false);
                     setNewCollectionName("");
@@ -224,7 +210,7 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsCreating(true)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-border hover:border-[#667eea]/50 transition-colors"
+                className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-[#667eea]/50 transition-colors"
               >
                 <Plus className="h-5 w-5 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Create New Collection</span>
@@ -235,7 +221,41 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
 
         <DrawerFooter className="border-t border-border flex-shrink-0">
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button
+              variant="default"
+              className={`w-full ring-0 focus-visible:ring-0 active:bg-muted/60 ${
+                selectedAdds.size === 0 ? "opacity-60 pointer-events-none" : ""
+              }`}
+              style={{
+                WebkitTapHighlightColor: 'transparent',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+              }}
+             onClick={() => {
+               if (selectedAdds.size === 0) {
+                 onClose();
+                 return;
+               }
+                const names: string[] = [];
+                selectedAdds.forEach((id) => {
+                  if (!membershipMap[id]) {
+                    const col = collections.find((c) => c.id === id);
+                    if (col) names.push(col.name);
+                    addPlaceToCollection(id, placeId);
+                  }
+                });
+                if (names.length) {
+                  toast({
+                    title: "Added to collections",
+                    description: `"${placeName}" added to ${names.join(", ")}`,
+                  });
+                }
+                onSuccess?.();
+                onClose();
+              }}
+            >
+              Done
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

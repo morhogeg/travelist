@@ -34,3 +34,6 @@ export interface GridViewProps {
   getCategoryPlaceholder: (category: string) => string;
 }
 
+export interface RecommendationItemRowProps {
+  isRow?: boolean;
+}

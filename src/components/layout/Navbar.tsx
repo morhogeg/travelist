@@ -25,12 +25,12 @@ const Navbar = () => {
       }}
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+        paddingBottom: 0, // flush to bottom, ignore extra safe-area padding
       }}
     >
-      {/* iOS 26 Liquid Glass Floating Tab Bar */}
-      <nav className="liquid-glass-float px-2 py-1.5 mx-3 mb-2 rounded-3xl shadow-lg">
-        <ul className="flex items-center justify-around max-w-lg mx-auto">
+      {/* Full-width flush tab bar */}
+      <nav className="liquid-glass-float w-full px-4 py-2 border-t border-white/10 dark:border-white/10 rounded-none shadow-none backdrop-blur">
+        <ul className="flex items-center justify-around max-w-4xl mx-auto">
           {navItems.map((item) => (
             <li key={item.path} className="flex-1">
               <NavLink

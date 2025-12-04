@@ -34,6 +34,7 @@ const Index: React.FC = () => {
   const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
+  const [hideFab, setHideFab] = useState(false);
 
   // Filter state
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
@@ -81,6 +82,16 @@ const Index: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const hide = () => setHideFab(true);
+    const show = () => setHideFab(false);
+    window.addEventListener("fab:hide", hide);
+    window.addEventListener("fab:show", show);
+    return () => {
+      window.removeEventListener("fab:hide", hide);
+      window.removeEventListener("fab:show", show);
+    };
+  }, []);
   useEffect(() => {
     const handler = () => loadRecommendations();
     window.addEventListener("recommendationAdded", handler);
@@ -355,7 +366,7 @@ const Index: React.FC = () => {
         />
       )}
 
-      {!detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && !isCategorySheetOpen && (
+      {!hideFab && !detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && !isCategorySheetOpen && (
         <motion.button
           whileTap={{ scale: 0.9 }}
           whileHover={{ scale: 1.05 }}

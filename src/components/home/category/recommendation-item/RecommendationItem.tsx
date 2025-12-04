@@ -6,6 +6,7 @@ import { UserCircle, Sparkles, Lightbulb } from "lucide-react";
 import { categories, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import SwipeableCard from "./SwipeableCard";
 import CollectionPickerDrawer from "@/components/collections/CollectionPickerDrawer";
+import RoutePickerDrawer from "@/components/routes/RoutePickerDrawer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,10 +27,20 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   onCityClick,
   onEditClick,
   onViewDetails,
-  getCategoryPlaceholder
+  getCategoryPlaceholder,
+  isRow = false,
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCollectionPicker, setShowCollectionPicker] = useState(false);
+  const [showRoutePicker, setShowRoutePicker] = useState(false);
+
+  React.useEffect(() => {
+    if (showCollectionPicker || showRoutePicker || showDeleteDialog) {
+      window.dispatchEvent(new CustomEvent("fab:hide"));
+    } else {
+      window.dispatchEvent(new CustomEvent("fab:show"));
+    }
+  }, [showCollectionPicker, showRoutePicker, showDeleteDialog]);
 
   // Get category info
   const getCategoryIcon = (category: string) => {
@@ -53,18 +64,21 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
       <SwipeableCard
         onDeleteTrigger={() => setShowDeleteDialog(true)}
         onAddTrigger={() => setShowCollectionPicker(true)}
+        onAddRouteTrigger={() => setShowRoutePicker(true)}
       >
         <motion.div
           key={item.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.05 * index }}
-          className={`liquid-glass-clear rounded-2xl border border-white/30 dark:border-white/12 shadow-md ios26-transition-smooth cursor-pointer relative ${
-            item.visited ? 'ring-2 ring-success/30' : ''
-          }`}
+          className={`ios26-transition-smooth cursor-pointer relative ${
+            isRow
+              ? "bg-transparent rounded-none border-0 shadow-none"
+              : "liquid-glass-clear rounded-2xl border border-white/30 dark:border-white/12 shadow-md"
+          } ${item.visited ? 'ring-2 ring-success/30' : ''}`}
           onClick={() => onViewDetails?.(item)}
         >
-          <div className="px-2 py-1 sm:px-2 sm:py-1.5">
+          <div className={`${isRow ? "px-1.5 py-2" : "px-2 py-1 sm:px-2 sm:py-1.5"}`}>
             <div className="flex items-center gap-2">
               {/* Left side: Content */}
               <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -122,9 +136,28 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
       {/* Collection Picker Drawer */}
       <CollectionPickerDrawer
         isOpen={showCollectionPicker}
-        onClose={() => setShowCollectionPicker(false)}
+        onClose={() => {
+          setShowCollectionPicker(false);
+          window.dispatchEvent(new CustomEvent("fab:show"));
+        }}
         placeId={item.recId || item.id}
         placeName={item.name}
+        onOpenAutoFocus={() => window.dispatchEvent(new CustomEvent("fab:hide"))}
+      />
+
+      <RoutePickerDrawer
+        isOpen={showRoutePicker}
+        onClose={() => {
+          setShowRoutePicker(false);
+          window.dispatchEvent(new CustomEvent("fab:show"));
+        }}
+        placeId={item.recId || item.id}
+        placeName={item.name}
+        initialCity={item.city}
+        initialCountry={item.country}
+        initialCityId={item.cityId}
+        onOpenAutoFocus={() => window.dispatchEvent(new CustomEvent("fab:hide"))}
+        onAdded={() => setShowRoutePicker(false)}
       />
     </>
   );

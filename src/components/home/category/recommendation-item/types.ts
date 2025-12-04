@@ -24,4 +24,5 @@ export interface RecommendationItemProps {
   onEditClick?: (item: any) => void;
   onViewDetails?: (item: any) => void;
   getCategoryPlaceholder: (category: string) => string;
+  isRow?: boolean;
 }
