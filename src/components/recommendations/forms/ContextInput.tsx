@@ -152,7 +152,11 @@ export const ContextInput: React.FC<ContextInputProps> = ({
                 <Badge
                   key={tag}
                   variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                  className={`cursor-pointer hover:opacity-80 transition-opacity ${
+                    selectedTags.includes(tag)
+                      ? "bg-[#667eea] text-white border-[#667eea]"
+                      : ""
+                  }`}
                   onClick={() => toggleTag(tag)}
                 >
                   {tag}

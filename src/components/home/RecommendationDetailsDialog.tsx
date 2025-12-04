@@ -5,11 +5,9 @@ import {
   DrawerContent,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit, FolderPlus, Folder } from "lucide-react";
+import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit, FolderPlus, Folder, Lightbulb, UserCircle } from "lucide-react";
 import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
-import { Badge } from "@/components/ui/badge";
-import { RecommendationDetail } from "@/components/recommendations/RecommendationDetail";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import CollectionPickerDrawer from "@/components/collections/CollectionPickerDrawer";
@@ -114,47 +112,49 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
       <DrawerContent
         className="max-h-[85vh] p-0"
         style={{
-          borderLeft: `4px solid ${categoryColor}`,
+          borderLeft: `2px solid ${categoryColor}55`,
           boxShadow: 'none'
         }}
       >
         {/* Compact Header */}
-        <div className="relative px-6 pt-2 pb-5 bg-background border-b">
-          <div className="flex items-start gap-4">
-            {/* Category Icon - Larger */}
-            <div
-              className="flex-shrink-0 w-12 h-12 flex items-center justify-center text-3xl"
-              style={{ color: categoryColor }}
-            >
-              {categoryIcon}
+        <div className="relative px-6 pt-5 pb-4 bg-background border-b">
+          {recommendation.dateAdded && (
+            <div className="absolute top-3 right-4 flex items-center text-xs text-muted-foreground whitespace-nowrap">
+              <Calendar className="h-3 w-3 mr-1" />
+              <span>
+                {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
             </div>
+          )}
 
-            {/* Title and Location */}
-            <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-extrabold leading-tight mb-2">{recommendation.name}</h2>
+          {/* Category icon anchored left, not influencing centering */}
+          <div
+            className="absolute left-4 top-4 w-10 h-10 flex items-center justify-center text-2xl"
+            style={{ color: categoryColor }}
+          >
+            {categoryIcon}
+          </div>
 
-              {/* Location Info Inline */}
-              {/* Remove address line under title; only date remains */}
-
-              {/* Added on Date - Moved to Header */}
-              {recommendation.dateAdded && (
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  <span>
-                    Added {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </span>
-                </div>
-              )}
-            </div>
+          <div className="flex flex-col items-center justify-center gap-1 text-center">
+            <h2 className="text-2xl font-extrabold leading-tight">{recommendation.name}</h2>
+            {fullAddress && (
+              <button
+                onClick={(e) => handleExternalClick(e, mapUrl)}
+                className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mx-auto"
+              >
+                <Navigation className="h-3.5 w-3.5" />
+                <span className="line-clamp-2">{fullAddress}</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-3">
             {/* Route-Specific Notes */}
             {routeNotes && (
               <div className="px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -164,34 +164,36 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               </div>
             )}
 
-            {/* Attribution and Context Details */}
-            <RecommendationDetail
-              source={recommendation.source}
-              context={recommendation.context}
-              onClose={onClose}
-              currentPath={currentPath}
-            />
-
-            {fullAddress && (
-              <button
-                onClick={(e) => handleExternalClick(e, mapUrl)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-border/70 bg-muted/30 dark:border-white/10 dark:bg-white/5 text-left hover:border-primary/50 hover:bg-primary/5 transition-colors"
-              >
-                <Navigation className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-sm text-foreground/90 dark:text-white line-clamp-2">
-                  {fullAddress}
-                </span>
-              </button>
-            )}
+            {/* Compact attribution/tip row */}
+            <div className="flex flex-wrap items-center gap-3">
+              {recommendation.context?.specificTip && (
+                <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-sm">
+                  <Lightbulb className="h-4 w-4" />
+                  <span className="">{recommendation.context.specificTip}</span>
+                </div>
+              )}
+              {recommendation.source?.name && (
+                <div className="flex items-center gap-1 text-[#667eea] text-sm">
+                  <UserCircle className="h-4 w-4" />
+                  <span>
+                    Recommended by{" "}
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: recommendation.source?.name }))}
+                      className="font-semibold text-[#667eea] hover:opacity-80"
+                    >
+                      {recommendation.source.name}
+                    </button>
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-4">
+            <div className="flex flex-wrap gap-3 pt-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="default"
-                className={`flex-1 min-w-[140px] ios26-transition-smooth ${
-                  'bg-background text-foreground border-border dark:bg-white/5 dark:text-white dark:border-white/15'
-                } flex-1 min-w-[140px] ios26-transition-smooth`}
+                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
                 onClick={(e) => {
                   (e.target as HTMLButtonElement).blur();
                   setShowCollectionPicker(true);
@@ -202,9 +204,9 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               </Button>
 
               <Button
-                variant="outline"
+                variant="ghost"
                 size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth"
+                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
                 onClick={(e) => {
                   (e.target as HTMLButtonElement).blur();
                   handleAddToRoute();
@@ -215,13 +217,9 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               </Button>
 
               <Button
-                variant="outline"
+                variant="ghost"
                 size="default"
-                className={`flex-1 min-w-[140px] ios26-transition-smooth ${
-                  isVisited
-                    ? 'bg-green-500 text-white border-green-500 hover:bg-green-600'
-                    : 'bg-background text-foreground border-border dark:bg-white/5 dark:text-white dark:border-white/15'
-                }`}
+                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
                 onClick={(e) => {
                   (e.target as HTMLButtonElement).blur();
                   const next = !isVisited;
@@ -237,14 +235,11 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
         {/* Footer */}
         {!hideEditDelete ? (
-          <div
-            className="p-4 border-t liquid-glass-clear flex items-center gap-3"
-            style={{ boxShadow: 'none' }}
-          >
+          <div className="p-4 pt-2 flex items-center gap-3">
             <Button
-              variant="outline"
+              variant="ghost"
               size="default"
-              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth"
+              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
               onClick={() => setShowDeleteDialog(true)}
             >
               <Trash2 className="h-4 w-4" />
@@ -252,9 +247,9 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
             </Button>
 
             <Button
-              variant="outline"
+              variant="ghost"
               size="default"
-              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth"
+              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
               onClick={onEdit}
             >
               <Edit className="h-4 w-4" />
@@ -262,23 +257,20 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
             </Button>
 
             <Button
-              variant="outline"
+              variant="ghost"
               size="default"
-              className="flex-1"
+              className="flex-1 border border-border/60 dark:border-white/15"
               onClick={onClose}
             >
               Close
             </Button>
           </div>
         ) : (
-          <div
-            className="p-4 border-t liquid-glass-clear"
-            style={{ boxShadow: 'none' }}
-          >
+          <div className="p-4 pt-2">
             <Button
-              variant="outline"
+              variant="ghost"
               size="default"
-              className="w-full"
+              className="w-full border border-border/60 dark:border-white/15"
               onClick={onClose}
             >
               Close
