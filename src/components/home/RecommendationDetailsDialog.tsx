@@ -119,12 +119,12 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
         {/* Compact Header */}
         <div className="relative px-6 pt-5 pb-4 bg-background border-b">
           <div className="grid grid-cols-[auto,1fr,auto] items-center gap-3">
-            <div
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-2xl"
-              style={{ color: categoryColor }}
-            >
-              {categoryIcon}
-            </div>
+          <div
+            className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-2xl"
+            style={{ color: categoryColor, filter: "saturate(1.5) brightness(0.9)" }}
+          >
+            {categoryIcon}
+          </div>
 
             <div className="flex flex-col items-center justify-center text-center">
               <h2 className="text-2xl font-extrabold leading-tight text-center mx-auto">{recommendation.name}</h2>
