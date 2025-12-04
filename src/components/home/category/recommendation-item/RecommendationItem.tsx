@@ -81,12 +81,14 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
           <div className={`${isRow ? "px-1.5 py-2" : "px-2 py-1 sm:px-2 sm:py-1.5"}`}>
             <div className="flex items-center gap-2">
               {/* Left side: Content */}
-                <div
+              <div
                   className={`flex-1 min-w-0 flex items-center gap-2 ${isRow ? "pl-7" : "pl-5"}`}
-                  style={{ color: borderColor, filter: "saturate(1.4) brightness(0.9)" }}
                 >
                 {/* Category icon */}
-                <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                <div
+                  className="flex-shrink-0 w-5 h-5 flex items-center justify-center"
+                  style={{ color: borderColor, filter: "saturate(1.4) brightness(0.9)" }}
+                >
                   {getCategoryIcon(item.category)}
                 </div>
                 <h3 className="text-[15px] font-semibold leading-snug flex-1 truncate">{item.name}</h3>
