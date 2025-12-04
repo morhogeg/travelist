@@ -156,7 +156,7 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="bg-background text-foreground border-t border-border max-h-[85vh] flex flex-col">
+      <DrawerContent className="bg-background text-foreground border-t border-border max-h-[85vh] flex flex-col" forceMount>
         <DrawerHeader className="flex-shrink-0">
           <DrawerTitle>Add places to Day {dayNumber}</DrawerTitle>
           <DrawerDescription>Select places from {route.city}</DrawerDescription>
@@ -170,22 +170,35 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
                 placeholder="Search places..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 focus-visible:ring-1 focus-visible:ring-transparent"
+                style={{
+                  boxShadow: 'inset 0 0 0 1px rgba(102, 126, 234, 0.18)',
+                  transition: 'box-shadow 150ms ease, border-color 150ms ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(102, 126, 234, 0.35)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(102, 126, 234, 0.18)';
+                }}
               />
             </div>
 
             {availableCategories.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setSelectedCategory(null)}
-                  className={`shrink-0 text-xs ${!selectedCategory ? 'text-white border-transparent' : ''}`}
+                  className={`shrink-0 text-xs font-semibold px-0 ${!selectedCategory ? 'text-foreground' : 'text-muted-foreground'}`}
                   style={!selectedCategory ? {
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: '#fff',
+                    padding: '6px 12px',
+                    borderRadius: '12px',
                     boxShadow: '0 6px 20px rgba(102, 126, 234, 0.3)',
-                  } : {}}
+                  } : undefined}
                 >
                   All
                 </Button>
@@ -196,14 +209,17 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
                     <Button
                       key={catId}
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => setSelectedCategory(catId)}
-                      className={`shrink-0 text-xs ${selectedCategory === catId ? 'text-white border-transparent' : ''}`}
+                      className={`shrink-0 text-xs font-semibold px-0 ${selectedCategory === catId ? 'text-foreground' : 'text-muted-foreground'}`}
                       style={selectedCategory === catId ? {
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: '#fff',
+                        padding: '6px 12px',
+                        borderRadius: '12px',
                         boxShadow: '0 6px 20px rgba(102, 126, 234, 0.3)',
-                      } : {}}
+                      } : undefined}
                     >
                       {cat?.icon} {cat?.label || catId}
                     </Button>
@@ -213,24 +229,16 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="divide-y divide-border/60 dark:divide-white/10">
             {filteredPlaces.map((place) => {
               const categoryColor = getCategoryColor(place.category || 'general');
               const categoryIcon = getCategoryIcon(place.category || 'general');
               return (
                 <label
                   key={place.id}
-                  className={`flex items-start gap-3 p-3 rounded-xl border ios26-transition-smooth ${place.alreadyInRoute ? 'opacity-60' : ''}`}
-                  style={{
-                    borderColor: place.alreadyInRoute ? 'var(--border)' : 'var(--border)',
-                  }}
+                  className={`flex items-start gap-3 py-3 ios26-transition-smooth ${place.alreadyInRoute ? 'opacity-60' : ''}`}
                   onClick={() => handleTogglePlace(place.id!, place.alreadyInRoute)}
                 >
-                  <Checkbox
-                    checked={selectedPlaceIds.includes(place.id!)}
-                    onCheckedChange={() => handleTogglePlace(place.id!, place.alreadyInRoute)}
-                    disabled={place.alreadyInRoute}
-                  />
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
                       <span style={{ color: categoryColor }}>{categoryIcon}</span>
@@ -240,21 +248,39 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
                       <p className="text-xs text-muted-foreground line-clamp-2">{place.description}</p>
                     )}
                   </div>
+                  <Checkbox
+                    checked={selectedPlaceIds.includes(place.id!)}
+                    onCheckedChange={() => handleTogglePlace(place.id!, place.alreadyInRoute)}
+                    disabled={place.alreadyInRoute}
+                    className="ml-auto h-3.5 w-3.5 rounded-full border-white text-[#667eea] data-[state=checked]:bg-white data-[state=checked]:text-[#667eea] data-[state=unchecked]:bg-transparent"
+                  />
                 </label>
               );
             })}
           </div>
         </div>
 
-        <DrawerFooter className="border-t border-border">
-          <div className="flex gap-2">
-            <Button className="flex-1" onClick={handleAddPlaces}>
-              Add to Day {dayNumber}
-            </Button>
-            <DrawerClose asChild>
-              <Button variant="outline" className="flex-1">Cancel</Button>
-            </DrawerClose>
-          </div>
+        <DrawerFooter className="border-t border-border flex flex-col gap-2">
+          <Button
+            className="w-full"
+            onClick={handleAddPlaces}
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              boxShadow: '0 8px 24px rgba(102, 126, 234, 0.35)',
+            }}
+          >
+            {selectedPlaceIds.length > 0
+              ? `Add ${selectedPlaceIds.length} ${selectedPlaceIds.length === 1 ? 'place' : 'places'} to Day ${dayNumber}`
+              : `Add to Day ${dayNumber}`}
+          </Button>
+          <DrawerClose asChild>
+            <button
+              type="button"
+              className="w-full text-center text-sm font-medium text-muted-foreground hover:text-foreground py-2"
+            >
+              Cancel
+            </button>
+          </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
