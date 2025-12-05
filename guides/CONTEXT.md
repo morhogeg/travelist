@@ -234,6 +234,7 @@ color: #764ba2;
 - Home hierarchy clarified: countries/cities de-emphasized, city/place indentation added (tips align), and country/city counts hidden on the home screen only (still available for collections/routes).
 - Inbox UI cleanup: empty-state copy now explains sharing from other apps, and the manual refresh button was removed (imports run automatically on focus).
 - Home ordering: unvisited places sort alphabetically; visited items stay grouped at the bottom and also sort alphabetically.
+- AI suggestions UX: cards widened and allow full-text reading; FAB hides when AI detail drawer opens; adding an AI card saves immediately (no edit sheet) and a new suggestion loads right away.
 
 **Latest (December 2025): Supabase Sync + Auth**
 - Email/password auth added in Settings (inline password toggle)

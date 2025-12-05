@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { getUserPlaces, getRecommendations, markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
+import { getUserPlaces, getRecommendations, markRecommendationVisited, deleteRecommendation, storeRecommendation } from "@/utils/recommendation-parser";
 import Layout from "@/components/layout/Layout";
 import { useToast } from "@/hooks/use-toast";
 import CategoryResults from "@/components/home/CategoryResults";
@@ -23,6 +23,7 @@ import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 import { AISuggestionsSection } from "@/components/ai";
 import { AISuggestion } from "@/services/ai/types";
 import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
+import { v4 as uuidv4 } from "uuid";
 
 interface Place {
   id: string;
@@ -54,6 +55,7 @@ const PlaceDetail = () => {
   const [availableOccasions, setAvailableOccasions] = useState<string[]>([]);
   const [availableSourceNames, setAvailableSourceNames] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [hideFab, setHideFab] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -124,6 +126,18 @@ const PlaceDetail = () => {
     return () => window.removeEventListener("categorySelected", categoryHandler);
   }, []);
 
+  // Listen for FAB hide/show events from child components (e.g., AI suggestions drawer)
+  useEffect(() => {
+    const handleHide = () => setHideFab(true);
+    const handleShow = () => setHideFab(false);
+    window.addEventListener("fab:hide", handleHide);
+    window.addEventListener("fab:show", handleShow);
+    return () => {
+      window.removeEventListener("fab:hide", handleHide);
+      window.removeEventListener("fab:show", handleShow);
+    };
+  }, []);
+
   const handleEditClick = (recommendation: any) => {
     setEditRecommendation(recommendation);
     setIsDrawerOpen(true);
@@ -173,20 +187,43 @@ const PlaceDetail = () => {
   };
 
   // Handle adding an AI suggestion to the list
-  const handleAddAISuggestion = (suggestion: AISuggestion) => {
-    // Pre-fill the drawer with suggestion data, including AI source
-    setEditRecommendation({
-      name: suggestion.name,
-      category: suggestion.category,
-      description: suggestion.description,
-      city: place?.name,
-      country: place?.country,
-      source: {
-        type: 'ai',
-        name: 'Travelist AI',
-      },
+  const handleAddAISuggestion = async (suggestion: AISuggestion) => {
+    if (!place) return;
+
+    const recId = uuidv4();
+    const newRecommendation = {
+      id: recId,
+      cityId: place.id,
+      city: place.name,
+      country: place.country || "",
+      categories: [suggestion.category || "general"],
+      places: [
+        {
+          id: uuidv4(),
+          recId,
+          name: suggestion.name,
+          category: suggestion.category || "general",
+          description: suggestion.description,
+          source: {
+            type: "ai",
+            name: "Travelist AI",
+          },
+          context: {
+            ...(suggestion.description ? { specificTip: suggestion.description } : {}),
+            ...(suggestion.whyRecommended ? { why: suggestion.whyRecommended } : {}),
+          },
+        },
+      ],
+      rawText: suggestion.whyRecommended,
+      dateAdded: new Date().toISOString(),
+    };
+
+    await storeRecommendation(newRecommendation as any);
+    toast({
+      title: "Added from AI suggestions",
+      description: `${suggestion.name} was added to your list.`,
     });
-    setIsDrawerOpen(true);
+    loadRecommendations();
   };
 
   const handleClearSearch = () => {
@@ -352,7 +389,7 @@ const PlaceDetail = () => {
         onAddSuggestion={handleAddAISuggestion}
       />
 
-      {!isDrawerOpen && !detailsDialogOpen && (
+      {!isDrawerOpen && !detailsDialogOpen && !hideFab && (
         <motion.button
           whileTap={{ scale: 0.9 }}
           whileHover={{ scale: 1.05 }}

@@ -29,6 +29,7 @@ interface AISuggestionCardProps {
   countryName: string;
   onAdd?: (suggestion: AISuggestion) => void;
   index?: number;
+  onSelect?: (suggestion: AISuggestion) => void;
 }
 
 const CATEGORY_ICONS: Record<PlaceCategory, React.ElementType> = {
@@ -47,6 +48,7 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
   countryName,
   onAdd,
   index = 0,
+  onSelect,
 }) => {
   const Icon = CATEGORY_ICONS[suggestion.category] || MapPin;
   const categoryColor = getCategoryColor(suggestion.category);
@@ -63,10 +65,19 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.3 }}
-      className="min-w-[260px] max-w-[280px] flex-shrink-0"
+      className="flex-shrink-0 flex-grow-0 basis-full"
+      style={{
+        width: 'min(620px, calc(100vw - 12px))',
+        minWidth: 'min(620px, calc(100vw - 12px))',
+        maxWidth: 'min(620px, calc(100vw - 12px))',
+        scrollSnapAlign: 'start'
+      }}
+      onClick={() => onSelect?.(suggestion)}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : -1}
     >
       <div
-        className="liquid-glass-clear rounded-2xl px-3.5 pt-3.5 pb-2.5 h-full border border-white/10 dark:border-white/5"
+        className="liquid-glass-clear rounded-2xl px-4 pt-4 pb-4 h-full border border-white/10 dark:border-white/5"
         style={{ boxShadow: 'none' }}
       >
         {/* Header with icon and name */}
@@ -90,12 +101,12 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
         </div>
 
         {/* Description */}
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-2.5">
+        <p className="text-xs text-muted-foreground line-clamp-3 mb-2.5">
           {suggestion.description}
         </p>
 
         {/* Why recommended - matching tip style */}
-        <p className="text-xs text-amber-600 dark:text-amber-400 line-clamp-3 mb-2.5 flex items-start gap-1.5">
+        <p className="text-xs text-amber-600 dark:text-amber-400 line-clamp-4 mb-2.5 flex items-start gap-1.5">
           <Lightbulb className="w-3 h-3 flex-shrink-0 mt-0.5" />
           <span>{suggestion.whyRecommended}</span>
         </p>
@@ -122,8 +133,8 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-primary transition-colors p-2 rounded-full hover:bg-muted/60"
-            onClick={(e) => e.stopPropagation()}
             aria-label="Open in Google Maps"
+            onClick={(e) => e.stopPropagation()}
           >
             <Navigation className="w-4 h-4" />
           </a>
@@ -132,7 +143,10 @@ export const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
           {onAdd && (
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={handleAdd}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAdd();
+              }}
               className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white text-xs font-medium ios26-transition-smooth"
             >
               <Plus className="w-4 h-4" />

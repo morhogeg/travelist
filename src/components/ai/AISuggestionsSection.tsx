@@ -7,12 +7,22 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RefreshCw, ChevronRight, ChevronDown, Info, EyeOff } from 'lucide-react';
+import { Sparkles, RefreshCw, ChevronRight, ChevronLeft, ChevronDown, Info, EyeOff, Lightbulb } from 'lucide-react';
 import { AISuggestion } from '@/services/ai/types';
 import { useAISuggestions } from '@/hooks/useAISuggestions';
 import { AISuggestionCard } from './AISuggestionCard';
 import { lightHaptic, mediumHaptic } from '@/utils/ios/haptics';
 import { DEFAULT_AI_CONFIG } from '@/services/ai';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
+} from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const AI_HIDDEN_KEY = 'travelist-ai-suggestions-hidden';
 
@@ -44,9 +54,17 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
     savedPlacesCount,
     refresh,
   } = useAISuggestions(cityName, countryName);
+  const [visibleSuggestions, setVisibleSuggestions] = useState<AISuggestion[]>([]);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<AISuggestion | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
 
   const minPlaces = DEFAULT_AI_CONFIG.minPlacesForSuggestions;
   const placesNeeded = minPlaces - savedPlacesCount;
+
+  // Keep a local list so we can optimistically remove added items
+  useEffect(() => {
+    setVisibleSuggestions(suggestions);
+  }, [suggestions]);
 
   const handleRefresh = async () => {
     mediumHaptic();
@@ -56,7 +74,14 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
   const scrollRight = () => {
     lightHaptic();
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 280, behavior: 'smooth' });
+      scrollRef.current.scrollBy({ left: scrollRef.current.clientWidth * 0.95, behavior: 'smooth' });
+    }
+  };
+
+  const scrollLeft = () => {
+    lightHaptic();
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -scrollRef.current.clientWidth * 0.95, behavior: 'smooth' });
     }
   };
 
@@ -138,6 +163,7 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
   }
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -170,6 +196,15 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
             >
               <RefreshCw className={`w-4 h-4 text-muted-foreground ${isLoading ? 'animate-spin' : ''}`} />
             </motion.button>
+            {canScrollLeft && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={scrollLeft}
+                className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              >
+                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+              </motion.button>
+            )}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={scrollRight}
@@ -192,17 +227,27 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
           >
             <div
               ref={scrollRef}
-              className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-2"
+              className="flex gap-2 overflow-x-auto scrollbar-hide px-2 pb-2"
               style={{ scrollSnapType: 'x mandatory' }}
+              onScroll={() => {
+                if (!scrollRef.current) return;
+                setCanScrollLeft(scrollRef.current.scrollLeft > 4);
+              }}
             >
               <AnimatePresence mode="popLayout">
-                {isLoading && suggestions.length === 0 ? (
+            {isLoading && suggestions.length === 0 ? (
                   // Loading skeletons
                   <>
                     {[0, 1, 2].map((i) => (
                       <div
                         key={`skeleton-${i}`}
-                        className="min-w-[260px] max-w-[280px] flex-shrink-0"
+                        className="flex-shrink-0 w-full"
+                        style={{
+                          width: 'min(560px, calc(100vw - 40px))',
+                          minWidth: 'min(560px, calc(100vw - 40px))',
+                          maxWidth: 'min(560px, calc(100vw - 40px))',
+                          scrollSnapAlign: 'start'
+                        }}
                       >
                         <div className="liquid-glass-clear rounded-2xl p-4 animate-pulse">
                           <div className="flex items-start gap-3 mb-3">
@@ -220,14 +265,24 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
                     ))}
                   </>
                 ) : (
-                  suggestions.map((suggestion, index) => (
-                    <div key={suggestion.id} className="relative">
+                  visibleSuggestions.map((suggestion, index) => (
+                    <div key={suggestion.id || suggestion.name + index} className="relative">
                       <AISuggestionCard
                         suggestion={suggestion}
                         cityName={cityName}
                         countryName={countryName}
-                        onAdd={onAddSuggestion}
+                      onAdd={(s) => {
+                        onAddSuggestion?.(s);
+                        setVisibleSuggestions((prev) =>
+                          prev.filter((p) => (p.id || p.name) !== (s.id || s.name))
+                        );
+                        refresh(); // fetch next suggestions immediately
+                      }}
                         index={index}
+                        onSelect={(s) => {
+                          setSelectedSuggestion(s);
+                          window.dispatchEvent(new CustomEvent("fab:hide"));
+                        }}
                       />
                       {index !== suggestions.length - 1 && (
                         <div className="absolute right-[-10px] top-4 bottom-4 w-px bg-gradient-to-b from-neutral-200/60 via-neutral-200/30 to-transparent dark:from-neutral-700/60 dark:via-neutral-700/30" />
@@ -241,6 +296,76 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
         )}
       </AnimatePresence>
     </motion.div>
+
+    {!!selectedSuggestion && (
+      <Drawer
+        open={!!selectedSuggestion}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedSuggestion(null);
+            window.dispatchEvent(new CustomEvent("fab:show"));
+          }
+        }}
+      >
+        <DrawerContent className="max-h-[80vh]">
+          <DrawerHeader className="pb-2">
+            <DrawerTitle>{selectedSuggestion?.name}</DrawerTitle>
+            <DrawerDescription className="flex flex-wrap gap-2 text-sm">
+              {selectedSuggestion?.category && <span className="capitalize">{selectedSuggestion.category}</span>}
+              {selectedSuggestion?.estimatedPriceRange && (
+                <span className="text-green-600 dark:text-green-400 font-semibold">
+                  {selectedSuggestion.estimatedPriceRange}
+                </span>
+              )}
+            </DrawerDescription>
+          </DrawerHeader>
+          <ScrollArea className="px-4 pb-4 max-h-[60vh]">
+            <div className="space-y-3 text-sm pr-2">
+              {selectedSuggestion?.description && (
+                <p className="text-foreground leading-relaxed">{selectedSuggestion.description}</p>
+              )}
+              {selectedSuggestion?.whyRecommended && (
+                <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400">
+                  <Lightbulb className="w-4 h-4 mt-0.5" />
+                  <span>{selectedSuggestion.whyRecommended}</span>
+                </div>
+              )}
+              {selectedSuggestion?.tags?.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {selectedSuggestion.tags.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[11px] px-2 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-muted-foreground"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              <div className="flex gap-2 pt-2">
+                {onAddSuggestion && selectedSuggestion && (
+                  <Button
+                    className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                    onClick={() => {
+                      onAddSuggestion(selectedSuggestion);
+                      setSelectedSuggestion(null);
+                    }}
+                  >
+                    Add to List
+                  </Button>
+                )}
+                <DrawerClose asChild>
+                  <Button variant="outline" className="flex-1">
+                    Close
+                  </Button>
+                </DrawerClose>
+              </div>
+            </div>
+          </ScrollArea>
+        </DrawerContent>
+      </Drawer>
+    )}
+    </>
   );
 };
 
