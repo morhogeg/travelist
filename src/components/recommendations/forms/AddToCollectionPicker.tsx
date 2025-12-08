@@ -41,27 +41,30 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
     <div className="space-y-2">
       <Label className="block">Add to Collection</Label>
       <div className="flex flex-wrap gap-2">
-        {collections.map((collection) => (
-          <Button
-            key={collection.id}
-            type="button"
-            variant="outline"
-            onClick={() => handleSelect(collection.id)}
-            className="text-sm focus-visible:ring-0 focus-visible:outline-none focus:outline-none active:bg-transparent"
-            style={selected === collection.id ? {
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: '0 0 0 rgba(0,0,0,0)',
-              color: '#fff',
-              WebkitTapHighlightColor: "transparent",
-            } : {
-              WebkitTapHighlightColor: "transparent",
-              background: "transparent",
-              color: "inherit",
-            }}
-          >
-            {collection.name}
-          </Button>
-        ))}
+        {collections.map((collection) => {
+          const isSelected = selected === collection.id;
+          return (
+            <button
+              key={collection.id}
+              type="button"
+              onClick={() => handleSelect(collection.id)}
+              className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all outline-none border focus:outline-none focus-visible:outline-none ${
+                isSelected
+                  ? "border-transparent"
+                  : "text-foreground border-border hover:bg-neutral-100/5 dark:hover:bg-neutral-800/40"
+              }`}
+              style={{
+                background: isSelected
+                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  : 'transparent',
+                color: isSelected ? '#fff' : 'inherit',
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              {collection.name}
+            </button>
+          );
+        })}
       </div>
       <div className="flex gap-2 mt-2">
         <Input

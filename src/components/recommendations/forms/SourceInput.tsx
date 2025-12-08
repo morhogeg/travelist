@@ -87,7 +87,12 @@ export const SourceInput: React.FC<SourceInputProps> = ({
             <Button
               type="button"
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-border bg-transparent hover:bg-transparent active:bg-transparent data-[state=open]:bg-transparent focus-visible:ring-0 focus-visible:outline-none focus:outline-none text-foreground data-[state=open]:text-foreground"
+              style={{ WebkitTapHighlightColor: "transparent", color: "var(--foreground)" }}
+              onClick={(e) => {
+                // prevent lingering focus styles causing color shifts
+                (e.currentTarget as HTMLButtonElement).blur();
+              }}
             >
               <UserCircle className="h-4 w-4" />
               <span>Who recommended this?</span>

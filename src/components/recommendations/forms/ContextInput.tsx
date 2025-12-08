@@ -93,7 +93,11 @@ export const ContextInput: React.FC<ContextInputProps> = ({
             <Button
               type="button"
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-border bg-transparent hover:bg-transparent active:bg-transparent data-[state=open]:bg-transparent focus-visible:ring-0 focus-visible:outline-none focus:outline-none text-foreground data-[state=open]:text-foreground"
+              style={{ WebkitTapHighlightColor: "transparent", color: "var(--foreground)" }}
+              onClick={(e) => {
+                (e.currentTarget as HTMLButtonElement).blur();
+              }}
             >
               <Lightbulb className="h-4 w-4" />
               <span>Add tips & context</span>
@@ -120,10 +124,30 @@ export const ContextInput: React.FC<ContextInputProps> = ({
             >
               Clear all
             </Button>
-          )}
-        </div>
+            )}
+          </div>
 
-        <CollapsibleContent className="space-y-4">
+          <CollapsibleContent className="space-y-4">
+          {/* Website */}
+          <FormField
+            control={form.control}
+            name="website"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Website (optional)</FormLabel>
+                <FormControl>
+                  <ClearableInput
+                    placeholder="e.g. www.example.com or https://example.com"
+                    {...field}
+                    value={field.value || ""}
+                    onClear={() => form.setValue("website", "")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Specific Tip */}
           <FormField
             control={form.control}

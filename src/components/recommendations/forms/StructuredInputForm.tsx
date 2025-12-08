@@ -138,7 +138,6 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
         <CityInput form={form} initialCity={initialCity} />
         <CountrySelect form={form} initialCountry={initialCountry} />
         <CategorySelection form={form} />
-        <RecommendationFields form={form} onlyWebsite />
         <SourceInput form={form} initialSource={editRecommendation?.source} />
         <ContextInput form={form} initialContext={getContextWithTip()} />
         {!editRecommendation && (

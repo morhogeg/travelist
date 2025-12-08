@@ -237,6 +237,7 @@ color: #764ba2;
 - AI suggestions UX: cards widened and allow full-text reading; FAB hides when AI detail drawer opens; adding an AI card saves immediately (no edit sheet) and a new suggestion loads right away.
 - UI polish: category pill bar tighter alignment, inputs use consistent text size/height across drawers.
 - Structured form polish: website field moved into tips/context collapsible; tap highlights removed from collapsible triggers; collection pills toggle cleanly (no blue flash), with consistent selected text color.
+- Additional polish: collapsible trigger text now stays foreground on open/close without blue highlight; collection pills force white text when selected.
 
 **Latest (December 2025): Supabase Sync + Auth**
 - Email/password auth added in Settings (inline password toggle)
