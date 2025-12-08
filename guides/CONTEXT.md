@@ -236,6 +236,7 @@ color: #764ba2;
 - Home ordering: unvisited places sort alphabetically; visited items stay grouped at the bottom and also sort alphabetically.
 - AI suggestions UX: cards widened and allow full-text reading; FAB hides when AI detail drawer opens; adding an AI card saves immediately (no edit sheet) and a new suggestion loads right away.
 - UI polish: category pill bar tighter alignment, inputs use consistent text size/height across drawers.
+- Structured form polish: website field moved into tips/context collapsible; tap highlights removed from collapsible triggers; collection pills toggle cleanly (no blue flash), with consistent selected text color.
 
 **Latest (December 2025): Supabase Sync + Auth**
 - Email/password auth added in Settings (inline password toggle)

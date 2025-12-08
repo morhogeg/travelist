@@ -32,8 +32,9 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
   };
 
   const handleSelect = (id: string) => {
-    setSelected(id);
-    onSelect(id);
+    const next = selected === id ? null : id;
+    setSelected(next);
+    onSelect(next);
   };
 
   return (
@@ -46,11 +47,17 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
             type="button"
             variant="outline"
             onClick={() => handleSelect(collection.id)}
-            className={`text-sm ${selected === collection.id ? "text-white border-transparent" : ""}`}
+            className="text-sm focus-visible:ring-0 focus-visible:outline-none focus:outline-none active:bg-transparent"
             style={selected === collection.id ? {
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-            } : undefined}
+              boxShadow: '0 0 0 rgba(0,0,0,0)',
+              color: '#fff',
+              WebkitTapHighlightColor: "transparent",
+            } : {
+              WebkitTapHighlightColor: "transparent",
+              background: "transparent",
+              color: "inherit",
+            }}
           >
             {collection.name}
           </Button>
