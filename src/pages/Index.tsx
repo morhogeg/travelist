@@ -312,7 +312,7 @@ const Index: React.FC = () => {
         />
 
         {/* Categories Row */}
-        <div className="pl-3 pr-4 mb-2">
+        <div className="px-2 mb-2">
           <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />
         </div>
         <div className="px-4 mb-3">

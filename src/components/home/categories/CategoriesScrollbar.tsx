@@ -66,7 +66,7 @@ const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({ onSheetOpenCh
         }}
       >
         <CategoriesScrollContainer>
-          <div className="flex gap-3 py-2">
+          <div className="flex gap-2.5 py-2 pl-0 pr-1 -ml-1">
             <CategoryList
               categories={visibleCategories}
               activeCategories={resolvedActive}
@@ -76,10 +76,12 @@ const CategoriesScrollbar: React.FC<CategoriesScrollbarProps> = ({ onSheetOpenCh
               <motion.button
                 whileTap={{ scale: 0.96 }}
                 onClick={() => setIsSheetOpen(true)}
-                className="flex items-center gap-1.5 min-h-11 py-2.5 px-3 rounded-xl text-[13px] font-semibold ios26-transition-spring liquid-glass-clear bg-neutral-100/40 dark:bg-neutral-800/40 text-foreground hover:bg-neutral-100/60 dark:hover:bg-neutral-800/60 whitespace-nowrap outline-none select-none"
+                className="flex items-center gap-1.5 min-h-11 py-2.5 px-2 text-[13px] font-semibold ios26-transition-spring text-foreground whitespace-nowrap outline-none select-none"
                 style={{
                   border: "none",
                   boxShadow: "none",
+                  background: "transparent",
+                  paddingRight: 6,
                   WebkitTapHighlightColor: "transparent",
                 }}
               >

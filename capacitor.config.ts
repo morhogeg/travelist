@@ -17,11 +17,11 @@ const config: CapacitorConfig = {
     'StatusBarPlugin',
     'SharedInboxPlugin',
   ],
-  server: {
-    url: 'http://192.168.0.105:5173',
+  server: process.env.USE_DEV_SERVER === 'true' ? {
+    url: 'http://localhost:5173',
     cleartext: true,
     iosScheme: 'travelist'
-  },
+  } : undefined,
   ios: {
     contentInset: 'automatic'
   },

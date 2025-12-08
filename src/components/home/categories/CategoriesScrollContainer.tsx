@@ -12,7 +12,7 @@ const CategoriesScrollContainer: React.FC<CategoriesScrollContainerProps> = ({ c
     <div className="relative">
       <div
         ref={scrollContainerRef}
-        className="px-4 overflow-x-auto scrollbar-hide scroll-smooth flex w-full"
+        className="px-1 overflow-x-auto scrollbar-hide scroll-smooth flex w-full"
       >
         {children}
       </div>

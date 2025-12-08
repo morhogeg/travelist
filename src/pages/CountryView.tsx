@@ -257,7 +257,7 @@ const CountryView: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="px-4 mb-2">
+      <div className="px-2 mb-2">
         <CategoriesScrollbar />
       </div>
       <div className="px-4 mb-3">
