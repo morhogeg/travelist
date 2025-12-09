@@ -310,7 +310,6 @@ const Index: React.FC = () => {
           activeFilterCount={activeFilterCount}
           onFilterClick={() => setIsFilterSheetOpen(true)}
         />
-
         {/* Categories Row */}
         <div className="px-2 mb-2">
           <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />

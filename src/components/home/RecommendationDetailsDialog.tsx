@@ -5,7 +5,7 @@ import {
   DrawerContent,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit, FolderPlus, Folder, Lightbulb, UserCircle } from "lucide-react";
+import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit, FolderPlus, Folder, Lightbulb, UserCircle, Library, Plus } from "lucide-react";
 import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -52,6 +52,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [collectionsCount, setCollectionsCount] = useState(0);
   const [firstCollectionName, setFirstCollectionName] = useState<string | null>(null);
+  const [collectionNames, setCollectionNames] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -63,6 +64,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
       const collections = getCollectionsByPlaceId(placeId);
       setCollectionsCount(collections.length);
       setFirstCollectionName(collections.length > 0 ? collections[0].name : null);
+      setCollectionNames(collections.map(c => c.name));
     }
   }, [isOpen, recommendation]);
 
@@ -72,6 +74,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
       const collections = getCollectionsByPlaceId(placeId);
       setCollectionsCount(collections.length);
       setFirstCollectionName(collections.length > 0 ? collections[0].name : null);
+      setCollectionNames(collections.map(c => c.name));
     }
   };
 
@@ -188,21 +191,50 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                 </div>
               )}
             </div>
-
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button
-                variant="ghost"
-                size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
-                onClick={(e) => {
-                  (e.target as HTMLButtonElement).blur();
-                  setShowCollectionPicker(true);
-                }}
-              >
-                <FolderPlus className="h-4 w-4 mr-2" />
-                <span>Add to Collection</span>
-              </Button>
+              {collectionsCount === 0 ? (
+                <Button
+                  variant="ghost"
+                  size="default"
+                  className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
+                  onClick={(e) => {
+                    (e.target as HTMLButtonElement).blur();
+                    setShowCollectionPicker(true);
+                  }}
+                >
+                  <div className="flex w-full items-center justify-center gap-2">
+                    <FolderPlus className="h-4 w-4" />
+                    <span>Add to Collection</span>
+                  </div>
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  size="default"
+                  className="flex-1 min-w-[140px] ios26-transition-smooth text-white"
+                  onClick={(e) => {
+                    (e.target as HTMLButtonElement).blur();
+                    setShowCollectionPicker(true);
+                  }}
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: "0 4px 15px rgba(102, 126, 234, 0.2)"
+                  }}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {collectionsCount === 1 ? <Folder className="h-4 w-4" /> : <Library className="h-4 w-4" />}
+                      <span className="truncate">
+                        {collectionsCount === 1
+                          ? `In: ${firstCollectionName}`
+                          : `In ${collectionsCount} Collections`}
+                      </span>
+                    </div>
+                    <Plus className="h-4 w-4 flex-shrink-0" />
+                  </div>
+                </Button>
+              )}
 
               <Button
                 variant="ghost"
