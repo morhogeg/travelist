@@ -122,12 +122,12 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
         {/* Compact Header */}
         <div className="relative px-6 pt-5 pb-4 bg-background border-b">
           <div className="grid grid-cols-[auto,1fr,auto] items-center gap-3">
-          <div
-            className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-2xl"
-            style={{ color: categoryColor, filter: "saturate(1.5) brightness(0.9)" }}
-          >
-            {categoryIcon}
-          </div>
+            <div
+              className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-2xl"
+              style={{ color: categoryColor, filter: "saturate(1.5) brightness(0.9)" }}
+            >
+              {categoryIcon}
+            </div>
 
             <div className="flex flex-col items-center justify-center text-center">
               <h2 className="text-2xl font-extrabold leading-tight text-center mx-auto">{recommendation.name}</h2>
@@ -159,112 +159,112 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
         {/* Content */}
         <div className="p-6 space-y-3">
-            {/* Route-Specific Notes */}
-            {routeNotes && (
-              <div className="px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <p className="text-sm text-amber-700 dark:text-amber-400">
-                  📝 {routeNotes}
-                </p>
+          {/* Route-Specific Notes */}
+          {routeNotes && (
+            <div className="px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <p className="text-sm text-amber-700 dark:text-amber-400">
+                📝 {routeNotes}
+              </p>
+            </div>
+          )}
+
+          {/* Compact attribution/tip row */}
+          <div className="flex flex-wrap items-center gap-3">
+            {recommendation.context?.specificTip && (
+              <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-sm">
+                <Lightbulb className="h-4 w-4" />
+                <span className="">{recommendation.context.specificTip}</span>
               </div>
             )}
-
-            {/* Compact attribution/tip row */}
-            <div className="flex flex-wrap items-center gap-3">
-              {recommendation.context?.specificTip && (
-                <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-sm">
-                  <Lightbulb className="h-4 w-4" />
-                  <span className="">{recommendation.context.specificTip}</span>
-                </div>
-              )}
-              {recommendation.source?.name && (
-                <div className="flex items-center gap-1 text-[#667eea] text-sm">
-                  <UserCircle className="h-4 w-4" />
-                  <span>
-                    Recommended by{" "}
-                    <button
-                      onClick={() => window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: recommendation.source?.name }))}
-                      className="font-semibold text-[#667eea] hover:opacity-80"
-                    >
-                      {recommendation.source.name}
-                    </button>
-                  </span>
-                </div>
-              )}
-            </div>
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              {collectionsCount === 0 ? (
-                <Button
-                  variant="ghost"
-                  size="default"
-                  className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
-                  onClick={(e) => {
-                    (e.target as HTMLButtonElement).blur();
-                    setShowCollectionPicker(true);
-                  }}
-                >
-                  <div className="flex w-full items-center justify-center gap-2">
-                    <FolderPlus className="h-4 w-4" />
-                    <span>Add to Collection</span>
-                  </div>
-                </Button>
-              ) : (
-                <Button
-                  variant="default"
-                  size="default"
-                  className="flex-1 min-w-[140px] ios26-transition-smooth text-white"
-                  onClick={(e) => {
-                    (e.target as HTMLButtonElement).blur();
-                    setShowCollectionPicker(true);
-                  }}
-                  style={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    boxShadow: "0 4px 15px rgba(102, 126, 234, 0.2)"
-                  }}
-                >
-                  <div className="flex w-full items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {collectionsCount === 1 ? <Folder className="h-4 w-4" /> : <Library className="h-4 w-4" />}
-                      <span className="truncate">
-                        {collectionsCount === 1
-                          ? `In: ${firstCollectionName}`
-                          : `In ${collectionsCount} Collections`}
-                      </span>
-                    </div>
-                    <Plus className="h-4 w-4 flex-shrink-0" />
-                  </div>
-                </Button>
-              )}
-
-              <Button
-                variant="ghost"
-                size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
-                onClick={(e) => {
-                  (e.target as HTMLButtonElement).blur();
-                  handleAddToRoute();
-                }}
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                <span>Add to Route</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
-                onClick={(e) => {
-                  (e.target as HTMLButtonElement).blur();
-                  const next = !isVisited;
-                  setIsVisited(next);
-                  onToggleVisited(recommendation.recId, recommendation.name, next);
-                }}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                <span>{isVisited ? 'Visited' : 'Mark Visited'}</span>
-              </Button>
-            </div>
+            {recommendation.source?.name && (
+              <div className="flex items-center gap-1 text-[#667eea] text-sm">
+                <UserCircle className="h-4 w-4" />
+                <span>
+                  Recommended by{" "}
+                  <button
+                    onClick={() => window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: recommendation.source?.name }))}
+                    className="font-semibold text-[#667eea] hover:opacity-80"
+                  >
+                    {recommendation.source.name}
+                  </button>
+                </span>
+              </div>
+            )}
           </div>
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-3 pt-2">
+            {collectionsCount === 0 ? (
+              <Button
+                variant="ghost"
+                size="default"
+                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
+                onClick={(e) => {
+                  (e.target as HTMLButtonElement).blur();
+                  setShowCollectionPicker(true);
+                }}
+              >
+                <div className="flex w-full items-center justify-center gap-2">
+                  <FolderPlus className="h-4 w-4" />
+                  <span>Add to Collection</span>
+                </div>
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                size="default"
+                className="flex-1 min-w-[140px] ios26-transition-smooth text-white"
+                onClick={(e) => {
+                  (e.target as HTMLButtonElement).blur();
+                  setShowCollectionPicker(true);
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  boxShadow: "0 4px 15px rgba(102, 126, 234, 0.2)"
+                }}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {collectionsCount === 1 ? <Folder className="h-4 w-4" /> : <Library className="h-4 w-4" />}
+                    <span className="truncate">
+                      {collectionsCount === 1
+                        ? `In: ${firstCollectionName}`
+                        : `In ${collectionsCount} Collections`}
+                    </span>
+                  </div>
+                  <Plus className="h-4 w-4 flex-shrink-0" />
+                </div>
+              </Button>
+            )}
+
+            <Button
+              variant="ghost"
+              size="default"
+              className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
+              onClick={(e) => {
+                (e.target as HTMLButtonElement).blur();
+                handleAddToRoute();
+              }}
+            >
+              <MapPin className="h-4 w-4 mr-2" />
+              <span>Add to Route</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="default"
+              className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
+              onClick={(e) => {
+                (e.target as HTMLButtonElement).blur();
+                const next = !isVisited;
+                setIsVisited(next);
+                onToggleVisited(recommendation.recId, recommendation.name, next);
+              }}
+            >
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              <span>{isVisited ? 'Visited' : 'Mark Visited'}</span>
+            </Button>
+          </div>
+        </div>
 
         {/* Footer */}
         {!hideEditDelete ? (
@@ -352,11 +352,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
         initialCity={recommendation.city}
         initialCountry={recommendation.country}
         initialCityId={recommendation.cityId}
-        onAdded={(routeName) => {
-          toast({
-            title: "Added to route",
-            description: `${recommendation.name} added to ${routeName}`,
-          });
+        onAdded={() => {
           setShowRoutePicker(false);
         }}
       />

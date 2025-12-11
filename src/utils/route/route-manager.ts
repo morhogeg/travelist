@@ -110,6 +110,7 @@ export const addPlaceToRoute = (
   routeId: string,
   dayNumber: number,
   placeId: string,
+  placeName?: string,
   notes?: string
 ): boolean => {
   const routes = getRoutes();
@@ -136,6 +137,7 @@ export const addPlaceToRoute = (
 
   const newPlace: RoutePlaceReference = {
     placeId,
+    placeName,
     order: day.places.length,
     notes,
     visited: false

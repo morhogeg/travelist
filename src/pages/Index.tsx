@@ -318,16 +318,16 @@ const Index: React.FC = () => {
           <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         </div>
 
-          <CountryGroupList
-            groupedRecommendations={groupedRecommendations}
-            onToggleVisited={handleToggleVisited}
-            onDeleteRecommendation={handleDeleteRecommendation}
-            onEditClick={handleEditClick}
-            onViewDetails={handleViewDetails}
-            onCityClick={handleCityClick}
-            onRefresh={loadRecommendations}
-            showCounts={false}
-          />
+        <CountryGroupList
+          groupedRecommendations={groupedRecommendations}
+          onToggleVisited={handleToggleVisited}
+          onDeleteRecommendation={handleDeleteRecommendation}
+          onEditClick={handleEditClick}
+          onViewDetails={handleViewDetails}
+          onCityClick={handleCityClick}
+          onRefresh={loadRecommendations}
+          showCounts={false}
+        />
 
         <RecommendationDrawer
           isDrawerOpen={isDrawerOpen}

@@ -1,7 +1,8 @@
 // Route types for organizing saved places into ordered itineraries
 
 export interface RoutePlaceReference {
-  placeId: string; // references RecommendationPlace.id
+  placeId: string; // references RecommendationPlace.id or recId
+  placeName?: string; // place name for fallback lookup if ID doesn't match
   order: number; // position in the day's itinerary
   notes?: string; // day-specific notes for this place
   visited: boolean; // visited status for this specific route

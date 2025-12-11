@@ -403,7 +403,17 @@ color: #764ba2;
 9. ✅ **AI suggestions collapsible** - Users can hide AI carousel with toggle (persists in localStorage)
 10. ✅ **AI badge on cards** - Cards from AI suggestions show sparkle icon indicator
 
-**Previous Session - Route Place Details:**
+**Previous Session - Route Places Display Bug Fix & UX Improvements (December 2025):**
+1. ✅ **Route places display fixed** - Places now correctly appear in RouteDetail after being added
+2. ✅ **Fallback place lookup** - Added `placeName` to RoutePlaceReference for name-based fallback when ID lookup fails
+3. ✅ **Route picker redesigned** - Two-mode UX: selection mode vs creation mode with clear button purposes
+4. ✅ **Create & Add flow** - Creating a new route now adds the place immediately in one action
+5. ✅ **Button layout improved** - Side-by-side "New Route" (outline) and "Add to Route" (gradient) buttons
+6. ✅ **Focus rings removed** - Eliminated blue iOS focus highlights with `focus:outline-none` + blur on click
+7. ✅ **Toast fixed** - Removed duplicate toast from parent component; RoutePickerDrawer handles it correctly
+8. ✅ **Consistent styling** - All primary buttons use purple gradient, secondary use outline/ghost
+
+**Previous Session - AI Suggestions & Filter Consistency:**
 1. ✅ **Navigate button fixed** - changed from purple gradient to white outline button (consistent with app style)
 2. ✅ **Mark Visited button fixed** - removed purple border/text styling, now uses white outline
 3. ✅ **Toggle visited working** - button now properly toggles between visited (green) and unvisited (white)

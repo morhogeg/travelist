@@ -118,7 +118,8 @@ const AddPlacesToRouteDrawer: React.FC<AddPlacesToRouteDrawerProps> = ({
 
     try {
       selectedPlaceIds.forEach(placeId => {
-        addPlaceToRoute(route.id, dayNumber, placeId);
+        const place = availablePlaces.find(p => p.id === placeId);
+        addPlaceToRoute(route.id, dayNumber, placeId, place?.name);
       });
 
       toast({

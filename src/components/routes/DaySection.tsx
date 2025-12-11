@@ -78,9 +78,8 @@ const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl p-3 border-l-4 ${
-        placeRef.visited ? 'bg-success/5' : 'bg-card'
-      } ${isDragging ? 'shadow-lg scale-105' : ''} ios26-transition-smooth`}
+      className={`rounded-xl p-3 border-l-4 ${placeRef.visited ? 'bg-success/5' : 'bg-card'
+        } ${isDragging ? 'shadow-lg scale-105' : ''} ios26-transition-smooth`}
       style={{
         ...style,
         borderLeftColor: categoryColor,
@@ -119,9 +118,8 @@ const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
                 lightHaptic();
                 onPlaceClick(placeRef.placeId);
               }}
-              className={`font-semibold text-sm cursor-pointer hover:text-primary hover:underline ios26-transition-smooth ${
-                placeRef.visited ? 'line-through text-muted-foreground' : ''
-              }`}
+              className={`font-semibold text-sm cursor-pointer hover:text-primary hover:underline ios26-transition-smooth ${placeRef.visited ? 'line-through text-muted-foreground' : ''
+                }`}
             >
               {place.name}
             </h3>
@@ -311,8 +309,29 @@ const DaySection: React.FC<DaySectionProps> = ({
           >
             <div className="space-y-2">
               {sortedPlaces.map((placeRef, index) => {
-                const place = places.get(placeRef.placeId);
-                if (!place) return null;
+                // First try lookup by placeId
+                let place = places.get(placeRef.placeId);
+
+                // Fallback: search by placeName if ID lookup fails
+                if (!place && placeRef.placeName) {
+                  for (const p of places.values()) {
+                    if (p.name.toLowerCase() === placeRef.placeName.toLowerCase()) {
+                      place = p;
+                      break;
+                    }
+                  }
+                }
+
+                if (!place) {
+                  // Show visible error instead of hiding
+                  return (
+                    <div key={placeRef.placeId} className="rounded-xl p-3 bg-red-500/10 border border-red-500/30">
+                      <p className="text-sm text-red-500">⚠️ Place not found</p>
+                      <p className="text-xs text-red-400 mt-1">Name: {placeRef.placeName || 'Unknown'}</p>
+                      <p className="text-xs text-red-400 break-all">ID: {placeRef.placeId}</p>
+                    </div>
+                  );
+                }
 
                 return (
                   <SortablePlaceItem

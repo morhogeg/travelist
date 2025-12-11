@@ -81,9 +81,11 @@ export const getFilteredRecommendations = async (
         })
         .map(async place => {
           const image = place.image || (await getSmartImage(place.name, place.category));
+          // Use recId with fallback to id for backward compatibility with old data
+          const placeIdentifier = place.recId || place.id;
           return {
-            id: place.recId,
-            recId: place.recId,
+            id: placeIdentifier,
+            recId: placeIdentifier,
             name: place.name,
             location: rec.city,
             cityId: rec.cityId || rec.id,

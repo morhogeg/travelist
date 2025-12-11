@@ -352,7 +352,7 @@ const CreateRouteDrawer: React.FC<CreateRouteDrawerProps> = ({
 
       // Add places in order
       orderedPlaces.forEach((place, index) => {
-        addPlaceToRoute(route.id, 1, place.id, undefined);
+        addPlaceToRoute(route.id, 1, place.id, place.name);
       });
 
       toast({
@@ -400,9 +400,8 @@ const CreateRouteDrawer: React.FC<CreateRouteDrawerProps> = ({
             {[1, 2, 3].map(step => (
               <div
                 key={step}
-                className={`flex-1 h-1 rounded-full ios26-transition-smooth ${
-                  step <= currentStep ? 'bg-primary' : 'bg-muted'
-                }`}
+                className={`flex-1 h-1 rounded-full ios26-transition-smooth ${step <= currentStep ? 'bg-primary' : 'bg-muted'
+                  }`}
               />
             ))}
           </div>
@@ -519,17 +518,15 @@ const CreateRouteDrawer: React.FC<CreateRouteDrawerProps> = ({
                       <div
                         key={place.id}
                         onClick={() => handleTogglePlace(place.id)}
-                        className={`rounded-xl p-3 border-l-4 cursor-pointer ios26-transition-smooth ${
-                          isSelected ? 'bg-primary/10' : 'bg-card'
-                        }`}
+                        className={`rounded-xl p-3 border-l-4 cursor-pointer ios26-transition-smooth ${isSelected ? 'bg-primary/10' : 'bg-card'
+                          }`}
                         style={{ borderLeftColor: categoryColor }}
                       >
                         <div className="flex items-start gap-3">
                           {/* Checkbox */}
                           <div className="shrink-0 mt-1">
-                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ios26-transition-smooth ${
-                              isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'
-                            }`}>
+                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ios26-transition-smooth ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'
+                              }`}>
                               {isSelected && (
                                 <CheckCircle2 className="h-4 w-4 text-white" />
                               )}
@@ -664,7 +661,7 @@ const CreateRouteDrawer: React.FC<CreateRouteDrawerProps> = ({
         isOpen={!!viewingPlace}
         onClose={() => setViewingPlace(null)}
         recommendation={viewingPlace}
-        onToggleVisited={() => {}}
+        onToggleVisited={() => { }}
         hideEditDelete={true}
       />
     </Drawer>

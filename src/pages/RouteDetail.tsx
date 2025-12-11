@@ -59,8 +59,12 @@ const RouteDetail: React.FC = () => {
 
       recommendations.forEach(rec => {
         rec.places.forEach(place => {
+          // Key by both id and recId to handle any ID format used in routes
           if (place.id) {
             placesMap.set(place.id, place);
+          }
+          if (place.recId) {
+            placesMap.set(place.recId, place);
           }
         });
       });
