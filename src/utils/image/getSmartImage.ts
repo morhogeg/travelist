@@ -1,24 +1,18 @@
 // ✅ FILE: src/utils/image/getSmartImage.ts
 
 import { getCategoryPlaceholder } from "@/utils/image/getCategoryPlaceholder";
-import { fetchPexelsImage } from "@/utils/recommendation/pexels/fetchPexelsImage";
 
 /**
  * Returns the best image for a recommendation, falling back to category placeholder.
+ * (Pexels API removed)
  */
 export const getSmartImage = async (
   name: string,
   category?: string
 ): Promise<string> => {
-  try {
-    const image = await fetchPexelsImage(name);
-    if (image) return image;
-  } catch (err) {
-    console.warn(`⚠️ Failed to fetch Pexels image for "${name}":`, err);
-  }
-
   return getCategoryPlaceholder(category || "other");
 };
+
 
 export const getCityImage = (cityName?: string): string => {
   if (!cityName) return "https://images.unsplash.com/photo-1490731727228-d56f39758d0e?auto=format&fit=crop&w=800&q=80";

@@ -1,29 +1,14 @@
 import { getCategoryPlaceholder } from "@/utils/image/getCategoryPlaceholder";
-import { fetchPexelsImage } from "./pexels/fetchPexelsImage";
 
 /**
- * Tries to fetch a smart image using Pexels. Falls back to a category placeholder.
+ * Returns the best image for a recommendation.
+ * Falls back to category placeholder (Pexels removed).
  */
 export const getSmartImage = async (name: string, category: string): Promise<string> => {
-  const query = `${name} ${category}`;
-  console.log("🧠 getSmartImage() called with:", query);
-
-  try {
-    const pexelsImage = await fetchPexelsImage(query);
-    if (pexelsImage) {
-      console.log("✅ Pexels image found:", pexelsImage);
-      return pexelsImage;
-    } else {
-      console.log("❌ No Pexels image found");
-    }
-  } catch (err) {
-    console.error("⚠️ Error calling fetchPexelsImage:", err);
-  }
-
-  const fallback = getCategoryPlaceholder(category);
-  console.log("🪂 Falling back to placeholder:", fallback);
-  return fallback;
+  // Just return the category placeholder - Pexels API removed
+  return getCategoryPlaceholder(category);
 };
+
 
 /**
  * Basic static image for known cities (used in city headers).

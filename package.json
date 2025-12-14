@@ -17,7 +17,9 @@
     "cap:open": "npx cap open ios",
     "cap:run": "npx cap run ios",
     "ios:dev": "npm run build:dev && NODE_ENV=development npx cap sync ios && npx cap open ios",
-    "ios:prod": "npm run build:prod && NODE_ENV=production npx cap sync ios && npx cap open ios"
+    "ios:prod": "npm run build:prod && NODE_ENV=production npx cap sync ios && npx cap open ios",
+    "share:test": "xcrun simctl openurl booted 'travelist://share?text=Amazing+restaurant+in+Paris+France'",
+    "share:test:url": "xcrun simctl openurl booted 'travelist://share?text=https://maps.google.com/maps?q=Le+Cinq+Paris+France'"
   },
   "dependencies": {
     "@capacitor/app": "^7.1.0",

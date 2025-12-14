@@ -16,13 +16,14 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
+  addInboxItem,
   deleteInboxItem,
   getInboxItems,
   markImported,
   parseInboxItem,
 } from "@/utils/inbox/inbox-store";
 import { InboxItem, InboxParsedPlace, InboxStatus } from "@/types/inbox";
-import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, RefreshCw } from "lucide-react";
+import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, RefreshCw, ClipboardPaste } from "lucide-react";
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
@@ -64,6 +65,7 @@ const InboxPage: React.FC = () => {
   const [filterSources, setFilterSources] = useState<string[]>([]);
   const [itemToDelete, setItemToDelete] = useState<InboxItem | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [isPasting, setIsPasting] = useState(false);
 
   const recommendationCities = useMemo(() => {
     const recs = getRecommendations();
@@ -127,6 +129,68 @@ const InboxPage: React.FC = () => {
       });
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      setIsPasting(true);
+
+      // Check if clipboard API is available
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        toast({
+          title: "Clipboard not available",
+          description: "Your browser doesn't support clipboard access. Try copying text and using the Share Extension instead.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const text = await navigator.clipboard.readText();
+
+      if (!text || !text.trim()) {
+        toast({
+          title: "Clipboard empty",
+          description: "Copy a URL or text to your clipboard first, then tap paste.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check for duplicates
+      const existingItems = getInboxItems();
+      const isDuplicate = existingItems.some(
+        (item) => item.rawText.trim().toLowerCase() === text.trim().toLowerCase()
+      );
+
+      if (isDuplicate) {
+        toast({
+          title: "Already in Inbox",
+          description: "This item is already in your Inbox.",
+        });
+        return;
+      }
+
+      // Add to inbox
+      const newItem = addInboxItem(text.trim(), "clipboard-paste");
+      setItems(getInboxItems());
+
+      toast({
+        title: "Added to Inbox",
+        description: "Item pasted from clipboard. Tap to review and save.",
+      });
+
+      // Auto-parse in background
+      triggerParse(newItem.id, true);
+    } catch (err: any) {
+      console.error("[Inbox] Clipboard paste failed", err);
+      toast({
+        title: "Paste failed",
+        description: err?.message || "Could not read from clipboard. Make sure you've granted permission.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPasting(false);
     }
   };
 
@@ -279,7 +343,6 @@ const InboxPage: React.FC = () => {
           name: place.name.trim(),
           category: place.category || "general",
           description: place.description?.trim(),
-          source: place.source,
           context: {
             ...(place.description?.trim() ? { specificTip: place.description.trim() } : {}),
             ...(address ? { address } : {}),
@@ -338,6 +401,19 @@ const InboxPage: React.FC = () => {
             Inbox
           </h1>
           <div className="absolute right-0 flex items-center gap-2">
+            <button
+              onClick={handlePasteFromClipboard}
+              disabled={isPasting}
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-50"
+              aria-label="Paste from clipboard"
+              title="Paste URL or text from clipboard"
+            >
+              {isPasting ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <ClipboardPaste className="h-5 w-5" />
+              )}
+            </button>
             <FilterButton
               activeCount={filterCities.length + filterCountries.length + filterSources.length}
               onClick={() => setFilterDrawerOpen(true)}
@@ -438,14 +514,14 @@ const InboxPage: React.FC = () => {
                 />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="relative">
-                  <ClearableInput
-                    placeholder="City"
-                    value={editablePlaces[0]?.city || ""}
-                    onChange={(e) => handleUpdatePlace(0, "city", e.target.value)}
-                    onFocus={() => setShowCitySuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
-                    className="text-base"
-                  />
+                    <ClearableInput
+                      placeholder="City"
+                      value={editablePlaces[0]?.city || ""}
+                      onChange={(e) => handleUpdatePlace(0, "city", e.target.value)}
+                      onFocus={() => setShowCitySuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
+                      className="text-base"
+                    />
                     {showCitySuggestions && filterOptions(recommendationCities, editablePlaces[0]?.city).length > 0 && (
                       <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
                         {filterOptions(recommendationCities, editablePlaces[0]?.city).map((city) => (
@@ -470,14 +546,14 @@ const InboxPage: React.FC = () => {
                     )}
                   </div>
                   <div className="relative">
-                  <ClearableInput
-                    placeholder="Country"
-                    value={editablePlaces[0]?.country || ""}
-                    onChange={(e) => handleUpdatePlace(0, "country", e.target.value)}
-                    onFocus={() => setShowCountrySuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
-                    className="text-base"
-                  />
+                    <ClearableInput
+                      placeholder="Country"
+                      value={editablePlaces[0]?.country || ""}
+                      onChange={(e) => handleUpdatePlace(0, "country", e.target.value)}
+                      onFocus={() => setShowCountrySuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
+                      className="text-base"
+                    />
                     {showCountrySuggestions && filterOptions(recommendationCountries, editablePlaces[0]?.country).length > 0 && (
                       <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
                         {filterOptions(recommendationCountries, editablePlaces[0]?.country).map((country) => (
