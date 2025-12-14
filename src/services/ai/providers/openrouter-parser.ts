@@ -88,7 +88,7 @@ Respond with a JSON array where each object includes: name, category, confidence
 /**
  * Parse free-text recommendations using Grok via OpenRouter
  */
-export async function parseWithGrok(
+export async function parseWithDeepSeek(
   text: string,
   city: string,
   country: string
@@ -96,12 +96,12 @@ export async function parseWithGrok(
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    console.error('[Grok Parser] OpenRouter API key not configured');
+    console.error('[DeepSeek Parser] OpenRouter API key not configured');
     return { places: [], error: 'API key not configured' };
   }
 
-  console.log('[Grok Parser] Starting parse with model:', MODEL);
-  console.log('[Grok Parser] Input text:', text);
+  console.log('[DeepSeek Parser] Starting parse with model:', MODEL);
+  console.log('[DeepSeek Parser] Input text:', text);
 
   const userPrompt = `Location: ${city}, ${country}
 
@@ -109,7 +109,7 @@ Parse these recommendations:
 ${text}`;
 
   try {
-    console.log('[Grok Parser] Calling OpenRouter API...');
+    console.log('[DeepSeek Parser] Calling OpenRouter API...');
 
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
@@ -132,7 +132,7 @@ ${text}`;
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('[Grok Parser] API error:', response.status, errorData);
+      console.error('[DeepSeek Parser] API error:', response.status, errorData);
       return { places: [], error: `API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}` };
     }
 
@@ -140,8 +140,8 @@ ${text}`;
     const actualModel = data.model || MODEL;
     const content = data.choices?.[0]?.message?.content;
 
-    console.log('[Grok Parser] Response received from model:', actualModel);
-    console.log('[Grok Parser] Raw response:', content);
+    console.log('[DeepSeek Parser] Response received from model:', actualModel);
+    console.log('[DeepSeek Parser] Raw response:', content);
 
     if (!content) {
       return { places: [], error: 'Empty response from API', model: actualModel };
@@ -156,7 +156,7 @@ ${text}`;
         .trim();
       parsed = JSON.parse(cleanContent);
     } catch (e) {
-      console.error('[Grok Parser] Failed to parse response:', content);
+      console.error('[DeepSeek Parser] Failed to parse response:', content);
       return { places: [], error: 'Failed to parse response', model: actualModel };
     }
 
@@ -188,10 +188,10 @@ ${text}`;
         return place;
       });
 
-    console.log('[Grok Parser] Parsed places:', places);
+    console.log('[DeepSeek Parser] Parsed places:', places);
     return { places, model: actualModel };
   } catch (error) {
-    console.error('[Grok Parser] Network error:', error);
+    console.error('[DeepSeek Parser] Network error:', error);
     return { places: [], error: 'Network error' };
   }
 }
@@ -203,12 +203,12 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    console.error('[Grok Parser] OpenRouter API key not configured');
+    console.error('[DeepSeek Parser] OpenRouter API key not configured');
     return { places: [], error: 'API key not configured' };
   }
 
-  console.log('[Grok Parser] Starting shared-text parse with model:', MODEL);
-  console.log('[Grok Parser] Shared input:', text);
+  console.log('[DeepSeek Parser] Starting shared-text parse with model:', MODEL);
+  console.log('[DeepSeek Parser] Shared input:', text);
 
   const userPrompt = `A user shared this message. Extract place names and infer city/country if the text mentions them. If missing, leave city and country blank.
 
@@ -237,7 +237,7 @@ ${text}`;
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('[Grok Parser] Shared-text API error:', response.status, errorData);
+      console.error('[DeepSeek Parser] Shared-text API error:', response.status, errorData);
       return { places: [], error: `API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}` };
     }
 
@@ -257,7 +257,7 @@ ${text}`;
         .trim();
       parsed = JSON.parse(cleanContent);
     } catch (e) {
-      console.error('[Grok Parser] Failed to parse shared response:', content);
+      console.error('[DeepSeek Parser] Failed to parse shared response:', content);
       return { places: [], error: 'Failed to parse response', model: actualModel };
     }
 
@@ -286,10 +286,10 @@ ${text}`;
         return place;
       });
 
-    console.log('[Grok Parser] Shared-text parsed places:', places);
+    console.log('[DeepSeek Parser] Shared-text parsed places:', places);
     return { places, model: actualModel };
   } catch (error) {
-    console.error('[Grok Parser] Shared-text network error:', error);
+    console.error('[DeepSeek Parser] Shared-text network error:', error);
     return { places: [], error: 'Network error' };
   }
 }

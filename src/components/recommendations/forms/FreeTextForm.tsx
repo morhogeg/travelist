@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles } from "lucide-react";
 import { getRecommendations } from "@/utils/recommendation-parser";
-import { parseWithGrok, ParsedPlace } from "@/services/ai/providers/openrouter-parser";
+import { parseWithDeepSeek, ParsedPlace } from "@/services/ai/providers/openrouter-parser";
 import { ParsePreviewSheet } from "../ParsePreviewSheet";
 import { useToast } from "@/hooks/use-toast";
 import { countryList } from "@/utils/countries";
@@ -142,7 +142,7 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
     setIsParsing(true);
 
     try {
-      const result = await parseWithGrok(
+      const result = await parseWithDeepSeek(
         values.recommendations,
         values.city,
         values.country

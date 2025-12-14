@@ -43,14 +43,14 @@ function validatePriceRange(price: string | undefined): '$' | '$$' | '$$$' | '$$
 /**
  * Grok LLM Provider implementation
  */
-export class GrokSuggestionsProvider implements LLMProvider {
+export class DeepSeekSuggestionsProvider implements LLMProvider {
   name = 'grok';
 
   async generateSuggestions(request: AISuggestionRequest): Promise<AISuggestionResult> {
     const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
     if (!apiKey) {
-      console.error('[Grok Suggestions] OpenRouter API key not configured');
+      console.error('[DeepSeek Suggestions] OpenRouter API key not configured');
       throw new Error('OpenRouter API key not configured. Please set VITE_OPENROUTER_API_KEY in your .env file.');
     }
 
@@ -209,7 +209,7 @@ Please suggest ${maxSuggestions} additional places they would likely enjoy in ${
         .trim();
       parsed = JSON.parse(cleanContent);
     } catch (e) {
-      console.error('[Grok Suggestions] Failed to parse response:', content);
+      console.error('[DeepSeek Suggestions] Failed to parse response:', content);
       throw new Error('Failed to parse AI response');
     }
 
@@ -236,4 +236,4 @@ Please suggest ${maxSuggestions} additional places they would likely enjoy in ${
 }
 
 // Export singleton instance
-export const grokSuggestionsProvider = new GrokSuggestionsProvider();
+export const deepSeekSuggestionsProvider = new DeepSeekSuggestionsProvider();

@@ -12,7 +12,7 @@ import {
   DEFAULT_AI_CONFIG,
   getCachedSuggestions,
   cacheSuggestions,
-  grokSuggestionsProvider,
+  deepSeekSuggestionsProvider,
   mockProvider,
 } from '@/services/ai';
 import { getRecommendations } from '@/utils/recommendation-parser';
@@ -140,12 +140,12 @@ export function useAISuggestions(
         maxSuggestions: DEFAULT_AI_CONFIG.maxSuggestions,
       };
 
-      // Try Grok first, fallback to mock if API fails
+      // Try DeepSeek first, fallback to mock if API fails
       let result;
       try {
-        result = await grokSuggestionsProvider.generateSuggestions(request);
-      } catch (grokError) {
-        console.warn('[AI Suggestions] Grok provider failed, falling back to mock:', grokError);
+        result = await deepSeekSuggestionsProvider.generateSuggestions(request);
+      } catch (deepSeekError) {
+        console.warn('[AI Suggestions] DeepSeek provider failed, falling back to mock:', deepSeekError);
         result = await mockProvider.generateSuggestions(request);
       }
 
