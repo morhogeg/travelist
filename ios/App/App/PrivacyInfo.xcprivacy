@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Privacy Manifest for Travelist iOS App
+  Created: December 2025
+  
+  This file declares the privacy-related APIs used by the app and the reasons for their use.
+  Required by Apple since May 2024 for all App Store submissions.
+  
+  Reference: https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
+-->
+<plist version="1.0">
+<dict>
+    <!-- Does the app or SDK track users? -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+    
+    <!-- Domains used for tracking (empty since we don't track) -->
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+    
+    <!-- Types of data collected by the app -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+    
+    <!-- Required Reason APIs accessed by the app -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <!-- 
+            UserDefaults API - Used by Capacitor/WebView for localStorage
+            The app stores user preferences, recommendations, routes, and collections locally.
+            Reason: CA92.1 - Access is for app functionality
+        -->
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+        
+        <!--
+            File Timestamp APIs - May be used by Capacitor/Plugins
+            Reason: C617.1 - Access file timestamps for the purpose of getting the correct
+                             date and time to display in the application or for ordering files
+        -->
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>C617.1</string>
+            </array>
+        </dict>
+        
+        <!--
+            System Boot Time APIs - May be accessed by Capacitor core
+            Reason: 35F9.1 - Access to measure elapsed time within the app
+        -->
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>35F9.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
