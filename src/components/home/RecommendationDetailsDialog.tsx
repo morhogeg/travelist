@@ -85,13 +85,21 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   if (!recommendation) return null;
 
   // Build full address - prefer stored address, fallback to location field, then construct from components
-  const fullAddress =
+  const rawAddress =
     recommendation?.context?.address ||
     recommendation?.location ||
     [recommendation?.city, recommendation?.country].filter(Boolean).join(", ") ||
     '';
 
-  const mapUrl = generateMapLink(recommendation.name, fullAddress || recommendation.location);
+  // Remove the place name from the address if it starts with it (avoid "Cantina Rooftop, 605 W..." when name is "Cantina Rooftop")
+  const placeName = recommendation?.name?.trim() || '';
+  let displayAddress = rawAddress;
+  if (placeName && rawAddress.toLowerCase().startsWith(placeName.toLowerCase())) {
+    // Remove name and any following comma/space
+    displayAddress = rawAddress.slice(placeName.length).replace(/^[,\s]+/, '').trim();
+  }
+
+  const mapUrl = generateMapLink(recommendation.name, rawAddress || recommendation.location);
   const websiteUrl = recommendation.website ? formatUrl(recommendation.website) : null;
   const categoryColor = getCategoryColor(recommendation.category || 'general');
   const categoryIcon = getCategoryIcon(recommendation.category || 'general');
@@ -119,38 +127,39 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
       >
         {/* Compact Header */}
         <div className="relative px-6 pt-5 pb-4 bg-background border-b">
-          <div className="grid grid-cols-[auto,1fr,auto] items-center gap-3">
-            <div
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-2xl"
-              style={{ color: categoryColor, filter: "saturate(1.5) brightness(0.9)" }}
-            >
-              {categoryIcon}
-            </div>
+          {/* Category icon - absolute left */}
+          <div
+            className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-2xl"
+            style={{ color: categoryColor, filter: "saturate(1.5) brightness(0.9)" }}
+          >
+            {categoryIcon}
+          </div>
 
-            <div className="flex flex-col items-center justify-center text-center">
-              <h2 className="text-2xl font-extrabold leading-tight text-center mx-auto">{recommendation.name}</h2>
-              {fullAddress && (
-                <button
-                  onClick={(e) => handleExternalClick(e, mapUrl)}
-                  className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mx-auto"
-                >
-                  <Navigation className="h-3.5 w-3.5" />
-                  <span className="text-center break-words">{fullAddress}</span>
-                </button>
-              )}
+          {/* Date - absolute right */}
+          {recommendation.dateAdded && (
+            <div className="absolute right-6 top-5 flex items-center text-xs text-muted-foreground whitespace-nowrap">
+              <Calendar className="h-3 w-3 mr-1" />
+              <span>
+                {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
             </div>
+          )}
 
-            {recommendation.dateAdded && (
-              <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap">
-                <Calendar className="h-3 w-3 mr-1" />
-                <span>
-                  {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
+          {/* Centered content */}
+          <div className="flex flex-col items-center justify-center text-center px-14">
+            <h2 className="text-2xl font-extrabold leading-tight text-center">{recommendation.name}</h2>
+            {displayAddress && (
+              <button
+                onClick={(e) => handleExternalClick(e, mapUrl)}
+                className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mt-1"
+              >
+                <Navigation className="h-3.5 w-3.5 flex-shrink-0" />
+                <span className="text-center break-words">{displayAddress}</span>
+              </button>
             )}
           </div>
         </div>
