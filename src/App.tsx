@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { ThemeProvider, useTheme } from "./components/ThemeProvider";
-import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { AnimatePresence } from "framer-motion";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
@@ -41,7 +39,6 @@ declare global {
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const { theme } = useTheme();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);

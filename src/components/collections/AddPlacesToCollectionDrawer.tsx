@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { addPlaceToCollection, Collection } from "@/utils/collections/collectionStore";
 import { getRecommendations } from "@/utils/recommendation-parser";
 import { useToast } from "@/hooks/use-toast";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 import { getCategoryColor, getCategoryIcon, categories } from "@/components/recommendations/utils/category-data";
 import { mediumHaptic } from "@/utils/ios/haptics";
 
@@ -251,11 +251,10 @@ const AddPlacesToCollectionDrawer: React.FC<AddPlacesToCollectionDrawerProps> = 
                   return (
                     <div
                       key={place.recId}
-                      className={`flex items-center space-x-3 p-3 rounded-xl border-l-4 transition-all ${
-                        isDisabled
+                      className={`flex items-center space-x-3 p-3 rounded-xl border-l-4 transition-all ${isDisabled
                           ? 'opacity-50 cursor-not-allowed bg-muted/50'
                           : 'cursor-pointer'
-                      }`}
+                        }`}
                       style={!isDisabled ? { borderLeftColor: categoryColor } : {}}
                       onClick={() => !isDisabled && handleTogglePlace(place.recId, isDisabled)}
                     >

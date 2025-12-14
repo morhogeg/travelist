@@ -2,14 +2,12 @@
 import React from "react";
 import Navbar from "./Navbar";
 import { motion } from "framer-motion";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const isMobile = useIsMobile();
 
   const pageVariants = {
     initial: { opacity: 0 },

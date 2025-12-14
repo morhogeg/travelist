@@ -1,7 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   RecommendationSource,
   RecommendationContext,
@@ -130,15 +129,15 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
               )}
               <div className="flex-1 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-              {source?.type === 'ai' ? (
-                <span className="font-semibold text-sm text-[#667eea]">
-                  Recommended by Travelist AI
-                </span>
-              ) : (
-                <span className="font-semibold text-sm">
-                  Recommended by{' '}
-                  <button
-                    onClick={() => source?.name && handleSourceClick(source.name)}
+                  {source?.type === 'ai' ? (
+                    <span className="font-semibold text-sm text-[#667eea]">
+                      Recommended by Travelist AI
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-sm">
+                      Recommended by{' '}
+                      <button
+                        onClick={() => source?.name && handleSourceClick(source.name)}
                         className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold cursor-pointer transition-colors"
                       >
                         {source?.name || "someone"}
@@ -219,36 +218,36 @@ export const RecommendationDetail: React.FC<RecommendationDetailProps> = ({
           {(context?.priceRange ||
             context?.bestTime ||
             context?.visitPriority) && (
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex flex-wrap gap-4 text-sm">
-                  {context.priceRange && (
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{context.priceRange}</span>
-                    </div>
-                  )}
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    {context.priceRange && (
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{context.priceRange}</span>
+                      </div>
+                    )}
 
-                  {context.bestTime && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>{context.bestTime}</span>
-                    </div>
-                  )}
+                    {context.bestTime && (
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span>{context.bestTime}</span>
+                      </div>
+                    )}
 
-                  {context.visitPriority && (
-                    <Badge
-                      variant="outline"
-                      className={getPriorityColor(context.visitPriority)}
-                    >
-                      {getPriorityEmoji(context.visitPriority)}{" "}
-                      {getPriorityLabel(context.visitPriority)}
-                    </Badge>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                    {context.visitPriority && (
+                      <Badge
+                        variant="outline"
+                        className={getPriorityColor(context.visitPriority)}
+                      >
+                        {getPriorityEmoji(context.visitPriority)}{" "}
+                        {getPriorityLabel(context.visitPriority)}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Personal Note */}
           {context?.personalNote && (

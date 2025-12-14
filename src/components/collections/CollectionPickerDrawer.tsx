@@ -14,11 +14,10 @@ import {
   getCollections,
   addCollection,
   addPlaceToCollection,
-  removePlaceFromCollection,
   Collection,
 } from "@/utils/collections/collectionStore";
 import { useToast } from "@/hooks/use-toast";
-import { Folder, FolderPlus, Check, Plus } from "lucide-react";
+import { Folder, Check, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface CollectionPickerDrawerProps {
@@ -134,11 +133,10 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
                     key={collection.id}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleToggleCollection(collection.id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ios26-transition-smooth ${
-                      isSelected
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ios26-transition-smooth ${isSelected
                         ? "border-[#667eea] bg-gradient-to-r from-[#667eea]/10 to-[#764ba2]/10"
                         : "border-border hover:border-[#667eea]/30"
-                    }`}
+                      }`}
                   >
                     <div className={`flex-shrink-0 ${isSelected ? "text-[#667eea]" : "text-muted-foreground"}`}>
                       <Folder className="h-5 w-5" />
@@ -223,19 +221,18 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
           <DrawerClose asChild>
             <Button
               variant="default"
-              className={`w-full ring-0 focus-visible:ring-0 active:bg-muted/60 ${
-                selectedAdds.size === 0 ? "opacity-60 pointer-events-none" : ""
-              }`}
+              className={`w-full ring-0 focus-visible:ring-0 active:bg-muted/60 ${selectedAdds.size === 0 ? "opacity-60 pointer-events-none" : ""
+                }`}
               style={{
                 WebkitTapHighlightColor: 'transparent',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: 'white',
               }}
-             onClick={() => {
-               if (selectedAdds.size === 0) {
-                 onClose();
-                 return;
-               }
+              onClick={() => {
+                if (selectedAdds.size === 0) {
+                  onClose();
+                  return;
+                }
                 const names: string[] = [];
                 selectedAdds.forEach((id) => {
                   if (!membershipMap[id]) {

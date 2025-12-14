@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import CityGroup from "./CityGroup";
@@ -94,70 +94,70 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   return (
     <div className="mb-1" id={`country-${country}`}>
       <div className="px-4">
-      {!hideCountryHeader && (
-        <motion.div
-          className="flex items-center justify-between mb-1 cursor-pointer min-h-[38px] -mx-2 px-3 py-[6px] rounded-xl hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth"
-          onClick={toggleCollapse}
-          whileTap={{ scale: 0.98 }}
-        >
-          <h2
-            className="text-sm font-semibold tracking-[0.06em] uppercase flex items-center gap-2 opacity-75"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCountryClick();
-            }}
-          >
-            <span>{flag}</span>
-            <span className="truncate">{country}</span>
-            {showCounts && <span className="text-[11px] font-medium opacity-70">({totalItems})</span>}
-          </h2>
-
+        {!hideCountryHeader && (
           <motion.div
-            initial={false}
-            animate={{ rotate: isCollapsed ? 0 : 180 }}
-            transition={{ duration: 0.2 }}
+            className="flex items-center justify-between mb-1 cursor-pointer min-h-[38px] -mx-2 px-3 py-[6px] rounded-xl hover:bg-[#667eea]/5 dark:hover:bg-[#667eea]/10 ios26-transition-smooth"
+            onClick={toggleCollapse}
+            whileTap={{ scale: 0.98 }}
           >
-            <ChevronDown className="h-4 w-4" />
-          </motion.div>
-        </motion.div>
-      )}
+            <h2
+              className="text-sm font-semibold tracking-[0.06em] uppercase flex items-center gap-2 opacity-75"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCountryClick();
+              }}
+            >
+              <span>{flag}</span>
+              <span className="truncate">{country}</span>
+              {showCounts && <span className="text-[11px] font-medium opacity-70">({totalItems})</span>}
+            </h2>
 
-      <AnimatePresence initial={false}>
-        {!isCollapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="space-y-1">
-              {groups.map((group, index) => (
-                <div key={group.cityId}>
-                  <CityGroup
-                    cityId={group.cityId}
-                    cityName={group.cityName}
-                    cityImage={group.cityImage}
-                    items={group.items}
-                    index={index}
-                    onEditClick={onEditClick}
-                    onViewDetails={onViewDetails}
-                    onToggleVisited={onToggleVisited}
-                    onDeleteRecommendation={onDeleteRecommendation}
-                    onCityClick={onCityClick}
-                    onRefresh={onRefresh}
-                    viewMode={viewMode}
-                    hideCityHeader={hideCityHeader}
-                    hideCountry={hideCountry}
-                    showCounts={showCounts}
-                    isLastInCountry={index === groups.length - 1}
-                  />
-                </div>
-              ))}
-            </div>
+            <motion.div
+              initial={false}
+              animate={{ rotate: isCollapsed ? 0 : 180 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown className="h-4 w-4" />
+            </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+
+        <AnimatePresence initial={false}>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-1">
+                {groups.map((group, index) => (
+                  <div key={group.cityId}>
+                    <CityGroup
+                      cityId={group.cityId}
+                      cityName={group.cityName}
+                      cityImage={group.cityImage}
+                      items={group.items}
+                      index={index}
+                      onEditClick={onEditClick}
+                      onViewDetails={onViewDetails}
+                      onToggleVisited={onToggleVisited}
+                      onDeleteRecommendation={onDeleteRecommendation}
+                      onCityClick={onCityClick}
+                      onRefresh={onRefresh}
+                      viewMode={viewMode}
+                      hideCityHeader={hideCityHeader}
+                      hideCountry={hideCountry}
+                      showCounts={showCounts}
+                      isLastInCountry={index === groups.length - 1}
+                    />
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Gradient divider between countries - only show if NOT the last country */}

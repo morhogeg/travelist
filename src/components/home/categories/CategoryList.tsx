@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import CategoryPill from "@/components/ui/CategoryPill";
 import { CategoryItem } from "./category-utils";
 
