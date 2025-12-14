@@ -84,13 +84,11 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
   if (!recommendation) return null;
 
+  // Build full address - prefer stored address, fallback to location field, then construct from components
   const fullAddress =
     recommendation?.context?.address ||
     recommendation?.location ||
-    [recommendation?.name, recommendation?.city, recommendation?.country]
-      .filter(Boolean)
-      .join(", ") ||
-    recommendation?.rawText ||
+    [recommendation?.city, recommendation?.country].filter(Boolean).join(", ") ||
     '';
 
   const mapUrl = generateMapLink(recommendation.name, fullAddress || recommendation.location);
@@ -137,7 +135,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                   className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mx-auto"
                 >
                   <Navigation className="h-3.5 w-3.5" />
-                  <span className="line-clamp-2 text-center">{fullAddress}</span>
+                  <span className="text-center break-words">{fullAddress}</span>
                 </button>
               )}
             </div>
