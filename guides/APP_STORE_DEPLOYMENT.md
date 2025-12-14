@@ -15,8 +15,8 @@ This document tracks the progress toward Apple TestFlight and App Store submissi
 | App Icon | ✅ Complete | 1024x1024 in Assets.xcassets |
 | Bundle ID | ✅ Complete | `com.travelist.app` |
 | iOS Project Setup | ✅ Complete | Capacitor 7.4.4 |
-| Privacy Policy URL | ❌ Needed | Required for submission |
-| Support URL | ❌ Needed | Required for submission |
+| Privacy Policy URL | ✅ Complete | https://morhogeg.github.io/travelist/PRIVACY_POLICY |
+| Support URL | ✅ Complete | https://morhogeg.github.io/travelist/SUPPORT |
 | App Store Connect | ❌ Not created | Requires active developer account |
 | Screenshots | ❌ Needed | Required for external TestFlight |
 | Signing & Certificates | ❌ Pending | Auto-managed in Xcode |
