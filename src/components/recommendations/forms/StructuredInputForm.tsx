@@ -83,25 +83,25 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   useEffect(() => {
     const values = editRecommendation
       ? {
-          name: editRecommendation.name || "",
-          category: editRecommendation.category || "",
-          city: editRecommendation.city || initialCity,
-          country: editRecommendation.country || initialCountry,
-          description: editRecommendation.description || "",
-          website: editRecommendation.website || "",
-          source: editRecommendation.source || undefined,
-          context: getContextWithTip(),
-        }
+        name: editRecommendation.name || "",
+        category: editRecommendation.category || "",
+        city: editRecommendation.city || initialCity,
+        country: editRecommendation.country || initialCountry,
+        description: editRecommendation.description || "",
+        website: editRecommendation.website || "",
+        source: editRecommendation.source || undefined,
+        context: getContextWithTip(),
+      }
       : {
-          name: "",
-          category: "",
-          city: initialCity,
-          country: initialCountry,
-          description: "",
-          website: "",
-          source: undefined,
-          context: undefined,
-        };
+        name: "",
+        category: "",
+        city: initialCity,
+        country: initialCountry,
+        description: "",
+        website: "",
+        source: undefined,
+        context: undefined,
+      };
 
     // Force reset with keepDefaultValues: false to clear all fields
     form.reset(values, { keepDefaultValues: false });
@@ -140,6 +140,18 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
         <CategorySelection form={form} />
         <SourceInput form={form} initialSource={editRecommendation?.source} />
         <ContextInput form={form} initialContext={getContextWithTip()} />
+
+        {/* Show date added when editing (read-only) */}
+        {editRecommendation?.dateAdded && (
+          <p className="text-xs text-muted-foreground text-center pt-2">
+            Added {new Date(editRecommendation.dateAdded).toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </p>
+        )}
+
         {!editRecommendation && (
           <AddToCollectionPicker
             onSelect={(id) => setSelectedCollectionId(id)}

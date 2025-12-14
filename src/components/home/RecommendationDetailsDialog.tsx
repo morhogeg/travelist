@@ -95,9 +95,10 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const placeName = recommendation?.name?.trim() || '';
   let displayAddress = rawAddress;
   if (placeName && rawAddress.toLowerCase().startsWith(placeName.toLowerCase())) {
-    // Remove name and any following comma/space
     displayAddress = rawAddress.slice(placeName.length).replace(/^[,\s]+/, '').trim();
   }
+  // Remove country suffix (e.g., ", United States" or ", USA")
+  displayAddress = displayAddress.replace(/,\s*(United States|USA|U\.S\.A\.)$/i, '').trim();
 
   const mapUrl = generateMapLink(recommendation.name, rawAddress || recommendation.location);
   const websiteUrl = recommendation.website ? formatUrl(recommendation.website) : null;
@@ -125,47 +126,37 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
           boxShadow: 'none'
         }}
       >
-        {/* Compact Header */}
-        <div className="relative px-6 pt-5 pb-4 bg-background border-b">
-          {/* Category icon - absolute left */}
-          <div
-            className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-2xl"
-            style={{ color: categoryColor, filter: "saturate(1.5) brightness(0.9)" }}
-          >
-            {categoryIcon}
+        {/* Clean Header */}
+        <div className="px-6 pt-3 pb-3">
+          {/* Name with category icon */}
+          <div className="flex items-center justify-center gap-2">
+            <span
+              className="text-xl"
+              style={{ color: categoryColor }}
+            >
+              {categoryIcon}
+            </span>
+            <h2 className="text-2xl font-bold leading-tight">
+              {recommendation.name}
+            </h2>
           </div>
 
-          {/* Date - absolute right */}
-          {recommendation.dateAdded && (
-            <div className="absolute right-6 top-5 flex items-center text-xs text-muted-foreground whitespace-nowrap">
-              <Calendar className="h-3 w-3 mr-1" />
-              <span>
-                {new Date(recommendation.dateAdded).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </span>
-            </div>
+          {/* Address - subtle, tappable text */}
+          {displayAddress && (
+            <button
+              onClick={(e) => handleExternalClick(e, mapUrl)}
+              className="flex items-center justify-center gap-1.5 mx-auto mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Navigation className="h-3 w-3" />
+              <span className="truncate max-w-[280px]">{displayAddress}</span>
+            </button>
           )}
-
-          {/* Centered content */}
-          <div className="flex flex-col items-center justify-center text-center px-14">
-            <h2 className="text-2xl font-extrabold leading-tight text-center">{recommendation.name}</h2>
-            {displayAddress && (
-              <button
-                onClick={(e) => handleExternalClick(e, mapUrl)}
-                className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mt-1"
-              >
-                <Navigation className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className="text-center break-words">{displayAddress}</span>
-              </button>
-            )}
-          </div>
         </div>
 
+        <div className="border-t" />
+
         {/* Content */}
-        <div className="p-6 space-y-3">
+        <div className="px-6 pt-2 pb-2 space-y-3">
           {/* Route-Specific Notes */}
           {routeNotes && (
             <div className="px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -275,35 +266,37 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
         {/* Footer */}
         {!hideEditDelete ? (
-          <div className="p-4 pt-2 flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="default"
-              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
-              onClick={() => setShowDeleteDialog(true)}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span>Delete</span>
-            </Button>
+          <div className="p-4 pt-0">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="default"
+                className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Delete</span>
+              </Button>
 
-            <Button
-              variant="ghost"
-              size="default"
-              className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
-              onClick={onEdit}
-            >
-              <Edit className="h-4 w-4" />
-              <span>Edit</span>
-            </Button>
+              <Button
+                variant="ghost"
+                size="default"
+                className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
+                onClick={onEdit}
+              >
+                <Edit className="h-4 w-4" />
+                <span>Edit</span>
+              </Button>
 
-            <Button
-              variant="ghost"
-              size="default"
-              className="flex-1 border border-border/60 dark:border-white/15"
-              onClick={onClose}
-            >
-              Close
-            </Button>
+              <Button
+                variant="ghost"
+                size="default"
+                className="flex-1 border border-border/60 dark:border-white/15"
+                onClick={onClose}
+              >
+                Close
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="p-4 pt-2">
