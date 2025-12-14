@@ -4,32 +4,73 @@
   Privacy Manifest for Travelist iOS App
   Created: December 2025
   
-  This file declares the privacy-related APIs used by the app and the reasons for their use.
+  App Description:
+  Travelist is a travel recommendation management app that helps users save and organize
+  places they want to visit. All core data (recommendations, routes, collections) is stored
+  locally on device. Optional cloud sync requires email sign-up.
+  
+  This file declares the privacy-related APIs and data collection practices.
   Required by Apple since May 2024 for all App Store submissions.
   
   Reference: https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
 -->
 <plist version="1.0">
 <dict>
-    <!-- Does the app or SDK track users? -->
+    <!-- 
+        NSPrivacyTracking
+        Does the app or SDK use data for tracking as defined by Apple?
+        (Linking user/device data with third-party data for advertising, 
+        or sharing with data broker)
+        
+        Travelist: FALSE - We do not track users or share data with advertisers.
+    -->
     <key>NSPrivacyTracking</key>
     <false/>
     
-    <!-- Domains used for tracking (empty since we don't track) -->
+    <!-- 
+        NSPrivacyTrackingDomains
+        Internet domains that engage in tracking. Empty since we don't track.
+    -->
     <key>NSPrivacyTrackingDomains</key>
     <array/>
     
-    <!-- Types of data collected by the app -->
+    <!-- 
+        NSPrivacyCollectedDataTypes
+        Types of data collected by the app and linked to user identity.
+        
+        Travelist collects email address ONLY when user opts into cloud sync.
+        This is for account creation/authentication, not linked to advertising.
+    -->
     <key>NSPrivacyCollectedDataTypes</key>
-    <array/>
+    <array>
+        <!-- Email Address - collected for optional account/cloud sync -->
+        <dict>
+            <key>NSPrivacyCollectedDataType</key>
+            <string>NSPrivacyCollectedDataTypeEmailAddress</string>
+            <key>NSPrivacyCollectedDataTypeLinked</key>
+            <true/>
+            <key>NSPrivacyCollectedDataTypeTracking</key>
+            <false/>
+            <key>NSPrivacyCollectedDataTypePurposes</key>
+            <array>
+                <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+            </array>
+        </dict>
+    </array>
     
-    <!-- Required Reason APIs accessed by the app -->
+    <!-- 
+        NSPrivacyAccessedAPITypes
+        Required Reason APIs accessed by the app.
+        These APIs require declared reasons to prevent fingerprinting.
+    -->
     <key>NSPrivacyAccessedAPITypes</key>
     <array>
         <!-- 
-            UserDefaults API - Used by Capacitor/WebView for localStorage
-            The app stores user preferences, recommendations, routes, and collections locally.
-            Reason: CA92.1 - Access is for app functionality
+            UserDefaults API
+            Used by: Capacitor WebView for localStorage functionality
+            Purpose: Store user preferences, recommendations, routes, collections, 
+                     theme settings, onboarding state, AI suggestion cache
+            Reason: CA92.1 - Access for app's own functionality
         -->
         <dict>
             <key>NSPrivacyAccessedAPIType</key>
@@ -41,9 +82,11 @@
         </dict>
         
         <!--
-            File Timestamp APIs - May be used by Capacitor/Plugins
-            Reason: C617.1 - Access file timestamps for the purpose of getting the correct
-                             date and time to display in the application or for ordering files
+            File Timestamp APIs
+            Used by: Capacitor core and Supabase SDK
+            Purpose: Determine file modification times for sync operations
+            Reason: C617.1 - Accessing file timestamps to display to the user 
+                    or for app functionality that requires knowing when files changed
         -->
         <dict>
             <key>NSPrivacyAccessedAPIType</key>
@@ -55,8 +98,10 @@
         </dict>
         
         <!--
-            System Boot Time APIs - May be accessed by Capacitor core
-            Reason: 35F9.1 - Access to measure elapsed time within the app
+            System Boot Time APIs
+            Used by: Capacitor core for timing/performance
+            Purpose: Measure elapsed time within the app for animations, debouncing, etc.
+            Reason: 35F9.1 - Accessing system boot time to measure elapsed time
         -->
         <dict>
             <key>NSPrivacyAccessedAPIType</key>
