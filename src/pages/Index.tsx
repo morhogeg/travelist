@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Plus, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, ArrowLeft, Map, List } from "lucide-react";
+import { Capacitor } from '@capacitor/core';
+import { NativeMapView } from '@/components/map';
 import Layout from "@/components/layout/Layout";
 import SearchHeader from "@/components/home/SearchHeader";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
@@ -35,6 +37,8 @@ const Index: React.FC = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
   const [hideFab, setHideFab] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const isNative = Capacitor.isNativePlatform();
 
   // Filter state
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
@@ -310,6 +314,27 @@ const Index: React.FC = () => {
           activeFilterCount={activeFilterCount}
           onFilterClick={() => setIsFilterSheetOpen(true)}
         />
+
+        {/* Map/List Toggle - only show on iOS */}
+        {isNative && (
+          <div className="absolute top-3 right-28 z-10">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                mediumHaptic();
+                setViewMode(viewMode === 'list' ? 'map' : 'list');
+              }}
+              className="h-10 w-10 rounded-full flex items-center justify-center liquid-glass-tinted"
+              aria-label={viewMode === 'list' ? 'Show map' : 'Show list'}
+            >
+              {viewMode === 'list' ? (
+                <Map className="h-5 w-5 text-[#667eea]" />
+              ) : (
+                <List className="h-5 w-5 text-[#667eea]" />
+              )}
+            </motion.button>
+          </div>
+        )}
         {/* Categories Row */}
         <div className="px-2 mb-2">
           <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />
@@ -318,16 +343,54 @@ const Index: React.FC = () => {
           <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         </div>
 
-        <CountryGroupList
-          groupedRecommendations={groupedRecommendations}
-          onToggleVisited={handleToggleVisited}
-          onDeleteRecommendation={handleDeleteRecommendation}
-          onEditClick={handleEditClick}
-          onViewDetails={handleViewDetails}
-          onCityClick={handleCityClick}
-          onRefresh={loadRecommendations}
-          showCounts={false}
-        />
+        {/* Content - List or Map View */}
+        <AnimatePresence mode="wait">
+          {viewMode === 'list' ? (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CountryGroupList
+                groupedRecommendations={groupedRecommendations}
+                onToggleVisited={handleToggleVisited}
+                onDeleteRecommendation={handleDeleteRecommendation}
+                onEditClick={handleEditClick}
+                onViewDetails={handleViewDetails}
+                onCityClick={handleCityClick}
+                onRefresh={loadRecommendations}
+                showCounts={false}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="map"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40"
+              style={{ top: '0px', bottom: '80px' }}
+            >
+              <NativeMapView
+                onBack={() => setViewMode('list')}
+                onPlaceSelect={(placeId) => {
+                  // Find the recommendation by ID and show details
+                  for (const group of groupedRecommendations) {
+                    for (const item of group.items) {
+                      if (item.recId === placeId || item.id === placeId) {
+                        handleViewDetails(item);
+                        return;
+                      }
+                    }
+                  }
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <RecommendationDrawer
           isDrawerOpen={isDrawerOpen}

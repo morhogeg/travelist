@@ -16,6 +16,7 @@ const config: CapacitorConfig = {
     'SplashScreenPlugin',
     'StatusBarPlugin',
     'SharedInboxPlugin',
+    'AppleMapsPlugin',
   ],
   server: process.env.USE_DEV_SERVER === 'true' ? {
     url: 'http://localhost:5173',
