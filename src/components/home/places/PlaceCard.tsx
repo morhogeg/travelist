@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Plus, Pencil } from "lucide-react";
 import DeletePlaceDialog from "@/components/saved/DeletePlaceDialog";
+import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
 
 interface PlaceCardProps {
   place: {
@@ -59,6 +60,19 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         <DeletePlaceDialog
           placeName={place.name}
           onDelete={handleDelete}
+        />
+
+        <ExportToMapsButton
+          places={[{
+            name: place.name,
+            address: place.name,
+            country: place.country
+          }]}
+          variant="ghost"
+          size="icon"
+          showText={false}
+          className="liquid-glass-clear p-1.5 rounded-full opacity-0 group-hover:opacity-100 ios26-transition-smooth text-white h-7 w-7"
+          iconClassName="h-4 w-4"
         />
 
         {onEditImage && (

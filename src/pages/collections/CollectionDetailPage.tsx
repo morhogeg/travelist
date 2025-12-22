@@ -29,6 +29,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
+import { MapExportPlace } from "@/utils/maps/export-to-maps";
 
 const CollectionDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -229,6 +231,14 @@ const CollectionDetailPage: React.FC = () => {
       return matchesSearch && matchesCategory;
     });
 
+  // Prepare places for export
+  const exportPlaces: MapExportPlace[] = matchedItems.map(item => ({
+    name: item.name,
+    address: item.location || item.name,
+    city: item.city,
+    country: item.country
+  }));
+
   // Get only categories that actually exist in this collection
   const availableCategories = Array.from(
     new Set(
@@ -392,15 +402,23 @@ const CollectionDetailPage: React.FC = () => {
             {collection.name}
           </h1>
 
-          {/* Right side: Delete */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleDeleteCollection}
-            className="shrink-0 text-destructive hover:text-destructive"
-          >
-            <Trash2 className="h-5 w-5" />
-          </Button>
+          {/* Right side: Actions */}
+          <div className="flex items-center gap-1">
+            <ExportToMapsButton
+              places={exportPlaces}
+              variant="ghost"
+              size="icon"
+              showText={false}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDeleteCollection}
+              className="shrink-0 text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Create Route button - centered below */}
@@ -465,9 +483,8 @@ const CollectionDetailPage: React.FC = () => {
                   onDeleteTrigger={() => handleRemoveItem(itemId, item.name)}
                 >
                   <motion.div
-                    className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${
-                      item.visited ? 'ring-2 ring-success/30' : ''
-                    }`}
+                    className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${item.visited ? 'ring-2 ring-success/30' : ''
+                      }`}
                     style={{
                       border: 'none',
                       borderLeft: `4px solid ${borderColor}`,
@@ -510,7 +527,7 @@ const CollectionDetailPage: React.FC = () => {
                           item={item}
                           onToggleVisited={handleToggleVisited}
                           onDelete={() => handleRemoveItem(itemId, item.name)}
-                          onEditClick={() => {}}
+                          onEditClick={() => { }}
                         />
                       </div>
                     </div>

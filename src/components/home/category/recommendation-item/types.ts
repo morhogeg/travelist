@@ -12,6 +12,7 @@ export interface RecommendationItemProps {
     website?: string;
     country?: string;
     location?: string;
+    city?: string;
     cityId?: string;
     dateAdded?: string;  // Added dateAdded property
     source?: RecommendationSource;

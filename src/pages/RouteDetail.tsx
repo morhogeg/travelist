@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Calendar, MapPin, Trash2, Edit2, MoreVertical, Check } from "lucide-react";
@@ -33,6 +33,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
+import { MapExportPlace } from "@/utils/maps/export-to-maps";
 
 const RouteDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -89,6 +91,28 @@ const RouteDetail: React.FC = () => {
       window.removeEventListener("routeDeleted", handleRouteUpdate);
     };
   }, [loadRoute]);
+
+  // Prepare places for export
+  const exportPlaces: MapExportPlace[] = useMemo(() => {
+    if (!route) return [];
+    const placesList: MapExportPlace[] = [];
+
+    route.days.forEach(day => {
+      day.places.forEach(placeRef => {
+        const place = places.get(placeRef.placeId);
+        if (place) {
+          placesList.push({
+            name: place.name,
+            address: place.name, // Use name as address if location missing, or rely on city/country
+            city: route.city,
+            country: route.country
+          });
+        }
+      });
+    });
+
+    return placesList;
+  }, [route, places]);
 
   const handleBack = () => {
     mediumHaptic();
@@ -295,15 +319,23 @@ const RouteDetail: React.FC = () => {
             {route.name}
           </h1>
 
-          {/* Right side: Delete */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleDeleteRoute}
-            className="shrink-0 text-destructive hover:text-destructive"
-          >
-            <Trash2 className="h-5 w-5" />
-          </Button>
+          {/* Right side: Actions */}
+          <div className="flex items-center gap-1">
+            <ExportToMapsButton
+              places={exportPlaces}
+              variant="ghost"
+              size="icon"
+              showText={false}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDeleteRoute}
+              className="shrink-0 text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Route metadata - centered below */}

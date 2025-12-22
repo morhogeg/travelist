@@ -1,7 +1,7 @@
 import React from "react";
-import { Navigation, Check, Circle } from "lucide-react";
+import { Check, Circle } from "lucide-react";
 import { RecommendationItemProps } from "./types";
-import { generateMapLink } from "@/utils/link-helpers";
+import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
 
 type ItemActionsProps = {
   item: RecommendationItemProps["item"];
@@ -10,9 +10,9 @@ type ItemActionsProps = {
   onEditClick?: RecommendationItemProps["onEditClick"];
 };
 
-const ItemActions: React.FC<ItemActionsProps> = ({ 
-  item, 
-  onDelete, 
+const ItemActions: React.FC<ItemActionsProps> = ({
+  item,
+  onDelete,
   onToggleVisited,
   onEditClick
 }) => {
@@ -36,16 +36,15 @@ const ItemActions: React.FC<ItemActionsProps> = ({
   };
 
 
-  const mapUrl = generateMapLink(item.name, item.location);
+
 
   return (
     <div className="flex items-center gap-1.5">
       <button
-        className={`transition-all p-1 rounded-full ${
-          item.visited
-            ? 'bg-success/20 text-success hover:bg-success/30'
-            : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-        }`}
+        className={`transition-all p-1 rounded-full ${item.visited
+          ? 'bg-success/20 text-success hover:bg-success/30'
+          : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+          }`}
         onClick={handleToggleVisited}
         aria-label={item.visited ? "Mark as not visited" : "Mark as visited"}
       >
@@ -56,17 +55,20 @@ const ItemActions: React.FC<ItemActionsProps> = ({
         )}
       </button>
 
-      {/* Google Maps Button */}
-      <a
-        href={mapUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-muted-foreground hover:text-primary transition-colors p-1 rounded-full hover:bg-muted/60"
-        onClick={(e) => e.stopPropagation()}
-        aria-label="Open in Google Maps"
-      >
-        <Navigation className="h-3.5 w-3.5" />
-      </a>
+      {/* Export to Maps Button */}
+      <ExportToMapsButton
+        places={[{
+          name: item.name,
+          address: item.location || item.name,
+          city: item.city,
+          country: item.country
+        }]}
+        variant="ghost"
+        size="icon"
+        showText={false}
+        className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-muted/60"
+        iconClassName="h-3.5 w-3.5"
+      />
     </div>
   );
 };

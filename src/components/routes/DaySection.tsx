@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Plus, CheckCircle2, Circle, Trash2, Calendar, GripVertical, Edit2 } from "lucide-react";
+import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
 import { Route, RouteDay, RoutePlaceReference } from "@/types/route";
 import { RecommendationPlace } from "@/utils/recommendation/types";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,8 @@ interface SortablePlaceItemProps {
   onToggleVisited: (dayNumber: number, placeId: string, visited: boolean) => void;
   onRemovePlace: (dayNumber: number, placeId: string) => void;
   onPlaceClick: (placeId: string) => void;
+  city?: string;
+  country?: string;
 }
 
 const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
@@ -57,6 +60,8 @@ const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
   onToggleVisited,
   onRemovePlace,
   onPlaceClick,
+  city,
+  country
 }) => {
   const {
     attributes,
@@ -142,6 +147,20 @@ const SortablePlaceItem: React.FC<SortablePlaceItemProps> = ({
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          <ExportToMapsButton
+            places={[{
+              name: place.name,
+              address: place.name, // Use name as address
+              city: city,
+              country: country
+            }]}
+            variant="ghost"
+            size="icon"
+            showText={false}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+            iconClassName="h-4 w-4"
+          />
+
           <button
             onClick={() => onToggleVisited(dayNumber, placeRef.placeId, placeRef.visited)}
             className="ios26-transition-smooth"
@@ -343,6 +362,8 @@ const DaySection: React.FC<DaySectionProps> = ({
                     onToggleVisited={onToggleVisited}
                     onRemovePlace={onRemovePlace}
                     onPlaceClick={onPlaceClick}
+                    city={route.city}
+                    country={route.country}
                   />
                 );
               })}

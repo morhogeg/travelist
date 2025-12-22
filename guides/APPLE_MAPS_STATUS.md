@@ -1,132 +1,44 @@
-# Apple Maps Implementation Status
+# Maps Integration Status
 
-> **Command Word:** `CONTINUE_APPLE_MAPS`
-> 
-> Use this command in a new chat to pick up where we left off.
+> **Status:** ✅ Native Apple Maps replaced with "Export to Maps" feature.
 
-## Current Status: 80% Complete - Needs Xcode Project Fix
+## Overview
+The native Apple Maps integration (using `MapKit` and `AppleMapsPlugin.swift`) was found to be buggy and has been completely removed. It has been replaced with a robust "Export to Maps" feature that allows users to open places and routes in **Google Maps** or **Apple Maps**.
 
-### What Works
-- ✅ Native Apple Maps view renders with MapKit
-- ✅ Plugin registered via `MyViewController.swift` with `CAPBridgedPlugin`
-- ✅ Map toggle button on home page (iOS only)
-- ✅ Geocoding places from addresses
-- ✅ 6 places counter badge visible
-- ✅ "List View" button visible with blur effect
-- ✅ Category-colored pins with icons
+## New Feature: Export to Maps
+- **Functionality:**
+  - **Single Place:** Opens navigation to the specific location.
+  - **Routes/Collections:** Exports all places as a multi-stop route.
+  - **Fallbacks:** If Google Maps app is not installed (on iOS), it falls back to the web version.
+- **UI Integration:**
+  - **Route Detail:** "Export" button in the header.
+  - **Collection Detail:** "Export" button in the header.
+  - **Place Cards:** "Navigate" icon button on individual place cards (in lists, saved places, and route days).
 
-### What's Broken
-1. **"List View" button not functional** - tapping doesn't return to list view
-2. **Xcode project has duplicate files** - "AppleMapsPlugin" and "AppleMapsPlugin 2"
-3. **Build scheme shows "ShareExtension"** - App scheme may be missing
-4. **Pins not visible on map** - markers geocoded but not displaying
+## Files
+### New Components & Utilities
+- `src/utils/maps/export-to-maps.ts`: Utility functions for generating URL schemes for Google/Apple Maps.
+- `src/components/maps/ExportToMapsButton.tsx`: Reusable button component with dropdown for map selection.
 
----
+### Modified Files
+- `src/pages/RouteDetail.tsx`: Added export button.
+- `src/pages/collections/CollectionDetailPage.tsx`: Added export button.
+- `src/components/home/category/recommendation-item/ItemActions.tsx`: Replaced old map link with new export button.
+- `src/components/routes/DaySection.tsx`: Added export button to place items.
+- `src/components/home/places/PlaceCard.tsx`: Added export button to place cards.
 
-## Files Created/Modified
+### Deleted Files (Cleanup)
+- `ios/App/App/AppleMapsPlugin.swift`
+- `ios/App/App/AppleMapsPlugin 2.swift`
+- `ios/App/App/AppleMapsPlugin.m`
+- `src/plugins/apple-maps-plugin.ts`
+- `src/components/map/NativeMapView.tsx`
+- `src/components/map/MapPlacePreview.tsx`
 
-### Native iOS Files (`ios/App/App/`)
-| File | Purpose |
-|------|---------|
-| `AppleMapsPlugin.swift` | Main plugin with MKMapView, FloatingHeader, back button |
-| `MyViewController.swift` | Registers plugin via `bridge?.registerPluginInstance()` |
-| `AppleMapsPlugin.m` | *DELETED* - Not needed with CAPBridgedPlugin |
-
-### TypeScript Files (`src/`)
-| File | Purpose |
-|------|---------|
-| `plugins/apple-maps-plugin.ts` | Plugin interface with `showMap`, `hideMap`, `addMarkers`, `backTap` events |
-| `components/map/NativeMapView.tsx` | React component managing map lifecycle |
-| `components/map/MapPlacePreview.tsx` | Preview card for tapped pins |
-| `pages/Index.tsx` | Map/list toggle with `viewMode` state |
-
-### Storyboard Change
-- `Main.storyboard` → Changed ViewController class from `CAPBridgeViewController` to `MyViewController`
+## Verification
+- **Build:** Clean build verified.
+- **Xcode:** "App" scheme restored and project file cleaned of missing references.
+- **Testing:** Verified on iOS Simulator/Device (User confirmed).
 
 ---
-
-## Known Issues to Fix
-
-### 1. Xcode Project Cleanup Required
-The user's Xcode project has:
-- Duplicate `AppleMapsPlugin` files (one named "AppleMapsPlugin 2")
-- Missing "App" scheme - only "ShareExtension" showing
-- Files may be pointing to wrong locations
-
-**Fix:** 
-1. Delete both AppleMapsPlugin entries from Xcode
-2. Re-add `ios/App/App/AppleMapsPlugin.swift` properly
-3. Ensure "App" scheme exists in scheme selector
-
-### 2. Event Listener for Back Button
-The `backTap` event fires from Swift but JS listener may not be receiving it.
-
-**Debug steps:**
-- Check Xcode console for: `[AppleMapsPlugin] Back button tapped`
-- Check web console for: `[NativeMapView] Back button tapped`
-
-### 3. Map Type
-User reported satellite view, but code sets `.standard`. May need `.mutedStandard` for cleaner look.
-
----
-
-## Code Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                   React (Index.tsx)                        │
-│  ┌─────────────┐    viewMode: 'list' | 'map'              │
-│  │ Toggle Btn  │────────────────────────────────────────► │
-│  └─────────────┘                                          │
-│         │                                                  │
-│         ▼                                                  │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │           NativeMapView.tsx                         │  │
-│  │  - Calls AppleMaps.showMap()                        │  │
-│  │  - Listens for 'backTap' → onBack()                 │  │
-│  │  - Passes markers to addMarkers()                   │  │
-│  └─────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                          │
-                          │ Capacitor Bridge
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│              AppleMapsPlugin.swift                         │
-│  ┌─────────────────┐  ┌─────────────────┐                 │
-│  │   MKMapView     │  │ FloatingHeader  │                 │
-│  │   (Native Map)  │  │ - Back Button   │                 │
-│  │                 │  │ - Place Count   │                 │
-│  └─────────────────┘  └─────────────────┘                 │
-│                              │                             │
-│  backButtonTapped() ─► notifyListeners("backTap")         │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Next Steps for New Chat
-
-1. **Fix Xcode project** - Delete duplicates, re-add AppleMapsPlugin.swift correctly
-2. **Restore App scheme** - May need to recreate via Product → Scheme → New Scheme
-3. **Test back button** - Verify event flows from Swift → JS
-4. **Pin visibility** - Debug why markers aren't appearing on map
-5. **Polish UI** - Ensure design matches app's Liquid Glass aesthetic
-
----
-
-## Quick Commands
-
-```bash
-# Build and sync to iOS
-npm run build && npx cap copy ios
-
-# Open Xcode
-npx cap open ios
-
-# Clean Xcode build
-# In Xcode: Cmd + Shift + K
-```
-
----
-
-*Last updated: December 16, 2024*
+*Last updated: December 22, 2024*

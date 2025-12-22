@@ -45,6 +45,11 @@ export interface RecommendationPlace {
   website?: string;
   source?: RecommendationSource;
   context?: RecommendationContext;
+  location?: string;
+  lat?: number;
+  lng?: number;
+  city?: string;
+  country?: string;
 }
 
 export interface Place {
