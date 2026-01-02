@@ -2,46 +2,41 @@
 
 ## Overview
 
-The onboarding flow introduces first-time users to Travelist's core features through a 4-screen experience with smooth animations, adhering to the "Liquid Glass" design system.
+The onboarding flow introduces first-time users to Travelist's core features through a **5-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
 
 ## Screens
 
 ### Screen 1: Welcome
-- **Title:** "Your External Travel Brain"
-- **Subtitle:** "Collect recommendations. Plan trips. Never forget a hidden gem."
-- **Visual:** Animated Compass icon in a liquid-glass container with purple gradient
-- **Features:** Save (MapPin), Organize (Folder), Navigate (Map)
+- **Title:** "Never forget a great place."
+- **Subtitle:** "Your personal travel memory. Save. Organize. Navigate."
+- **Visual:** Animated Compass icon with pulsing glow ring and floating particles
 - **CTA:** "Get Started"
 
-### Screen 2: Add Places (Share Extension)
-- **Title:** "Save From Anywhere"
-- **Subtitle:** "Found a gem on Instagram? Sharing to Travelist is instant."
-- **Visual:** Share Extension card showing Safari, Maps, Instagram, TikTok integration
-- **Categories:** App's 7 category icons with correct colors:
-  - Food (Utensils, #FEC6A1)
-  - Lodging (Bed, #E5DEFF)
-  - Attractions (Eye, #FFDEE2)
-  - Shopping (ShoppingBag, #D3E4FD)
-  - Nightlife (Music, #accbee)
-  - Outdoors (Palmtree, #F2FCE2)
-  - General (MapPin, #eef1f5)
-- **Highlights:** Organized by Location, Track Recommendations
+### Screen 2: Save (Share Extension)
+- **Title:** "Save from any app."
+- **Subtitle:** "Found a place you love? Tap Share → Travelist."
+- **Visual:** Share icon with orbiting ring and app flow animation
+- **App Icons:** Safari 🧭, Instagram 📸, Maps 🗺️, TikTok 🎵 → Travelist
 
-### Screen 3: Organize & Navigate
-- **Title:** "Plan. Navigate. Explore."
-- **Subtitle:** "Turn your saved places into actionable trip plans."
-- **Collections:** Group places by theme, trip, or occasion
-- **Routes:** Day-by-day itineraries with drag-and-drop
-- **Star Feature:** **Export to Maps** (Google Maps & Apple Maps)
-- **Highlights:** Track Progress, Drag & Drop
+### Screen 3: Organize (Collections & Routes)
+- **Title:** "Collections. Routes."
+- **Subtitle:** "Group places by theme. Build day-by-day itineraries."
+- **Visual:** Folder and Route icons with connecting line animation
+- **Features:** Collections (purple), Routes (gradient)
 
-### Screen 4: Sign In
-- **Title:** "Always In Sync"
-- **Subtitle:** "Your travel brain, everywhere you go."
-- **Benefits:** Sync Everywhere, Private & Secure, Offline First
+### Screen 4: Navigate (Export to Maps)
+- **Title:** "One tap. Start navigating."
+- **Subtitle:** "Export your route directly to Google Maps or Apple Maps."
+- **Visual:** Map icon with ripple effect and navigation indicator
+- **Map Badges:** 🗺️ Google Maps, 🍎 Apple Maps
+
+### Screen 5: Sign In
+- **Title:** "Sync across all devices."
+- **Subtitle:** "Keep your places backed up. Works offline, always."
+- **Visual:** Cloud icon with orbiting sync dots
+- **Badge:** "Cloud sync coming soon" (sparkle animation)
 - **Primary Action:** Sign in with Apple
-- **Secondary Action:** Continue Without Account
-- **Teaser:** "Cloud Sync Coming Soon" (purple gradient badge)
+- **Secondary Action:** Continue without account
 
 ## Technical Details
 
@@ -50,12 +45,13 @@ The onboarding flow introduces first-time users to Travelist's core features thr
 src/components/onboarding/
 ├── index.ts                  # Exports
 ├── types.ts                  # Types + localStorage helpers
-├── OnboardingFlow.tsx        # Main controller
+├── OnboardingFlow.tsx        # Main controller (5 steps)
 ├── screens/
-│   ├── WelcomeScreen.tsx     # "Travel Brain"
-│   ├── AddPlacesScreen.tsx   # Share Extension
-│   ├── OrganizeScreen.tsx    # Export to Maps
-│   └── SignInScreen.tsx      # Premium Sign In
+│   ├── WelcomeScreen.tsx     # "Never forget a great place"
+│   ├── SaveScreen.tsx        # Share Extension
+│   ├── OrganizeScreen.tsx    # Collections & Routes
+│   ├── NavigateScreen.tsx    # Export to Maps
+│   └── SignInScreen.tsx      # Cloud Sync
 └── components/
     ├── OnboardingProgress.tsx  # Animated dots
     └── OnboardingButton.tsx    # Styled button
@@ -84,11 +80,18 @@ location.reload()
 
 ## Animations
 
-- **Page transitions:** Slide left/right with fade
+- **Page transitions:** Spring-based slide with opacity
 - **Progress dots:** Spring animation with width change
 - **Elements:** Staggered fade-in with y-axis movement
-- **Icon:** Scale + rotation entrance animation
-- **Visuals:** Floating liquid-glass cards
+- **Icons:** Scale + rotation entrance with hover effects
+- **Backgrounds:** Floating particles, ambient glows, shimmer effects
+
+## Design System
+
+- **Primary Gradient:** `#667eea` → `#764ba2`
+- **Typography:** 34px bold titles, 17px muted subtitles
+- **Spacing:** px-8 horizontal, pt-16/pb-10 vertical
+- **Border Radius:** rounded-2xl (buttons), rounded-3xl (icons)
 
 ## Future Enhancements
 
@@ -99,5 +102,4 @@ location.reload()
 
 ---
 
-Last Updated: December 2025
-
+Last Updated: January 2026
