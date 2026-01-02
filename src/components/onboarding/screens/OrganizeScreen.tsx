@@ -132,9 +132,10 @@ export const OrganizeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55 }}
-          className="text-lg text-muted-foreground max-w-[300px] leading-relaxed"
+          className="text-[17px] text-muted-foreground leading-relaxed"
         >
-          Group places by theme. Build day-by-day itineraries. Your trips, beautifully organized.
+          Group places by theme.<br />
+          Build day-by-day itineraries.
         </motion.p>
       </div>
 

@@ -157,9 +157,10 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, duration: 0.5 }}
-          className="text-lg text-muted-foreground max-w-[280px] leading-relaxed"
+          className="text-[17px] text-muted-foreground leading-relaxed"
         >
-          Travelist is your personal travel memory — save, organize, and navigate to every recommendation.
+          Your personal travel memory.<br />
+          Save. Organize. Navigate.
         </motion.p>
       </div>
 

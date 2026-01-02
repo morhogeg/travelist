@@ -146,9 +146,10 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="text-lg text-muted-foreground max-w-[280px] leading-relaxed"
+          className="text-[17px] text-muted-foreground leading-relaxed"
         >
-          Sign in to keep your places backed up and synced. Works offline, always.
+          Keep your places backed up.<br />
+          Works offline, always.
         </motion.p>
 
         {/* Coming soon badge */}

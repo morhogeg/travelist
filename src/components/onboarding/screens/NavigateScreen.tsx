@@ -163,9 +163,10 @@ export const NavigateScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 }}
-                    className="text-lg text-muted-foreground max-w-[300px] leading-relaxed"
+                    className="text-[17px] text-muted-foreground leading-relaxed"
                 >
-                    Export any route directly to Google Maps or Apple Maps. Turn plans into adventures.
+                    Export your route directly to<br />
+                    Google Maps or Apple Maps.
                 </motion.p>
 
                 {/* Map badges with bounce */}

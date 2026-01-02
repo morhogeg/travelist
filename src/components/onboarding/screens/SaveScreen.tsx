@@ -139,9 +139,10 @@ export const SaveScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack, on
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 }}
-                    className="text-lg text-muted-foreground max-w-[300px] leading-relaxed"
+                    className="text-[17px] text-muted-foreground leading-relaxed"
                 >
-                    See a restaurant on Instagram? A hotel on Safari? Just tap Share → Travelist.
+                    Found a place you love?<br />
+                    Tap <span className="text-foreground font-medium">Share → Travelist</span>.
                 </motion.p>
 
                 {/* Animated app flow */}
