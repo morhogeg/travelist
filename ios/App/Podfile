@@ -1,13 +1,29 @@
 require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
 require 'xcodeproj'
 
-# Xcode 16 uses object version 70 which older xcodeproj doesn't map; force a known compatible version.
-Xcodeproj::Project::DEFAULT_OBJECT_VERSION = 60
-
+# Xcode 26 uses object version 70 - patch xcodeproj to recognize it
 module Xcodeproj
+  class Project
+    DEFAULT_OBJECT_VERSION = 70
+
+    # Override the initializer if needed
+    module FixXcode26
+      def object_version_from_compatible_with(version)
+        return 70 if version == 70
+        super
+      end
+    end
+  end
+
   module Constants
+    # Add the mapping for Xcode 26 (object version 70)
+    COMPATIBILITY_VERSION_BY_OBJECT_VERSION = {} unless defined?(COMPATIBILITY_VERSION_BY_OBJECT_VERSION)
+    COMPATIBILITY_VERSION_BY_OBJECT_VERSION[70] = 'Xcode 16.0'
+    
     OBJECT_VERSION_TO_HUMAN = {} unless defined?(OBJECT_VERSION_TO_HUMAN)
     OBJECT_VERSION_TO_HUMAN[70] = 'Xcode 16.0'
+
+    LAST_KNOWN_OBJECT_VERSION = 70
   end
 end
 

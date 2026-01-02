@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { WelcomeScreen } from './screens/WelcomeScreen';
-import { AddPlacesScreen } from './screens/AddPlacesScreen';
+import { SaveScreen } from './screens/SaveScreen';
 import { OrganizeScreen } from './screens/OrganizeScreen';
+import { NavigateScreen } from './screens/NavigateScreen';
 import { SignInScreen } from './screens/SignInScreen';
 import { OnboardingProgress } from './components/OnboardingProgress';
 import { markOnboardingComplete } from './types';
@@ -11,7 +12,7 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -48,7 +49,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
         );
       case 1:
         return (
-          <AddPlacesScreen
+          <SaveScreen
             onNext={handleNext}
             onBack={handleBack}
             onSkip={handleSkip}
@@ -63,6 +64,14 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           />
         );
       case 3:
+        return (
+          <NavigateScreen
+            onNext={handleNext}
+            onBack={handleBack}
+            onSkip={handleSkip}
+          />
+        );
+      case 4:
         return (
           <SignInScreen
             onNext={handleNext}

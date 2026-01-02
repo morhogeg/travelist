@@ -2,33 +2,46 @@
 
 ## Overview
 
-The onboarding flow introduces first-time users to Travelist's core features through a 4-screen experience with smooth animations.
+The onboarding flow introduces first-time users to Travelist's core features through a 4-screen experience with smooth animations, adhering to the "Liquid Glass" design system.
 
 ## Screens
 
 ### Screen 1: Welcome
-- App icon with compass animation
-- Title: "Your Personal Travel Guide"
-- Feature highlights: Save Places, Organize, Explore
-- CTA: "Get Started" button
+- **Title:** "Your External Travel Brain"
+- **Subtitle:** "Collect recommendations. Plan trips. Never forget a hidden gem."
+- **Visual:** Animated Compass icon in a liquid-glass container with purple gradient
+- **Features:** Save (MapPin), Organize (Folder), Navigate (Map)
+- **CTA:** "Get Started"
 
-### Screen 2: Add Places
-- 7 category icons grid (Food, Lodging, Attractions, Shopping, Nightlife, Outdoors, General)
-- Features highlighted:
-  - Track who recommended each place
-  - Organized by city automatically
+### Screen 2: Add Places (Share Extension)
+- **Title:** "Save From Anywhere"
+- **Subtitle:** "Found a gem on Instagram? Sharing to Travelist is instant."
+- **Visual:** Share Extension card showing Safari, Maps, Instagram, TikTok integration
+- **Categories:** App's 7 category icons with correct colors:
+  - Food (Utensils, #FEC6A1)
+  - Lodging (Bed, #E5DEFF)
+  - Attractions (Eye, #FFDEE2)
+  - Shopping (ShoppingBag, #D3E4FD)
+  - Nightlife (Music, #accbee)
+  - Outdoors (Palmtree, #F2FCE2)
+  - General (MapPin, #eef1f5)
+- **Highlights:** Organized by Location, Track Recommendations
 
-### Screen 3: Organization
-- Split view showing Collections and Routes features
-- Collections: Group places by theme or trip
-- Routes: Plan day-by-day itineraries
-- Progress tracking highlighted
+### Screen 3: Organize & Navigate
+- **Title:** "Plan. Navigate. Explore."
+- **Subtitle:** "Turn your saved places into actionable trip plans."
+- **Collections:** Group places by theme, trip, or occasion
+- **Routes:** Day-by-day itineraries with drag-and-drop
+- **Star Feature:** **Export to Maps** (Google Maps & Apple Maps)
+- **Highlights:** Track Progress, Drag & Drop
 
-### Screen 4: Sign In (Placeholder)
-- Apple Sign-In button (primary)
-- Email Sign-In button (secondary)
-- Benefits: Sync everywhere, Never lose data, Works offline
-- *Note: Currently a placeholder until Supabase is integrated*
+### Screen 4: Sign In
+- **Title:** "Always In Sync"
+- **Subtitle:** "Your travel brain, everywhere you go."
+- **Benefits:** Sync Everywhere, Private & Secure, Offline First
+- **Primary Action:** Sign in with Apple
+- **Secondary Action:** Continue Without Account
+- **Teaser:** "Cloud Sync Coming Soon" (purple gradient badge)
 
 ## Technical Details
 
@@ -39,10 +52,10 @@ src/components/onboarding/
 ├── types.ts                  # Types + localStorage helpers
 ├── OnboardingFlow.tsx        # Main controller
 ├── screens/
-│   ├── WelcomeScreen.tsx
-│   ├── AddPlacesScreen.tsx
-│   ├── OrganizeScreen.tsx
-│   └── SignInScreen.tsx
+│   ├── WelcomeScreen.tsx     # "Travel Brain"
+│   ├── AddPlacesScreen.tsx   # Share Extension
+│   ├── OrganizeScreen.tsx    # Export to Maps
+│   └── SignInScreen.tsx      # Premium Sign In
 └── components/
     ├── OnboardingProgress.tsx  # Animated dots
     └── OnboardingButton.tsx    # Styled button
@@ -61,15 +74,6 @@ src/components/onboarding/
 }
 ```
 
-### Detection Logic
-
-```typescript
-import { isOnboardingComplete } from '@/components/onboarding';
-
-// In App.tsx
-const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
-```
-
 ### Resetting Onboarding (for testing)
 
 Browser console:
@@ -78,27 +82,22 @@ localStorage.removeItem('travelist-onboarding-completed')
 location.reload()
 ```
 
-Or programmatically:
-```typescript
-import { resetOnboarding } from '@/components/onboarding';
-resetOnboarding();
-```
-
 ## Animations
 
 - **Page transitions:** Slide left/right with fade
 - **Progress dots:** Spring animation with width change
 - **Elements:** Staggered fade-in with y-axis movement
 - **Icon:** Scale + rotation entrance animation
+- **Visuals:** Floating liquid-glass cards
 
 ## Future Enhancements
 
 - [ ] Connect Sign-In screen to Supabase auth
 - [ ] Add travel style preference selector
-- [ ] Add Google Maps import option on final screen
 - [ ] A/B test different onboarding flows
 - [ ] Track onboarding completion analytics
 
 ---
 
-Last Updated: November 2025
+Last Updated: December 2025
+
