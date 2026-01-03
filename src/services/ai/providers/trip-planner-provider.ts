@@ -259,10 +259,20 @@ REQUIREMENTS:
 
         // Validate placeIds exist in the request
         const validPlaceIds = new Set(request.places.map((p) => p.id));
+        const usedPlaceIds = new Set<string>();
 
         const validatedDays = parsed.days.map((day: any, index: number) => {
             const validPlaces = (day.places || [])
-                .filter((p: any) => validPlaceIds.has(p.placeId))
+                .filter((p: any) => {
+                    // Must be a valid place ID from the request
+                    if (!validPlaceIds.has(p.placeId)) return false;
+
+                    // Prevent duplicates across the entire trip
+                    if (usedPlaceIds.has(p.placeId)) return false;
+
+                    usedPlaceIds.add(p.placeId);
+                    return true;
+                })
                 .map((p: any, pIndex: number) => ({
                     placeId: p.placeId,
                     order: pIndex + 1,

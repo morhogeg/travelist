@@ -11,7 +11,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map as MapIcon } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import {
@@ -264,7 +264,8 @@ const TripDetailPage: React.FC = () => {
                             ) : (
                                 <Reorder.Group axis="y" values={validPlaces} onReorder={(newOrder) => handleReorder(day.dayNumber, newOrder)} className="space-y-2">
                                     {validPlaces.map((placeRef) => {
-                                        const place = places.get(placeRef.placeId)!;
+                                        const place = places.get(placeRef.placeId);
+                                        if (!place) return null;
                                         const categoryColor = getCategoryColor(place.category);
 
                                         return (

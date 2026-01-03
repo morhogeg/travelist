@@ -5,14 +5,10 @@ import {
   DrawerContent,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Globe, MapPin, Navigation, Trash2, Edit, FolderPlus, Folder, Lightbulb, UserCircle, Library, Plus } from "lucide-react";
-import { getCategoryPlaceholder } from "@/utils/recommendation-helpers";
+import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, UserCircle, FolderPlus, MapPin } from "lucide-react";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
-import { useNavigate, useLocation } from "react-router-dom";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
-import { useToast } from "@/components/ui/use-toast";
 import AddToDrawer from "@/components/common/AddToDrawer";
-import { getCollectionsByPlaceId } from "@/utils/collections/collectionStore";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,18 +44,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const [isVisited, setIsVisited] = useState<boolean>(!!recommendation?.visited);
   const [showAddToDrawer, setShowAddToDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [collectionsCount, setCollectionsCount] = useState(0);
-  const [firstCollectionName, setFirstCollectionName] = useState<string | null>(null);
-  const [collectionNames, setCollectionNames] = useState<string[]>([]);
-  const [showRoutePicker, setShowRoutePicker] = useState(false);
-  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    setIsVisited(!!recommendation?.visited);
-  }, [recommendation]);
 
   useEffect(() => {
     setIsVisited(!!recommendation?.visited);
@@ -67,28 +51,24 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
   if (!recommendation) return null;
 
-  // Build full address - prefer stored address, fallback to location field, then construct from components
+  // Build full address
   const rawAddress =
     recommendation?.context?.address ||
     recommendation?.location ||
     [recommendation?.city, recommendation?.country].filter(Boolean).join(", ") ||
     '';
 
-  // Remove the place name from the address if it starts with it (avoid "Cantina Rooftop, 605 W..." when name is "Cantina Rooftop")
   const placeName = recommendation?.name?.trim() || '';
   let displayAddress = rawAddress;
   if (placeName && rawAddress.toLowerCase().startsWith(placeName.toLowerCase())) {
     displayAddress = rawAddress.slice(placeName.length).replace(/^[,\s]+/, '').trim();
   }
-  // Remove country suffix (e.g., ", United States" or ", USA")
   displayAddress = displayAddress.replace(/,\s*(United States|USA|U\.S\.A\.)$/i, '').trim();
 
   const mapUrl = generateMapLink(recommendation.name, rawAddress || recommendation.location);
-  const websiteUrl = recommendation.website ? formatUrl(recommendation.website) : null;
   const categoryColor = getCategoryColor(recommendation.category || 'general');
   const categoryIcon = getCategoryIcon(recommendation.category || 'general');
   const placeId = recommendation.recId || recommendation.id;
-  const currentPath = location.pathname;
 
   const handleExternalClick = (e: React.MouseEvent, url: string) => {
     e.preventDefault();
@@ -96,174 +76,151 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const handleAddToRoute = () => {
-    setShowRoutePicker(true);
-  };
-
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent
-        className="p-0 transition-all duration-300 ease-in-out"
-        style={{
-          borderLeft: `2px solid ${categoryColor}55`,
-          boxShadow: 'none',
-          height: 'auto',
-          minHeight: '40vh',
-          maxHeight: '85vh'
-        }}
-      >
-        <div className="flex flex-col h-full">
-          {/* Clean Header */}
-          <div className="px-6 pt-3 pb-3 shrink-0">
-            {/* Name with category icon */}
-            <div className="flex items-center justify-center gap-2">
-              <span
-                className="text-xl"
-                style={{ color: categoryColor }}
-              >
-                {categoryIcon}
-              </span>
-              <h2 className="text-2xl font-bold leading-tight">
-                {recommendation.name}
-              </h2>
+    <>
+      <Drawer open={isOpen} onOpenChange={onClose}>
+        <DrawerContent className="p-0 bg-white dark:bg-neutral-900">
+
+          <div className="flex flex-col h-full max-h-[85vh]">
+            {/* Header */}
+            <div className="px-6 py-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <span className="text-xl" style={{ color: categoryColor }}>
+                  {categoryIcon}
+                </span>
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+                  {recommendation.name}
+                </h2>
+              </div>
+
+              {displayAddress && (
+                <button
+                  onClick={(e) => handleExternalClick(e, mapUrl)}
+                  className="flex items-center justify-center gap-1.5 mx-auto text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 transition-colors"
+                >
+                  <Navigation className="h-3.5 w-3.5" />
+                  <span>{displayAddress}</span>
+                </button>
+              )}
             </div>
 
-            {/* Address - subtle, tappable text */}
-            {displayAddress && (
-              <button
-                onClick={(e) => handleExternalClick(e, mapUrl)}
-                className="flex items-center justify-center gap-1.5 mx-auto mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Navigation className="h-3 w-3" />
-                <span className="truncate max-w-[280px]">{displayAddress}</span>
-              </button>
-            )}
-          </div>
+            <div className="h-px bg-neutral-100 dark:bg-neutral-800 w-full" />
 
-          <div className="border-t shrink-0" />
-
-          {/* Content */}
-          <div className="px-6 pt-2 pb-2 space-y-3 flex-1 overflow-y-auto">
-            {/* Route-Specific Notes */}
-            {routeNotes && (
-              <div className="px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <p className="text-sm text-amber-700 dark:text-amber-400">
-                  📝 {routeNotes}
-                </p>
-              </div>
-            )}
-
-            {/* Compact attribution/tip row */}
-            <div className="flex flex-wrap items-center gap-3">
-              {recommendation.context?.specificTip && (
-                <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-sm">
-                  <Lightbulb className="h-4 w-4" />
-                  <span className="">{recommendation.context.specificTip}</span>
+            {/* Content */}
+            <div className="px-6 py-6 space-y-6 overflow-y-auto">
+              {routeNotes && (
+                <div className="px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30">
+                  <p className="text-sm text-amber-800 dark:text-amber-300">
+                    📝 {routeNotes}
+                  </p>
                 </div>
               )}
-              {recommendation.source?.name && (
-                <div className="flex items-center gap-1 text-[#667eea] text-sm">
-                  <UserCircle className="h-4 w-4" />
-                  <span>
-                    Recommended by{" "}
-                    <button
-                      onClick={() => window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: recommendation.source?.name }))}
-                      className="font-semibold text-[#667eea] hover:opacity-80"
+
+              {/* Attribution/Tip */}
+              <div className="flex flex-col items-center gap-3 text-center">
+                {(recommendation.context?.specificTip || recommendation.description) && (
+                  <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 text-sm font-medium px-4">
+                    <Lightbulb className="h-4 w-4 shrink-0" />
+                    <span>{recommendation.context?.specificTip || recommendation.description}</span>
+                  </div>
+                )}
+                {recommendation.source?.name && (
+                  <div className="flex items-center gap-1.5 text-[#667eea] text-sm">
+                    <UserCircle className="h-4 w-4" />
+                    <span>
+                      Recommended by{" "}
+                      <button
+                        onClick={() => window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: recommendation.source?.name }))}
+                        className="font-semibold hover:underline"
+                      >
+                        {recommendation.source.name}
+                      </button>
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3 pb-4">
+                {/* Primary Actions */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    onClick={() => setShowAddToDrawer(true)}
+                  >
+                    <FolderPlus className="h-5 w-5 mr-2" />
+                    <span>Add</span>
+                    <MapPin className="h-5 w-5 ml-2" />
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    onClick={() => {
+                      const next = !isVisited;
+                      setIsVisited(next);
+                      onToggleVisited(recommendation.recId, recommendation.name, next);
+                    }}
+                  >
+                    <CheckCircle2 className="h-5 w-5 mr-2" />
+                    {isVisited ? 'Visited' : 'Mark Visited'}
+                  </Button>
+                </div>
+
+                {/* Secondary Actions */}
+                {!hideEditDelete && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant="ghost"
+                      className="h-12 rounded-xl text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                      onClick={onEdit}
                     >
-                      {recommendation.source.name}
-                    </button>
-                  </span>
-                </div>
-              )}
-            </div>
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Button
-                variant="default"
-                size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth text-white"
-                onClick={(e) => {
-                  (e.target as HTMLButtonElement).blur();
-                  setShowAddToDrawer(true);
-                }}
-                style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: "0 4px 15px rgba(102, 126, 234, 0.2)"
-                }}
-              >
-                <div className="flex w-full items-center justify-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  <span>Add to...</span>
-                </div>
-              </Button>
+                      <Edit className="h-5 w-5 mr-2" />
+                      Edit
+                    </Button>
 
-              <Button
-                variant="ghost"
-                size="default"
-                className="flex-1 min-w-[140px] ios26-transition-smooth border border-border/60 dark:border-white/15"
-                onClick={(e) => {
-                  (e.target as HTMLButtonElement).blur();
-                  const next = !isVisited;
-                  setIsVisited(next);
-                  onToggleVisited(recommendation.recId, recommendation.name, next);
-                }}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                <span>{isVisited ? 'Visited' : 'Mark Visited'}</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Footer */}
-          {!hideEditDelete ? (
-            <div className="p-4 pt-0 shrink-0">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="default"
-                  className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
-                  onClick={() => setShowDeleteDialog(true)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span>Delete</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="default"
-                  className="flex-1 flex items-center justify-center gap-2 ios26-transition-smooth border border-border/60 dark:border-white/15"
-                  onClick={onEdit}
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>Edit</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="default"
-                  className="flex-1 border border-border/60 dark:border-white/15"
-                  onClick={onClose}
-                >
-                  Close
-                </Button>
+                    <Button
+                      variant="ghost"
+                      className="h-12 rounded-xl text-destructive/80 hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => setShowDeleteDialog(true)}
+                    >
+                      <Trash2 className="h-5 w-5 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
-          ) : (
-            <div className="p-4 pt-2 shrink-0">
-              <Button
-                variant="ghost"
-                size="default"
-                className="w-full border border-border/60 dark:border-white/15"
-                onClick={onClose}
-              >
-                Close
-              </Button>
-            </div>
-          )}
-        </div>
-      </DrawerContent>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
-      {/* Add To Drawer (Unified Collections & Routes) */}
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {recommendation?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the recommendation from your list. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                onDelete?.();
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Add To Drawer */}
       <AddToDrawer
         isOpen={showAddToDrawer}
         onClose={() => setShowAddToDrawer(false)}
@@ -273,7 +230,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
         initialCountry={recommendation.country}
         initialCityId={recommendation.cityId}
       />
-    </Drawer>
+    </>
   );
 };
 

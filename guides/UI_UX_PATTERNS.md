@@ -513,11 +513,55 @@ Uses Drawer component (not Dialog) for native iOS behavior:
 - No glass morphism effects
 - Clean, readable design
 
-**Equal-Width Footer Buttons:**
-- All three buttons use `flex-1` for balanced layout
-- Delete (destructive), Edit (outline), Close (outline)
-- Icons + text for clarity
-- Proper spacing with `gap-3`
+### Equal-Width Footer Buttons - "Equal Hierarchy" Pattern
+- **Primary Actions (Tier 1):** Two **Outline** buttons ("Add to Collection / Route" & "Mark Visited")
+  - Why: Signals equal importance for planning vs. logging
+  - Style: Clean outline, no heavy fills, reduces cognitive load
+- **Secondary Actions (Tier 2):** Two **Ghost** buttons ("Edit" & "Delete")
+  - Why: Accessible but de-emphasized
+  - Style: Text-only or subtle ghost variant
+- **Layout:** 2x2 Grid or stacked rows depending on space
+- **Icons:** Always use icons + text for clarity
+
+### Drawer Structure (Refined Jan 2026)
+```tsx
+<DrawerContent className="p-0 bg-white dark:bg-neutral-900">
+  {/* Handle (Default from Drawer component) */}
+  
+  {/* Header - Centered & Clean */}
+  <div className="px-6 py-4 text-center">
+    {/* Category Icon + Title */}
+    <div className="flex items-center justify-center gap-2 mb-1">
+      <span className="text-xl" style={{ color: categoryColor }}>{icon}</span>
+      <h2 className="text-2xl font-bold">{name}</h2>
+    </div>
+    {/* Address/Location Button */}
+  </div>
+
+  {/* Divider */}
+  <div className="h-px bg-neutral-100 dark:bg-neutral-800 w-full" />
+
+  {/* Scrollable Content */}
+  <div className="px-6 py-6 space-y-6 overflow-y-auto">
+    {/* Route Notes (if any) */}
+    {/* Tips & Attribution (Centered) */}
+    
+    {/* Action Buttons Grid */}
+    <div className="space-y-3 pb-4">
+      {/* Tier 1: Add & Visited (Outline) */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="outline">Add...</Button>
+        <Button variant="outline">Mark Visited</Button>
+      </div>
+      {/* Tier 2: Edit & Delete (Ghost) */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="ghost">Edit</Button>
+        <Button variant="ghost">Delete</Button>
+      </div>
+    </div>
+  </div>
+</DrawerContent>
+```
 
 ### Avoid These Patterns
 
