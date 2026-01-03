@@ -64,7 +64,7 @@ const CategoryResults: React.FC<CategoryResultsProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className={`${noSidePadding ? "" : "px-6"} pt-2 pb-4`} // ✅ Dynamic padding
+      className={`${noSidePadding ? "" : "px-4"} pt-2 pb-4`} // ✅ Dynamic padding
     >
       {showToggle && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">

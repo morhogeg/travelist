@@ -500,6 +500,22 @@ Uses Drawer component (not Dialog) for native iOS behavior:
 - Size: `w-12 h-12 text-3xl`
 - Creates strong visual hierarchy
 
+### Header Patterns
+**Standard Header:**
+- Title: Left-aligned or Centered (depending on context)
+- Actions: Right-aligned icons (Search, Filter)
+- Navigation: Left-aligned Back button
+
+**Clean Header (Detail Views):**
+- **No Title:** Rely on **Breadcrumbs** for context and hierarchy.
+- **Controls:** Minimal `h-9 w-9` buttons for Back, Search, and Filter.
+- **Usage:** Place Detail, Country View (where breadcrumbs provide sufficient context).
+
+### Button Sizes
+- **Standard Icon Button:** `h-9 w-9` (36px) - Used for header actions (Back, Search, Filter) to reduce visual weight.
+- **FAB:** `w-14 h-14` (56px) - Primary floating action.
+- **Touch Target:** Ensure 44px touch area (using padding or invisible hit slop) even if visual size is smaller.
+
 **Integrated Header Metadata:**
 - Title: `text-2xl font-extrabold`
 - Location with MapPin icon (inline)

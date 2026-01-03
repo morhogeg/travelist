@@ -360,13 +360,7 @@ const PlaceDetail = () => {
             )}
           </div>
 
-          {/* Center: Title (absolutely positioned for true centering) */}
-          <div className="absolute left-1/2 -translate-x-1/2 text-center max-w-[50%]">
-            <h1 className="text-xl font-bold truncate">{place.name}</h1>
-            {place.country && (
-              <p className="text-sm text-muted-foreground">{flagEmoji} {place.country}</p>
-            )}
-          </div>
+
 
           {/* Right side: Filter */}
           <motion.button
