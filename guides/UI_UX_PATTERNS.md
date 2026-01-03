@@ -761,6 +761,58 @@ const handleSectionSelect = (letter: string) => {
 
 ---
 
+## ✨ Feedback States
+
+### Skeleton Loaders
+**Design Philosophy:** Use shimmer skeletons to reduce perceived wait time and provide a stable layout during data fetching.
+
+- **Styling:** `liquid-glass-clear` with a 4px left border matching the category color (or muted color if unknown).
+- **Animation:** `ios26-shimmer` overlay with a subtle pulse on background elements.
+- **Transition:** Always use `AnimatePresence` for a smooth fade transition (0.3s) from skeleton to real content.
+
+### Empty States
+**Design Philosophy:** Provide clear guidance and a call-to-action (CTA) when no data is available.
+
+- **Visuals:** Large Lucide icon in a soft purple gradient circle (`from-[#667eea]/20 to-[#764ba2]/20`).
+- **Copy:** Bold title followed by a concise, helpful description.
+- **CTA:** Use the primary purple gradient button for the main action (e.g., "Add Your First Place").
+- **Variants:**
+  - `no-places`: For first-time users or empty categories.
+  - `no-collections`: For the Collections tab.
+  - `no-routes`: For the Routes tab.
+  - `no-results`: For empty search or filter results (usually no CTA).
+
+### Pull-to-Refresh
+**Design Philosophy:** Provide a native-feeling way to manually refresh content.
+
+- **Gesture:** Standard iOS pull-down from the top of the scroll container.
+- **Indicator:** A rotating `Plus` icon (or spinner) that scales and fades in as the user pulls.
+- **Feedback:** Trigger `haptics.medium()` exactly when the refresh threshold is met and the user releases.
+- **State:** Show the indicator in a loading state until the refresh promise resolves.
+
+---
+
+## ✨ Feature Discoverability
+
+### Coach Marks
+**Design Philosophy:** Use contextual tooltips to guide users toward hidden or new features without being intrusive.
+
+- **Visuals:** Semi-transparent dark overlay (`bg-black/40`) with a white tooltip box.
+- **Positioning:** Tooltips include an arrow pointing directly to the target element.
+- **Persistence:** Each coach mark uses a unique `storageKey` in `localStorage` to ensure it is only shown once per user.
+- **Interaction:** Includes a "Got it" button that triggers `haptics.light()` and dismisses the overlay permanently.
+
+### Scroll Edge Indicators
+**Design Philosophy:** Indicate that more content is available in a scrollable area.
+
+- **Visuals:** Subtle gradient fade masks on the left and right edges of horizontal scroll containers.
+- **Behavior:**
+  - Left fade appears when `scrollLeft > 5`.
+  - Right fade appears when `scrollLeft < scrollWidth - clientWidth - 5`.
+- **Implementation:** Uses `linear-gradient(to right/left, var(--background), transparent)` to blend seamlessly with the app theme.
+
+---
+
 ## 📚 Related Guides
 - `CONTEXT.md` - App overview and quick reference
 - `IOS26_TRANSFORMATION.md` - Liquid Glass design system

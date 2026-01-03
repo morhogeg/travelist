@@ -24,10 +24,13 @@ import CountryGroupList from "@/components/home/category/CountryGroupList";
 import SectionIndex from "@/components/home/category/SectionIndex";
 import { mediumHaptic } from "@/utils/ios/haptics";
 import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
+import EmptyState from "@/components/ui/EmptyState";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 
 const Index: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [groupedRecommendations, setGroupedRecommendations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
@@ -46,20 +49,33 @@ const Index: React.FC = () => {
   const [availableCountries, setAvailableCountries] = useState<string[]>([]);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [availableSourceNames, setAvailableSourceNames] = useState<string[]>([]);
+  const [showAISuggestions, setShowAISuggestions] = useState(() => {
+    const saved = localStorage.getItem("showAISuggestions");
+    return saved === null ? true : saved === "true";
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
   const [returnToPath, setReturnToPath] = useState<string | null>(null);
 
   const loadRecommendations = useCallback(async () => {
-    const data = await getFilteredRecommendations(
-      selectedCategories.length === 0 ? "all" : selectedCategories,
-      undefined,
-      filters
-    );
-    setGroupedRecommendations(data);
-    setRefreshKey((prev) => prev + 1);
+    setLoading(true);
+    try {
+      const data = await getFilteredRecommendations(
+        selectedCategories.length === 0 ? "all" : selectedCategories,
+        undefined,
+        filters
+      );
+      setGroupedRecommendations(data);
+      setRefreshKey((prev) => prev + 1);
+    } finally {
+      setLoading(false);
+    }
   }, [selectedCategories, filters]);
+
+  const { isRefreshing, pullProgress } = usePullToRefresh({
+    onRefresh: loadRecommendations
+  });
 
   useEffect(() => {
     loadRecommendations();
@@ -92,6 +108,19 @@ const Index: React.FC = () => {
     return () => {
       window.removeEventListener("fab:hide", hide);
       window.removeEventListener("fab:show", show);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleAISuggestionsChange = () => {
+      const saved = localStorage.getItem("showAISuggestions");
+      setShowAISuggestions(saved === null ? true : saved === "true");
+    };
+    window.addEventListener("aiSuggestionsChanged", handleAISuggestionsChange);
+    window.addEventListener("storage", handleAISuggestionsChange);
+    return () => {
+      window.removeEventListener("aiSuggestionsChanged", handleAISuggestionsChange);
+      window.removeEventListener("storage", handleAISuggestionsChange);
     };
   }, []);
   useEffect(() => {
@@ -313,6 +342,29 @@ const Index: React.FC = () => {
           onFilterClick={() => setIsFilterSheetOpen(true)}
         />
 
+        {/* AI Suggestions Section - Conditional (if we had one here) */}
+        {/* {showAISuggestions && <AISuggestionsSection ... />} */}
+
+        {/* Pull to Refresh Indicator */}
+        <AnimatePresence>
+          {(isRefreshing || pullProgress > 0) && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: isRefreshing ? 60 : pullProgress * 60, opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="flex items-center justify-center overflow-hidden"
+            >
+              <motion.div
+                animate={{ rotate: isRefreshing ? 360 : pullProgress * 180 }}
+                transition={isRefreshing ? { repeat: Infinity, duration: 1, ease: "linear" } : {}}
+                className="text-[#667eea]"
+              >
+                <Plus className="h-6 w-6" style={{ transform: `scale(${Math.min(pullProgress, 1)})` }} />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Categories Row */}
         <div className="px-2 mb-2">
           <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />
@@ -330,16 +382,24 @@ const Index: React.FC = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <CountryGroupList
-              groupedRecommendations={groupedRecommendations}
-              onToggleVisited={handleToggleVisited}
-              onDeleteRecommendation={handleDeleteRecommendation}
-              onEditClick={handleEditClick}
-              onViewDetails={handleViewDetails}
-              onCityClick={handleCityClick}
-              onRefresh={loadRecommendations}
-              showCounts={false}
-            />
+            {groupedRecommendations.length === 0 ? (
+              <EmptyState
+                variant={activeFilterCount > 0 ? 'no-results' : 'no-places'}
+                onCtaClick={() => setIsDrawerOpen(true)}
+              />
+            ) : (
+              <CountryGroupList
+                groupedRecommendations={groupedRecommendations}
+                onToggleVisited={handleToggleVisited}
+                onDeleteRecommendation={handleDeleteRecommendation}
+                onEditClick={handleEditClick}
+                onViewDetails={handleViewDetails}
+                onCityClick={handleCityClick}
+                onRefresh={loadRecommendations}
+                showCounts={false}
+                loading={loading}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
 

@@ -77,16 +77,15 @@ const RecommendationDrawer = ({
 
       toast({
         title: localEditRecommendation ? "Recommendation updated!" : "Recommendation added!",
-        description: `Your recommendation has been successfully ${
-          localEditRecommendation ? "updated" : "added"
-        }.`,
+        description: `Your recommendation has been successfully ${localEditRecommendation ? "updated" : "added"
+          }.`,
       });
 
       setIsDrawerOpen(false);
     }
   };
 
-  const handleSubmitFreeText = async (values: { city: string; country?: string; recommendations: string; parsedPlaces?: any[] }) => {
+  const handleSubmitFreeText = async (values: { city: string; country: string; recommendations: string; parsedPlaces: any[] }) => {
     // Check if this is AI-parsed submission (has parsedPlaces)
     if (values.parsedPlaces && values.parsedPlaces.length > 0) {
       const savedIds = await submitAIParsedRecommendation({
@@ -127,67 +126,69 @@ const RecommendationDrawer = ({
 
   return (
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border">
-        <DrawerHeader>
-          <DrawerTitle>
-            {localEditRecommendation ? "Edit Recommendation" : "Add a Recommendation"}
-          </DrawerTitle>
-          {localEditRecommendation && (
-            <DrawerDescription>
-              Update the details of your recommendation.
-            </DrawerDescription>
-          )}
-        </DrawerHeader>
+      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '40vh', maxHeight: '85vh' }}>
+        <div className="flex flex-col h-full">
+          <DrawerHeader className="shrink-0">
+            <DrawerTitle>
+              {localEditRecommendation ? "Edit Recommendation" : "Add a Recommendation"}
+            </DrawerTitle>
+            {localEditRecommendation && (
+              <DrawerDescription>
+                Update the details of your recommendation.
+              </DrawerDescription>
+            )}
+          </DrawerHeader>
 
-        <div className="px-6 space-y-4">
-          {!localEditRecommendation && (
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setMode("structured")}
-                className={`w-1/2 ${mode === "structured" ? "text-white border-transparent" : ""}`}
-                style={mode === "structured" ? {
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-                } : undefined}
-              >
-                Structured Input
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setMode("freetext")}
-                className={`w-1/2 ${mode === "freetext" ? "text-white border-transparent" : ""}`}
-                style={mode === "freetext" ? {
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-                } : undefined}
-              >
-                Free Text Input
-              </Button>
-            </div>
-          )}
+          <div className="px-6 space-y-4 flex-1 overflow-y-auto pb-4">
+            {!localEditRecommendation && (
+              <div className="flex items-center space-x-2 shrink-0">
+                <Button
+                  variant="outline"
+                  onClick={() => setMode("structured")}
+                  className={`w-1/2 ${mode === "structured" ? "text-white border-transparent" : ""}`}
+                  style={mode === "structured" ? {
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                  } : undefined}
+                >
+                  Structured Input
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setMode("freetext")}
+                  className={`w-1/2 ${mode === "freetext" ? "text-white border-transparent" : ""}`}
+                  style={mode === "freetext" ? {
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                  } : undefined}
+                >
+                  Free Text Input
+                </Button>
+              </div>
+            )}
 
-          {mode === "structured" ? (
-            <StructuredInputForm
-              key={localEditRecommendation?.id || localEditRecommendation?.recId || 'new'}
-              onSubmit={handleSubmitStructured}
-              initialCity={localEditRecommendation?.location || initialCity}
-              initialCountry={localEditRecommendation?.country || initialCountry}
-              isAnalyzing={isLoading}
-              editRecommendation={localEditRecommendation}
-            />
-          ) : (
-            <FreeTextForm onSubmit={handleSubmitFreeText} isAnalyzing={isLoading} />
-          )}
+            {mode === "structured" ? (
+              <StructuredInputForm
+                key={localEditRecommendation?.id || localEditRecommendation?.recId || 'new'}
+                onSubmit={handleSubmitStructured}
+                initialCity={localEditRecommendation?.location || initialCity}
+                initialCountry={localEditRecommendation?.country || initialCountry}
+                isAnalyzing={isLoading}
+                editRecommendation={localEditRecommendation}
+              />
+            ) : (
+              <FreeTextForm onSubmit={handleSubmitFreeText} isAnalyzing={isLoading} />
+            )}
+          </div>
+
+          <DrawerFooter className="pt-2 pb-4 shrink-0">
+            <DrawerClose asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                Cancel
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
         </div>
-
-        <DrawerFooter className="pt-2 pb-4">
-          <DrawerClose asChild>
-            <Button variant="ghost" size="sm" className="text-muted-foreground">
-              Cancel
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

@@ -26,6 +26,7 @@ import CollectionDetailPage from "@/pages/collections/CollectionDetailPage";
 import RoutesPage from "./pages/Routes";
 import RouteDetail from "./pages/RouteDetail";
 import TravelStory from "./pages/TravelStory";
+import TripDetailPage from "./pages/TripDetailPage";
 import Inbox from "./pages/Inbox";
 
 // Declare global window interface
@@ -164,6 +165,7 @@ function AppContent() {
           <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ New route */}
           <Route path="/routes" element={<RoutesPage />} /> {/* ✅ Routes feature */}
           <Route path="/routes/:id" element={<RouteDetail />} /> {/* ✅ Route detail */}
+          <Route path="/trip/:id" element={<TripDetailPage />} /> {/* ✅ AI Trip detail */}
           <Route path="/story" element={<TravelStory />} /> {/* ✅ Travel Story */}
           <Route path="/inbox" element={<Inbox />} /> {/* ✅ Shared inbox */}
           <Route path="*" element={<NotFound />} />

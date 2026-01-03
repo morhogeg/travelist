@@ -16,6 +16,7 @@ export {
 // Providers
 export { mockProvider, MockLLMProvider } from './providers/mock-provider';
 export { deepSeekSuggestionsProvider, DeepSeekSuggestionsProvider } from './providers/deepseek-suggestions-provider';
+export { tripPlannerProvider, TripPlannerProvider } from './providers/trip-planner-provider';
 export { parseWithDeepSeek, parseSharedText } from './providers/openrouter-parser';
 export type { ParsedPlace, ParseResult } from './providers/openrouter-parser';
 

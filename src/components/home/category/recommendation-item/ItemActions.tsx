@@ -22,7 +22,7 @@ const ItemActions: React.FC<ItemActionsProps> = ({
       console.error("Missing ID for deletion", item);
       return;
     }
-    onDelete(idToUse, item.name);
+    onDelete?.(idToUse, item.name);
   };
 
   const handleToggleVisited = (e: React.MouseEvent) => {
@@ -32,7 +32,7 @@ const ItemActions: React.FC<ItemActionsProps> = ({
       console.error("Missing ID for toggling visited", item);
       return;
     }
-    onToggleVisited(idToUse, item.name, !!item.visited);
+    onToggleVisited?.(idToUse, item.name, !!item.visited);
   };
 
 

@@ -19,8 +19,8 @@ export interface RecommendationItemProps {
     context?: RecommendationContext;
   };
   index: number;
-  onDelete: (recId: string, name: string) => void;
-  onToggleVisited: (recId: string, name: string, visited: boolean) => void;
+  onDelete?: (recId: string, name: string) => void;
+  onToggleVisited?: (recId: string, name: string, visited: boolean) => void;
   onCityClick?: (cityId: string) => void;
   onEditClick?: (item: any) => void;
   onViewDetails?: (item: any) => void;

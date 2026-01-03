@@ -16,7 +16,7 @@ import { getFilteredRecommendations, getAvailableOccasions, getAvailableSourceNa
 import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchInput from "@/components/home/search/SearchInput";
-import { Plus, ArrowLeft, Search as SearchIcon, SlidersHorizontal } from "lucide-react";
+import { Plus, ArrowLeft, Search as SearchIcon, SlidersHorizontal, Sparkles, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import countryToCode from "@/utils/flags/countryToCode";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
@@ -24,6 +24,9 @@ import { AISuggestionsSection } from "@/components/ai";
 import { AISuggestion } from "@/services/ai/types";
 import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
 import { v4 as uuidv4 } from "uuid";
+import DurationPickerDrawer from "@/components/trip/DurationPickerDrawer";
+import useTripPlanner from "@/hooks/useTripPlanner";
+import Breadcrumb from "@/components/ui/breadcrumb";
 
 interface Place {
   id: string;
@@ -56,6 +59,19 @@ const PlaceDetail = () => {
   const [availableSourceNames, setAvailableSourceNames] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [hideFab, setHideFab] = useState(false);
+  const [showAISuggestions, setShowAISuggestions] = useState(() => {
+    const saved = localStorage.getItem("showAISuggestions");
+    return saved === null ? true : saved === "true";
+  });
+
+  // Trip planner state
+  const [isDurationPickerOpen, setIsDurationPickerOpen] = useState(false);
+
+  // Get trip planner hook (will initialize after place is loaded)
+  const tripPlanner = useTripPlanner({
+    city: place?.name || '',
+    country: place?.country || '',
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -130,11 +146,19 @@ const PlaceDetail = () => {
   useEffect(() => {
     const handleHide = () => setHideFab(true);
     const handleShow = () => setHideFab(false);
+    const handleAISuggestionsChange = () => {
+      const saved = localStorage.getItem("showAISuggestions");
+      setShowAISuggestions(saved === null ? true : saved === "true");
+    };
     window.addEventListener("fab:hide", handleHide);
     window.addEventListener("fab:show", handleShow);
+    window.addEventListener("aiSuggestionsChanged", handleAISuggestionsChange);
+    window.addEventListener("storage", handleAISuggestionsChange);
     return () => {
       window.removeEventListener("fab:hide", handleHide);
       window.removeEventListener("fab:show", handleShow);
+      window.removeEventListener("aiSuggestionsChanged", handleAISuggestionsChange);
+      window.removeEventListener("storage", handleAISuggestionsChange);
     };
   }, []);
 
@@ -257,13 +281,38 @@ const PlaceDetail = () => {
 
   const activeFilterCount = countActiveFilters(filters);
 
+  // Count all places in this city for the trip planner
+  const totalPlacesInCity = groupedRecommendations.reduce(
+    (sum, group) => sum + group.items.length,
+    0
+  );
+
+  // Trip generation handler
+  const handleGenerateTrip = async (durationDays: number) => {
+    const trip = await tripPlanner.generateTrip(durationDays);
+    if (trip) {
+      setIsDurationPickerOpen(false);
+      toast({
+        title: 'Trip created!',
+        description: `Your ${durationDays}-day ${place?.name} itinerary is ready.`,
+      });
+      navigate(`/trip/${trip.id}`);
+    } else if (tripPlanner.error) {
+      toast({
+        title: 'Could not create trip',
+        description: tripPlanner.error,
+        variant: 'destructive',
+      });
+    }
+  };
+
   const filteredGroups = groupedRecommendations.map(group => ({
     ...group,
     items: Array.isArray(group.items)
       ? group.items.filter(place =>
-          place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-        )
+        place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+      )
       : []
   })).filter(group => group.items.length > 0);
 
@@ -339,6 +388,13 @@ const PlaceDetail = () => {
         </div>
       </div>
 
+      <Breadcrumb
+        items={[
+          { label: place.country || "Country", path: `/country/${encodeURIComponent(place.country || "")}` },
+          { label: place.name, path: `/place/${place.id}` },
+        ]}
+      />
+
       {/* Expandable Search Bar */}
       <AnimatePresence>
         {isSearchExpanded && (
@@ -374,7 +430,7 @@ const PlaceDetail = () => {
           onDeleteRecommendation={handleDeleteRecommendation}
           onEditClick={handleEditClick}
           onViewDetails={handleViewDetails}
-          onCityClick={() => {}}
+          onCityClick={() => { }}
           hideCityHeader
           hideCountryHeader
           showToggle={false}
@@ -382,11 +438,53 @@ const PlaceDetail = () => {
         />
       </div>
 
-      {/* AI Suggestions Section - at the bottom */}
-      <AISuggestionsSection
+      {/* AI Suggestions Section - at the bottom (Conditional) */}
+      {showAISuggestions && (
+        <AISuggestionsSection
+          cityName={place.name}
+          countryName={place.country || ""}
+          onAddSuggestion={handleAddAISuggestion}
+        />
+      )}
+
+      {/* Plan Trip Button - shows when 4+ places available */}
+      {totalPlacesInCity >= 4 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 pb-4 mt-4"
+        >
+          <Button
+            onClick={() => {
+              mediumHaptic();
+              setIsDurationPickerOpen(true);
+            }}
+            className="w-full py-6 text-white font-semibold"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+            }}
+          >
+            <Sparkles className="h-5 w-5 mr-2" />
+            Plan Trip with AI
+            <span className="ml-2 text-white/80 text-sm font-normal">
+              ({totalPlacesInCity} places)
+            </span>
+          </Button>
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            AI will organize your places into an optimized day-by-day itinerary
+          </p>
+        </motion.div>
+      )}
+
+      {/* Duration Picker Drawer for Trip Planning */}
+      <DurationPickerDrawer
+        isOpen={isDurationPickerOpen}
+        onClose={() => setIsDurationPickerOpen(false)}
         cityName={place.name}
-        countryName={place.country || ""}
-        onAddSuggestion={handleAddAISuggestion}
+        onSelectDuration={handleGenerateTrip}
+        isGenerating={tripPlanner.isGenerating}
+        progress={tripPlanner.progress}
       />
 
       {!isDrawerOpen && !detailsDialogOpen && !hideFab && (

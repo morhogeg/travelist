@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
 import { UserCircle, Sparkles, Lightbulb } from "lucide-react";
 import { categories, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import SwipeableCard from "./SwipeableCard";
-import CollectionPickerDrawer from "@/components/collections/CollectionPickerDrawer";
-import RoutePickerDrawer from "@/components/routes/RoutePickerDrawer";
+import AddToDrawer from "@/components/common/AddToDrawer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,16 +30,15 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   isRow = false,
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
-  const [showRoutePicker, setShowRoutePicker] = useState(false);
+  const [showAddToDrawer, setShowAddToDrawer] = useState(false);
 
   React.useEffect(() => {
-    if (showCollectionPicker || showRoutePicker || showDeleteDialog) {
+    if (showAddToDrawer || showDeleteDialog) {
       window.dispatchEvent(new CustomEvent("fab:hide"));
     } else {
       window.dispatchEvent(new CustomEvent("fab:show"));
     }
-  }, [showCollectionPicker, showRoutePicker, showDeleteDialog]);
+  }, [showAddToDrawer, showDeleteDialog]);
 
   // Get category info
   const getCategoryIcon = (category: string) => {
@@ -54,7 +52,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   const handleDeleteConfirm = () => {
     const idToUse = item.recId || item.id;
     if (idToUse) {
-      onDelete(idToUse, item.name);
+      onDelete?.(idToUse, item.name);
     }
     setShowDeleteDialog(false);
   };
@@ -62,28 +60,35 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
   return (
     <>
       <SwipeableCard
-        onDeleteTrigger={() => setShowDeleteDialog(true)}
-        onAddTrigger={() => setShowCollectionPicker(true)}
-        onAddRouteTrigger={() => setShowRoutePicker(true)}
+        onDeleteTrigger={() => {
+          setShowDeleteDialog(true);
+        }}
+        onAddTrigger={() => {
+          setShowAddToDrawer(true);
+        }}
+        onAddRouteTrigger={() => {
+          setShowAddToDrawer(true);
+        }}
       >
         <motion.div
           key={item.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.05 * index }}
-          className={`ios26-transition-smooth cursor-pointer relative ${
-            isRow
-              ? "bg-transparent rounded-none border-0 shadow-none"
-              : "liquid-glass-clear rounded-2xl border border-white/30 dark:border-white/12 shadow-md"
-          } ${item.visited ? 'ring-2 ring-success/30' : ''}`}
-          onClick={() => onViewDetails?.(item)}
+          className={`ios26-transition-smooth cursor-pointer relative ${isRow
+            ? "bg-transparent rounded-none border-0 shadow-none"
+            : "liquid-glass-clear rounded-2xl border border-white/30 dark:border-white/12 shadow-md"
+            } ${item.visited ? 'ring-2 ring-success/30' : ''}`}
+          onClick={() => {
+            onViewDetails?.(item);
+          }}
         >
           <div className={`${isRow ? "px-1.5 py-2" : "px-2 py-1 sm:px-2 sm:py-1.5"}`}>
             <div className="flex items-center gap-2">
               {/* Left side: Content */}
               <div
-                  className={`flex-1 min-w-0 flex items-center gap-2 ${isRow ? "pl-7" : "pl-5"}`}
-                >
+                className={`flex-1 min-w-0 flex items-center gap-2 ${isRow ? "pl-7" : "pl-5"}`}
+              >
                 {/* Category icon */}
                 <div
                   className="flex-shrink-0 w-5 h-5 flex items-center justify-center"
@@ -107,9 +112,8 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
 
             {(item.description || item.context?.specificTip) && (
               <p
-                className={`mt-1 text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1 opacity-90 ${
-                  isRow ? "pl-7" : "pl-5"
-                }`}
+                className={`mt-1 text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1 opacity-90 ${isRow ? "pl-7" : "pl-5"
+                  }`}
               >
                 <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 {item.description || item.context?.specificTip}
@@ -142,22 +146,11 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Collection Picker Drawer */}
-      <CollectionPickerDrawer
-        isOpen={showCollectionPicker}
+      {/* Add To Drawer (Unified Collections & Routes) */}
+      <AddToDrawer
+        isOpen={showAddToDrawer}
         onClose={() => {
-          setShowCollectionPicker(false);
-          window.dispatchEvent(new CustomEvent("fab:show"));
-        }}
-        placeId={item.recId || item.id}
-        placeName={item.name}
-        onOpenAutoFocus={() => window.dispatchEvent(new CustomEvent("fab:hide"))}
-      />
-
-      <RoutePickerDrawer
-        isOpen={showRoutePicker}
-        onClose={() => {
-          setShowRoutePicker(false);
+          setShowAddToDrawer(false);
           window.dispatchEvent(new CustomEvent("fab:show"));
         }}
         placeId={item.recId || item.id}
@@ -165,8 +158,9 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
         initialCity={item.city}
         initialCountry={item.country}
         initialCityId={item.cityId}
-        onOpenAutoFocus={() => window.dispatchEvent(new CustomEvent("fab:hide"))}
-        onAdded={() => setShowRoutePicker(false)}
+        onSuccess={() => {
+          // Optional: refresh data if needed
+        }}
       />
     </>
   );

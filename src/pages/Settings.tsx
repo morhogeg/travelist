@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import ShareExtensionGuide from "@/components/settings/ShareExtensionGuide";
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
@@ -30,10 +31,22 @@ const Settings = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showAISuggestions, setShowAISuggestions] = useState(() => {
+    const saved = localStorage.getItem("showAISuggestions");
+    return saved === null ? true : saved === "true";
+  });
+  const [showShareGuide, setShowShareGuide] = useState(false);
 
   const handleToggleTheme = () => {
     lightHaptic();
     toggleTheme();
+  };
+
+  const handleToggleAISuggestions = (checked: boolean) => {
+    lightHaptic();
+    setShowAISuggestions(checked);
+    localStorage.setItem("showAISuggestions", String(checked));
+    window.dispatchEvent(new CustomEvent("aiSuggestionsChanged"));
   };
 
   // Load current auth session
@@ -209,6 +222,43 @@ const Settings = () => {
 
           <div className="h-px bg-border/30 ml-8" />
 
+          {/* AI Suggestions Toggle */}
+          <motion.div
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-3 px-1 ios26-transition-smooth flex items-center gap-3"
+          >
+            <Sparkles className="h-5 w-5 shrink-0" style={{ color: '#667eea' }} />
+            <div className="flex-1 text-left min-w-0">
+              <p className="font-medium text-[15px]">AI Suggestions</p>
+              <p className="text-xs text-muted-foreground">
+                Show personalized travel recommendations.
+              </p>
+            </div>
+            <Switch
+              checked={showAISuggestions}
+              onCheckedChange={handleToggleAISuggestions}
+            />
+          </motion.div>
+
+          <div className="h-px bg-border/30 ml-8" />
+
+          {/* Share Extension Tutorial */}
+          <motion.div
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-3 px-1 ios26-transition-smooth flex items-center gap-3 cursor-pointer"
+            onClick={() => setShowShareGuide(true)}
+          >
+            <Mail className="h-5 w-5 shrink-0" style={{ color: '#667eea' }} />
+            <div className="flex-1 text-left min-w-0">
+              <p className="font-medium text-[15px]">Share Extension Guide</p>
+              <p className="text-xs text-muted-foreground">
+                Learn how to save places from other apps.
+              </p>
+            </div>
+          </motion.div>
+
+          <div className="h-px bg-border/30 ml-8" />
+
           {/* Supabase Auth */}
           <div className="w-full py-3 px-1 flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -343,6 +393,11 @@ const Settings = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Share Extension Guide */}
+      <ShareExtensionGuide
+        isOpen={showShareGuide}
+        onClose={() => setShowShareGuide(false)}
+      />
     </Layout>
   );
 };

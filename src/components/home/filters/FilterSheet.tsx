@@ -57,67 +57,69 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={handleDrawerChange}>
-      <DrawerContent className="max-h-[92vh] p-0 flex flex-col">
-        {/* Header */}
-        <div className="relative flex items-center justify-center px-6 pt-2 pb-4 border-b border-white/10">
-          <h2 className="text-xl font-bold text-[#667eea] leading-none">Filters</h2>
-          {hasFilters && (
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleReset}
-              className="absolute right-6 text-sm font-semibold text-[#667eea] ios26-transition-smooth hover:opacity-70"
-            >
-              Reset
-            </motion.button>
-          )}
-        </div>
+      <DrawerContent className="p-0 flex flex-col transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '40vh', maxHeight: '85vh' }}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="relative flex items-center justify-center px-6 pt-2 pb-4 border-b border-white/10 shrink-0">
+            <h2 className="text-xl font-bold text-[#667eea] leading-none">Filters</h2>
+            {hasFilters && (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleReset}
+                className="absolute right-6 text-sm font-semibold text-[#667eea] ios26-transition-smooth hover:opacity-70"
+              >
+                Reset
+              </motion.button>
+            )}
+          </div>
 
-        {/* Filter Sections - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-6 pt-2 pb-4 space-y-6">
-          <VisitStatusSection
-            value={localFilters.visitStatus}
-            onChange={(value) => setLocalFilters({ ...localFilters, visitStatus: value })}
-          />
-
-          <SourceSection
-            values={localFilters.sources}
-            onChange={(values) => setLocalFilters({ ...localFilters, sources: values })}
-            sourceNames={localFilters.sourceNames}
-            onSourceNamesChange={(values) => setLocalFilters({ ...localFilters, sourceNames: values })}
-            availableSourceNames={availableSourceNames}
-          />
-
-          {availableOccasions.length > 0 && (
-            <OccasionSection
-              values={localFilters.occasions}
-              availableOccasions={availableOccasions}
-              onChange={(values) => setLocalFilters({ ...localFilters, occasions: values })}
+          {/* Filter Sections - Scrollable */}
+          <div className="flex-1 overflow-y-auto px-6 pt-2 pb-4 space-y-6">
+            <VisitStatusSection
+              value={localFilters.visitStatus}
+              onChange={(value) => setLocalFilters({ ...localFilters, visitStatus: value })}
             />
-          )}
 
-          <LocationSection
-            countries={localFilters.countries}
-            cities={localFilters.cities}
-            availableCountries={availableCountries}
-            availableCities={availableCities}
-            onCountriesChange={(values) => setLocalFilters({ ...localFilters, countries: values })}
-            onCitiesChange={(values) => setLocalFilters({ ...localFilters, cities: values })}
-          />
-        </div>
+            <SourceSection
+              values={localFilters.sources}
+              onChange={(values) => setLocalFilters({ ...localFilters, sources: values })}
+              sourceNames={localFilters.sourceNames}
+              onSourceNamesChange={(values) => setLocalFilters({ ...localFilters, sourceNames: values })}
+              availableSourceNames={availableSourceNames}
+            />
 
-        {/* Footer with Apply Button */}
-        <div className="px-6 py-4 border-t border-white/10">
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={handleApply}
-            className="w-full py-2.5 rounded-xl text-white font-semibold ios26-transition-spring"
-            style={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              boxShadow: "0 4px 15px rgba(102, 126, 234, 0.3)",
-            }}
-          >
-            Apply Filters
-          </motion.button>
+            {availableOccasions.length > 0 && (
+              <OccasionSection
+                values={localFilters.occasions}
+                availableOccasions={availableOccasions}
+                onChange={(values) => setLocalFilters({ ...localFilters, occasions: values })}
+              />
+            )}
+
+            <LocationSection
+              countries={localFilters.countries}
+              cities={localFilters.cities}
+              availableCountries={availableCountries}
+              availableCities={availableCities}
+              onCountriesChange={(values) => setLocalFilters({ ...localFilters, countries: values })}
+              onCitiesChange={(values) => setLocalFilters({ ...localFilters, cities: values })}
+            />
+          </div>
+
+          {/* Footer with Apply Button */}
+          <div className="px-6 py-4 border-t border-white/10 shrink-0">
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={handleApply}
+              className="w-full py-2.5 rounded-xl text-white font-semibold ios26-transition-spring"
+              style={{
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                boxShadow: "0 4px 15px rgba(102, 126, 234, 0.3)",
+              }}
+            >
+              Apply Filters
+            </motion.button>
+          </div>
         </div>
       </DrawerContent>
     </Drawer>

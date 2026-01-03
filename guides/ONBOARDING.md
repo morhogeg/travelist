@@ -2,7 +2,7 @@
 
 ## Overview
 
-The onboarding flow introduces first-time users to Travelist's core features through a **5-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
+The onboarding flow introduces first-time users to Travelist's core features through an **8-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
 
 ## Screens
 
@@ -12,25 +12,38 @@ The onboarding flow introduces first-time users to Travelist's core features thr
 - **Visual:** Animated Compass icon with pulsing glow ring and floating particles
 - **CTA:** "Get Started"
 
-### Screen 2: Save (Share Extension)
+### Screen 2: Save
 - **Title:** "Save from any app."
 - **Subtitle:** "Found a place you love? Tap Share → Travelist."
 - **Visual:** Share icon with orbiting ring and app flow animation
 - **App Icons:** Safari 🧭, Instagram 📸, Maps 🗺️, TikTok 🎵 → Travelist
 
-### Screen 3: Organize (Collections & Routes)
+### Screen 3: Share Extension (Guide)
+- **Title:** "Save from Anywhere."
+- **Subtitle:** "Found a place in Safari or Instagram? Save it instantly without leaving the app."
+- **Visual:** Mockup of the iOS Share Sheet with the Travelist app icon.
+
+### Screen 4: Organize
 - **Title:** "Collections. Routes."
 - **Subtitle:** "Group places by theme. Build day-by-day itineraries."
 - **Visual:** Folder and Route icons with connecting line animation
-- **Features:** Collections (purple), Routes (gradient)
 
-### Screen 4: Navigate (Export to Maps)
+### Screen 5: Gesture Tutorial
+- **Title:** "Master the Gestures."
+- **Subtitle:** "Swipe cards to quickly organize your travel finds."
+- **Visual:** Interactive demo area where users can practice swipe-left (Delete) and swipe-right (Collect) gestures.
+
+### Screen 6: Navigate
 - **Title:** "One tap. Start navigating."
 - **Subtitle:** "Export your route directly to Google Maps or Apple Maps."
 - **Visual:** Map icon with ripple effect and navigation indicator
-- **Map Badges:** 🗺️ Google Maps, 🍎 Apple Maps
 
-### Screen 5: Sign In
+### Screen 7: AI Insights
+- **Title:** "AI-Powered Insights."
+- **Subtitle:** "Just type what you heard. Our AI handles the details."
+- **Visual:** Mockup of the AI free-text input and a parsed result card.
+
+### Screen 8: Sign In
 - **Title:** "Sync across all devices."
 - **Subtitle:** "Keep your places backed up. Works offline, always."
 - **Visual:** Cloud icon with orbiting sync dots
@@ -45,12 +58,15 @@ The onboarding flow introduces first-time users to Travelist's core features thr
 src/components/onboarding/
 ├── index.ts                  # Exports
 ├── types.ts                  # Types + localStorage helpers
-├── OnboardingFlow.tsx        # Main controller (5 steps)
+├── OnboardingFlow.tsx        # Main controller (8 steps)
 ├── screens/
 │   ├── WelcomeScreen.tsx     # "Never forget a great place"
 │   ├── SaveScreen.tsx        # Share Extension
+│   ├── ShareExtensionScreen.tsx # Detailed Share Extension guide
 │   ├── OrganizeScreen.tsx    # Collections & Routes
+│   ├── GestureTutorialScreen.tsx # Interactive gesture practice
 │   ├── NavigateScreen.tsx    # Export to Maps
+│   ├── AISuggestionsScreen.tsx # AI features showcase
 │   └── SignInScreen.tsx      # Cloud Sync
 └── components/
     ├── OnboardingProgress.tsx  # Animated dots

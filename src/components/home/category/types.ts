@@ -13,8 +13,8 @@ export interface CityGroupProps {
   onEditClick?: (rec: any) => void;
   onViewDetails?: (rec: any) => void;
   onRefresh?: () => void; // ✅ NEW: used by GridView to reload data
-  onToggleVisited: (id: string) => void;
-  onDeleteRecommendation: (id: string) => void;
+  onToggleVisited?: (id: string, name: string, visited: boolean) => void;
+  onDeleteRecommendation?: (id: string, name: string) => void;
   onCityClick?: (cityId: string) => void;
   showCounts?: boolean;
 }
@@ -27,8 +27,8 @@ export interface CityHeaderProps {
 
 export interface GridViewProps {
   items: Recommendation[];
-  onDeleteRecommendation: (recId: string, name: string) => void;
-  onToggleVisited: (recId: string, name: string, visited: boolean) => void;
+  onDeleteRecommendation?: (recId: string, name: string) => void;
+  onToggleVisited?: (recId: string, name: string, visited: boolean) => void;
   onCityClick: (cityId: string) => void;
   onEditClick?: (item: Recommendation) => void;
   onViewDetails?: (item: Recommendation) => void;

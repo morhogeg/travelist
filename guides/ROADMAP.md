@@ -26,8 +26,8 @@
 - [x] Implement swipe-to-delete gestures
 - [x] Implement swipe-to-add-to-collection gesture
 - [ ] Add long-press context menus (native iOS style)
-- [ ] Improve loading states with shimmer effects
-- [ ] Add empty states with illustrations
+- [x] Improve loading states with shimmer effects
+- [x] Add empty states with illustrations
 - [ ] Optimize image loading (lazy loading, placeholders)
 
 ### User Experience
@@ -243,17 +243,28 @@
 5. **Toggle collection membership** - Items can be in multiple collections
 6. **Collection ID matching fix** - Fixed items not showing by matching recId or id
 
+### ✅ Session Progress (January 3, 2026)
+
+#### Phase 2: Feature Discoverability
+1. **Gesture Coach Marks** - Contextual tooltips for feature discovery (`CoachMark.tsx`).
+2. **Gesture Hints** - Animated hand icons for swipe actions (`GestureHint.tsx`).
+3. **Scroll Edge Indicators** - Gradient fade masks for horizontal scroll areas.
+4. **Enhanced Onboarding** - Expanded 8-screen flow with interactive tutorials and feature guides.
+
+#### Phase 1: Feedback States
+1. **Skeleton Loaders** - Added shimmer loading states to the Home page with `SkeletonCard.tsx`.
+2. **Empty States** - Created reusable `EmptyState.tsx` and integrated it into Home, Collections, and Routes.
+3. **Pull-to-Refresh** - Implemented custom `usePullToRefresh.ts` hook and integrated it into the Home page.
+4. **Liquid Glass Polish** - Ensured all new components follow the iOS 26 Liquid Glass design system.
+
 ### 🔜 Still To Do (Future Sessions)
 1. **Cloud sync with Supabase** - User authentication, data sync, real-time updates
 2. **Long-press context menus** - iOS native style
-3. **Loading states** - Shimmer effects for better UX
-4. **Empty states** - Illustrations for empty lists
-5. **Image optimization** - Lazy loading, placeholders
-6. **Real LLM integration** - Replace mock AI provider with actual API (OpenAI/Claude)
-7. **Collection covers/thumbnails** - Visual previews for collections
-8. **Pull-to-refresh** - On list views
-9. **Bulk actions** - Select multiple items
+3. **Image optimization** - Lazy loading, placeholders
+4. **Real LLM integration** - Replace mock AI provider with actual API (OpenAI/Claude)
+5. **Collection covers/thumbnails** - Visual previews for collections
+6. **Bulk actions** - Select multiple items
 
 ---
 
-Last Updated: November 26, 2025
+Last Updated: January 3, 2026

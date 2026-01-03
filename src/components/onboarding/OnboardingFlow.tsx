@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { SaveScreen } from './screens/SaveScreen';
+import { ShareExtensionScreen } from './screens/ShareExtensionScreen';
 import { OrganizeScreen } from './screens/OrganizeScreen';
+import { GestureTutorialScreen } from './screens/GestureTutorialScreen';
 import { NavigateScreen } from './screens/NavigateScreen';
+import { AISuggestionsScreen } from './screens/AISuggestionsScreen';
 import { SignInScreen } from './screens/SignInScreen';
 import { OnboardingProgress } from './components/OnboardingProgress';
 import { markOnboardingComplete } from './types';
@@ -12,7 +15,7 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 8;
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -57,7 +60,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
         );
       case 2:
         return (
-          <OrganizeScreen
+          <ShareExtensionScreen
             onNext={handleNext}
             onBack={handleBack}
             onSkip={handleSkip}
@@ -65,13 +68,37 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
         );
       case 3:
         return (
-          <NavigateScreen
+          <OrganizeScreen
             onNext={handleNext}
             onBack={handleBack}
             onSkip={handleSkip}
           />
         );
       case 4:
+        return (
+          <GestureTutorialScreen
+            onNext={handleNext}
+            onBack={handleBack}
+            onSkip={handleSkip}
+          />
+        );
+      case 5:
+        return (
+          <NavigateScreen
+            onNext={handleNext}
+            onBack={handleBack}
+            onSkip={handleSkip}
+          />
+        );
+      case 6:
+        return (
+          <AISuggestionsScreen
+            onNext={handleNext}
+            onBack={handleBack}
+            onSkip={handleSkip}
+          />
+        );
+      case 7:
         return (
           <SignInScreen
             onNext={handleNext}

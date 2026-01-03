@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
 import { motion } from "framer-motion";
 import { Plus, Folder } from "lucide-react";
+import EmptyState from "@/components/ui/EmptyState";
 import CreateCollectionDrawer from "./CreateCollectionDrawer";
 import CollectionCard from "./CollectionCard";
 import { mediumHaptic } from "@/utils/ios/haptics";
@@ -96,28 +97,10 @@ const CollectionsTab: React.FC = () => {
         </div>
 
         {collections.length === 0 ? (
-          <div className="liquid-glass-clear rounded-2xl p-8 text-center space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center mb-2">
-              <Folder className="h-8 w-8 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-base mb-1">No collections yet</p>
-              <p className="text-sm text-muted-foreground">
-                Create your first collection to organize your places
-              </p>
-            </div>
-            <Button
-              onClick={handleCreateCollection}
-              className="text-white font-semibold shadow-lg mt-4"
-              style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Your First Collection
-            </Button>
-          </div>
+          <EmptyState
+            variant="no-collections"
+            onCtaClick={handleCreateCollection}
+          />
         ) : (
           <>
             <div>

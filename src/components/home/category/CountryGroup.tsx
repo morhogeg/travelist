@@ -5,6 +5,8 @@ import CityGroup from "./CityGroup";
 import { useNavigate } from "react-router-dom";
 import type { GroupedRecommendation } from "@/utils/recommendation/types";
 import countryToCode from "@/utils/flags/countryToCode";
+import { calculateVisitedStats } from "@/utils/recommendation/stats-helpers";
+import { CheckCircle2 } from "lucide-react";
 
 // Helper functions to persist collapsed state
 const COLLAPSED_COUNTRIES_KEY = "travelist_collapsed_countries";
@@ -78,7 +80,9 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
   const flag = getFlagEmoji(country);
 
   // Count total items across all cities
-  const totalItems = groups.reduce((sum, group) => sum + group.items.length, 0);
+  const allItems = groups.flatMap(group => group.items);
+  const totalItems = allItems.length;
+  const stats = calculateVisitedStats(allItems);
 
   const handleCountryClick = () => {
     navigate(`/country/${encodeURIComponent(country)}`);
@@ -109,7 +113,23 @@ const CountryGroup: React.FC<CountryGroupProps> = ({
             >
               <span>{flag}</span>
               <span className="truncate">{country}</span>
-              {showCounts && <span className="text-[11px] font-medium opacity-70">({totalItems})</span>}
+              {showCounts && (
+                <span className="flex items-center gap-1.5 ml-1">
+                  <span className="text-[11px] font-medium opacity-70">({totalItems})</span>
+                  {stats.visited > 0 && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold flex items-center gap-1 ${stats.isComplete
+                        ? "bg-success/10 text-success border border-success/20"
+                        : "bg-neutral-100 dark:bg-neutral-800 text-muted-foreground"
+                      }`}>
+                      {stats.isComplete ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : (
+                        <span>{stats.visited}/{stats.total}</span>
+                      )}
+                    </span>
+                  )}
+                </span>
+              )}
             </h2>
 
             <motion.div

@@ -3,12 +3,15 @@ import React from "react";
 import { ChevronDown } from "lucide-react";
 import { CityHeaderProps } from "./types";
 import { motion } from "framer-motion";
+import { calculateVisitedStats } from "@/utils/recommendation/stats-helpers";
+import { CheckCircle2 } from "lucide-react";
 
 interface ExtendedCityHeaderProps extends CityHeaderProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   itemCount?: number;
   showCount?: boolean;
+  items?: any[];
 }
 
 const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
@@ -18,8 +21,10 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
   isCollapsed = false,
   onToggleCollapse,
   itemCount = 0,
-  showCount = true
+  showCount = true,
+  items = []
 }) => {
+  const stats = calculateVisitedStats(items);
   const handleCityNameClick = () => {
     onCityClick(cityId);
   };
@@ -39,7 +44,23 @@ const CityHeader: React.FC<ExtendedCityHeaderProps> = ({
         whileTap={{ scale: 0.98 }}
       >
         <h2 className="text-sm font-semibold opacity-85">{cityName}</h2>
-        {showCount && <span className="text-[11px] opacity-70">({itemCount})</span>}
+        {showCount && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] opacity-70">({itemCount})</span>
+            {stats.visited > 0 && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold flex items-center gap-1 ${stats.isComplete
+                  ? "bg-success/10 text-success border border-success/20"
+                  : "bg-neutral-100 dark:bg-neutral-800 text-muted-foreground"
+                }`}>
+                {stats.isComplete ? (
+                  <CheckCircle2 className="h-3 w-3" />
+                ) : (
+                  <span>{stats.visited}/{stats.total}</span>
+                )}
+              </span>
+            )}
+          </div>
+        )}
       </motion.div>
 
       {onToggleCollapse && (

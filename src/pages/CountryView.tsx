@@ -20,6 +20,7 @@ import { Plus, ArrowLeft, Search as SearchIcon, SlidersHorizontal } from "lucide
 import { Button } from "@/components/ui/button";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
+import Breadcrumb from "@/components/ui/breadcrumb";
 
 const CountryView: React.FC = () => {
   const { countryName } = useParams<{ countryName: string }>();
@@ -177,9 +178,9 @@ const CountryView: React.FC = () => {
     ...group,
     items: Array.isArray(group.items)
       ? group.items.filter(place =>
-          place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-        )
+        place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (place.country?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+      )
       : []
   })).filter(group => group.items.length > 0);
 
@@ -237,6 +238,12 @@ const CountryView: React.FC = () => {
           </motion.button>
         </div>
       </div>
+
+      <Breadcrumb
+        items={[
+          { label: countryName || "Country", path: `/country/${encodeURIComponent(countryName || "")}` },
+        ]}
+      />
 
       {/* Expandable Search Bar */}
       <AnimatePresence>

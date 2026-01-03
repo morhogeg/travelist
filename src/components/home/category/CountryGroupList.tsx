@@ -1,6 +1,8 @@
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import CountryGroup from "./CountryGroup";
 import type { GroupedRecommendation } from "@/utils/recommendation/types";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 
 interface CountryGroupListProps {
   groupedRecommendations: GroupedRecommendation[];
@@ -13,6 +15,7 @@ interface CountryGroupListProps {
   viewMode?: "grid" | "list";
   toggleViewMode?: () => void;
   showCounts?: boolean;
+  loading?: boolean;
 }
 
 const CountryGroupList: React.FC<CountryGroupListProps> = ({
@@ -25,7 +28,16 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
   onRefresh,
   viewMode = "grid",
   showCounts = true,
+  loading = false,
 }) => {
+  if (loading) {
+    return (
+      <div className="mt-4 px-4">
+        <SkeletonCard count={4} />
+      </div>
+    );
+  }
+
   if (!groupedRecommendations || groupedRecommendations.length === 0) return null;
 
   const countriesMap: Record<string, GroupedRecommendation[]> = {};
@@ -52,24 +64,33 @@ const CountryGroupList: React.FC<CountryGroupListProps> = ({
   });
 
   return (
-    <div className="mt-2 space-y-6">
-      {sortedCountries.map((country, index) => (
-        <CountryGroup
-          key={country}
-          country={country}
-          groups={countriesMap[country]}
-          onEditClick={onEditClick}
-          onViewDetails={onViewDetails}
-          onToggleVisited={onToggleVisited}
-          onDeleteRecommendation={onDeleteRecommendation}
-          onCityClick={onCityClick}
-          onRefresh={onRefresh}
-          viewMode={viewMode}
-          showCounts={showCounts}
-          isLastCountry={index === sortedCountries.length - 1}
-        />
-      ))}
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="content"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="mt-2 space-y-6"
+      >
+        {sortedCountries.map((country, index) => (
+          <CountryGroup
+            key={country}
+            country={country}
+            groups={countriesMap[country]}
+            onEditClick={onEditClick}
+            onViewDetails={onViewDetails}
+            onToggleVisited={onToggleVisited}
+            onDeleteRecommendation={onDeleteRecommendation}
+            onCityClick={onCityClick}
+            onRefresh={onRefresh}
+            viewMode={viewMode}
+            showCounts={showCounts}
+            isLastCountry={index === sortedCountries.length - 1}
+          />
+        ))}
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

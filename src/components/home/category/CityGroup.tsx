@@ -33,6 +33,7 @@ interface Props extends CityGroupProps {
   hideCityHeader?: boolean; // ✅ NEW
   hideCountry?: boolean;
   isLastInCountry?: boolean;
+  viewMode?: "grid" | "list";
 }
 
 const CityGroup: React.FC<Props> = ({
@@ -122,47 +123,48 @@ const CityGroup: React.FC<Props> = ({
       className="mb-1"
     >
       <div className="px-4">
-      {!hideCityHeader && (
-        <CityHeader
-          cityName={cityName}
-          cityId={cityId}
-          onCityClick={handleCityClickInternal}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={() => {
-            setIsCollapsed((prev) => {
-              const next = !prev;
-              setCollapsedCity(cityId, next);
-              return next;
-            });
-          }}
-          itemCount={items.length}
-          showCount={showCounts}
-        />
-      )}
-
-      <AnimatePresence initial={false}>
-        {!isCollapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="mt-1">
-              <GridView
-                items={processedItems}
-                onDeleteRecommendation={handleDeleteRecommendation}
-                onToggleVisited={handleToggleVisited}
-                onCityClick={handleCityClickInternal}
-                onEditClick={handleEdit}
-                onViewDetails={onViewDetails}
-                getCategoryPlaceholder={getCategoryPlaceholder}
-              />
-            </div>
-          </motion.div>
+        {!hideCityHeader && (
+          <CityHeader
+            cityName={cityName}
+            cityId={cityId}
+            onCityClick={handleCityClickInternal}
+            isCollapsed={isCollapsed}
+            onToggleCollapse={() => {
+              setIsCollapsed((prev) => {
+                const next = !prev;
+                setCollapsedCity(cityId, next);
+                return next;
+              });
+            }}
+            itemCount={items.length}
+            showCount={showCounts}
+            items={items}
+          />
         )}
-      </AnimatePresence>
+
+        <AnimatePresence initial={false}>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="mt-1">
+                <GridView
+                  items={processedItems}
+                  onDeleteRecommendation={handleDeleteRecommendation}
+                  onToggleVisited={handleToggleVisited}
+                  onCityClick={handleCityClickInternal}
+                  onEditClick={handleEdit}
+                  onViewDetails={onViewDetails}
+                  getCategoryPlaceholder={getCategoryPlaceholder}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Gradient divider between cities - only show if NOT the last city in the country */}

@@ -57,6 +57,9 @@ npm run build:prod       # Production build
 - `src/components/layout/Navbar.tsx` - Bottom floating navbar (minimalistic purple)
 - `src/components/layout/ThemeToggle.tsx` - Dark/light mode toggle (top-right)
 - `src/components/home/search/SearchHeader.tsx` - Header with title, search, view toggle
+- `src/components/ui/SkeletonCard.tsx` - Shimmer loader for cards
+- `src/components/ui/EmptyState.tsx` - Reusable empty state component
+- `src/components/ui/CoachMark.tsx` - Feature discovery tooltips
 
 ### Home/Recommendations
 - `src/components/home/category/CountryGroup.tsx` - Country sections (purple headers)
@@ -86,6 +89,7 @@ npm run build:prod       # Production build
 ### Native iOS
 - `src/hooks/native/useHaptics.ts` - Haptic feedback hook
 - `src/hooks/native/useStatusBar.ts` - Status bar theme management
+- `src/hooks/usePullToRefresh.ts` - Pull-to-refresh gesture hook
 - `src/utils/ios/haptics.ts` - Haptic utility functions
 
 ### Pages
@@ -228,6 +232,17 @@ color: #764ba2;
 ---
 
 ## 🎯 Recent Changes Summary
+
+**Latest (Jan 2026): Phase 2: Feature Discoverability**
+- Added **Gesture Coach Marks** (`CoachMark.tsx`) for contextual feature discovery.
+- Added **Scroll Edge Indicators** to `CategoriesScrollContainer.tsx` using dynamic gradient fade masks.
+- Expanded **Onboarding Flow** to 8 steps, adding `GestureTutorialScreen`, `ShareExtensionScreen`, and `AISuggestionsScreen`.
+
+**Latest (Jan 2026): Phase 1: Feedback States**
+- Added **Skeleton Loaders** (`SkeletonCard.tsx`) with shimmer animation and Liquid Glass styling for Home page loading.
+- Implemented **Empty States** (`EmptyState.tsx`) with variants for no places, no collections, no routes, and no search results.
+- Added **Pull-to-Refresh** (`usePullToRefresh.ts`) on the Home page with a visual indicator and haptic feedback.
+- Integrated fade transitions from skeletons to content using `AnimatePresence`.
 
 **Latest (Jan 2026): Inbox + Hierarchy polish**
 - Inbox share parsing now uses OpenRouter `tngtech/deepseek-r1t2-chimera:free`; failures keep items editable and import toasts were removed.
@@ -596,11 +611,11 @@ acf64d5 - Add comprehensive roadmap
 
 ## 🎯 Next Immediate Tasks (from ROADMAP.md)
 
-1. Pull-to-refresh on list views
-2. Swipe-to-delete gestures
+1. ✅ Pull-to-refresh on list views (Home implemented)
+2. Swipe-to-delete gestures (Collections/Routes implemented)
 3. Long-press context menus
-4. Loading states with shimmer
-5. Empty states with illustrations
+4. ✅ Loading states with shimmer
+5. ✅ Empty states with illustrations
 6. Image optimization
 
 ---
