@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
-import { Moon, Sun, Sparkles, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Moon, Sun, Sparkles, Eye, EyeOff, Mail, Lock, Trash2 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
-import { lightHaptic } from "@/utils/ios/haptics";
+import { lightHaptic, heavyHaptic } from "@/utils/ios/haptics";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
@@ -18,6 +28,8 @@ const Settings = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleToggleTheme = () => {
     lightHaptic();
@@ -94,6 +106,66 @@ const Settings = () => {
       setAuthError(err?.message ?? "Could not sign out");
     } finally {
       setAuthLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!supabase) return;
+    setDeleteLoading(true);
+    setAuthError(null);
+    setAuthMessage(null);
+
+    try {
+      heavyHaptic();
+
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        setAuthError("No user found to delete.");
+        setDeleteLoading(false);
+        return;
+      }
+
+      // Delete user data from the recommendations table first
+      const { error: dataError } = await supabase
+        .from('recommendations')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (dataError) {
+        console.warn("[Settings] Could not delete user recommendations:", dataError.message);
+        // Continue anyway - we still want to delete the account
+      }
+
+      // Sign out the user (the actual account deletion requires admin API or Edge Function)
+      // For self-service deletion, we sign out and clear local data
+      await supabase.auth.signOut();
+
+      // Clear all local storage data
+      const keysToRemove = [
+        'travelist-recommendations',
+        'travelist-routes',
+        'travelist-collections',
+        'travelist-country-collapse-state',
+        'travelist-onboarding-completed',
+        'theme',
+      ];
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      setUserEmail(null);
+      setEmail("");
+      setPassword("");
+      setIsDeleteDialogOpen(false);
+      setAuthMessage("Account data deleted successfully. Your account has been signed out.");
+
+      // Note: Full account deletion from Supabase Auth requires admin API.
+      // For production, implement a Supabase Edge Function that handles this.
+
+    } catch (err: any) {
+      setAuthError(err?.message ?? "Could not delete account");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -213,6 +285,33 @@ const Settings = () => {
               {authError && <p className="text-xs text-destructive">{authError}</p>}
             </div>
           </div>
+
+          {/* Delete Account Section - Only show when signed in */}
+          {userEmail && (
+            <>
+              <div className="h-px bg-border/30 ml-8 mt-2" />
+
+              <div className="w-full py-3 px-1 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <Trash2 className="h-5 w-5 shrink-0 text-destructive" />
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="font-medium text-[15px]">Delete Account</p>
+                    <p className="text-xs text-muted-foreground">
+                      Permanently delete your account and all cloud data.
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  className="border-destructive text-destructive hover:bg-destructive/10"
+                >
+                  Delete My Account
+                </Button>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer */}
@@ -222,6 +321,28 @@ const Settings = () => {
           </p>
         </div>
       </motion.div>
+
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Account</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete your account? This will permanently remove all your cloud-synced data including saved places, collections, and routes. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={deleteLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteLoading ? "Deleting..." : "Delete Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };

@@ -90,7 +90,7 @@ We may update this policy. Changes will be posted here with a new effective date
 
 For privacy questions or data deletion requests:
 
-**Email:** [YOUR_EMAIL_HERE]
+**Email:** support@travelist.app
 
 ---
 
