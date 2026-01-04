@@ -579,6 +579,12 @@ Uses Drawer component (not Dialog) for native iOS behavior:
 </DrawerContent>
 ```
 
+### Trip Planner Context (Special Case)
+When viewing AI suggestions within the Trip Planner:
+- **Single Primary Action:** A prominent **"Add to Day"** button (Purple Gradient).
+- **Hidden Actions:** "Add to Collection" and "Mark Visited" are hidden to keep the flow focused on building the itinerary.
+- **Behavior:** Clicking "Add to Day" adds the place to the current trip day and immediately closes the drawer.
+
 ### Avoid These Patterns
 
 ❌ **Don't:** Use hero images in detail dialogs
