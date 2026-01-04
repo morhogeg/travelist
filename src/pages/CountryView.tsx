@@ -213,11 +213,7 @@ const CountryView: React.FC = () => {
             )}
           </div>
 
-          {/* Center: Title (absolutely positioned for true centering) */}
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-xl font-bold truncate max-w-[50%] text-center">
-            <span className="mr-2">{flagEmoji}</span>
-            {countryName}
-          </h1>
+
 
           {/* Right side: Filter */}
           <motion.button
@@ -283,7 +279,6 @@ const CountryView: React.FC = () => {
           hideCityHeader={false}
           hideCountryHeader={true}
           showToggle={false}
-          noSidePadding={true}
           hideCountry={true}
         />
       </div>

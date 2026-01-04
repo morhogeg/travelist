@@ -170,9 +170,6 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
             onClick={toggleHidden}
             className="flex items-center gap-2"
           >
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
-            </div>
             <h3 className="font-semibold text-sm text-foreground">
               You might also like
             </h3>
@@ -339,7 +336,8 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
                 <div className="flex gap-2 pt-2">
                   {onAddSuggestion && selectedSuggestion && (
                     <Button
-                      className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                      variant="outline"
+                      className="flex-1"
                       onClick={() => {
                         onAddSuggestion(selectedSuggestion);
                         setSelectedSuggestion(null);

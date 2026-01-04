@@ -22,6 +22,7 @@ import {
     reorderTripPlacesInDay,
     addDayToTrip,
     dismissTripSuggestion,
+    addPlaceToTripDay,
 } from '@/utils/trip/trip-manager';
 import { getRecommendations, markRecommendationVisited, storeRecommendation } from '@/utils/recommendation/recommendation-manager';
 import { Trip, TripPlaceReference, TripSuggestedPlace } from '@/types/trip';
@@ -146,7 +147,7 @@ const TripDetailPage: React.FC = () => {
             recId: place.recId || place.id || placeId,
             visited: place.visited || false,
             country: trip.country,
-            source: place.source,
+            source: place.source?.name === 'Trip Planner AI' ? { ...place.source, name: 'Travelist AI' } : place.source,
             context: place.context,
         });
     };
@@ -183,18 +184,49 @@ const TripDetailPage: React.FC = () => {
                 name: suggestion.name,
                 category: suggestion.category || 'general',
                 description: suggestion.description,
-                source: { type: 'ai', name: 'Trip Planner AI' },
+                source: { type: 'ai', name: 'Travelist AI' },
                 context: { specificTip: suggestion.whyItFits },
             }],
             rawText: suggestion.whyItFits,
             dateAdded: new Date().toISOString(),
         } as any);
 
+        // Add to the LAST day of the trip
+        const lastDay = trip.days[trip.days.length - 1];
+        if (lastDay) {
+            addPlaceToTripDay(trip.id, lastDay.dayNumber, {
+                placeId: recId,
+                suggestedTime: '', // Will be calculated
+                order: 999, // Will be calculated
+                travelToNextMinutes: 15,
+                visited: false,
+            });
+        }
+
         // Dismiss from trip suggestions
         dismissTripSuggestion(id, suggestion.name);
 
-        toast({ title: 'Added!', description: `${suggestion.name} saved to your list.` });
+        toast({ title: 'Added to Route!', description: `${suggestion.name} added to Day ${lastDay?.dayNumber || 1}.` });
         loadTrip();
+    };
+
+    const handleSuggestionClick = (suggestion: TripSuggestedPlace) => {
+        if (!trip) return;
+        mediumHaptic();
+        setSelectedPlaceDetails({
+            id: uuidv4(), // Temp ID for display
+            name: suggestion.name,
+            location: trip.city,
+            image: '', // No image for suggestions yet
+            category: suggestion.category || 'general',
+            description: suggestion.description,
+            website: '',
+            recId: '',
+            visited: false,
+            country: trip.country,
+            source: { type: 'ai', name: 'Travelist AI' },
+            context: { specificTip: suggestion.whyItFits },
+        });
     };
 
     const confirmDeleteTrip = () => {
@@ -330,12 +362,24 @@ const TripDetailPage: React.FC = () => {
 
                         <div className="space-y-2">
                             {visibleSuggestions.map((suggestion, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/30 dark:border-amber-700/20">
+                                <div
+                                    key={idx}
+                                    onClick={() => handleSuggestionClick(suggestion)}
+                                    className="flex items-center justify-between p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/30 dark:border-amber-700/20 active:scale-[0.98] transition-transform cursor-pointer"
+                                >
                                     <div className="flex items-center gap-2 min-w-0">
                                         <span style={{ color: getCategoryColor(suggestion.category) }}>{getCategoryIcon(suggestion.category)}</span>
                                         <span className="text-sm font-medium truncate">{suggestion.name}</span>
                                     </div>
-                                    <Button variant="ghost" size="sm" onClick={() => handleAddSuggestion(suggestion)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAddSuggestion(suggestion);
+                                        }}
+                                        className="shrink-0 text-muted-foreground hover:text-foreground"
+                                    >
                                         <Plus className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -353,6 +397,13 @@ const TripDetailPage: React.FC = () => {
                     recommendation={selectedPlaceDetails}
                     onToggleVisited={handleToggleVisitedFromDialog}
                     hideEditDelete={true}
+                    onAddToTrip={() => {
+                        // Find the original suggestion object to add
+                        const suggestion = visibleSuggestions.find(s => s.name === selectedPlaceDetails.name);
+                        if (suggestion) {
+                            handleAddSuggestion(suggestion);
+                        }
+                    }}
                 />
             )}
 

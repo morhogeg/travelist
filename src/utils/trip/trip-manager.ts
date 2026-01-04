@@ -365,3 +365,30 @@ export function updateTripDay(
 
     saveTrips(trips);
 }
+
+/**
+ * Add a place to a specific day in the trip
+ */
+export function addPlaceToTripDay(
+    tripId: string,
+    dayNumber: number,
+    place: TripPlaceReference
+): void {
+    const trips = getTrips();
+    const trip = trips.find((t) => t.id === tripId);
+
+    if (!trip) return;
+
+    const day = trip.days.find((d) => d.dayNumber === dayNumber);
+    if (!day) return;
+
+    // Add to end of day
+    place.order = day.places.length + 1;
+    day.places.push(place);
+
+    // Recalculate times
+    day.places = recalculateTimesForPlaces(day.places);
+
+    trip.dateModified = new Date().toISOString();
+    saveTrips(trips);
+}

@@ -415,6 +415,30 @@ const PlaceDetail = () => {
         <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
       </div>
 
+      {/* Plan Trip Button - shows when 4+ places available */}
+      {totalPlacesInCity >= 4 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 mb-4"
+        >
+          <Button
+            onClick={() => {
+              mediumHaptic();
+              setIsDurationPickerOpen(true);
+            }}
+            className="w-full h-10 text-white text-sm font-medium"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)',
+            }}
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Plan with Travelist AI
+          </Button>
+        </motion.div>
+      )}
+
       {/* User's saved places */}
       <div>
         <CategoryResults
@@ -441,35 +465,7 @@ const PlaceDetail = () => {
         />
       )}
 
-      {/* Plan Trip Button - shows when 4+ places available */}
-      {totalPlacesInCity >= 4 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-4 pb-4 mt-4"
-        >
-          <Button
-            onClick={() => {
-              mediumHaptic();
-              setIsDurationPickerOpen(true);
-            }}
-            className="w-full py-6 text-white font-semibold"
-            style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
-            }}
-          >
-            <Sparkles className="h-5 w-5 mr-2" />
-            Plan Trip with AI
-            <span className="ml-2 text-white/80 text-sm font-normal">
-              ({totalPlacesInCity} places)
-            </span>
-          </Button>
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            AI will organize your places into an optimized day-by-day itinerary
-          </p>
-        </motion.div>
-      )}
+
 
       {/* Duration Picker Drawer for Trip Planning */}
       <DurationPickerDrawer
@@ -481,7 +477,7 @@ const PlaceDetail = () => {
         progress={tripPlanner.progress}
       />
 
-      {!isDrawerOpen && !detailsDialogOpen && !hideFab && (
+      {!isDrawerOpen && !detailsDialogOpen && !hideFab && !isDurationPickerOpen && (
         <motion.button
           whileTap={{ scale: 0.9 }}
           whileHover={{ scale: 1.05 }}

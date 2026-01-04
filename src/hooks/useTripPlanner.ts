@@ -133,7 +133,7 @@ export function useTripPlanner(options: UseTripPlannerOptions): UseTripPlannerRe
                     throw new Error(`Need at least 4 places saved in ${city} to generate a trip.`);
                 }
 
-                setProgress('AI is optimizing your itinerary...');
+                setProgress('Optimizing itinerary...');
 
                 // Build request
                 const request: TripPlanRequest = {

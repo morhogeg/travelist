@@ -29,6 +29,7 @@ interface RecommendationDetailsDialogProps {
   onToggleVisited: (recId: string, name: string, visited: boolean) => void;
   hideEditDelete?: boolean;
   routeNotes?: string;
+  onAddToTrip?: () => void;
 }
 
 const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = ({
@@ -40,6 +41,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   onToggleVisited,
   hideEditDelete = false,
   routeNotes,
+  onAddToTrip,
 }) => {
   const [isVisited, setIsVisited] = useState<boolean>(!!recommendation?.visited);
   const [showAddToDrawer, setShowAddToDrawer] = useState(false);
@@ -144,28 +146,46 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               <div className="space-y-3 pb-4">
                 {/* Primary Actions */}
                 <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant="outline"
-                    className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                    onClick={() => setShowAddToDrawer(true)}
-                  >
-                    <FolderPlus className="h-5 w-5 mr-2" />
-                    <span>Add</span>
-                    <MapPin className="h-5 w-5 ml-2" />
-                  </Button>
+                  {!onAddToTrip && (
+                    <Button
+                      variant="outline"
+                      className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                      onClick={() => setShowAddToDrawer(true)}
+                    >
+                      <FolderPlus className="h-5 w-5 mr-2" />
+                      <span>Add</span>
+                      <MapPin className="h-5 w-5 ml-2" />
+                    </Button>
+                  )}
 
-                  <Button
-                    variant="outline"
-                    className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                    onClick={() => {
-                      const next = !isVisited;
-                      setIsVisited(next);
-                      onToggleVisited(recommendation.recId, recommendation.name, next);
-                    }}
-                  >
-                    <CheckCircle2 className="h-5 w-5 mr-2" />
-                    {isVisited ? 'Visited' : 'Mark Visited'}
-                  </Button>
+                  {onAddToTrip && (
+                    <Button
+                      className="h-12 rounded-xl text-white font-medium col-span-2"
+                      style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                      onClick={() => {
+                        onAddToTrip();
+                        onClose();
+                      }}
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Add to Day
+                    </Button>
+                  )}
+
+                  {!onAddToTrip && (
+                    <Button
+                      variant="outline"
+                      className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                      onClick={() => {
+                        const next = !isVisited;
+                        setIsVisited(next);
+                        onToggleVisited(recommendation.recId, recommendation.name, next);
+                      }}
+                    >
+                      <CheckCircle2 className="h-5 w-5 mr-2" />
+                      {isVisited ? 'Visited' : 'Mark Visited'}
+                    </Button>
+                  )}
                 </div>
 
                 {/* Secondary Actions */}

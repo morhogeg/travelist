@@ -61,7 +61,7 @@ const DurationPickerDrawer: React.FC<DurationPickerDrawerProps> = ({
                         <span>Plan Your Trip</span>
                     </DrawerTitle>
                     <DrawerDescription>
-                        AI will organize your <strong>saved {cityName} places</strong> into an optimized itinerary and suggest additional spots you might love
+                        Travelist AI will organize your <strong>saved {cityName} places</strong> into an optimized itinerary and suggest additional spots you might love
                     </DrawerDescription>
                 </DrawerHeader>
 
