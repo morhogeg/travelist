@@ -124,7 +124,7 @@ Default settings in `DEFAULT_AI_CONFIG`:
 - Name, description, price range
 - "Why recommended" explanation with AI badge
 - Tags for quick context
-- "Add to List" button
+- "Add to List" button (or "Add to Day" in Trip Planner)
 
 ## Usage
 
