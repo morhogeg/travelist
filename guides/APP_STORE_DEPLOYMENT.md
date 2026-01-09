@@ -1,8 +1,8 @@
 # App Store & TestFlight Deployment Guide
 
-**Last Updated:** December 2025
+**Last Updated:** January 2026
 
-This document tracks the progress toward Apple TestFlight and App Store submission for Travelist.
+This document tracks the progress toward Apple TestFlight and App Store submission for Travelist AI.
 
 ---
 
@@ -10,16 +10,17 @@ This document tracks the progress toward Apple TestFlight and App Store submissi
 
 | Requirement | Status | Notes |
 |-------------|--------|-------|
-| Apple Developer Account | ⏳ Pending | Purchased Dec 14, 2025 (Individual) |
+| Apple Developer Account | ✅ Active | Individual account (Mor Hogeg) |
 | Privacy Manifest | ✅ Complete | `ios/App/App/PrivacyInfo.xcprivacy` |
 | App Icon | ✅ Complete | 1024x1024 in Assets.xcassets |
 | Bundle ID | ✅ Complete | `com.travelist.app` |
 | iOS Project Setup | ✅ Complete | Capacitor 7.4.4 |
 | Privacy Policy URL | ✅ Complete | https://morhogeg.github.io/travelist/PRIVACY_POLICY |
 | Support URL | ✅ Complete | https://morhogeg.github.io/travelist/SUPPORT |
-| App Store Connect | ❌ Not created | Requires active developer account |
+| App Store Connect | ✅ Created | App name: "Travelist AI" |
+| Signing & Certificates | ✅ Complete | Auto-managed in Xcode |
+| TestFlight (Internal) | ✅ Live | Build 1.0 (1) available |
 | Screenshots | ❌ Needed | Required for external TestFlight |
-| Signing & Certificates | ❌ Pending | Auto-managed in Xcode |
 
 ---
 
@@ -28,7 +29,7 @@ This document tracks the progress toward Apple TestFlight and App Store submissi
 ### 1. iOS Project Configuration
 - [x] Capacitor iOS project set up
 - [x] Bundle ID: `com.travelist.app`
-- [x] App name: `Travelist`
+- [x] App name: `Travelist AI`
 - [x] Info.plist configured
 - [x] URL scheme: `travelist://`
 - [x] CocoaPods dependencies installed
@@ -45,62 +46,39 @@ Created and committed. Declares:
 - [x] `AppIcon-512@2x.png` (1024x1024) exists
 - [x] Located in `ios/App/App/Assets.xcassets/AppIcon.appiconset/`
 
+### 4. Developer Account & Signing
+- [x] Apple Developer Account active
+- [x] Two-factor authentication enabled
+- [x] Signed into Xcode with Apple ID
+- [x] Automatic signing configured for App target
+- [x] Automatic signing configured for ShareExtension target
+- [x] Device registered for development
+
+### 5. App Store Connect Setup
+- [x] App created: "Travelist AI"
+- [x] Bundle ID: `com.travelist.app`
+- [x] SKU configured
+- [x] Category: Travel
+- [x] Subtitle: "Never Forget a Place Again"
+- [x] Content rights declared
+- [x] Export compliance completed (no encryption)
+
+### 6. Share Extension Fix
+- [x] Updated `NSExtensionActivationRule` from `TRUEPREDICATE` to proper dictionary
+- [x] Supports text, web URLs, and web pages
+
+### 7. TestFlight Configuration
+- [x] Build 1.0 (1) uploaded: January 9, 2026
+- [x] Export compliance completed
+- [x] Internal testing group created: "Mor's Team"
+- [x] Automatic distribution enabled
+- [x] App installed via TestFlight
+
 ---
 
-## ⏳ Pending Steps
+## ⏳ Pending Steps (for External TestFlight / App Store)
 
-### 4. Developer Account Activation
-- [ ] Wait for Apple to process enrollment (typically 24-48 hours)
-- [ ] Two-factor authentication enabled
-- [ ] Sign into Xcode with Apple ID
-
-### 5. Add Privacy Manifest to Xcode Project
-After developer account is active:
-1. Open `ios/App/App.xcworkspace` in Xcode
-2. Right-click **App** folder → **Add Files to "App"...**
-3. Select `PrivacyInfo.xcprivacy`
-4. Click **Add**
-
-### 6. Create Privacy Policy & Support URLs
-- [ ] Create a privacy policy webpage (can be hosted on GitHub Pages, Notion, etc.)
-- [ ] Create a support page or email address
-
-**Sample Privacy Policy Topics:**
-- What data is collected (email for optional account)
-- How data is stored (locally, optionally synced to cloud)
-- Third-party services (Supabase for auth, OpenRouter for AI)
-- No tracking or advertising
-- Contact information
-
-### 7. Xcode Signing Configuration
-- [ ] Open project in Xcode
-- [ ] Select **App** target → **Signing & Capabilities**
-- [ ] Choose your **Team** (Apple Developer account)
-- [ ] Enable **Automatically manage signing**
-- [ ] Verify no signing errors
-
-### 8. Set Version & Build Number
-In Xcode project settings:
-- [ ] Version (MARKETING_VERSION): `1.0.0`
-- [ ] Build (CURRENT_PROJECT_VERSION): `1`
-
-### 9. Create App in App Store Connect
-1. Go to [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
-2. **My Apps** → **+** → **New App**
-3. Fill in:
-   - Name: `Travelist`
-   - Bundle ID: `com.travelist.app`
-   - SKU: `TRAVELIST001`
-   - Primary Language: English
-   - Category: Travel
-
-### 10. Prepare App Store Listing (for external TestFlight)
-- [ ] Description (up to 4000 chars)
-- [ ] Keywords (up to 100 chars total)
-- [ ] Privacy Policy URL
-- [ ] Support URL
-
-### 11. Create Screenshots
+### 8. Create Screenshots
 Capture in iOS Simulator:
 - [ ] 6.7" iPhone (1290 × 2796) - iPhone 15 Pro Max
 - [ ] 6.5" iPhone (1242 × 2688) - iPhone 11 Pro Max
@@ -112,50 +90,73 @@ Recommended screens to capture:
 3. Routes tab
 4. Route detail with places
 5. Collections tab
+6. Share Extension in action
+
+### 9. Complete App Store Listing
+- [ ] Full description (up to 4000 chars)
+- [ ] Keywords (up to 100 chars total)
+- [ ] What's New text
+- [ ] Age rating questionnaire
+
+### 10. Submit for External TestFlight Review
+- [ ] Upload screenshots
+- [ ] Complete app description
+- [ ] Submit for Beta App Review (1-2 days)
+
+### 11. Submit for App Store Review
+- [ ] Complete all App Store listing fields
+- [ ] Submit for full review
+- [ ] Address any review feedback
 
 ---
 
 ## 🚀 Upload Process
 
-### TestFlight Upload Steps
-1. **Build the app**
-   ```bash
-   npm run build && npx cap copy ios
-   ```
+### Quick TestFlight Update
+```bash
+# 1. Build production bundle
+npm run build:prod && npx cap sync ios
 
-2. **Archive in Xcode**
-   - Open `ios/App/App.xcworkspace`
-   - Select **Product** → **Archive**
-   - Wait for archive to complete
+# 2. Open Xcode
+npx cap open ios
 
-3. **Distribute to App Store Connect**
-   - In Organizer: **Distribute App**
-   - Select **App Store Connect** → **Upload**
-   - Follow prompts
+# 3. In Xcode:
+#    - Select "Any iOS Device (arm64)"
+#    - Product → Archive
+#    - Distribute App → App Store Connect → Upload
+```
 
-4. **Configure TestFlight**
-   - Wait for build processing (5-30 min)
-   - Complete Export Compliance questionnaire
-   - Add testers
-
-### Internal vs External Testing
-| Type | Testers | Review Required | Limit |
-|------|---------|-----------------|-------|
-| Internal | Team members | No | 100 |
-| External | Anyone with link | Yes (1-2 days) | 10,000 |
+### Build Numbers
+For each new upload, increment the build number in Xcode:
+- Version (MARKETING_VERSION): `1.0.0` (change for new features)
+- Build (CURRENT_PROJECT_VERSION): `2`, `3`, etc. (increment each upload)
 
 ---
 
 ## 📋 Pre-Upload Checklist
 
 Before archiving:
-- [ ] App builds without errors
-- [ ] App runs on real device
-- [ ] All features work correctly
-- [ ] No crashes on launch
-- [ ] Version/build numbers correct
-- [ ] Privacy manifest added to project
-- [ ] Signing configured properly
+- [x] App builds without errors
+- [x] App runs on real device
+- [x] All features work correctly
+- [x] No crashes on launch
+- [x] Version/build numbers correct
+- [x] Privacy manifest added to project
+- [x] Signing configured properly
+- [x] ShareExtension activation rules valid
+
+---
+
+## 📱 TestFlight Info
+
+| Property | Value |
+|----------|-------|
+| App Name | Travelist AI |
+| Bundle ID | com.travelist.app |
+| Current Version | 1.0 |
+| Current Build | 1 |
+| Testing Group | Mor's Team |
+| Distribution | Automatic |
 
 ---
 
