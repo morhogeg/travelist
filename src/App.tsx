@@ -6,12 +6,13 @@ import { AnimatePresence } from "framer-motion";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
-import { syncSupabaseRecommendationsOnce } from "@/utils/recommendation/recommendation-manager";
+import { syncSupabaseRecommendationsOnce, getRecommendations } from "@/utils/recommendation/recommendation-manager";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { addInboxItem, parseInboxItem } from "@/utils/inbox/inbox-store";
 import { useToast } from "@/hooks/use-toast";
 import { importSharedInbox } from "@/utils/inbox/shared-import";
+import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 
 // Pages
 import Index from "./pages/Index";
@@ -47,6 +48,10 @@ function AppContent() {
   const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
   const { toast } = useToast();
 
+  // Proximity notification - place card state
+  const [proximityPlace, setProximityPlace] = useState<any>(null);
+  const [showProximityCard, setShowProximityCard] = useState(false);
+
   // Automatically manage status bar based on theme
   useStatusBarTheme(theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
 
@@ -54,6 +59,45 @@ function AppContent() {
   useEffect(() => {
     syncSupabaseRecommendationsOnce();
   }, []);
+
+  // Listen for proximity notification taps
+  useEffect(() => {
+    const handleProximityTap = (event: CustomEvent<{ placeId?: string; recId?: string; placeName?: string; cityId?: string }>) => {
+      const { recId, placeName, cityId } = event.detail;
+      console.log('[App] Proximity notification tapped:', placeName, recId);
+
+      // Find the place in recommendations
+      const allRecs = getRecommendations();
+      for (const rec of allRecs) {
+        const place = rec.places?.find(p => p.recId === recId || p.id === recId);
+        if (place) {
+          setProximityPlace({
+            ...place,
+            city: rec.city,
+            country: rec.country,
+            cityId: rec.cityId || rec.id
+          });
+          setShowProximityCard(true);
+
+          // Hide the FAB while card is open
+          window.dispatchEvent(new CustomEvent('fab:hide'));
+
+          // Navigate to home if not there
+          if (location.pathname !== '/') {
+            navigate('/');
+          }
+          return;
+        }
+      }
+
+      console.warn('[App] Could not find place for proximity notification:', recId);
+    };
+
+    window.addEventListener('proximityPlaceTapped', handleProximityTap as EventListener);
+    return () => {
+      window.removeEventListener('proximityPlaceTapped', handleProximityTap as EventListener);
+    };
+  }, [navigate, location.pathname]);
 
   // Import from native share extension (App Group) on launch/foreground
   useEffect(() => {
@@ -178,6 +222,27 @@ function AppContent() {
         initialCity={selectedCity}
         initialCountry={selectedCountry}
       />
+
+      {/* Proximity notification place card */}
+      {proximityPlace && (
+        <RecommendationDetailsDialog
+          recommendation={proximityPlace}
+          isOpen={showProximityCard}
+          onClose={() => {
+            setShowProximityCard(false);
+            setProximityPlace(null);
+            // Show the FAB again
+            window.dispatchEvent(new CustomEvent('fab:show'));
+          }}
+          onToggleVisited={(recId, name, visited) => {
+            // Dispatch event for the recommendation manager to handle
+            window.dispatchEvent(new CustomEvent('togglePlaceVisited', {
+              detail: { recId, name, visited }
+            }));
+          }}
+          hideEditDelete={false}
+        />
+      )}
 
       <Toaster />
     </div>

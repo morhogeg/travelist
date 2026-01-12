@@ -89,8 +89,13 @@ npm run build:prod       # Production build
 ### Native iOS
 - `src/hooks/native/useHaptics.ts` - Haptic feedback hook
 - `src/hooks/native/useStatusBar.ts` - Status bar theme management
+- `src/hooks/native/useProximity.ts` - Proximity alerts settings hook
 - `src/hooks/usePullToRefresh.ts` - Pull-to-refresh gesture hook
 - `src/utils/ios/haptics.ts` - Haptic utility functions
+- `src/services/proximity/` - Proximity alert services (geocoding, location monitoring, notifications)
+- `src/utils/proximity/` - Proximity settings storage
+- `src/components/settings/ProximitySettings.tsx` - Proximity alerts UI in Settings
+- `src/components/settings/ProximityCityManager.tsx` - Per-city toggle drawer
 
 ### Pages
 - `src/pages/Index.tsx` - Home page with recommendations
@@ -232,6 +237,14 @@ color: #764ba2;
 ---
 
 ## 🎯 Recent Changes Summary
+
+**Latest (Jan 2026): Proximity Notifications**
+- Added **Proximity Alerts** feature - notifies users when near saved places
+- Per-city toggle to enable/disable alerts for specific cities
+- Custom distance slider (100m - 2km) in Settings
+- Location permission handling with warning states
+- iOS background location + local notifications configured
+- New files: `src/services/proximity/`, `src/utils/proximity/`, `ProximitySettings.tsx`, `ProximityCityManager.tsx`, `useProximity.ts`
 
 **Latest (Jan 2026): Phase 2: Feature Discoverability**
 - Added **Gesture Coach Marks** (`CoachMark.tsx`) for contextual feature discovery.

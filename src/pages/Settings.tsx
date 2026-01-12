@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
 import { Moon, Sun, Sparkles, Eye, EyeOff, Mail, Lock, Trash2 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
@@ -19,6 +19,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import ShareExtensionGuide from "@/components/settings/ShareExtensionGuide";
+import ProximitySettings from "@/components/settings/ProximitySettings";
+import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
@@ -36,6 +38,28 @@ const Settings = () => {
     return saved === null ? true : saved === "true";
   });
   const [showShareGuide, setShowShareGuide] = useState(false);
+
+  // Compute cities list for proximity settings
+  const allCities = useMemo(() => {
+    const recommendations = getRecommendations();
+    const cityMap = new Map<string, { cityId: string; cityName: string; placeCount: number }>();
+
+    recommendations.forEach(rec => {
+      const cityId = rec.cityId || rec.id;
+      const cityName = rec.city;
+
+      if (!cityMap.has(cityId)) {
+        cityMap.set(cityId, { cityId, cityName, placeCount: 0 });
+      }
+
+      const city = cityMap.get(cityId)!;
+      city.placeCount += rec.places?.length || 0;
+    });
+
+    return Array.from(cityMap.values()).sort((a, b) =>
+      a.cityName.localeCompare(b.cityName)
+    );
+  }, []);
 
   const handleToggleTheme = () => {
     lightHaptic();
@@ -219,6 +243,11 @@ const Settings = () => {
               onCheckedChange={handleToggleTheme}
             />
           </motion.div>
+
+          <div className="h-px bg-border/30 ml-8" />
+
+          {/* Proximity Alerts */}
+          <ProximitySettings allCities={allCities} />
 
           <div className="h-px bg-border/30 ml-8" />
 

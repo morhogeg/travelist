@@ -2,6 +2,28 @@
 
 All notable changes to the Travelist iOS app will be documented in this file.
 
+---
+
+## [Unreleased] - Next TestFlight Build
+
+> **Instructions:** Add features/fixes here as they're completed. Move to versioned section when TestFlight is uploaded.
+
+### ✨ Added
+- **Proximity Notifications** - Get notified when near saved places
+  - Custom distance slider (100m - 2km) in Settings
+  - Per-city enable/disable toggles via "Manage Cities" drawer
+  - Notification tap opens place card → Navigate button opens Maps
+  - Background location monitoring with battery-efficient settings
+  - Permission warning when location access is denied
+
+### 🐛 Fixed
+- FAB no longer shows when proximity place card is open
+
+### 🔧 Changed
+- (none yet)
+
+---
+
 ## [2025-11-26] - Collection & Route Management Enhancements
 
 ### Profile Page Polish
