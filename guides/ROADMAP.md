@@ -189,82 +189,30 @@
 ## Notes
 
 **Current Branch:** main
-**Current Status:** Travel Story feature complete - killer feature differentiating from Google Maps
-**Next Priority:** Supabase polish (real-time, Apple Sign-In, sync status UX)
-**Target Launch:** TBD
+**Current Status:** First TestFlight build uploaded - bug fixing phase
+**Next Priority:** Bug fixes from TestFlight testing
+**Target Launch:** Q1 2026
 
 ---
 
-## 📋 Session Progress (November 26, 2025)
+## 📋 Recent Progress (Jan 2026)
 
-### ✅ Completed This Session (Part 3) - Travel Story Feature
-**"Why not just use Google Maps Lists?"** - Travel Story answers this by showing your JOURNEY, not just locations.
+### ✅ Completed
+- TestFlight internal testing build uploaded
+- App Store compliance (account deletion, privacy policy, Dynamic Type)
+- Onboarding redesigned (5 screens, Liquid Glass)
+- AI trip planning with Travelist AI
+- Skeleton loaders, empty states, pull-to-refresh
+- Gesture coach marks and hints
+- Travel Story feature
+- Swipe gestures (delete, add to collection)
+- Share Extension working
 
-1. **Travel Story page** (`/story`) - Beautiful visual narrative of your travel discoveries
-2. **TravelStoryCard** - Entry point on Profile page with country flags and quick stats
-3. **StatsHeroCard** - Unified screenshot-worthy card with:
-   - Year badge + circular progress ring
-   - Country flag pills with counts
-   - 4 compact stats (Places, Visited, Countries, Cities)
-   - Year highlights (Peak month, Top recommender)
-   - TRAVELIST watermark for sharing
-4. **SourceBreakdown** - "Your Taste Network" showing who recommends places to you
-5. **CategoryChart** - Visual breakdown of place types with progress bars
-6. **DiscoveryTimeline** - Chronological timeline grouped by month with source badges
-7. **Stats calculator utility** - Computes all stats from existing data (no new fields needed)
-8. **useStoryStats hook** - React hook with auto-refresh on data changes
-9. **Story-specific CSS** - Glass effects, animations, shimmer loading states
-
-### ✅ Completed This Session (Part 2)
-1. **Routes swipe-to-delete** - Added swipe-to-delete functionality to Routes page (matching Collections)
-2. **Collection cards enriched** - Added category segment bar showing place distribution by category
-3. **Collection lastModified tracking** - Collections now track modification time for sorting
-4. **Collections sorted by recency** - Flat list sorted by most recently modified first
-5. **Simplified collection cards** - Removed arrow icon and category dots, kept segment bar
-6. **Unified page headers** - Both Collections and Routes now use centered Travelist-style gradient heading
-
-### ✅ Completed This Session (Part 1)
-1. **Collections/Routes UI consistency** - CollectionsTab now matches Routes styling (header, spacing, FAB)
-2. **CollectionDetailPage redesign** - Ghost buttons, liquid glass info card (matches RouteDetail)
-3. **Swipe-to-delete on collections** - Swipe left on collection cards with confirmation dialog
-4. **Swipe-to-delete on collection items** - Remove items from collections via swipe
-5. **Delete collection from detail view** - Trash icon in header with confirmation
-6. **Collection cards clickable** - Tapping opens RecommendationDetailsDialog
-7. **Onboarding purple theme** - All buttons and icons now use purple gradient
-8. **WelcomeScreen positioning** - Content starts higher, reduced top gap
-9. **View Welcome Tour button** - Added to Profile page to replay onboarding
-10. **Event-based onboarding reset** - CustomEvent for triggering onboarding without page reload
-
-### ✅ Previous Session (November 25, 2025)
-1. **Swipe-to-delete** - Swipe left on cards to reveal delete button
-2. **Swipe-to-add-to-collection** - Swipe right on cards to reveal purple "Add" button
-3. **CollectionPickerDrawer** - Reusable drawer for selecting/creating collections
-4. **Add to Collection in details view** - Button in expanded card shows collection status
-5. **Toggle collection membership** - Items can be in multiple collections
-6. **Collection ID matching fix** - Fixed items not showing by matching recId or id
-
-### ✅ Session Progress (January 3, 2026)
-
-#### Phase 2: Feature Discoverability
-1. **Gesture Coach Marks** - Contextual tooltips for feature discovery (`CoachMark.tsx`).
-2. **Gesture Hints** - Animated hand icons for swipe actions (`GestureHint.tsx`).
-3. **Scroll Edge Indicators** - Gradient fade masks for horizontal scroll areas.
-4. **Enhanced Onboarding** - Expanded 8-screen flow with interactive tutorials and feature guides.
-
-#### Phase 1: Feedback States
-1. **Skeleton Loaders** - Added shimmer loading states to the Home page with `SkeletonCard.tsx`.
-2. **Empty States** - Created reusable `EmptyState.tsx` and integrated it into Home, Collections, and Routes.
-3. **Pull-to-Refresh** - Implemented custom `usePullToRefresh.ts` hook and integrated it into the Home page.
-4. **Liquid Glass Polish** - Ensured all new components follow the iOS 26 Liquid Glass design system.
-
-### 🔜 Still To Do (Future Sessions)
-1. **Cloud sync with Supabase** - User authentication, data sync, real-time updates
-2. **Long-press context menus** - iOS native style
-3. **Image optimization** - Lazy loading, placeholders
-4. **Real LLM integration** - Replace mock AI provider with actual API (OpenAI/Claude)
-5. **Collection covers/thumbnails** - Visual previews for collections
-6. **Bulk actions** - Select multiple items
+### 🔜 Next Up
+1. Bug fixes from TestFlight testing
+2. Cloud sync improvements
+3. App Store submission
 
 ---
 
-Last Updated: January 3, 2026
+Last Updated: January 12, 2026
