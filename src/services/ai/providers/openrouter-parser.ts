@@ -61,13 +61,17 @@ Rules:
 7. IMPORTANT: Extract source if WHO recommended it or WHERE they heard about it is mentioned:
    - "Sarah told me about X" → source: {type: "friend", name: "Sarah"}
    - "saw X on Instagram" → source: {type: "instagram", name: "Instagram"}
-8. IMPORTANT: Extract TIPS - if the text mentions what to order, what to see, best time to go, or any specific recommendation:
+8. IMPORTANT: Extract TIPS - if the text mentions what to order, what to see, best time to go, or any specific item/dish/activity:
    - "the falafel at X is great" → tip: "Get the falafel"
    - "X has amazing sunset views" → tip: "Go for sunset views"
    - "try the pasta at X" → tip: "Try the pasta"
    - "X is best on weekends" → tip: "Best on weekends"
    - "the rooftop bar at X" → tip: "Check out the rooftop bar"
+   - "recommending pizza at X" → tip: "Try the pizza"
+   - "X for the pizza" → tip: "Get the pizza"
+   - "for coffee at X" → tip: "Try the coffee"
    Write tips as actionable advice (start with verbs like "Try", "Get", "Order", "Visit", "Go for")
+   If a specific food item, drink, or activity is mentioned in connection with the place, ALWAYS extract it as a tip.
 9. LANGUAGE: Keep tips in the SAME LANGUAGE as the user's input. If input is in Hebrew, write tip in Hebrew. If in Spanish, write in Spanish. Never translate.
 
 Respond ONLY with valid JSON array, no markdown, no explanation:
@@ -177,9 +181,12 @@ ${text}`;
 
         // Add source if present and valid
         if (p.source && p.source.type) {
+          const sourceType = validateSourceType(p.source.type);
+          // Capitalize source name for display (e.g., "article" → "Article")
+          const sourceName = p.source.name || sourceType.charAt(0).toUpperCase() + sourceType.slice(1);
           place.source = {
-            type: validateSourceType(p.source.type),
-            name: p.source.name || p.source.type,
+            type: sourceType,
+            name: sourceName,
             relationship: p.source.relationship,
             url: p.source.url
           };
@@ -275,9 +282,11 @@ ${text}`;
         };
 
         if (p.source && p.source.type) {
+          const sourceType = validateSourceType(p.source.type);
+          const sourceName = p.source.name || sourceType.charAt(0).toUpperCase() + sourceType.slice(1);
           place.source = {
-            type: validateSourceType(p.source.type),
-            name: p.source.name || p.source.type,
+            type: sourceType,
+            name: sourceName,
             relationship: p.source.relationship,
             url: p.source.url
           };

@@ -18,9 +18,12 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ### 🐛 Fixed
 - FAB no longer shows when proximity place card is open
+- Source name filter now works for all source types (was hardcoded to "friend" only)
+- Source names now properly capitalized (e.g., "Article" not "article")
+- AI parser now extracts tips from phrases like "recommending pizza at X"
 
 ### 🔧 Changed
-- (none yet)
+- Switched AI model from DeepSeek to Gemma 3 27B for better JSON extraction
 
 ---
 
