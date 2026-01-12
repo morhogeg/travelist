@@ -146,10 +146,29 @@ const Index: React.FC = () => {
   useEffect(() => {
     const sourceFilterHandler = (e: Event) => {
       const customEvent = e as CustomEvent<string>;
+      const sourceName = customEvent.detail;
+
+      // Map source names to their types (case-insensitive match)
+      const sourceTypeMap: Record<string, string> = {
+        'instagram': 'instagram',
+        'tiktok': 'tiktok',
+        'youtube': 'youtube',
+        'friend': 'friend',
+        'text': 'text',
+        'email': 'email',
+        'article': 'article',
+        'blog': 'blog',
+        'ai': 'ai',
+        'other': 'other',
+      };
+
+      // Check if the source name matches a known source type
+      const matchedType = sourceTypeMap[sourceName.toLowerCase()];
+
       setFilters(prev => ({
         ...prev,
-        sources: [], // Don't filter by source type, only by name
-        sourceNames: [customEvent.detail]
+        sources: matchedType ? [matchedType as any] : [],
+        sourceNames: [sourceName]
       }));
     };
 

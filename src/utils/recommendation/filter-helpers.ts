@@ -177,18 +177,29 @@ export const getAvailableCities = (filterCountry?: string): string[] => {
   return Array.from(cities).sort();
 };
 
-// Helper to get all unique source names
+// Helper to get all unique friend names (only for 'friend' source type)
 export const getAvailableSourceNames = (): string[] => {
   const all = getRecommendations();
-  const sourceNames = new Set<string>();
+  const friendNames = new Set<string>();
+
+  // Source types to exclude (these are not people names)
+  const excludedNames = new Set([
+    'instagram', 'tiktok', 'youtube', 'friend', 'text', 'email',
+    'article', 'blog', 'ai', 'other', 'travelist ai', 'travelist'
+  ]);
 
   all.forEach(rec => {
     rec.places.forEach(place => {
-      if (place.source?.name) {
-        sourceNames.add(place.source.name);
+      // Only include names from 'friend' source type
+      if (place.source?.type === 'friend' && place.source?.name) {
+        const name = place.source.name.trim();
+        // Exclude source type names and AI
+        if (!excludedNames.has(name.toLowerCase())) {
+          friendNames.add(name);
+        }
       }
     });
   });
 
-  return Array.from(sourceNames).sort();
+  return Array.from(friendNames).sort();
 };

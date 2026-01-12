@@ -47,10 +47,23 @@ const SourceSection: React.FC<SourceSectionProps> = ({
 }) => {
   const handleToggle = (source: SourceType) => {
     lightHaptic();
-    const newValues = values.includes(source)
+    const isRemoving = values.includes(source);
+    const newValues = isRemoving
       ? values.filter((s) => s !== source)
       : [...values, source];
     onChange(newValues);
+
+    // When unchecking a source type, also clear its matching source name
+    if (isRemoving) {
+      // Source type names to clear (case-insensitive)
+      const typeNamesToRemove = [source, source.charAt(0).toUpperCase() + source.slice(1)];
+      const newSourceNames = sourceNames.filter(
+        name => !typeNamesToRemove.includes(name) && name.toLowerCase() !== source.toLowerCase()
+      );
+      if (newSourceNames.length !== sourceNames.length) {
+        onSourceNamesChange(newSourceNames);
+      }
+    }
   };
 
   const handleSourceNameToggle = (name: string) => {
@@ -90,10 +103,9 @@ const SourceSection: React.FC<SourceSectionProps> = ({
               className={`
                 flex flex-col items-center gap-1.5 px-2 py-2.5 rounded-xl
                 border ios26-transition-smooth
-                ${
-                  isSelected
-                    ? "border-[#667eea] bg-gradient-to-br from-[#667eea]/10 to-[#764ba2]/10"
-                    : "border-white/20 liquid-glass-clear hover:border-[#667eea]/30"
+                ${isSelected
+                  ? "border-[#667eea] bg-gradient-to-br from-[#667eea]/10 to-[#764ba2]/10"
+                  : "border-white/20 liquid-glass-clear hover:border-[#667eea]/30"
                 }
               `}
             >
@@ -101,9 +113,8 @@ const SourceSection: React.FC<SourceSectionProps> = ({
                 {sourceIcons[source]}
               </div>
               <span
-                className={`text-xs font-medium ${
-                  isSelected ? "text-[#667eea]" : "text-gray-700 dark:text-gray-300"
-                }`}
+                className={`text-xs font-medium ${isSelected ? "text-[#667eea]" : "text-gray-700 dark:text-gray-300"
+                  }`}
               >
                 {sourceLabels[source]}
               </span>
@@ -112,8 +123,8 @@ const SourceSection: React.FC<SourceSectionProps> = ({
         })}
       </div>
 
-      {/* Friend Names Selection */}
-      {showFriendNames && (
+      {/* Friend Names Selection - only when Friend is selected */}
+      {values.includes('friend') && availableSourceNames.length > 0 && (
         <div className="space-y-2 pt-2">
           <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400">Filter by Friend</h4>
           <div className="flex flex-wrap gap-2">
@@ -127,10 +138,9 @@ const SourceSection: React.FC<SourceSectionProps> = ({
                   className={`
                     px-3 py-1.5 rounded-full text-xs font-medium
                     border ios26-transition-smooth
-                    ${
-                      isSelected
-                        ? "border-[#667eea] bg-gradient-to-br from-[#667eea]/10 to-[#764ba2]/10 text-[#667eea]"
-                        : "border-white/20 liquid-glass-clear text-gray-700 dark:text-gray-300 hover:border-[#667eea]/30"
+                    ${isSelected
+                      ? "border-[#667eea] bg-gradient-to-br from-[#667eea]/10 to-[#764ba2]/10 text-[#667eea]"
+                      : "border-white/20 liquid-glass-clear text-gray-700 dark:text-gray-300 hover:border-[#667eea]/30"
                     }
                   `}
                 >

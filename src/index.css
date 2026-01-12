@@ -1,9 +1,9 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+
   /* Remove iOS blue tap highlight globally */
   *,
   *::before,
@@ -15,8 +15,21 @@
   }
 
   /* Re-enable text selection for content areas */
-  p, span, h1, h2, h3, h4, h5, h6, li, td, th, label,
-  input, textarea, [contenteditable="true"] {
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  li,
+  td,
+  th,
+  label,
+  input,
+  textarea,
+  [contenteditable="true"] {
     -webkit-user-select: text;
     user-select: text;
   }
@@ -53,9 +66,11 @@
     --foreground: 0 0% 0%;
 
     /* iOS System Blue - PRIMARY ACCENT (use sparingly!) */
-    --primary: 211 100% 50%; /* #007AFF */
+    --primary: 211 100% 50%;
+    /* #007AFF */
     --primary-foreground: 0 0% 100%;
-    --primary-subtle: 211 100% 50% / 0.1; /* 10% opacity for subtle backgrounds */
+    --primary-subtle: 211 100% 50% / 0.1;
+    /* 10% opacity for subtle backgrounds */
 
     /* Minimalist Neutrals (Primary UI colors) */
     --neutral-50: 0 0% 98%;
@@ -70,16 +85,22 @@
     --neutral-900: 0 0% 8%;
 
     /* Semantic Colors (Toned down for minimalism) */
-    --secondary: 0 0% 40%; /* Subtle gray instead of purple */
+    --secondary: 0 0% 40%;
+    /* Subtle gray instead of purple */
     --secondary-foreground: 0 0% 100%;
-    --accent: 211 100% 50%; /* Same as primary for consistency */
+    --accent: 249 53% 58%;
+    /* App purple #667eea - NOT iOS blue */
     --accent-foreground: 0 0% 100%;
-    --destructive: 1 85% 55%; /* Subtle red */
+    --destructive: 1 85% 55%;
+    /* Subtle red */
     --destructive-foreground: 0 0% 100%;
-    --success: 145 60% 45%; /* Toned down green */
+    --success: 145 60% 45%;
+    /* Toned down green */
     --success-foreground: 0 0% 100%;
-    --success-subtle: 145 60% 45% / 0.15; /* Subtle green background */
-    --warning: 48 95% 50%; /* Slightly toned down yellow */
+    --success-subtle: 145 60% 45% / 0.15;
+    /* Subtle green background */
+    --warning: 48 95% 50%;
+    /* Slightly toned down yellow */
     --warning-foreground: 0 0% 0%;
 
     /* Liquid Glass Materials */
@@ -89,12 +110,18 @@
     --glass-shadow: rgba(0, 0, 0, 0.1);
 
     /* System Grays (iOS 26) */
-    --gray-1: 0 0% 97%; /* systemGray */
-    --gray-2: 0 0% 92%; /* systemGray2 */
-    --gray-3: 0 0% 87%; /* systemGray3 */
-    --gray-4: 0 0% 78%; /* systemGray4 */
-    --gray-5: 0 0% 68%; /* systemGray5 */
-    --gray-6: 0 0% 58%; /* systemGray6 */
+    --gray-1: 0 0% 97%;
+    /* systemGray */
+    --gray-2: 0 0% 92%;
+    /* systemGray2 */
+    --gray-3: 0 0% 87%;
+    /* systemGray3 */
+    --gray-4: 0 0% 78%;
+    /* systemGray4 */
+    --gray-5: 0 0% 68%;
+    /* systemGray5 */
+    --gray-6: 0 0% 58%;
+    /* systemGray6 */
 
     --muted: var(--gray-2);
     --muted-foreground: var(--gray-6);
@@ -104,33 +131,49 @@
     --popover-foreground: 0 0% 0%;
     --border: var(--gray-3);
     --input: var(--gray-3);
-    --ring: 240 5% 84%; /* Subtle neutral gray */
+    --ring: 240 5% 84%;
+    /* Subtle neutral gray */
 
     /* iOS 26 Rounded Corners */
-    --radius-sm: 0.625rem; /* 10pt */
-    --radius: 0.75rem; /* 12pt */
-    --radius-lg: 0.875rem; /* 14pt */
-    --radius-xl: 1rem; /* 16pt */
-    --radius-2xl: 1.25rem; /* 20pt */
+    --radius-sm: 0.625rem;
+    /* 10pt */
+    --radius: 0.75rem;
+    /* 12pt */
+    --radius-lg: 0.875rem;
+    /* 14pt */
+    --radius-xl: 1rem;
+    /* 16pt */
+    --radius-2xl: 1.25rem;
+    /* 20pt */
 
     /* iOS 26 Spacing */
-    --spacing-1: 0.25rem; /* 4pt */
-    --spacing-2: 0.5rem; /* 8pt */
-    --spacing-3: 0.75rem; /* 12pt */
-    --spacing-4: 1rem; /* 16pt */
-    --spacing-5: 1.25rem; /* 20pt */
-    --spacing-6: 1.5rem; /* 24pt */
-    --spacing-8: 2rem; /* 32pt */
-    --spacing-11: 2.75rem; /* 44pt - Min touch target */
+    --spacing-1: 0.25rem;
+    /* 4pt */
+    --spacing-2: 0.5rem;
+    /* 8pt */
+    --spacing-3: 0.75rem;
+    /* 12pt */
+    --spacing-4: 1rem;
+    /* 16pt */
+    --spacing-5: 1.25rem;
+    /* 20pt */
+    --spacing-6: 1.5rem;
+    /* 24pt */
+    --spacing-8: 2rem;
+    /* 32pt */
+    --spacing-11: 2.75rem;
+    /* 44pt - Min touch target */
   }
 
   .dark {
     /* iOS 26 Dark Mode - Minimalist Smoky Glass */
-    --background: 0 0% 5.5%; /* #0E0E0E for softer dark mode */
+    --background: 0 0% 5.5%;
+    /* #0E0E0E for softer dark mode */
     --foreground: 0 0% 100%;
 
     /* iOS Blue - Still the primary accent */
-    --primary: 211 100% 60%; /* Slightly lighter for dark mode */
+    --primary: 211 100% 60%;
+    /* Slightly lighter for dark mode */
     --primary-foreground: 0 0% 0%;
     --primary-subtle: 211 100% 60% / 0.12;
 
@@ -149,8 +192,9 @@
     /* Semantic Colors - Dark Mode (still toned down) */
     --secondary: 0 0% 60%;
     --secondary-foreground: 0 0% 0%;
-    --accent: 211 100% 60%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 249 53% 62%;
+    /* App purple #667eea - NOT iOS blue */
+    --accent-foreground: 0 0% 100%;
     --destructive: 1 85% 60%;
     --destructive-foreground: 0 0% 0%;
     --success: 145 55% 50%;
@@ -181,7 +225,8 @@
     --popover-foreground: 0 0% 100%;
     --border: var(--gray-3);
     --input: var(--gray-3);
-    --ring: 240 5% 84%; /* Subtle neutral gray */
+    --ring: 240 5% 84%;
+    /* Subtle neutral gray */
   }
 }
 
@@ -200,27 +245,31 @@
   }
 
   /* iOS 26 Typography Scale */
-  h1, .text-large-title {
+  h1,
+  .text-large-title {
     font-size: 34px;
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.02em;
   }
 
-  h2, .text-title-1 {
+  h2,
+  .text-title-1 {
     font-size: 28px;
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.01em;
   }
 
-  h3, .text-title-2 {
+  h3,
+  .text-title-2 {
     font-size: 22px;
     font-weight: 600;
     line-height: 1.3;
   }
 
-  h4, .text-title-3 {
+  h4,
+  .text-title-3 {
     font-size: 20px;
     font-weight: 600;
     line-height: 1.35;
@@ -262,8 +311,7 @@
 
   /* Ensure viewport covers full screen including notch/Dynamic Island */
   html {
-    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
-             env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
 }
 
@@ -392,8 +440,10 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Map marker styling */
@@ -449,10 +499,12 @@
     transform: scale(0.5);
     opacity: 0.5;
   }
+
   70% {
     transform: scale(1.5);
     opacity: 0;
   }
+
   100% {
     transform: scale(0.5);
     opacity: 0;
@@ -469,6 +521,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -480,6 +533,7 @@
     opacity: 1;
     transform: scale(1);
   }
+
   to {
     opacity: 0;
     transform: scale(0.95);
@@ -492,6 +546,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -500,9 +555,12 @@
 
 /* iOS 26 Bounce (Spring Animation) */
 @keyframes ios26-bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -513,6 +571,7 @@
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -536,12 +595,10 @@
 }
 
 .ios26-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%);
   background-size: 1000px 100%;
   animation: ios26-shimmer 2s infinite;
 }
@@ -557,8 +614,13 @@
 
 /* Legacy Animation Support */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in {
@@ -567,8 +629,7 @@
 
 /* Custom button icons */
 .btn-icon {
-  @apply flex items-center justify-center w-9 h-9 rounded-full bg-muted/80 text-muted-foreground
-    hover:bg-muted hover:text-foreground transition-colors;
+  @apply flex items-center justify-center w-9 h-9 rounded-full bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors;
 }
 
 /* ========================================
@@ -577,33 +638,45 @@
 
 :root {
   /* Food - Orange/Warm */
-  --category-food-from: 251 86% 58%; /* #FB923C */
-  --category-food-to: 24 95% 53%; /* #F97316 */
+  --category-food-from: 251 86% 58%;
+  /* #FB923C */
+  --category-food-to: 24 95% 53%;
+  /* #F97316 */
   --category-food-glow: 24 95% 53% / 0.15;
 
   /* Lodging - Blue/Cool */
-  --category-lodging-from: 217 91% 60%; /* #3B82F6 */
-  --category-lodging-to: 221 83% 53%; /* #2563EB */
+  --category-lodging-from: 217 91% 60%;
+  /* #3B82F6 */
+  --category-lodging-to: 221 83% 53%;
+  /* #2563EB */
   --category-lodging-glow: 221 83% 53% / 0.15;
 
   /* Attractions - Purple */
-  --category-attractions-from: 258 90% 66%; /* #A78BFA */
-  --category-attractions-to: 262 83% 58%; /* #8B5CF6 */
+  --category-attractions-from: 258 90% 66%;
+  /* #A78BFA */
+  --category-attractions-to: 262 83% 58%;
+  /* #8B5CF6 */
   --category-attractions-glow: 262 83% 58% / 0.15;
 
   /* Shopping - Pink */
-  --category-shopping-from: 330 81% 60%; /* #F472B6 */
-  --category-shopping-to: 333 71% 51%; /* #EC4899 */
+  --category-shopping-from: 330 81% 60%;
+  /* #F472B6 */
+  --category-shopping-to: 333 71% 51%;
+  /* #EC4899 */
   --category-shopping-glow: 333 71% 51% / 0.15;
 
   /* Nightlife - Indigo */
-  --category-nightlife-from: 239 84% 67%; /* #818CF8 */
-  --category-nightlife-to: 243 75% 59%; /* #6366F1 */
+  --category-nightlife-from: 239 84% 67%;
+  /* #818CF8 */
+  --category-nightlife-to: 243 75% 59%;
+  /* #6366F1 */
   --category-nightlife-glow: 243 75% 59% / 0.15;
 
   /* App Purple Gradient (for attribution pills) */
-  --app-purple-from: 249 53% 58%; /* #667eea */
-  --app-purple-to: 279 44% 52%; /* #764ba2 */
+  --app-purple-from: 249 53% 58%;
+  /* #667eea */
+  --app-purple-to: 279 44% 52%;
+  /* #764ba2 */
 }
 
 .dark {
@@ -681,6 +754,7 @@
     opacity: 0;
     transform: translateY(8px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -692,16 +766,45 @@
 }
 
 /* Stagger delays for multiple cards */
-.card-enter-0 { animation-delay: 0ms; }
-.card-enter-1 { animation-delay: 30ms; }
-.card-enter-2 { animation-delay: 60ms; }
-.card-enter-3 { animation-delay: 90ms; }
-.card-enter-4 { animation-delay: 120ms; }
-.card-enter-5 { animation-delay: 150ms; }
-.card-enter-6 { animation-delay: 180ms; }
-.card-enter-7 { animation-delay: 210ms; }
-.card-enter-8 { animation-delay: 240ms; }
-.card-enter-9 { animation-delay: 270ms; }
+.card-enter-0 {
+  animation-delay: 0ms;
+}
+
+.card-enter-1 {
+  animation-delay: 30ms;
+}
+
+.card-enter-2 {
+  animation-delay: 60ms;
+}
+
+.card-enter-3 {
+  animation-delay: 90ms;
+}
+
+.card-enter-4 {
+  animation-delay: 120ms;
+}
+
+.card-enter-5 {
+  animation-delay: 150ms;
+}
+
+.card-enter-6 {
+  animation-delay: 180ms;
+}
+
+.card-enter-7 {
+  animation-delay: 210ms;
+}
+
+.card-enter-8 {
+  animation-delay: 240ms;
+}
+
+.card-enter-9 {
+  animation-delay: 270ms;
+}
 
 /* Premium Card Hover */
 .premium-card-hover {
@@ -714,9 +817,12 @@
 
 /* Emoji Pulse Animation */
 @keyframes emoji-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -728,9 +834,17 @@
 
 /* Attribution Pill Tap Animation */
 @keyframes pill-tap {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.95); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .pill-tap:active {
@@ -742,6 +856,7 @@
   from {
     stroke-dashoffset: 20;
   }
+
   to {
     stroke-dashoffset: 0;
   }
@@ -811,6 +926,7 @@
 
 /* Reduce Motion Support */
 @media (prefers-reduced-motion: reduce) {
+
   /* Disable all CSS animations */
   .card-enter,
   .premium-card-hover:hover,
@@ -939,12 +1055,12 @@
     --foreground: 0 0% 0%;
     --background: 0 0% 100%;
   }
-  
+
   .dark {
     --foreground: 0 0% 100%;
     --background: 0 0% 0%;
   }
-  
+
   /* Increase border visibility */
   .liquid-glass-clear,
   .liquid-glass-tinted,
@@ -966,11 +1082,9 @@
 
 /* Story hero glass effect */
 .story-glass-hero {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.15) 0%,
-    rgba(118, 75, 162, 0.15) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(102, 126, 234, 0.15) 0%,
+      rgba(118, 75, 162, 0.15) 100%);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -1002,19 +1116,20 @@
 
 /* Timeline connector gradient */
 .timeline-connector {
-  background: linear-gradient(
-    180deg,
-    hsl(var(--app-purple-from)) 0%,
-    hsl(var(--app-purple-to)) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg,
+      hsl(var(--app-purple-from)) 0%,
+      hsl(var(--app-purple-to)) 50%,
+      transparent 100%);
 }
 
 /* Animated counter pulse */
 @keyframes counter-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -1029,6 +1144,7 @@
   from {
     stroke-dashoffset: var(--progress-circumference);
   }
+
   to {
     stroke-dashoffset: var(--progress-offset);
   }
@@ -1060,12 +1176,10 @@
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%);
   animation: story-shimmer 2s infinite;
 }
 
@@ -1073,6 +1187,7 @@
   0% {
     left: -100%;
   }
+
   100% {
     left: 200%;
   }
@@ -1080,11 +1195,9 @@
 
 /* Dark mode adjustments for story */
 .dark .story-glass-hero {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.1) 0%,
-    rgba(118, 75, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(102, 126, 234, 0.1) 0%,
+      rgba(118, 75, 162, 0.1) 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 

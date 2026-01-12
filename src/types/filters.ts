@@ -38,8 +38,25 @@ export const countActiveFilters = (filters: FilterState): number => {
   let count = 0;
 
   if (filters.visitStatus !== "all") count++;
-  if (filters.sources.length > 0) count++;
-  if (filters.sourceNames.length > 0) count++;
+
+  // For sources: count source type OR source names, but avoid double-counting
+  // when they represent the same thing (e.g., sources=['instagram'] + sourceNames=['Instagram'])
+  const sourceTypesLower = filters.sources.map(s => s.toLowerCase());
+  const sourceNamesLower = filters.sourceNames.map(s => s.toLowerCase());
+
+  // Check if all sourceNames match source types (then count as 1)
+  const allSourceNamesMatchTypes = filters.sourceNames.length > 0 &&
+    filters.sourceNames.every(name => sourceTypesLower.includes(name.toLowerCase()));
+
+  if (filters.sources.length > 0 && allSourceNamesMatchTypes) {
+    // They represent the same filter, count as 1
+    count++;
+  } else {
+    // Count separately
+    if (filters.sources.length > 0) count++;
+    if (filters.sourceNames.length > 0) count++;
+  }
+
   if (filters.priorities.length > 0) count++;
   if (filters.occasions.length > 0) count++;
   if (filters.countries.length > 0) count++;

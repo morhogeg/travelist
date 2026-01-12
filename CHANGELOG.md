@@ -21,6 +21,11 @@ All notable changes to the Travelist iOS app will be documented in this file.
 - Source name filter now works for all source types (was hardcoded to "friend" only)
 - Source names now properly capitalized (e.g., "Article" not "article")
 - AI parser now extracts tips from phrases like "recommending pizza at X"
+- **Eliminated blue tap highlights** - Changed accent color from iOS System Blue to app purple
+- **Filter drawer now reflects applied filters** - Clicking source from card highlights in drawer
+- **Friend filter shows only actual friend names** - Excludes source types like Instagram, Article
+- **Filter count fixed** - No longer double-counts when source type and name match
+- **Unchecking source type clears matching source name** - Consistent filter state
 
 ### 🔧 Changed
 - Switched AI model from DeepSeek to Gemma 3 27B for better JSON extraction
