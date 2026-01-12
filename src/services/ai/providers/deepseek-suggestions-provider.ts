@@ -14,7 +14,7 @@ import {
 } from '../types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'tngtech/deepseek-r1t2-chimera:free'; // DeepSeek via OpenRouter (free tier)
+const MODEL = 'google/gemma-3-27b-it:free'; // Gemma 3 27B via OpenRouter (free tier)
 
 /**
  * Generates a unique ID for suggestions

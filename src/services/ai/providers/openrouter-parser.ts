@@ -6,8 +6,8 @@ import { PlaceCategory } from '../types';
 import { SourceType, RecommendationSource } from '@/utils/recommendation/types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// DeepSeek via OpenRouter (free tier)
-const MODEL = 'tngtech/deepseek-r1t2-chimera:free';
+// Gemma 3 27B via OpenRouter (free tier) - excellent JSON extraction
+const MODEL = 'google/gemma-3-27b-it:free';
 
 export interface ParsedPlace {
   name: string;

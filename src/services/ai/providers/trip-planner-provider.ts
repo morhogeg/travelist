@@ -13,7 +13,7 @@ import { TripPlanRequest, TripPlanResult, TimeSlot } from '@/types/trip';
 import { PlaceCategory } from '../types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'tngtech/deepseek-r1t2-chimera:free';
+const MODEL = 'google/gemma-3-27b-it:free'; // Gemma 3 27B via OpenRouter (free tier)
 
 /**
  * Map categories to their time-of-day constraints
