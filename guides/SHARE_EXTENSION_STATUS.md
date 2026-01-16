@@ -1,4 +1,4 @@
-# Share Extension & Inbox Status (December 2025)
+# Share Extension & Inbox Status (January 2026)
 
 ## What's working
 - Inbox feature exists in the app (page + navigation) and can be viewed when built with the current web bundle.
@@ -116,3 +116,12 @@ Rewrote `ShareViewController.swift` with:
 - Duplicate detection to prevent saving the same content twice
 - Comprehensive NSLog debugging for troubleshooting
 - Added "Paste to Inbox" feature as a guaranteed-working alternative
+
+### January 16, 2026 - Capacitor 7 Plugin Registration Fix
+**Status: ✅ Fixed UNIMPLEMENTED Error**
+
+Root cause: Capacitor 7 doesn't auto-discover local Swift plugins. The fix:
+- Removed obsolete `SharedInboxPlugin.m` (Capacitor 7 doesn't use Objective-C bridge files)
+- Updated `SharedInboxPlugin.swift` to use `CAPBridgedPlugin` protocol (same as official plugins)
+- Added manual registration in `MyViewController.capacitorDidLoad()`: `bridge?.registerPluginInstance(SharedInboxPlugin())`
+- Verified storyboard uses `MyViewController` as custom class
