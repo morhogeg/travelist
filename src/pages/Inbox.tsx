@@ -456,9 +456,7 @@ const InboxPage: React.FC = () => {
                 {/* Gradient border effect */}
                 <div className={cn(
                   "absolute inset-0 rounded-2xl",
-                  isReady
-                    ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20"
-                    : "bg-white/5"
+                  "bg-white/5"
                 )} />
 
                 {/* Card content */}

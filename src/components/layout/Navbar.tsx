@@ -5,6 +5,19 @@ import { motion } from "framer-motion";
 import { haptics } from "@/utils/ios/haptics";
 
 const Navbar = () => {
+  const [isVisible, setIsVisible] = React.useState(true);
+
+  React.useEffect(() => {
+    const hide = () => setIsVisible(false);
+    const show = () => setIsVisible(true);
+    window.addEventListener("navbar:hide", hide);
+    window.addEventListener("navbar:show", show);
+    return () => {
+      window.removeEventListener("navbar:hide", hide);
+      window.removeEventListener("navbar:show", show);
+    };
+  }, []);
+
   const navItems = [
     { path: "/", label: "Home", icon: <Home className="h-5 w-5" /> },
     { path: "/inbox", label: "Inbox", icon: <Inbox className="h-5 w-5" /> },
@@ -16,11 +29,11 @@ const Navbar = () => {
   return (
     <motion.div
       initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      animate={{ y: isVisible ? 0 : 100, opacity: isVisible ? 1 : 0 }}
       transition={{
         type: "spring",
-        stiffness: 300,
-        damping: 30,
+        stiffness: 400,
+        damping: 40,
         mass: 0.8,
       }}
       className="fixed bottom-0 left-0 right-0 z-50"
@@ -37,10 +50,9 @@ const Navbar = () => {
                 to={item.path}
                 onClick={() => haptics.light()}
                 className={({ isActive }) =>
-                  `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl ios26-transition-smooth ${
-                    isActive
-                      ? "text-[#667eea]"
-                      : "text-gray-500 dark:text-gray-400 hover:text-[#667eea] dark:hover:text-[#667eea]"
+                  `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl ios26-transition-smooth ${isActive
+                    ? "text-[#667eea]"
+                    : "text-gray-500 dark:text-gray-400 hover:text-[#667eea] dark:hover:text-[#667eea]"
                   }`
                 }
               >

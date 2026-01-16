@@ -107,9 +107,11 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
       });
       setSearchResults([...filteredPlaces, ...filteredRecommendations]);
       setShowResults(true);
+      window.dispatchEvent(new CustomEvent("navbar:hide"));
     } else {
       setSearchResults([]);
       setShowResults(false);
+      window.dispatchEvent(new CustomEvent("navbar:show"));
     }
   };
 
@@ -128,12 +130,14 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
     }
     setSearchTerm("");
     setShowResults(false);
+    window.dispatchEvent(new CustomEvent("navbar:show"));
   };
 
   const clearSearch = () => {
     setSearchTerm("");
     setSearchResults([]);
     setShowResults(false);
+    window.dispatchEvent(new CustomEvent("navbar:show"));
   };
 
 

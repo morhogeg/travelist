@@ -2,17 +2,25 @@ import Foundation
 import Capacitor
 
 @objc(SharedInboxPlugin)
-public class SharedInboxPlugin: CAPPlugin {
-    // Register methods with Capacitor
-    @objc func echo(_ call: CAPPluginCall) {
+public class SharedInboxPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "SharedInboxPlugin"
+    public let jsName = "SharedInboxPlugin"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "readShared", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "clearShared", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise)
+    ]
+    
+    private let appGroupID = "group.com.travelist.shared"
+    private let sharedKey = "shared_inbox_items"
+    
+    @objc public func echo(_ call: CAPPluginCall) {
         call.resolve(["value": call.getString("value") ?? ""])
     }
 
-    @objc func readShared(_ call: CAPPluginCall) {
-        let appGroupID = "group.com.travelist.shared"
-        let key = "shared_inbox_items"
+    @objc public func readShared(_ call: CAPPluginCall) {
         guard let defaults = UserDefaults(suiteName: appGroupID),
-              let items = defaults.array(forKey: key) as? [[String: Any]] else {
+              let items = defaults.array(forKey: sharedKey) as? [[String: Any]] else {
             NSLog("[SharedInboxPlugin] No items found in app group \(appGroupID)")
             call.resolve(["items": []])
             return
@@ -21,20 +29,11 @@ public class SharedInboxPlugin: CAPPlugin {
         call.resolve(["items": items])
     }
 
-    @objc func clearShared(_ call: CAPPluginCall) {
-        let appGroupID = "group.com.travelist.shared"
-        let key = "shared_inbox_items"
+    @objc public func clearShared(_ call: CAPPluginCall) {
         let defaults = UserDefaults(suiteName: appGroupID)
-        defaults?.removeObject(forKey: key)
+        defaults?.removeObject(forKey: sharedKey)
         defaults?.synchronize()
         NSLog("[SharedInboxPlugin] Cleared shared inbox items from app group \(appGroupID)")
         call.resolve()
     }
 }
-
-//
-//  SharedInboxPlugin.swift
-//  App
-//
-//  Created by Mor Hogeg on 30/11/2025.
-//

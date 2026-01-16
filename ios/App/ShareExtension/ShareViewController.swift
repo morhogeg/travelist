@@ -176,22 +176,35 @@ class ShareViewController: UIViewController {
         placeNameLabel.text = "Loading..."
         locationLabel.text = ""
         
+        NSLog("[ShareExtension] 🔍 Starting to extract shared content")
+        
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
               let attachments = extensionItem.attachments else {
+            NSLog("[ShareExtension] ❌ No extension items or attachments found")
             placeNameLabel.text = "No content"
             return
         }
         
+        NSLog("[ShareExtension] 📦 Found \(attachments.count) attachment(s)")
+        
         for provider in attachments {
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                NSLog("[ShareExtension] 🔗 Found URL type attachment")
                 provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (item, error) in
                     DispatchQueue.main.async {
+                        if let error = error {
+                            NSLog("[ShareExtension] ❌ Error loading URL: \(error.localizedDescription)")
+                        }
                         if let url = item as? URL {
+                            NSLog("[ShareExtension] ✅ Loaded URL: \(url.absoluteString)")
                             self?.sharedText = url.absoluteString
                             self?.parseURL(url)
                         } else if let urlString = item as? String, let url = URL(string: urlString) {
+                            NSLog("[ShareExtension] ✅ Loaded URL from string: \(urlString)")
                             self?.sharedText = urlString
                             self?.parseURL(url)
+                        } else {
+                            NSLog("[ShareExtension] ⚠️ URL item was neither URL nor String")
                         }
                     }
                 }
@@ -199,49 +212,66 @@ class ShareViewController: UIViewController {
             }
             
             if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                NSLog("[ShareExtension] 📝 Found plain text type attachment")
                 provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] (item, error) in
                     DispatchQueue.main.async {
+                        if let error = error {
+                            NSLog("[ShareExtension] ❌ Error loading text: \(error.localizedDescription)")
+                        }
                         if let text = item as? String {
+                            NSLog("[ShareExtension] ✅ Loaded plain text: \(text.prefix(100))")
                             self?.sharedText = text
                             self?.placeNameLabel.text = String(text.prefix(60))
-                            self?.locationLabel.text = "Shared text"
+                            self?.locationLabel.text = ""
                         }
                     }
                 }
                 return
             }
         }
+        NSLog("[ShareExtension] ⚠️ No URL or plain text attachment found")
     }
     
     private func parseURL(_ url: URL) {
+        NSLog("[ShareExtension] 🔍 Parsing URL: \(url.absoluteString)")
         let host = url.host?.replacingOccurrences(of: "www.", with: "") ?? ""
+        NSLog("[ShareExtension] 🌐 Host: \(host)")
         
         // Extract place name from Google Maps
         if host.contains("google") || host.contains("goo.gl") {
+            NSLog("[ShareExtension] 🗺️ Detected Google Maps URL")
             if let placeName = extractGoogleMapsPlace(from: url) {
+                NSLog("[ShareExtension] ✅ Extracted place name: \(placeName)")
                 placeNameLabel.text = placeName
                 locationLabel.text = ""
                 return
+            } else {
+                NSLog("[ShareExtension] ⚠️ Could not extract place name from Google Maps URL")
             }
         }
         
-        // Fallback
+        // Fallback: Use the host as the title, but keep the full URL as sharedText
+        NSLog("[ShareExtension] 📌 Using fallback - host: \(host)")
         placeNameLabel.text = host
         locationLabel.text = ""
     }
     
     private func extractGoogleMapsPlace(from url: URL) -> String? {
         let path = url.path
+        NSLog("[ShareExtension] 🔍 Extracting from path: \(path)")
         
         if path.contains("/place/") {
             let components = path.components(separatedBy: "/place/")
             if components.count > 1 {
                 let afterPlace = components[1].components(separatedBy: "/").first ?? ""
                 let decoded = afterPlace.removingPercentEncoding ?? afterPlace
-                return decoded.replacingOccurrences(of: "+", with: " ")
+                let result = decoded.replacingOccurrences(of: "+", with: " ")
+                NSLog("[ShareExtension] ✅ Extracted place: \(result)")
+                return result
             }
         }
         
+        NSLog("[ShareExtension] ⚠️ No /place/ found in path")
         return nil
     }
     

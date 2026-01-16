@@ -31,7 +31,7 @@
 
 ## Fix applied
 - `capacitor.config.ts` and generated `ios/App/App/capacitor.config.json` include `SharedInboxPlugin` in `packageClassList`.
-- `SharedInboxPlugin.swift/m` compiled only into the App target; ShareExtension target excludes it.
+- **January 2026 Capacitor 7 fix**: Local plugins in Capacitor 7 must be manually registered. `SharedInboxPlugin.swift` now uses `CAPBridgedPlugin` protocol (same as official plugins) and is registered in `MyViewController.capacitorDidLoad()` via `bridge?.registerPluginInstance(SharedInboxPlugin())`.
 - App + ShareExtension targets have App Group `group.com.travelist.shared` enabled.
 - **December 2025 reliability fix**: `ShareViewController.swift` now uses `DispatchGroup` for proper async handling, `CFPreferencesAppSynchronize` for reliable saves, duplicate detection, and comprehensive NSLog debugging.
 
@@ -68,8 +68,22 @@ xcrun simctl openurl booted 'travelist://share?text=YOUR_TEXT_HERE'
 4) In Xcode, run the **App** scheme. Simulator will load from the dev server and hot-reload on save.
 
 ## If you see `UNIMPLEMENTED` again
-- Run `npm run cap:copy:ios` (or `npx cap copy ios && node scripts/ensure-shared-inbox-plugin.js`) from the project root to regenerate `ios/App/App/capacitor.config.json` with `SharedInboxPlugin`, then rebuild/run in Xcode.
-- Verify App Groups are still checked on both targets in Xcode.
+This error means the plugin isn't registered with the Capacitor bridge. In Capacitor 7, local plugins (unlike npm plugins) require manual registration.
+
+### Fix Checklist:
+1. **Verify `MyViewController.swift`** contains:
+   ```swift
+   override open func capacitorDidLoad() {
+       bridge?.registerPluginInstance(SharedInboxPlugin())
+   }
+   ```
+2. **Verify `SharedInboxPlugin.swift`** uses `CAPBridgedPlugin` protocol:
+   ```swift
+   public class SharedInboxPlugin: CAPPlugin, CAPBridgedPlugin { ... }
+   ```
+3. **No `.m` file** - Capacitor 7 doesn't use Objective-C bridge files for local plugins
+4. **Main.storyboard** must use `MyViewController` as the custom class
+5. **App Groups** must be enabled on both App + ShareExtension targets
 
 ## Troubleshooting Intermittent Failures
 

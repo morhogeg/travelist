@@ -18,6 +18,7 @@
 		D71D21882EF18550005D6F8F /* MyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71D21872EF18550005D6F8F /* MyViewController.swift */; };
 		D7D184022EDCA3BA002D63AB /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D7D183F82EDCA3BA002D63AB /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D7D1840A2EDCA468002D63AB /* SharedInboxPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D184092EDCA458002D63AB /* SharedInboxPlugin.swift */; };
+		D7D1840B2EDCAC99002D63AB /* SharedInboxPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = D7D1840C2EDCAC99002D63AB /* SharedInboxPlugin.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		D7D183F32EDCA363002D63AB /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		D7D183F82EDCA3BA002D63AB /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7D184092EDCA458002D63AB /* SharedInboxPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedInboxPlugin.swift; sourceTree = "<group>"; };
+		D7D1840C2EDCAC99002D63AB /* SharedInboxPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SharedInboxPlugin.m; sourceTree = "<group>"; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -130,6 +132,7 @@
 			children = (
 				D71D21872EF18550005D6F8F /* MyViewController.swift */,
 				D7157EC92F1A71CA00D3D7FA /* App-Bridging-Header.h */,
+				D7D1840C2EDCAC99002D63AB /* SharedInboxPlugin.m */,
 				D7D184092EDCA458002D63AB /* SharedInboxPlugin.swift */,
 				D7D183F32EDCA363002D63AB /* App.entitlements */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
@@ -303,6 +306,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7D1840B2EDCAC99002D63AB /* SharedInboxPlugin.m in Sources */,
 				D7D1840A2EDCA468002D63AB /* SharedInboxPlugin.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				D71D21882EF18550005D6F8F /* MyViewController.swift in Sources */,
@@ -450,6 +454,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/App-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -475,6 +480,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.travelist.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "\nApp/App-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -499,6 +505,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.travelist.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "\nApp/App-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -543,6 +550,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				SWIFT_OBJC_BRIDGING_HEADER = "App/App-Bridging-Header.h";
 			};
 			name = Debug;
 		};

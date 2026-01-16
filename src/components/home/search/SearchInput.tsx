@@ -15,7 +15,7 @@ const SearchInput = ({ searchTerm, onChange, onClear }: SearchInputProps) => {
       <Search className="absolute left-4 top-3.5 h-5 w-5 text-neutral-500 dark:text-neutral-400" />
       <Input
         type="text"
-        placeholder="Search destinations, restaurants, landmarks..."
+        placeholder="Search..."
         className="w-full liquid-glass-clear border-white/20 dark:border-white/10 pl-12 pr-10 py-6 rounded-2xl text-sm placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#667eea]/30 focus:border-[#667eea]/50 ios26-transition-smooth"
         value={searchTerm}
         onChange={onChange}
