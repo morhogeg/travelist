@@ -39,6 +39,8 @@ All notable changes to the Travelist iOS app will be documented in this file.
 - **Friend filter shows only actual friend names** - Excludes source types like AI or generic categories
 - **Filter count fixed** - No longer double-counts when source type and name match
 - **Unchecking source type clears matching source name** - Consistent filter state
+- **SharedInboxPlugin UNIMPLEMENTED error** - Fixed Capacitor 7 plugin registration (manual registration in MyViewController required)
+- **Inbox card pink highlight removed** - Cards now use subtle neutral background instead of pink/purple gradient
 
 ### 🔧 Changed
 - **Labeling Clarity**: Renamed "Website" to "Official Website" in forms to distinguish from recommendation sources
