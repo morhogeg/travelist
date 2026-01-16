@@ -139,14 +139,25 @@ const InboxPage: React.FC = () => {
       // Check if clipboard API is available
       if (!navigator.clipboard || !navigator.clipboard.readText) {
         toast({
-          title: "Clipboard not available",
-          description: "Your browser doesn't support clipboard access. Try copying text and using the Share Extension instead.",
+          title: "Use Share Extension",
+          description: "On iOS, use the Share button in Safari or other apps to send places here.",
           variant: "destructive",
         });
         return;
       }
 
-      const text = await navigator.clipboard.readText();
+      let text: string;
+      try {
+        text = await navigator.clipboard.readText();
+      } catch (clipboardErr: any) {
+        // iOS often blocks clipboard access in WebViews
+        console.warn("[Inbox] Clipboard access denied:", clipboardErr?.message);
+        toast({
+          title: "Use Share Extension",
+          description: "Paste isn't available on iOS. Instead, tap Share in Safari or Google Maps, then choose Travelist.",
+        });
+        return;
+      }
 
       if (!text || !text.trim()) {
         toast({
@@ -185,9 +196,8 @@ const InboxPage: React.FC = () => {
     } catch (err: any) {
       console.error("[Inbox] Clipboard paste failed", err);
       toast({
-        title: "Paste failed",
-        description: err?.message || "Could not read from clipboard. Make sure you've granted permission.",
-        variant: "destructive",
+        title: "Use Share Extension",
+        description: "Paste isn't available. Use the Share button in Safari or Google Maps instead.",
       });
     } finally {
       setIsPasting(false);
@@ -429,60 +439,98 @@ const InboxPage: React.FC = () => {
             </div>
           )}
 
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="liquid-glass-clear border border-white/30 rounded-2xl p-4 shadow-lg space-y-3 cursor-pointer"
-              onClick={() => handleOpenItem(item)}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="flex items-center gap-2">
-                    {renderStatusBadge(item.status, () => handleOpenItem(item))}
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(item.receivedAt).toLocaleString()}
-                    </span>
-                    {item.error && (
-                      <span className="text-[11px] text-destructive font-medium">
-                        {item.error}
-                      </span>
-                    )}
+          {filteredItems.map((item) => {
+            const placeName = item.parsedPlaces[0]?.name || item.displayTitle || '';
+            const location = item.parsedPlaces[0]?.city
+              ? `${item.parsedPlaces[0]?.city}${item.parsedPlaces[0]?.country ? `, ${item.parsedPlaces[0]?.country}` : ''}`
+              : '';
+            const isReady = item.status === 'draft_ready';
+            const needsAction = item.status === 'needs_info' || item.error;
+
+            return (
+              <div
+                key={item.id}
+                className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.01]"
+                onClick={() => handleOpenItem(item)}
+              >
+                {/* Gradient border effect */}
+                <div className={cn(
+                  "absolute inset-0 rounded-2xl",
+                  isReady
+                    ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20"
+                    : "bg-white/5"
+                )} />
+
+                {/* Card content */}
+                <div className="relative liquid-glass-clear border border-white/10 rounded-2xl p-4">
+                  {/* Top row: Status + Actions */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      {isReady ? (
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                          Ready
+                        </span>
+                      ) : needsAction ? (
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          Needs Info
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-500/20 text-blue-400">
+                          {item.status === 'processing' ? 'Processing...' : 'New'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                      {needsAction && (
+                        <button
+                          className="px-2.5 py-1 rounded-full text-[11px] font-medium text-purple-400 hover:bg-purple-500/20 transition-colors"
+                          onClick={() => triggerParse(item.id)}
+                          disabled={processingId === item.id}
+                        >
+                          {processingId === item.id ? "..." : "Retry"}
+                        </button>
+                      )}
+                      <button
+                        className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
+                        onClick={() => handleOpenLink(item)}
+                        aria-label="Open link"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        className="p-1.5 rounded-full text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        onClick={() => setItemToDelete(item)}
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
 
-                  <p className="text-sm font-semibold leading-6 break-words">
-                    {item.displayTitle || item.rawText}
-                  </p>
+                  {/* Place name - prominent */}
+                  <h3 className="text-base font-semibold text-foreground leading-tight mb-1">
+                    {placeName || item.rawText.slice(0, 50)}
+                  </h3>
 
-                </div>
-
-                <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                  {(item.error || item.status === "needs_info") && (
-                    <button
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/10 ios26-transition-smooth"
-                      onClick={() => triggerParse(item.id)}
-                      disabled={processingId === item.id}
-                    >
-                      {processingId === item.id ? "Parsing…" : "Retry AI Parse"}
-                    </button>
-                  )}
-                  <button
-                    className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
-                    onClick={() => handleOpenLink(item)}
-                    aria-label="Open link"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    className="p-1 rounded-full text-destructive hover:bg-destructive/10 transition-colors"
-                    onClick={() => setItemToDelete(item)}
-                    aria-label="Delete"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  {/* Location + timestamp */}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {location && (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {location}
+                        </span>
+                        <span>·</span>
+                      </>
+                    )}
+                    <span>{new Date(item.receivedAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <Drawer open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>

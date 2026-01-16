@@ -44,7 +44,9 @@ export const processStructuredRecommendation = async (
             }
             rec.country = values.country;
             localStorage.setItem("recommendations", JSON.stringify(recommendations));
+
             window.dispatchEvent(new CustomEvent("recommendationAdded"));
+            window.dispatchEvent(new CustomEvent("recommendationUpdated"));
             found = true;
             return { id: place.id || existingRecId };
           }

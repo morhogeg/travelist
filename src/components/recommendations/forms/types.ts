@@ -6,7 +6,7 @@ const sourceSchema = z.object({
   type: z.enum(['friend', 'instagram', 'blog', 'email', 'text', 'tiktok', 'youtube', 'article', 'ai', 'other']).optional(),
   name: z.string().optional(),
   relationship: z.string().optional(),
-  url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
+  url: z.string().optional().or(z.literal("")),
   date: z.string().optional(),
   notes: z.string().optional(),
 }).optional();
@@ -26,7 +26,7 @@ export const singleRecommendationSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
   category: z.string().min(1, { message: "Category is required" }),
   description: z.string().optional(),
-  website: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
+  website: z.string().optional().or(z.literal("")),
   source: sourceSchema,
   context: contextSchema,
 });
@@ -49,7 +49,7 @@ export const structuredFormSchema = z.object({
   city: z.string().min(2, { message: "City name is required" }),
   country: z.string().optional(),
   description: z.string().optional(),
-  website: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
+  website: z.string().optional().or(z.literal("")),
   source: sourceSchema,
   context: contextSchema,
 });

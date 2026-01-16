@@ -9,26 +9,39 @@ All notable changes to the Travelist iOS app will be documented in this file.
 > **Instructions:** Add features/fixes here as they're completed. Move to versioned section when TestFlight is uploaded.
 
 ### ✨ Added
+- **App Rebranding** - Renamed app to **Travelist AI** throughout the UI
+- **Home View Search Bar Redesign** - Replaced expandable search icon with an always-visible search bar for better discoverability
+- **Scroll Fade Effect** - Header and search bar now fade out elegantly as you scroll down
+- **Dynamic Country Search** - Replaced static dropdown with a searchable autocomplete field in recommendation forms
+- **AI Place Descriptions** - Added "Get info from Travelist AI" to generate descriptions for places without them
+- **External Source Links** - Added "Recommendation Source" links to easily visit the origin of a recommendation
+- **Recommendation Details Dialog Refinement** - Complete overhaul for a more compact, iOS-native feel
+  - **Isolated AI Feature**: AI generation now stands alone at the top
+  - **Logical Grouping**: Source and Website links are grouped together near action buttons
+  - **Toned Down Actions**: Changed "Add" and "Edit" to ghost buttons (text-only) for better visual balance
+  - **Removed Clutter**: Removed "Mark Visited" button (handled via swipe gestures in lists)
+  - **Destructive Action Separation**: Moved "Delete" to the bottom of the action group
+  - **Ultra-Compact Layout**: Aggressively reduced spacing, padding, and button heights
 - **Proximity Notifications** - Get notified when near saved places
   - Custom distance slider (100m - 2km) in Settings
   - Per-city enable/disable toggles via "Manage Cities" drawer
   - Notification tap opens place card → Navigate button opens Maps
   - Background location monitoring with battery-efficient settings
-  - Permission warning when location access is denied
 
 ### 🐛 Fixed
+- **Website Field Persistence** - Fixed bug where the "Official Website" field was not saving or displaying correctly
 - FAB no longer shows when proximity place card is open
 - Source name filter now works for all source types (was hardcoded to "friend" only)
 - Source names now properly capitalized (e.g., "Article" not "article")
 - AI parser now extracts tips from phrases like "recommending pizza at X"
 - **Eliminated blue tap highlights** - Changed accent color from iOS System Blue to app purple
 - **Filter drawer now reflects applied filters** - Clicking source from card highlights in drawer
-- **Friend filter shows only actual friend names** - Excludes source types like Instagram, Article
+- **Friend filter shows only actual friend names** - Excludes source types like AI or generic categories
 - **Filter count fixed** - No longer double-counts when source type and name match
 - **Unchecking source type clears matching source name** - Consistent filter state
 
 ### 🔧 Changed
-- Switched AI model from DeepSeek to Gemma 3 27B for better JSON extraction
+- **Labeling Clarity**: Renamed "Website" to "Official Website" in forms to distinguish from recommendation sources
 
 ---
 

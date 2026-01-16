@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ClearableInput } from "@/components/ui/clearable-input";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -48,13 +49,15 @@ const PRIORITY_OPTIONS = [
 interface ContextInputProps {
   form: UseFormReturn<any>;
   initialContext?: RecommendationContext;
+  initialWebsite?: string;
 }
 
 export const ContextInput: React.FC<ContextInputProps> = ({
   form,
   initialContext,
+  initialWebsite,
 }) => {
-  const [isOpen, setIsOpen] = useState(!!initialContext);
+  const [isOpen, setIsOpen] = useState(!!initialContext || !!initialWebsite);
   const [selectedTags, setSelectedTags] = useState<string[]>(
     initialContext?.occasionTags || []
   );
@@ -70,7 +73,9 @@ export const ContextInput: React.FC<ContextInputProps> = ({
 
   const hasAnyContext = () => {
     const context = form.getValues("context");
+    const website = form.getValues("website");
     return (
+      website ||
       context?.specificTip ||
       context?.occasionTags?.length > 0 ||
       context?.bestTime ||
@@ -124,29 +129,29 @@ export const ContextInput: React.FC<ContextInputProps> = ({
             >
               Clear all
             </Button>
-            )}
-          </div>
+          )}
+        </div>
 
-          <CollapsibleContent className="space-y-4">
+        <CollapsibleContent className="space-y-4" forceMount={true} hidden={!isOpen}>
           {/* Website */}
           <FormField
             control={form.control}
             name="website"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Website (optional)</FormLabel>
+                <FormLabel>Official Website (optional)</FormLabel>
                 <FormControl>
-                  <ClearableInput
+                  <Input
                     placeholder="e.g. www.example.com or https://example.com"
                     {...field}
                     value={field.value || ""}
-                    onClear={() => form.setValue("website", "")}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
 
           {/* Specific Tip */}
           <FormField
@@ -176,11 +181,10 @@ export const ContextInput: React.FC<ContextInputProps> = ({
                 <Badge
                   key={tag}
                   variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  className={`cursor-pointer hover:opacity-80 transition-opacity ${
-                    selectedTags.includes(tag)
-                      ? "bg-[#667eea] text-white border-[#667eea]"
-                      : ""
-                  }`}
+                  className={`cursor-pointer hover:opacity-80 transition-opacity ${selectedTags.includes(tag)
+                    ? "bg-[#667eea] text-white border-[#667eea]"
+                    : ""
+                    }`}
                   onClick={() => toggleTag(tag)}
                 >
                   {tag}

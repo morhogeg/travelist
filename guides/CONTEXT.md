@@ -1,6 +1,6 @@
-# Travelist - Context & Quick Reference
+# Travelist AI - Context & Quick Reference
 
-**Last Updated:** November 2025
+**Last Updated:** January 2026
 
 ---
 
@@ -56,10 +56,11 @@ npm run build:prod       # Production build
 - `src/components/layout/Layout.tsx` - Main layout with safe areas
 - `src/components/layout/Navbar.tsx` - Bottom floating navbar (minimalistic purple)
 - `src/components/layout/ThemeToggle.tsx` - Dark/light mode toggle (top-right)
-- `src/components/home/search/SearchHeader.tsx` - Header with title, search, view toggle
+- `src/components/home/search/SearchHeader.tsx` - Header with title, always-visible search bar, and scroll fade effect
 - `src/components/ui/SkeletonCard.tsx` - Shimmer loader for cards
 - `src/components/ui/EmptyState.tsx` - Reusable empty state component
 - `src/components/ui/CoachMark.tsx` - Feature discovery tooltips
+- `src/components/recommendations/forms/CountrySelect.tsx` - Dynamic country search with autocomplete
 
 ### Home/Recommendations
 - `src/components/home/category/CountryGroup.tsx` - Country sections (purple headers)
@@ -81,6 +82,7 @@ npm run build:prod       # Production build
 - `src/components/recommendations/forms/StructuredInputForm.tsx` - Structured input form
 - `src/components/recommendations/forms/FreeTextForm.tsx` - AI-powered free text input
 - `src/components/recommendations/ParsePreviewSheet.tsx` - Preview/edit AI-parsed results
+- `src/components/home/RecommendationDetailsDialog.tsx` - Compact details view with AI generation and logical action grouping
 
 ### AI Services
 - `src/services/ai/providers/openrouter-parser.ts` - Grok 4.1 integration via OpenRouter

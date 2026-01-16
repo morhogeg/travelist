@@ -18,7 +18,7 @@ import {
   getAvailableCities,
   getAvailableSourceNames
 } from "@/utils/recommendation/filter-helpers";
-import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
+import { markRecommendationVisited, deleteRecommendation, getRecommendations } from "@/utils/recommendation-parser";
 import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CountryGroupList from "@/components/home/category/CountryGroupList";
 import SectionIndex from "@/components/home/category/SectionIndex";
@@ -57,6 +57,23 @@ const Index: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [returnToPath, setReturnToPath] = useState<string | null>(null);
+
+  // Scroll-based header opacity (Feature 3: Scroll Fade Effect)
+  const [scrollOpacity, setScrollOpacity] = useState(1);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Calculate opacity based on scroll position (fade over first 100px)
+      const scrollY = window.scrollY;
+      const fadeStart = 0;
+      const fadeEnd = 100;
+      const opacity = Math.max(0, Math.min(1, 1 - (scrollY - fadeStart) / (fadeEnd - fadeStart)));
+      setScrollOpacity(opacity);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const loadRecommendations = useCallback(async () => {
     setLoading(true);
@@ -124,10 +141,44 @@ const Index: React.FC = () => {
     };
   }, []);
   useEffect(() => {
-    const handler = () => loadRecommendations();
-    window.addEventListener("recommendationAdded", handler);
-    return () => window.removeEventListener("recommendationAdded", handler);
+    const handleRecommendationUpdate = () => {
+      loadRecommendations();
+    };
+
+    window.addEventListener("recommendationAdded", loadRecommendations);
+    window.addEventListener("recommendationUpdated", handleRecommendationUpdate);
+    return () => {
+      window.removeEventListener("recommendationAdded", loadRecommendations);
+      window.removeEventListener("recommendationUpdated", handleRecommendationUpdate);
+    };
   }, [loadRecommendations]);
+
+  // Handle search result click to open recommendation details
+  useEffect(() => {
+    const handleOpenRecommendationDetails = (e: Event) => {
+      const customEvent = e as CustomEvent<{ id: string; placeId?: string; cityId?: string }>;
+      const { id, placeId, cityId } = customEvent.detail;
+
+      // Find the recommendation from all data
+      const allRecs = getRecommendations();
+      for (const rec of allRecs) {
+        const place = rec.places.find(p => p.id === id || p.recId === id || p.id === placeId);
+        if (place) {
+          setDetailsRecommendation({
+            ...place,
+            city: rec.city,
+            country: rec.country,
+            location: rec.city
+          });
+          setDetailsDialogOpen(true);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('openRecommendationDetails', handleOpenRecommendationDetails);
+    return () => window.removeEventListener('openRecommendationDetails', handleOpenRecommendationDetails);
+  }, []);
 
   useEffect(() => {
     const categoryHandler = (e: Event) => {
@@ -234,6 +285,12 @@ const Index: React.FC = () => {
   const handleEditClick = (recommendation: any) => {
     setSelectedRecommendation(recommendation);
     setIsDrawerOpen(true);
+  };
+
+  const handleRecommendationClick = (place: RecommendationPlace) => {
+    console.log("🔍 Index: Clicked recommendation", place.name, "Website:", place.website);
+    setDetailsRecommendation(place);
+    setDetailsDialogOpen(true);
   };
 
   const handleViewDetails = (recommendation: any) => {
@@ -356,9 +413,10 @@ const Index: React.FC = () => {
         )}
 
         <SearchHeader
-          heading="Travelist"
+          heading="Travelist AI"
           activeFilterCount={activeFilterCount}
           onFilterClick={() => setIsFilterSheetOpen(true)}
+          scrollOpacity={scrollOpacity}
         />
 
         {/* AI Suggestions Section - Conditional (if we had one here) */}
@@ -385,7 +443,7 @@ const Index: React.FC = () => {
         </AnimatePresence>
 
         {/* Categories Row */}
-        <div className="px-2 mb-2">
+        <div className="px-2 mb-2" style={{ opacity: scrollOpacity, transition: 'opacity 0.3s ease-out' }}>
           <CategoriesScrollbar onSheetOpenChange={setIsCategorySheetOpen} />
         </div>
         <div className="px-4 mb-3">

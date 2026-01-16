@@ -1,6 +1,6 @@
 # Filter System & Header Layout Guide
 
-**Last Updated:** November 2025
+**Last Updated:** January 2026
 
 This guide documents the comprehensive filter system and iOS-compliant header layout implemented for Travelist.
 
@@ -101,10 +101,14 @@ Updates trigger `loadRecommendations()` which re-filters the entire list.
 ```
 ┌─────────────────────────────────────┐
 │ Row 1: Main Header                  │
-│ [🔍]    Travelist         [Grid]    │
-│ (left)   (center)        (right)    │
+│ Travelist AI               [Grid]   │
+│ (left)                    (right)   │
 ├─────────────────────────────────────┤
-│ Row 2: Filter + Categories          │
+│ Row 2: Search Bar                   │
+│ [🔍 Search recommendations...     ] │
+│ (full width, fades on scroll)       │
+├─────────────────────────────────────┤
+│ Row 3: Filter + Categories          │
 │ [⚙] [All] [Food] [Lodging] →       │
 │(fixed)     (scrollable)             │
 └─────────────────────────────────────┘
@@ -124,10 +128,10 @@ Updates trigger `loadRecommendations()` which re-filters the entire list.
 - **"All" first** - Default state, follows iOS conventions
 - **Flexible width** - Adapts to content
 
-**3. Search Button**
-- **Top left** - iOS standard position
-- **Icon only** - Expands when tapped
-- **Expandable** - Full search UI slides down when active
+**3. Search Bar**
+- **Always visible** - Replaced expandable icon for better discoverability.
+- **Full width** - Maximizes input area.
+- **Scroll Fade** - Header and search bar fade out elegantly on scroll to maximize content area.
 
 **4. View Toggle**
 - **Top right** - Secondary control position

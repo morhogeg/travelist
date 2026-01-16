@@ -1,6 +1,6 @@
 # UI/UX Design Patterns & Conventions
 
-**Last Updated:** November 2025
+**Last Updated:** January 2026
 
 This guide documents the established UI/UX patterns, design decisions, and conventions used throughout the Travelist app.
 
@@ -78,20 +78,13 @@ min-h-11  /* 44px minimum (iOS touch target) */
 - FilterButton: `min-h-11 min-w-11 rounded-full`
 - This ensures perfect vertical alignment when placed side-by-side
 
-### Search/Toggle Button Positioning
-**Left-aligned buttons:**
-```css
-left-3 top-3  /* Back button */
-left-[4rem]   /* Search button, positioned next to back button */
-```
-
-**Right-aligned:**
-```css
-right-3 top-3  /* View toggle */
-```
+### Search & Header Positioning
+**Always-visible Search Bar:**
+- Replaced expandable search icon with a persistent search bar for better discoverability.
+- Header and search bar fade out elegantly on scroll (`Index.tsx` scroll listener).
 
 **Pattern used in:**
-- Home view: Search (left) + View toggle (right)
+- Home view: Search Bar (center) + Filter (right) + View toggle (right)
 - City view: Back (left) + Search (left, offset) + View toggle (right)
 - Country view: Back (left) + Search (left, offset) + View toggle (right)
 
@@ -530,14 +523,19 @@ Uses Drawer component (not Dialog) for native iOS behavior:
 - Clean, readable design
 
 ### Equal-Width Footer Buttons - "Equal Hierarchy" Pattern
-- **Primary Actions (Tier 1):** Two **Outline** buttons ("Add to Collection / Route" & "Mark Visited")
-  - Why: Signals equal importance for planning vs. logging
-  - Style: Clean outline, no heavy fills, reduces cognitive load
-- **Secondary Actions (Tier 2):** Two **Ghost** buttons ("Edit" & "Delete")
-  - Why: Accessible but de-emphasized
-  - Style: Text-only or subtle ghost variant
-- **Layout:** 2x2 Grid or stacked rows depending on space
-- **Icons:** Always use icons + text for clarity
+- **Primary Actions (Tier 1):** prominent **"Add to Day"** (Purple Gradient) when in Trip Planner context.
+- **Secondary Actions (Tier 2):** **Ghost** buttons ("Add", "Edit", "Delete")
+  - Why: Accessible but de-emphasized for a cleaner, more compact look.
+  - Style: Text-only or subtle ghost variant with minimal spacing.
+- **Layout:** Logical grouping - AI features at top, links in middle, actions at bottom.
+- **Icons:** Always use icons + text for clarity.
+
+### Ultra-Compact Dialog Layout (Jan 2026)
+**Design Philosophy:**
+Aggressively reduce whitespace to create a dense, iOS-native feel.
+- **Main container padding:** Reduced from `py-6` to `py-3`.
+- **Vertical spacing:** Reduced from `space-y-6` to `space-y-1.5` in action areas.
+- **Button heights:** Standardized at `h-9` for secondary actions.
 
 ### Drawer Structure (Refined Jan 2026)
 ```tsx
@@ -557,23 +555,16 @@ Uses Drawer component (not Dialog) for native iOS behavior:
   {/* Divider */}
   <div className="h-px bg-neutral-100 dark:bg-neutral-800 w-full" />
 
-  {/* Scrollable Content */}
-  <div className="px-6 py-6 space-y-6 overflow-y-auto">
-    {/* Route Notes (if any) */}
-    {/* Tips & Attribution (Centered) */}
+  {/* Scrollable Content (Ultra-Compact) */}
+  <div className="px-6 py-3 space-y-3 overflow-y-auto">
+    {/* AI Generation Feature (Isolated at top) */}
     
-    {/* Action Buttons Grid */}
-    <div className="space-y-3 pb-4">
-      {/* Tier 1: Add & Visited (Outline) */}
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline">Add...</Button>
-        <Button variant="outline">Mark Visited</Button>
-      </div>
-      {/* Tier 2: Edit & Delete (Ghost) */}
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="ghost">Edit</Button>
-        <Button variant="ghost">Delete</Button>
-      </div>
+    {/* Action Buttons & Links Group (space-y-1.5) */}
+    <div className="space-y-1.5">
+      {/* Links: Source & Website */}
+      {/* Primary Actions: Add & Edit (Ghost, h-9) */}
+      {/* Metadata: Recommended by */}
+      {/* Destructive Action: Delete (Ghost, h-9) */}
     </div>
   </div>
 </DrawerContent>

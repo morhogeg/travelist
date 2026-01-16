@@ -219,8 +219,8 @@ export const SourceInput: React.FC<SourceInputProps> = ({
                 <FormLabel>Link to Original (optional)</FormLabel>
                 <FormControl>
                   <ClearableInput
-                    type="url"
-                    placeholder="https://instagram.com/p/..."
+                    type="text"
+                    placeholder="instagram.com/p/..., article link, etc."
                     {...field}
                     value={field.value || ""}
                     onClear={() => form.setValue("source.url", "")}

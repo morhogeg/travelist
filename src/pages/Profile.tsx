@@ -223,7 +223,7 @@ const Profile = () => {
         {/* App Version */}
         <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground">
-            Travelist v1.0.0
+            Travelist AI v1.0.0
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Made with love for travelers

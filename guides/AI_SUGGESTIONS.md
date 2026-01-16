@@ -151,6 +151,7 @@ The mock provider includes city-specific suggestions for:
 
 - [x] Connect to real LLM provider (Grok 4.1 via OpenRouter)
 - [x] Directions button on suggestion cards (Google Maps)
+- [x] "Get info from Travelist AI" in details dialog for on-demand generation
 - [ ] Add user preference learning
 - [ ] Filter suggestions by category
 - [ ] Save dismissed suggestions to avoid re-showing
@@ -159,4 +160,4 @@ The mock provider includes city-specific suggestions for:
 
 ---
 
-Last Updated: November 2025
+Last Updated: January 2026

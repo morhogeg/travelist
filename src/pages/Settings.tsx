@@ -396,7 +396,7 @@ const Settings = () => {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground">
-            Travelist v1.0.0
+            Travelist AI v1.0.0
           </p>
         </div>
       </motion.div>

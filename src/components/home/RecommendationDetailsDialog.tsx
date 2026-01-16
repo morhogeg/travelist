@@ -5,10 +5,12 @@ import {
   DrawerContent,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, UserCircle, FolderPlus, MapPin } from "lucide-react";
+import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, UserCircle, FolderPlus, MapPin, ExternalLink, Sparkles, Loader2 } from "lucide-react";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import AddToDrawer from "@/components/common/AddToDrawer";
+import { generatePlaceDescription } from "@/services/ai/generatePlaceDescription";
+import { updateRecommendationMeta } from "@/utils/recommendation/recommendation-manager";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,9 +48,12 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const [isVisited, setIsVisited] = useState<boolean>(!!recommendation?.visited);
   const [showAddToDrawer, setShowAddToDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [localDescription, setLocalDescription] = useState<string | null>(null);
 
   useEffect(() => {
     setIsVisited(!!recommendation?.visited);
+    setLocalDescription(null); // Reset local description when recommendation changes
   }, [recommendation]);
 
   if (!recommendation) return null;
@@ -75,7 +80,24 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const handleExternalClick = (e: React.MouseEvent, url: string) => {
     e.preventDefault();
     e.stopPropagation();
-    window.open(url, "_blank", "noopener,noreferrer");
+    if (!url) {
+      console.warn('[External Link] No URL provided');
+      return;
+    }
+    // Add protocol if missing so browser can open it
+    let finalUrl = url.trim();
+    if (!finalUrl.match(/^https?:\/\//i)) {
+      finalUrl = `https://${finalUrl}`;
+    }
+    console.log('[External Link] Opening:', finalUrl);
+    // Create and click anchor for iOS Safari compatibility
+    const a = document.createElement('a');
+    a.href = finalUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
@@ -109,7 +131,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
             <div className="h-px bg-neutral-100 dark:bg-neutral-800 w-full" />
 
             {/* Content */}
-            <div className="px-6 py-6 space-y-6 overflow-y-auto">
+            <div className="px-6 py-3 space-y-3 overflow-y-auto">
               {routeNotes && (
                 <div className="px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30">
                   <p className="text-sm text-amber-800 dark:text-amber-300">
@@ -119,15 +141,142 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
               )}
 
               {/* Attribution/Tip */}
-              <div className="flex flex-col items-center gap-3 text-center">
-                {(recommendation.context?.specificTip || recommendation.description) && (
-                  <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 text-sm font-medium px-4">
+              <div className="flex flex-col items-center gap-2 text-center">
+                {/* Show existing description, AI-generated description, or generate button */}
+                {(recommendation.context?.specificTip || recommendation.description || localDescription) ? (
+                  <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium px-4">
                     <Lightbulb className="h-4 w-4 shrink-0" />
-                    <span>{recommendation.context?.specificTip || recommendation.description}</span>
+                    <span>{localDescription || recommendation.context?.specificTip || recommendation.description}</span>
+                    {/* Dismiss button - only show for AI-generated descriptions */}
+                    {localDescription && (
+                      <button
+                        onClick={() => {
+                          setLocalDescription(null);
+                          // Clear from storage
+                          if (recommendation.recId) {
+                            updateRecommendationMeta(recommendation.recId, { description: '' });
+                          }
+                        }}
+                        className="p-0.5 rounded-full hover:bg-amber-500/20 text-amber-500"
+                        aria-label="Remove AI description"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      setIsGeneratingDescription(true);
+                      const result = await generatePlaceDescription(
+                        recommendation.name,
+                        recommendation.city || '',
+                        recommendation.country || '',
+                        recommendation.category
+                      );
+                      setIsGeneratingDescription(false);
+                      if (result.description) {
+                        setLocalDescription(result.description);
+                        // Persist to storage and trigger home refresh
+                        if (recommendation.recId) {
+                          updateRecommendationMeta(recommendation.recId, {
+                            description: result.description
+                          });
+                          // Dispatch event to refresh home view
+                          window.dispatchEvent(new CustomEvent('recommendationUpdated'));
+                        }
+                      }
+                    }}
+                    disabled={isGeneratingDescription}
+                    className="flex items-center gap-1.5 text-[#667eea] text-sm hover:underline disabled:opacity-50"
+                  >
+                    {isGeneratingDescription ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Generating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        <span>Get info from Travelist AI</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Action Buttons and Links Section */}
+              <div className="space-y-1.5">
+                {/* Links - Source & Website */}
+                {(recommendation.source?.url || recommendation.website) && (
+                  <div className="flex items-center justify-center gap-4 text-sm">
+                    {recommendation.source?.url && (
+                      <button
+                        onClick={(e) => handleExternalClick(e, recommendation.source.url)}
+                        className="flex items-center gap-1.5 text-[#667eea] hover:underline"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        <span>Recommendation Source</span>
+                      </button>
+                    )}
+
+                    {recommendation.website && (
+                      <button
+                        onClick={(e) => handleExternalClick(e, recommendation.website!)}
+                        className="flex items-center gap-1.5 text-[#667eea] hover:underline"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        <span>Website</span>
+                      </button>
+                    )}
                   </div>
                 )}
+
+                {/* Primary Actions - Add & Edit */}
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
+                  {!onAddToTrip && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="h-9 rounded-xl text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        onClick={() => setShowAddToDrawer(true)}
+                      >
+                        <FolderPlus className="h-4 w-4 mr-1.5" />
+                        <span>Add</span>
+                        <MapPin className="h-4 w-4 ml-1.5" />
+                      </Button>
+
+                      {!hideEditDelete && (
+                        <Button
+                          variant="ghost"
+                          className="h-9 rounded-xl text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                          onClick={onEdit}
+                        >
+                          <Edit className="h-4 w-4 mr-1.5" />
+                          Edit
+                        </Button>
+                      )}
+                    </>
+                  )}
+
+                  {onAddToTrip && (
+                    <Button
+                      className="h-9 rounded-xl text-white font-medium col-span-2"
+                      style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                      onClick={() => {
+                        onAddToTrip();
+                        onClose();
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-1.5" />
+                      Add to Day
+                    </Button>
+                  )}
+                </div>
+
+                {/* Metadata - Recommended by */}
                 {recommendation.source?.name && (
-                  <div className="flex items-center gap-1.5 text-[#667eea] text-sm">
+                  <div className="flex items-center justify-center gap-1.5 text-[#667eea] text-sm">
                     <UserCircle className="h-4 w-4" />
                     <span>
                       Recommended by{" "}
@@ -140,75 +289,17 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                     </span>
                   </div>
                 )}
-              </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-3 pb-4">
-                {/* Primary Actions */}
-                <div className="grid grid-cols-2 gap-3">
-                  {!onAddToTrip && (
-                    <Button
-                      variant="outline"
-                      className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                      onClick={() => setShowAddToDrawer(true)}
-                    >
-                      <FolderPlus className="h-5 w-5 mr-2" />
-                      <span>Add</span>
-                      <MapPin className="h-5 w-5 ml-2" />
-                    </Button>
-                  )}
-
-                  {onAddToTrip && (
-                    <Button
-                      className="h-12 rounded-xl text-white font-medium col-span-2"
-                      style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
-                      onClick={() => {
-                        onAddToTrip();
-                        onClose();
-                      }}
-                    >
-                      <Plus className="h-5 w-5 mr-2" />
-                      Add to Day
-                    </Button>
-                  )}
-
-                  {!onAddToTrip && (
-                    <Button
-                      variant="outline"
-                      className="h-12 rounded-xl border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                      onClick={() => {
-                        const next = !isVisited;
-                        setIsVisited(next);
-                        onToggleVisited(recommendation.recId, recommendation.name, next);
-                      }}
-                    >
-                      <CheckCircle2 className="h-5 w-5 mr-2" />
-                      {isVisited ? 'Visited' : 'Mark Visited'}
-                    </Button>
-                  )}
-                </div>
-
-                {/* Secondary Actions */}
+                {/* Destructive Action - Delete */}
                 {!hideEditDelete && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="ghost"
-                      className="h-12 rounded-xl text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                      onClick={onEdit}
-                    >
-                      <Edit className="h-5 w-5 mr-2" />
-                      Edit
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      className="h-12 rounded-xl text-destructive/80 hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => setShowDeleteDialog(true)}
-                    >
-                      <Trash2 className="h-5 w-5 mr-2" />
-                      Delete
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full h-9 rounded-xl text-destructive/80 hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setShowDeleteDialog(true)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1.5" />
+                    Delete
+                  </Button>
                 )}
               </div>
             </div>

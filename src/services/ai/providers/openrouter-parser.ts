@@ -6,8 +6,14 @@ import { PlaceCategory } from '../types';
 import { SourceType, RecommendationSource } from '@/utils/recommendation/types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Gemma 3 27B via OpenRouter (free tier) - excellent JSON extraction
-const MODEL = 'google/gemma-3-27b-it:free';
+// Primary and fallback models for reliability (free tier)
+// Using the same model as AI suggestions for consistency
+const PRIMARY_MODEL = 'google/gemma-3-27b-it:free';
+const FALLBACK_MODELS = [
+  'google/gemma-2-9b-it:free',
+  'meta-llama/llama-3.2-3b-instruct:free',
+];
+const MODEL = PRIMARY_MODEL;
 
 export interface ParsedPlace {
   name: string;
@@ -81,13 +87,19 @@ Omit source field if no source mentioned. Omit tip field if no specific recommen
 
 const SHARE_SYSTEM_PROMPT = `${BASE_SYSTEM_PROMPT}
 
-Additional rules for shared text without guaranteed location:
-10. Infer CITY and COUNTRY only if the text clearly mentions them (e.g., "in Rome" → city: "Rome", country: "Italy" if obvious). If not present, leave city and country as empty strings.
-11. If only city is clear but country isn't, fill city and leave country empty.
-12. Never hallucinate locations; keep them blank if uncertain.
-13. Always include "city" and "country" keys in each object, even if blank strings.
+Additional rules for shared URLs and text:
+10. For Google Maps URLs (google.com/maps, goo.gl/maps):
+    - Extract the place NAME from the URL path (after /place/)
+    - Look for city name in the URL or infer from known places
+    - If the place is well-known (e.g., "Key Klub LA" or "Carmel Market"), use your knowledge to determine the city and country
+11. For Instagram/TikTok URLs: Extract account name or place if mentioned in the text
+12. USE your knowledge base: If a place name is recognizable (like "The Spotted Pig" = NYC, "Dishoom" = London, "Gelato Messina" = Sydney), fill in the city and country
+13. INFER location: If there's any hint or if the place is famous enough to know, provide city and country. Only leave blank if truly unknown
+14. ALWAYS try to provide a category based on the place name or context
+15. Keep confidence high (0.8-1.0) for well-known places
 
 Respond with a JSON array where each object includes: name, category, confidence, tip/description (optional), source (optional), city, country.`;
+
 
 /**
  * Parse free-text recommendations using Grok via OpenRouter
@@ -205,18 +217,46 @@ ${text}`;
 
 /**
  * Parse shared text (no guaranteed location) and infer city/country when present.
+ * Now includes fallback model logic for better reliability.
  */
 export async function parseSharedText(text: string): Promise<ParseResult> {
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    console.error('[DeepSeek Parser] OpenRouter API key not configured');
+    console.error('[Parser] OpenRouter API key not configured');
     return { places: [], error: 'API key not configured' };
   }
 
-  console.log('[DeepSeek Parser] Starting shared-text parse with model:', MODEL);
-  console.log('[DeepSeek Parser] Shared input:', text);
+  const modelsToTry = [PRIMARY_MODEL, ...FALLBACK_MODELS];
+  let lastError = 'Unknown error';
 
+  for (const model of modelsToTry) {
+    console.log('[Parser] Trying model:', model);
+
+    const result = await tryParseWithModel(text, model, apiKey);
+
+    if (result.places.length > 0 || !result.error) {
+      // Success or empty but valid response
+      return result;
+    }
+
+    console.warn(`[Parser] Model ${model} failed:`, result.error);
+    lastError = result.error || 'Unknown error';
+
+    // Don't retry on non-retryable errors
+    if (result.error?.includes('API key not configured')) {
+      return result;
+    }
+  }
+
+  console.error('[Parser] All models failed, returning last error');
+  return { places: [], error: lastError };
+}
+
+/**
+ * Internal helper: Try parsing with a specific model
+ */
+async function tryParseWithModel(text: string, model: string, apiKey: string): Promise<ParseResult> {
   const userPrompt = `A user shared this message. Extract place names and infer city/country if the text mentions them. If missing, leave city and country blank.
 
 Shared text:
@@ -232,7 +272,7 @@ ${text}`;
         'X-Title': 'Travelist App'
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: model,
         messages: [
           { role: 'system', content: SHARE_SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
@@ -244,12 +284,12 @@ ${text}`;
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('[DeepSeek Parser] Shared-text API error:', response.status, errorData);
-      return { places: [], error: `API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}` };
+      console.error('[Parser] API error:', response.status, errorData);
+      return { places: [], error: `API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}`, model };
     }
 
     const data = await response.json();
-    const actualModel = data.model || MODEL;
+    const actualModel = data.model || model;
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
@@ -263,9 +303,14 @@ ${text}`;
         .replace(/```\n?/g, '')
         .trim();
       parsed = JSON.parse(cleanContent);
+
+      // Ensure it's an array
+      if (!Array.isArray(parsed)) {
+        parsed = [parsed];
+      }
     } catch (e) {
-      console.error('[DeepSeek Parser] Failed to parse shared response:', content);
-      return { places: [], error: 'Failed to parse response', model: actualModel };
+      console.error('[Parser] Failed to parse response:', content);
+      return { places: [], error: 'Failed to parse AI response', model: actualModel };
     }
 
     const places: ParsedPlace[] = parsed
@@ -295,11 +340,11 @@ ${text}`;
         return place;
       });
 
-    console.log('[DeepSeek Parser] Shared-text parsed places:', places);
+    console.log('[Parser] Successfully parsed places:', places, 'with model:', actualModel);
     return { places, model: actualModel };
   } catch (error) {
-    console.error('[DeepSeek Parser] Shared-text network error:', error);
-    return { places: [], error: 'Network error' };
+    console.error('[Parser] Network error:', error);
+    return { places: [], error: 'Network error - please check your connection' };
   }
 }
 

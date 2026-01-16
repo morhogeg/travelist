@@ -12,24 +12,24 @@ interface SearchResultsProps {
 
 const SearchResults = ({ results, searchTerm, showResults, onResultClick }: SearchResultsProps) => {
   if (!showResults) return null;
-  
+
   if (results.length === 0 && searchTerm.trim() !== "") {
     return (
-      <div className="absolute z-10 mt-2 w-full bg-background border rounded-lg shadow-lg p-4 text-center">
+      <div className="absolute z-50 mt-2 w-full bg-background border rounded-lg shadow-lg p-4 text-center">
         <p className="text-muted-foreground">No places or recommendations found matching "{searchTerm}"</p>
       </div>
     );
   }
-  
+
   if (results.length === 0) return null;
-  
+
   return (
-    <div className="absolute z-10 mt-2 w-full bg-background border rounded-lg shadow-lg overflow-hidden max-h-[70vh] overflow-y-auto">
+    <div className="absolute z-50 mt-2 w-full bg-background border rounded-lg shadow-lg overflow-hidden max-h-[70vh] overflow-y-auto">
       {results.map(result => (
-        <SearchResultItem 
+        <SearchResultItem
           key={`${result.type}-${result.id}`}
-          result={result} 
-          onClick={onResultClick} 
+          result={result}
+          onClick={onResultClick}
         />
       ))}
     </div>

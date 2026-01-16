@@ -92,6 +92,7 @@ export const getFilteredRecommendations = async (
             image,
             category: place.category,
             description: place.description,
+            website: place.website,
             visited: !!place.visited,
             dateAdded: rec.dateAdded,
             country: rec.country,

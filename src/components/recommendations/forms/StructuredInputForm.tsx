@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Form } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import CategorySelection from "./CategorySelection";
 import CityInput from "./CityInput";
 import CountrySelect from "./CountrySelect";
@@ -17,6 +18,7 @@ import { formatWebsiteUrl } from "@/utils/countries";
 import { addToUserPlaces, getUserPlaces } from "@/utils/recommendation/user-places";
 import { addPlaceToCollection } from "@/utils/collections/collectionStore";
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
+import { useToast } from "@/hooks/use-toast";
 
 interface StructuredInputFormProps {
   onSubmit: (values: FormValues) => void;
@@ -33,6 +35,7 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   isAnalyzing = false,
   editRecommendation = null,
 }) => {
+  const { toast } = useToast();
   const form = useForm<FormValues>({
     resolver: zodResolver(structuredFormSchema),
     defaultValues: {
@@ -108,10 +111,6 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
   }, [editRecommendation, initialCity, initialCountry]);
 
   const handleSubmit = (values: FormValues) => {
-    console.log("📋 FORM SUBMIT - Raw values:", values);
-    console.log("📋 Form source:", values.source);
-    console.log("📋 Form context:", values.context);
-
     if (values.website) {
       values.website = formatWebsiteUrl(values.website);
     }
@@ -139,7 +138,12 @@ export const StructuredInputForm: React.FC<StructuredInputFormProps> = ({
         <CountrySelect form={form} initialCountry={initialCountry} />
         <CategorySelection form={form} />
         <SourceInput form={form} initialSource={editRecommendation?.source} />
-        <ContextInput form={form} initialContext={getContextWithTip()} />
+
+        <ContextInput
+          form={form}
+          initialContext={getContextWithTip()}
+          initialWebsite={editRecommendation?.website}
+        />
 
         {/* Show date added when editing (read-only) */}
         {editRecommendation?.dateAdded && (

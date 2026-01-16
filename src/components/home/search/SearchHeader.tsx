@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import { SearchResult, SearchHeaderProps } from "./types";
 import SearchInput from "./SearchInput";
 import SearchResults from "./SearchResults";
 import countryToCode from "@/utils/flags/countryToCode";
-import { ArrowLeft, Search as SearchIcon } from "lucide-react";
-import { lightHaptic } from "@/utils/ios/haptics";
+import { ArrowLeft } from "lucide-react";
 import { FilterButton } from "@/components/home/filters";
 
 interface ExtendedSearchHeaderProps extends SearchHeaderProps {
   activeFilterCount?: number;
   onFilterClick?: () => void;
+  scrollOpacity?: number;
 }
 
-const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: ExtendedSearchHeaderProps) => {
+const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpacity = 1 }: ExtendedSearchHeaderProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,7 +60,6 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: Extende
     function handleClickOutside(event: MouseEvent) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowResults(false);
-        setIsSearchExpanded(false);
         setSearchTerm("");
       }
     }
@@ -115,19 +114,17 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: Extende
   };
 
   const handleResultClick = (result: SearchResult) => {
-    if (result.type === 'place' && result.id) navigate(`/place/${result.id}`);
-    else if (result.type === 'recommendation' && result.cityId) {
-      navigate(`/place/${result.cityId}`);
-      setTimeout(() => {
-        if (result.id) {
-          const el = document.getElementById(`rec-${result.id}`);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            el.classList.add('highlight-recommendation');
-            setTimeout(() => el.classList.remove('highlight-recommendation'), 2000);
-          }
+    if (result.type === 'place' && result.id) {
+      navigate(`/place/${result.id}`);
+    } else if (result.type === 'recommendation') {
+      // Dispatch event to open the recommendation details dialog
+      window.dispatchEvent(new CustomEvent('openRecommendationDetails', {
+        detail: {
+          id: result.id,
+          placeId: result.placeId,
+          cityId: result.cityId
         }
-      }, 500);
+      }));
     }
     setSearchTerm("");
     setShowResults(false);
@@ -137,18 +134,9 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: Extende
     setSearchTerm("");
     setSearchResults([]);
     setShowResults(false);
-    setIsSearchExpanded(false);
   };
 
-  const toggleSearch = () => {
-    lightHaptic();
-    setIsSearchExpanded(!isSearchExpanded);
-    if (isSearchExpanded) {
-      setSearchTerm("");
-      setSearchResults([]);
-      setShowResults(false);
-    }
-  };
+
 
   const getFlag = (country: string | null): string => {
     if (!country) return "";
@@ -158,7 +146,16 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: Extende
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="px-4 pt-3 pb-4 relative">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: scrollOpacity, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="px-4 pt-3 pb-2 relative"
+      style={{
+        pointerEvents: scrollOpacity < 0.1 ? 'none' : 'auto',
+        transition: 'opacity 0.15s ease-out'
+      }}
+    >
       {(isCityView || countryName) && (
         <button
           onClick={() => navigate(-1)}
@@ -168,28 +165,7 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: Extende
         </button>
       )}
 
-      {/* Search Icon Button - only on home view */}
-      {!(isCityView || countryName) && !isSearchExpanded && (
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={toggleSearch}
-          className="absolute left-3 top-3 min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 z-40 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
-          aria-label="Open search"
-        >
-          <SearchIcon className="h-5 w-5" />
-        </motion.button>
-      )}
-
-      {/* Filter Button - only on home view, positioned top-right */}
-      {!(isCityView || countryName) && !isSearchExpanded && onFilterClick && (
-        <div className="absolute right-3 top-3 z-40">
-          <FilterButton
-            activeCount={activeFilterCount}
-            onClick={onFilterClick}
-          />
-        </div>
-      )}
-
+      {/* Heading */}
       <div className="flex items-center gap-4">
         <div className={`flex-1 ${!(isCityView || countryName) ? 'text-center' : 'pl-10'}`}>
           {countryName && !isCityView ? (
@@ -204,28 +180,29 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick }: Extende
             </h1>
           ) : (
             <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              {heading || "Travelist"}
+              {heading || "Travelist AI"}
             </h1>
           )}
         </div>
       </div>
 
-      {/* Expandable Search Bar */}
-      <AnimatePresence>
-        {isSearchExpanded && !(isCityView || countryName) && (
-          <motion.div
-            ref={searchContainerRef}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="mt-4 relative overflow-hidden"
-          >
-            <SearchInput searchTerm={searchTerm} onChange={handleSearch} onClear={clearSearch} />
-            <SearchResults results={searchResults} searchTerm={searchTerm} showResults={showResults} onResultClick={handleResultClick} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Always-visible Search Bar + Filter (home view only) */}
+      {!(isCityView || countryName) && (
+        <div ref={searchContainerRef} className="mt-3 relative">
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <SearchInput searchTerm={searchTerm} onChange={handleSearch} onClear={clearSearch} />
+            </div>
+            {onFilterClick && (
+              <FilterButton
+                activeCount={activeFilterCount}
+                onClick={onFilterClick}
+              />
+            )}
+          </div>
+          <SearchResults results={searchResults} searchTerm={searchTerm} showResults={showResults} onResultClick={handleResultClick} />
+        </div>
+      )}
     </motion.div>
   );
 };

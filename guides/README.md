@@ -145,6 +145,9 @@ When starting a new session, user might say:
 ✅ Share Extension working
 ✅ Onboarding flow redesigned (5 screens)
 ✅ AI trip planning with Travelist AI
+✅ Always-visible search bar and scroll fade effect
+✅ Dynamic country search with autocomplete
+✅ Compact recommendation details dialog with on-demand AI generation
 
 **Next Priorities:**
 1. Bug fixes from TestFlight testing
