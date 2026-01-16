@@ -9,6 +9,19 @@ All notable changes to the Travelist iOS app will be documented in this file.
 > **Instructions:** Add features/fixes here as they're completed. Move to versioned section when TestFlight is uploaded.
 
 ### ✨ Added
+- (none yet)
+
+### 🐛 Fixed
+- (none yet)
+
+### 🔧 Changed
+- (none yet)
+
+---
+
+## [Build 4] - 2026-01-16
+
+### ✨ Added
 - **App Rebranding** - Renamed app to **Travelist AI** throughout the UI
 - **Home View Search Bar Redesign** - Replaced expandable search icon with an always-visible search bar for better discoverability
 - **Scroll Fade Effect** - Header and search bar now fade out elegantly as you scroll down
