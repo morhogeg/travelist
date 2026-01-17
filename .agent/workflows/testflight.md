@@ -51,7 +51,7 @@ npx cap open ios
 | Build | Date | Changes |
 |-------|------|---------|
 | 1 | Jan 9, 2026 | Initial TestFlight upload |
-| 2 | | |
+| 4 | Jan 16, 2026 | Rebranding, Search Redesign, Proximity Notifications, Share Fix |
 
 ---
 
