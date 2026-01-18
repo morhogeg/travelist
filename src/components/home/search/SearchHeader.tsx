@@ -183,7 +183,7 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
               {cityName}, {countryName}
             </h1>
           ) : (
-            <h1 className="text-[28px] font-semibold tracking-[-0.01em] text-red-500">
+            <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
               {heading || "Travelist AI"}
             </h1>
           )}
