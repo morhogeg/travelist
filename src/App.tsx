@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AnimatePresence } from "framer-motion";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
-import { OnboardingFlow, isOnboardingComplete, resetOnboarding } from "@/components/onboarding";
+import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
 import { syncSupabaseRecommendationsOnce, getRecommendations } from "@/utils/recommendation/recommendation-manager";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
@@ -53,7 +53,7 @@ function AppContent() {
   const [showProximityCard, setShowProximityCard] = useState(false);
 
   // Automatically manage status bar based on theme
-  useStatusBarTheme(theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+  useStatusBarTheme(theme === 'dark' ? 'dark' : 'light');
 
   // One-time sync with Supabase when signed in
   useEffect(() => {
@@ -117,7 +117,7 @@ function AppContent() {
 
     return () => {
       isMounted = false;
-      sub?.remove();
+      sub.then(h => h.remove());
     };
   }, [toast]);
 
@@ -152,7 +152,7 @@ function AppContent() {
     });
 
     return () => {
-      listener?.remove();
+      listener.then(h => h.remove());
     };
   }, [toast, navigate]);
 
