@@ -13,8 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Antigravity
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          /Users/morhogeg/.antigravity/antigravity/bin/antigravity run \
-            --issue-number "${{ github.event.issue.number || '0' }}" \
-            --comment-body "${{ github.event.comment.body || 'No Body' }}" \
-            --branch "ai-dev/${{ github.event.issue.number || 'manual' }}"
+          ./scripts/bridge_worker.sh "${{ github.event.issue.number || '0' }}" "${{ github.event.comment.body || 'Manual Trigger' }}"

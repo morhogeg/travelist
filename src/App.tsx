@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AnimatePresence } from "framer-motion";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
-import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
+import { OnboardingFlow, isOnboardingComplete, resetOnboarding } from "@/components/onboarding";
 import { syncSupabaseRecommendationsOnce, getRecommendations } from "@/utils/recommendation/recommendation-manager";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
@@ -45,7 +45,7 @@ function AppContent() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
-  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
 
   // Proximity notification - place card state
@@ -130,6 +130,23 @@ function AppContent() {
         const incoming = new URL(url);
         // For custom schemes, host often carries the "path" (e.g., travelist://share?text=...)
         const path = incoming.pathname.replace(/^\//, '') || incoming.host;
+
+        if (path === 'reset-onboarding') {
+          resetOnboarding();
+          setShowOnboarding(true);
+          return;
+        }
+
+        if (path === 'profile') {
+          navigate('/profile');
+          return;
+        }
+
+        if (path === 'settings') {
+          navigate('/settings');
+          return;
+        }
+
         if (path !== 'share') return;
 
         const text = incoming.searchParams.get('text') || incoming.searchParams.get('sharedText');

@@ -19,6 +19,25 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ---
 
+## [Build 5] - 2026-01-18
+
+### ✨ Added
+- **Complete Onboarding Redesign** - A focused 7-step flow highlighting the app's top features
+  - **New Welcome Screen**: Clearly explains the app's purpose as your "Personal Travel Memory"
+  - **Share to Save & AI Parsing**: Combined screen showing how to save from any app with automatic detail extraction
+  - **AI Magic**: Showcases freeform text-to-card generation ("Just type what you heard")
+  - **Proximity Alerts**: Introduces the "Never Miss a Spot" notification feature
+  - **Refined Gestures**: Polished swipe tutorial for organizing places
+  - **Enhanced Navigation**: Impactful "Export to Maps" presentation
+- **Onboarding Reset for Testing**: Added `resetOnboarding` event for developers to re-trigger the flow
+
+### 🔧 Changed
+- **Premium Aesthetic**: Updated all onboarding screens with the "Liquid Glass" and "Purple Gradient" design system
+- **Streamlined Flow**: Reduced onboarding from 8 to 7 steps by consolidating redundant share slides
+- **Cleaned Up Codebase**: Removed 4 deprecated onboarding screen files
+
+---
+
 ## [Build 4] - 2026-01-16
 
 ### ✨ Added
