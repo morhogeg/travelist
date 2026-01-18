@@ -7,9 +7,11 @@ interface SearchInputProps {
   searchTerm: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
-const SearchInput = ({ searchTerm, onChange, onClear }: SearchInputProps) => {
+const SearchInput = ({ searchTerm, onChange, onClear, onFocus, onBlur }: SearchInputProps) => {
   return (
     <div className="relative">
       <Search className="absolute left-4 top-3.5 h-5 w-5 text-neutral-500 dark:text-neutral-400" />
@@ -19,6 +21,8 @@ const SearchInput = ({ searchTerm, onChange, onClear }: SearchInputProps) => {
         className="w-full liquid-glass-clear border-white/20 dark:border-white/10 pl-12 pr-10 py-6 rounded-2xl text-sm placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#667eea]/30 focus:border-[#667eea]/50 ios26-transition-smooth"
         value={searchTerm}
         onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
 
       {searchTerm.length > 0 && (

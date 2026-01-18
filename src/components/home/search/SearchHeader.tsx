@@ -67,6 +67,19 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleFocus = () => {
+    window.dispatchEvent(new CustomEvent("navbar:hide"));
+    window.dispatchEvent(new CustomEvent("fab:hide"));
+  };
+
+  const handleBlur = () => {
+    // Only show if no search term (e.g. user just tapped and left without typing)
+    if (searchTerm.trim().length === 0) {
+      window.dispatchEvent(new CustomEvent("navbar:show"));
+      window.dispatchEvent(new CustomEvent("fab:show"));
+    }
+  };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
@@ -108,10 +121,11 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
       setSearchResults([...filteredPlaces, ...filteredRecommendations]);
       setShowResults(true);
       window.dispatchEvent(new CustomEvent("navbar:hide"));
+      window.dispatchEvent(new CustomEvent("fab:hide"));
     } else {
       setSearchResults([]);
       setShowResults(false);
-      window.dispatchEvent(new CustomEvent("navbar:show"));
+      // Do not show navbar here, rely on blur
     }
   };
 
@@ -131,6 +145,7 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
     setSearchTerm("");
     setShowResults(false);
     window.dispatchEvent(new CustomEvent("navbar:show"));
+    window.dispatchEvent(new CustomEvent("fab:show"));
   };
 
   const clearSearch = () => {
@@ -138,6 +153,7 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
     setSearchResults([]);
     setShowResults(false);
     window.dispatchEvent(new CustomEvent("navbar:show"));
+    window.dispatchEvent(new CustomEvent("fab:show"));
   };
 
 
@@ -195,7 +211,13 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
         <div ref={searchContainerRef} className="mt-3 relative">
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <SearchInput searchTerm={searchTerm} onChange={handleSearch} onClear={clearSearch} />
+              <SearchInput 
+                searchTerm={searchTerm} 
+                onChange={handleSearch} 
+                onClear={clearSearch} 
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+              />
             </div>
             {onFilterClick && (
               <FilterButton
