@@ -1,26 +1,12 @@
-name: Antigravity Bridge
+name: Antigravity Test
 
 on:
   push:
-    branches: [main]
-  issue_comment:
-    types: [created, edited]
   workflow_dispatch:
 
 jobs:
-  antigravity:
+  test:
     runs-on: self-hosted
     steps:
-      - name: Debug Info
-        run: |
-          echo "Comment body: ${{ github.event.comment.body }}"
-          echo "PATH: $PATH"
-          ls -la /Users/morhogeg/.antigravity/antigravity/bin/antigravity || echo "Antigravity not found at full path"
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Antigravity
-        if: contains(toLower(github.event.comment.body), '@gemini-bot')
-        run: |
-          /Users/morhogeg/.antigravity/antigravity/bin/antigravity run --issue-number ${{ github.event.issue.number }} --comment-body "${{ github.event.comment.body }}" --branch "ai-dev/${{ github.event.issue.number }}"
+      - name: Hello World
+        run: echo "The bridge is alive!"
