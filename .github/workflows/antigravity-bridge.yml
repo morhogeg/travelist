@@ -6,12 +6,18 @@ on:
 
 jobs:
   antigravity:
-    if: contains(toLower(github.event.comment.body), '@gemini-bot')
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
+      - name: Debug Info
+        run: |
+          echo "Comment body: ${{ github.event.comment.body }}"
+          echo "PATH: $PATH"
+          ls -la /Users/morhogeg/.antigravity/antigravity/bin/antigravity || echo "Antigravity not found at full path"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Antigravity
+        if: contains(toLower(github.event.comment.body), '@gemini-bot')
         run: |
-          antigravity run --issue-number ${{ github.event.issue.number }} --comment-body "${{ github.event.comment.body }}" --branch "ai-dev/${{ github.event.issue.number }}"
+          /Users/morhogeg/.antigravity/antigravity/bin/antigravity run --issue-number ${{ github.event.issue.number }} --comment-body "${{ github.event.comment.body }}" --branch "ai-dev/${{ github.event.issue.number }}"
