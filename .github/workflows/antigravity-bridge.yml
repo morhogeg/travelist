@@ -6,7 +6,7 @@ on:
 
 jobs:
   antigravity:
-    if: contains(github.event.comment.body, '@gemini-bot')
+    if: contains(github.event.comment.body, '@gemini-bot') || contains(github.event.comment.body, '@Gemini-bot')
     runs-on: self-hosted
     steps:
       - name: Checkout code
