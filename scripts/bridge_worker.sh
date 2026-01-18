@@ -12,7 +12,11 @@ echo "📝 Comment: $COMMENT_BODY"
 
 # 1. Setup Git
 echo "📂 Setting up branch $BRANCH..."
-git checkout -b "$BRANCH" || git checkout "$BRANCH"
+if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+    git checkout "$BRANCH"
+else
+    git checkout -b "$BRANCH"
+fi
 
 # 2. Run Gemini
 echo "🤖 Running Gemini Agent..."
