@@ -8,6 +8,7 @@ import { getCollections } from "@/utils/collections/collectionStore";
 import { getGroupedRoutes } from "@/utils/route/route-manager";
 import { TravelStoryCard } from "@/components/story";
 import { supabase } from "@/lib/supabase";
+import { resetOnboarding } from "@/components/onboarding";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -213,7 +214,7 @@ const Profile = () => {
             label="View Welcome Tour"
             subtitle="See the app introduction again"
             onClick={() => {
-              localStorage.removeItem('onboarding_completed');
+              resetOnboarding();
               window.dispatchEvent(new CustomEvent('resetOnboarding'));
             }}
             isLast
