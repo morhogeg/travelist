@@ -5,7 +5,7 @@ The Mobile-to-IDE bridge allows you to trigger AI tasks from your iPhone (via Gi
 ## 🚀 The Workflow
 
 ### 1. On your iPhone (GitHub App)
-- **Create an Issue**: You can trigger the bot directly by creating a new GitHub Issue. The bot will use the **Issue Description** as its instruction.
+- **Create an Issue**: You can trigger the bot directly by creating a new GitHub Issue. To prevent accidental triggers, you **must** include `@Gemini-bot` (or just `@`) in the issue description.
 - **Tag the Bot in Comments**: You can also trigger the bot by tagging `@Gemini-bot` in any comment on an existing issue.
   - *Example*: `@Gemini-bot make the headline on the home screen green`
 - **Wait for Report**: The bot will process the request on your Mac (via the self-hosted runner) and post a **Mission Report** back to the issue when finished.
@@ -13,6 +13,12 @@ The Mobile-to-IDE bridge allows you to trigger AI tasks from your iPhone (via Gi
 > [!TIP]
 > **One Issue vs. Many?**
 > It is recommended to create a **new issue** for each distinct feature or bug. This keeps the code branches isolated and makes it easier to "Approve" or "Deny" specific changes without affecting others.
+
+> [!NOTE]
+> **Requesting a Plan (No Code Changes)**
+> If you want the AI to devise a plan without changing any code, simply use keywords like "Plan", "Devise a plan", or "Research" in your request.
+> *Example*: `@Gemini-bot devise a plan to implement a dark mode toggle.`
+> The bot will create a markdown file with the plan for you to review.
 
 ---
 
