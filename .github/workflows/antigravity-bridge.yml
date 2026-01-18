@@ -3,10 +3,11 @@ name: Antigravity Bridge
 on:
   issue_comment:
     types: [created, edited]
+  workflow_dispatch:
 
 jobs:
   antigravity:
-    runs-on: [self-hosted, macOS, ARM64]
+    runs-on: self-hosted
     steps:
       - name: Debug Info
         run: |
