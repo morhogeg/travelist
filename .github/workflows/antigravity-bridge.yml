@@ -2,7 +2,7 @@ name: Antigravity Bridge
 
 on:
   issue_comment:
-    types: [created]
+    types: [created, edited]
 
 jobs:
   antigravity:
