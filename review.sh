@@ -34,6 +34,10 @@ case $COMMAND in
         echo "🔄 Fetching $BRANCH..."
         git fetch origin
         git checkout "$BRANCH" || git checkout -b "$BRANCH" "origin/$BRANCH"
+        
+        echo "🏗️ Building web assets..."
+        npm run build
+        
         echo "📦 Syncing with iOS..."
         npx cap sync ios
         echo "🚀 Opening Xcode..."
