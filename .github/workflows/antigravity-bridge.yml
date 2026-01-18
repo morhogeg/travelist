@@ -1,6 +1,8 @@
 name: Antigravity Bridge
 
 on:
+  push:
+    branches: [main]
   issue_comment:
     types: [created, edited]
   workflow_dispatch:
