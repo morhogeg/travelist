@@ -7,6 +7,7 @@ class ShareViewController: UIViewController {
     
     private var sharedText: String = ""
     private var displayTitle: String = ""
+    private var hasSaved = false
     
     // UI Components
     private let containerView = UIView()
@@ -19,6 +20,12 @@ class ShareViewController: UIViewController {
     private let saveButton = UIButton(type: .system)
     private let cancelButton = UIButton(type: .system)
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    
+    private struct FoundContent {
+        let text: String
+        let url: URL?
+        let priority: Int // 2 for direct URL, 1 for text with URL, 0 for plain text
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -135,16 +142,6 @@ class ShareViewController: UIViewController {
             dividerView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 16),
             dividerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
             dividerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            dividerView.heightAnchor.constraint(equalToConstant: 0.5),
-            
-            placeNameLabel.topAnchor.constraint(equalTo: dividerView.bottomAnchor, constant: 16),
-            placeNameLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            placeNameLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            
-            locationLabel.topAnchor.constraint(equalTo: placeNameLabel.bottomAnchor, constant: 4),
-            locationLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            locationLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            
             saveButton.topAnchor.constraint(equalTo: locationLabel.bottomAnchor, constant: 20),
             saveButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
             saveButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
@@ -187,43 +184,69 @@ class ShareViewController: UIViewController {
         
         NSLog("[ShareExtension] 📦 Found \(attachments.count) attachment(s)")
         
-        // Try to get URL first (most reliable)
+        let group = DispatchGroup()
+        var foundItems: [FoundContent] = []
+        let lock = NSLock()
+        
         for provider in attachments {
+            // Check for URL
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (item, error) in
-                    DispatchQueue.main.async {
-                        if let url = item as? URL {
-                            self?.handleURL(url)
-                        } else if let urlString = item as? String, let url = URL(string: urlString) {
-                            self?.handleURL(url)
-                        }
+                group.enter()
+                provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { (item, error) in
+                    defer { group.leave() }
+                    if let url = item as? URL {
+                        lock.lock()
+                        foundItems.append(FoundContent(text: url.absoluteString, url: url, priority: 2))
+                        lock.unlock()
+                    } else if let urlString = item as? String, let url = URL(string: urlString) {
+                        lock.lock()
+                        foundItems.append(FoundContent(text: urlString, url: url, priority: 2))
+                        lock.unlock()
                     }
                 }
-                return
+            } 
+            // Check for Plain Text
+            else if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                group.enter()
+                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { (item, error) in
+                    defer {
+                        group.leave()
+                    }
+                    if let text = item as? String {
+                        lock.lock()
+                        foundItems.append(FoundContent(text: text, url: nil, priority: 0))
+                        lock.unlock()
+                    }
+                }
             }
         }
         
-        // Try plain text as fallback
-        for provider in attachments {
-            if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] (item, error) in
-                    DispatchQueue.main.async {
-                        if let text = item as? String {
-                            // Check if the text contains a URL
-                            if let url = self?.extractURL(from: text) {
-                                self?.handleURL(url)
-                            } else {
-                                self?.sharedText = text
-                                self?.placeNameLabel.text = String(text.prefix(60))
-                            }
-                        }
-                    }
-                }
-                return
-            }
+        group.notify(queue: .main) { [weak self] in
+            self?.processFoundItems(foundItems)
+        }
+    }
+    
+    private func processFoundItems(_ items: [FoundContent]) {
+        // Sort by priority (descending)
+        let sortedItems = items.sorted { $0.priority > $1.priority }
+        
+        guard let bestItem = sortedItems.first else {
+            placeNameLabel.text = "Unable to extract content"
+            return
         }
         
-        placeNameLabel.text = "Unable to extract content"
+        // Use the best item
+        if let url = bestItem.url {
+            handleURL(url)
+        } else {
+            // Check if text contains URL
+            if let url = extractURL(from: bestItem.text) {
+                handleURL(url)
+            } else {
+                sharedText = bestItem.text
+                placeNameLabel.text = String(bestItem.text.prefix(60))
+            }
+        }
     }
     
     private func extractURL(from text: String) -> URL? {
@@ -423,10 +446,14 @@ class ShareViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func saveTapped() {
+        guard !hasSaved else { return }
+        
         guard !sharedText.isEmpty else {
             cancelTapped()
             return
         }
+        
+        hasSaved = true
         
         saveButton.setTitle("", for: .normal)
         activityIndicator.startAnimating()
