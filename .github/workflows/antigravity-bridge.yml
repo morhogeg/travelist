@@ -1,12 +1,25 @@
-name: Antigravity Test
+name: Antigravity Bridge
 
 on:
   push:
+    branches: [main]
+  issue_comment:
+    types: [created, edited]
   workflow_dispatch:
 
 jobs:
-  test:
+  antigravity:
     runs-on: self-hosted
     steps:
-      - name: Hello World
-        run: echo "The bridge is alive!"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Antigravity
+        if: |
+          github.event_name == 'push' ||
+          github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'issue_comment' && 
+           (contains(github.event.comment.body, '@gemini-bot') || 
+            contains(github.event.comment.body, '@Gemini-bot')))
+        run: |
+          /Users/morhogeg/.antigravity/antigravity/bin/antigravity run --issue-number "${{ github.event.issue.number || '0' }}" --comment-body "${{ github.event.comment.body || 'Manual Trigger' }}" --branch "ai-dev/${{ github.event.issue.number || 'manual' }}"
