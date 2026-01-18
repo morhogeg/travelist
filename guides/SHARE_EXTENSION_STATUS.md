@@ -4,6 +4,10 @@
 - Inbox feature exists in the app (page + navigation) and can be viewed when built with the current web bundle.
 - Deep link share via `travelist://share?text=...` lands items in Inbox and creates cards.
 - iOS Share Extension installs, shows in the share sheet, and saves shared text/URLs to the App Group (`group.com.travelist.shared`).
+- **Shortened URLs** (e.g., `maps.app.goo.gl`) are now automatically expanded to full URLs to extract place names.
+- **AI Parsing** is strictly controlled to prevent hallucination; it returns empty results instead of guessing if data is missing.
+- **Local Fallback** parsing extracts place names from Google Maps, Yelp, and TripAdvisor URLs even if AI fails.
+- **Duplicate Prevention**: Multi-layered check (store-level, import lock, and UI listener consolidation) ensures items only appear once.
 - Import from the App Group into the Inbox now works (toast appears, items show) when the app returns to foreground.
 - Inbox list shows friendly titles/addresses for shared links; opening an item auto-parses and pre-fills the form, with link/open/delete actions aligned on the right.
 - Inbox page uses the same centered gradient header style as Collections/Routes for consistent iOS UI.
@@ -28,12 +32,18 @@
 - App Groups capability must be enabled on both App + ShareExtension targets; otherwise `UserDefaults(suiteName:)` returns empty.
 - Running `npx cap copy ios` without patching the generated config drops the `SharedInboxPlugin`. Use the provided script/command to keep it.
 - **Intermittent failures** were caused by: deprecated `.synchronize()` not guaranteeing data writes, extension being terminated before async saves completed, and no proper error handling.
+- **URL Shorteners**: Google Maps shortened links (`goo.gl`) didn't contain place names in the path, causing AI to hallucinate.
 
 ## Fix applied
 - `capacitor.config.ts` and generated `ios/App/App/capacitor.config.json` include `SharedInboxPlugin` in `packageClassList`.
 - **January 2026 Capacitor 7 fix**: Local plugins in Capacitor 7 must be manually registered. `SharedInboxPlugin.swift` now uses `CAPBridgedPlugin` protocol (same as official plugins) and is registered in `MyViewController.capacitorDidLoad()` via `bridge?.registerPluginInstance(SharedInboxPlugin())`.
 - App + ShareExtension targets have App Group `group.com.travelist.shared` enabled.
 - **December 2025 reliability fix**: `ShareViewController.swift` now uses `DispatchGroup` for proper async handling, `CFPreferencesAppSynchronize` for reliable saves, duplicate detection, and comprehensive NSLog debugging.
+- **January 18, 2026 Bulletproof Fix**:
+  - Added URL expansion in `ShareViewController.swift` to resolve shortened links.
+  - Updated AI parser prompt to strictly prevent hallucination.
+  - Added local URL parsing fallback in `inbox-store.ts`.
+  - Implemented import locking and store-level duplicate checking to prevent triplication.
 
 ## Easy Testing Workflow
 
@@ -47,17 +57,15 @@
 ```bash
 # Test with plain text
 npm run share:test
-
 # Test with a Google Maps URL
 npm run share:test:url
-
 # Or manually:
 xcrun simctl openurl booted 'travelist://share?text=YOUR_TEXT_HERE'
 ```
 
 ### Option 3: Native Share Extension (Full flow)
 1. Build and run the **App** scheme (not ShareExtension!)
-2. Open Safari, share a URL → Travelist
+2. Open Safari or Google Maps, share a URL → Travelist
 3. Return to app, verify toast appears
 4. Check Console.app for `[ShareExtension]` logs to confirm data flow
 
@@ -125,3 +133,12 @@ Root cause: Capacitor 7 doesn't auto-discover local Swift plugins. The fix:
 - Updated `SharedInboxPlugin.swift` to use `CAPBridgedPlugin` protocol (same as official plugins)
 - Added manual registration in `MyViewController.capacitorDidLoad()`: `bridge?.registerPluginInstance(SharedInboxPlugin())`
 - Verified storyboard uses `MyViewController` as custom class
+- Verified App Groups must be enabled on both App + ShareExtension targets
+
+### January 18, 2026 - Share Extension Reliability & AI Parsing Fix
+**Status: ✅ Fixed URL Expansion, AI Hallucination, and Duplicates**
+
+- **URL Expansion**: `ShareViewController.swift` now expands shortened Google Maps links (`maps.app.goo.gl`) to extract place names.
+- **AI Parser**: Updated prompt to strictly prevent hallucination. It returns `[]` if no real place data is found.
+- **Local Fallback**: `inbox-store.ts` now includes regex-based parsing for Google Maps, Yelp, and TripAdvisor as a fallback.
+- **Duplicate Fix**: Added store-level duplicate checking and import locking to prevent items from appearing multiple times.

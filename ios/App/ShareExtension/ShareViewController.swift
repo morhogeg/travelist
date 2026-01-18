@@ -176,31 +176,10 @@ class ShareViewController: UIViewController {
         placeNameLabel.text = "Loading..."
         locationLabel.text = ""
         
-        NSLog("[ShareExtension] 🔍 Starting to extract shared content")
+        NSLog("[ShareExtension] 🔍 Starting content extraction")
         
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem else {
-            NSLog("[ShareExtension] ❌ No extension items found")
-            placeNameLabel.text = "No content"
-            return
-        }
-        
-        // Log attributes map
-        if let userInfo = extensionItem.userInfo {
-            NSLog("[ShareExtension] 📋 UserInfo keys: \(userInfo.keys)")
-            for (key, value) in userInfo {
-                NSLog("[ShareExtension] 📋   - \(key): \(type(of: value))")
-            }
-        }
-        
-        if let attributedTitle = extensionItem.attributedTitle {
-            NSLog("[ShareExtension] 📌 Attributed title: \(attributedTitle.string)")
-        }
-        
-        if let attributedContentText = extensionItem.attributedContentText {
-            NSLog("[ShareExtension] 📝 Attributed content: \(attributedContentText.string)")
-        }
-        
-        guard let attachments = extensionItem.attachments else {
+        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
+              let attachments = extensionItem.attachments else {
             NSLog("[ShareExtension] ❌ No attachments found")
             placeNameLabel.text = "No content"
             return
@@ -208,95 +187,15 @@ class ShareViewController: UIViewController {
         
         NSLog("[ShareExtension] 📦 Found \(attachments.count) attachment(s)")
         
-        // Log all available type identifiers for each attachment
-        for (index, provider) in attachments.enumerated() {
-            NSLog("[ShareExtension] 📦 Attachment \(index) type identifiers:")
-            for identifier in provider.registeredTypeIdentifiers {
-                NSLog("[ShareExtension] 📦   - \(identifier)")
-            }
-        }
-        
-        // Try property list first (Google Maps uses this)
-        for provider in attachments {
-            if provider.hasItemConformingToTypeIdentifier("com.apple.property-list") {
-                NSLog("[ShareExtension] 📋 Found property-list type attachment")
-                provider.loadItem(forTypeIdentifier: "com.apple.property-list", options: nil) { [weak self] (item, error) in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            NSLog("[ShareExtension] ❌ Error loading property list: \(error.localizedDescription)")
-                        }
-                        if let data = item as? Data {
-                            NSLog("[ShareExtension] 📦 Loaded property list data: \(data.count) bytes")
-                            do {
-                                if let dict = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] {
-                                    NSLog("[ShareExtension] 📋 Property list keys: \(dict.keys)")
-                                    for (key, value) in dict {
-                                        NSLog("[ShareExtension] 📋   - \(key): \(value)")
-                                    }
-                                    
-                                    // Extract URL and title from property list
-                                    if let urlString = dict["URL"] as? String {
-                                        NSLog("[ShareExtension] ✅ Found URL in property list: \(urlString)")
-                                        self?.sharedText = urlString
-                                        if let url = URL(string: urlString) {
-                                            self?.parseURL(url)
-                                        }
-                                    }
-                                    
-                                    if let title = dict["Title"] as? String {
-                                        NSLog("[ShareExtension] ✅ Found Title in property list: \(title)")
-                                        self?.placeNameLabel.text = title
-                                    }
-                                }
-                            } catch {
-                                NSLog("[ShareExtension] ❌ Error parsing property list: \(error)")
-                            }
-                        } else if let dict = item as? [String: Any] {
-                            NSLog("[ShareExtension] 📋 Property list dictionary keys: \(dict.keys)")
-                            for (key, value) in dict {
-                                NSLog("[ShareExtension] 📋   - \(key): \(value)")
-                            }
-                            
-                            if let urlString = dict["URL"] as? String {
-                                NSLog("[ShareExtension] ✅ Found URL in property dict: \(urlString)")
-                                self?.sharedText = urlString
-                                if let url = URL(string: urlString) {
-                                    self?.parseURL(url)
-                                }
-                            }
-                            
-                            if let title = dict["Title"] as? String {
-                                NSLog("[ShareExtension] ✅ Found Title in property dict: \(title)")
-                                self?.placeNameLabel.text = title
-                            }
-                        } else {
-                            NSLog("[ShareExtension] ⚠️ Property list item was unexpected type: \(type(of: item))")
-                        }
-                    }
-                }
-                return
-            }
-        }
-        
-        // Try URL second
+        // Try to get URL first (most reliable)
         for provider in attachments {
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                NSLog("[ShareExtension] 🔗 Found URL type attachment")
                 provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (item, error) in
                     DispatchQueue.main.async {
-                        if let error = error {
-                            NSLog("[ShareExtension] ❌ Error loading URL: \(error.localizedDescription)")
-                        }
                         if let url = item as? URL {
-                            NSLog("[ShareExtension] ✅ Loaded URL: \(url.absoluteString)")
-                            self?.sharedText = url.absoluteString
-                            self?.parseURL(url)
+                            self?.handleURL(url)
                         } else if let urlString = item as? String, let url = URL(string: urlString) {
-                            NSLog("[ShareExtension] ✅ Loaded URL from string: \(urlString)")
-                            self?.sharedText = urlString
-                            self?.parseURL(url)
-                        } else {
-                            NSLog("[ShareExtension] ⚠️ URL item was neither URL nor String: \(type(of: item))")
+                            self?.handleURL(url)
                         }
                     }
                 }
@@ -304,22 +203,19 @@ class ShareViewController: UIViewController {
             }
         }
         
-        // Try plain text last
+        // Try plain text as fallback
         for provider in attachments {
             if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                NSLog("[ShareExtension] 📝 Found plain text type attachment")
                 provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] (item, error) in
                     DispatchQueue.main.async {
-                        if let error = error {
-                            NSLog("[ShareExtension] ❌ Error loading text: \(error.localizedDescription)")
-                        }
                         if let text = item as? String {
-                            NSLog("[ShareExtension] ✅ Loaded plain text: \(text.prefix(100))")
-                            self?.sharedText = text
-                            self?.placeNameLabel.text = String(text.prefix(60))
-                            self?.locationLabel.text = ""
-                        } else {
-                            NSLog("[ShareExtension] ⚠️ Plain text item was not a String: \(type(of: item))")
+                            // Check if the text contains a URL
+                            if let url = self?.extractURL(from: text) {
+                                self?.handleURL(url)
+                            } else {
+                                self?.sharedText = text
+                                self?.placeNameLabel.text = String(text.prefix(60))
+                            }
                         }
                     }
                 }
@@ -327,52 +223,204 @@ class ShareViewController: UIViewController {
             }
         }
         
-        NSLog("[ShareExtension] ⚠️ No URL, property-list, or plain text attachment found")
         placeNameLabel.text = "Unable to extract content"
     }
     
-    private func parseURL(_ url: URL) {
-        NSLog("[ShareExtension] 🔍 Parsing URL: \(url.absoluteString)")
-        let host = url.host?.replacingOccurrences(of: "www.", with: "") ?? ""
-        NSLog("[ShareExtension] 🌐 Host: \(host)")
+    private func extractURL(from text: String) -> URL? {
+        let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        let matches = detector?.matches(in: text, options: [], range: NSRange(location: 0, length: text.utf16.count))
+        if let match = matches?.first, let range = Range(match.range, in: text) {
+            return URL(string: String(text[range]))
+        }
+        return nil
+    }
+    
+    private func handleURL(_ url: URL) {
+        NSLog("[ShareExtension] 🔗 Handling URL: \(url.absoluteString)")
         
-        // Extract place name from Google Maps
-        if host.contains("google") || host.contains("goo.gl") {
-            NSLog("[ShareExtension] 🗺️ Detected Google Maps URL")
-            if let placeName = extractGoogleMapsPlace(from: url) {
-                NSLog("[ShareExtension] ✅ Extracted place name: \(placeName)")
-                placeNameLabel.text = placeName
-                locationLabel.text = ""
-                return
+        let urlString = url.absoluteString
+        
+        // Check if this is a shortened URL that needs expanding
+        if isShortURL(url) {
+            NSLog("[ShareExtension] 🔄 Expanding shortened URL...")
+            placeNameLabel.text = "Expanding link..."
+            
+            expandURL(url) { [weak self] expandedURL in
+                DispatchQueue.main.async {
+                    if let expanded = expandedURL {
+                        NSLog("[ShareExtension] ✅ Expanded to: \(expanded.absoluteString)")
+                        self?.sharedText = expanded.absoluteString
+                        self?.parseAndDisplayURL(expanded)
+                    } else {
+                        // Fallback: save the short URL, AI will try to handle it
+                        NSLog("[ShareExtension] ⚠️ Could not expand URL, using original")
+                        self?.sharedText = urlString
+                        self?.placeNameLabel.text = url.host ?? "Shared Link"
+                        self?.locationLabel.text = "Tap Save to process"
+                    }
+                }
+            }
+        } else {
+            self.sharedText = urlString
+            parseAndDisplayURL(url)
+        }
+    }
+    
+    private func isShortURL(_ url: URL) -> Bool {
+        let shortDomains = ["goo.gl", "maps.app.goo.gl", "bit.ly", "tinyurl.com", "t.co", "maps.google.com"]
+        let host = url.host?.lowercased() ?? ""
+        return shortDomains.contains { host.contains($0) } && !url.path.contains("/place/")
+    }
+    
+    private func expandURL(_ url: URL, completion: @escaping (URL?) -> Void) {
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+        request.timeoutInterval = 5
+        
+        let task = URLSession.shared.dataTask(with: request) { _, response, error in
+            if let httpResponse = response as? HTTPURLResponse,
+               let finalURL = httpResponse.url,
+               finalURL.absoluteString != url.absoluteString {
+                completion(finalURL)
             } else {
-                NSLog("[ShareExtension] ⚠️ Could not extract place name from Google Maps URL")
+                // Try GET request as fallback (some servers don't support HEAD)
+                var getRequest = URLRequest(url: url)
+                getRequest.timeoutInterval = 5
+                
+                let getTask = URLSession.shared.dataTask(with: getRequest) { _, response, _ in
+                    if let httpResponse = response as? HTTPURLResponse,
+                       let finalURL = httpResponse.url {
+                        completion(finalURL)
+                    } else {
+                        completion(nil)
+                    }
+                }
+                getTask.resume()
+            }
+        }
+        task.resume()
+    }
+    
+    private func parseAndDisplayURL(_ url: URL) {
+        let host = url.host?.lowercased() ?? ""
+        
+        // Google Maps
+        if host.contains("google") {
+            if let placeName = extractGoogleMapsPlace(from: url) {
+                placeNameLabel.text = placeName
+                locationLabel.text = "Google Maps"
+                return
             }
         }
         
-        // Fallback: Use the host as the title, but keep the full URL as sharedText
-        NSLog("[ShareExtension] 📌 Using fallback - host: \(host)")
-        placeNameLabel.text = host
-        locationLabel.text = ""
+        // Apple Maps
+        if host.contains("apple") || host.contains("maps.apple") {
+            if let placeName = extractAppleMapsPlace(from: url) {
+                placeNameLabel.text = placeName
+                locationLabel.text = "Apple Maps"
+                return
+            }
+        }
+        
+        // Yelp
+        if host.contains("yelp") {
+            if let placeName = extractYelpPlace(from: url) {
+                placeNameLabel.text = placeName
+                locationLabel.text = "Yelp"
+                return
+            }
+        }
+        
+        // TripAdvisor
+        if host.contains("tripadvisor") {
+            if let placeName = extractTripAdvisorPlace(from: url) {
+                placeNameLabel.text = placeName
+                locationLabel.text = "TripAdvisor"
+                return
+            }
+        }
+        
+        // Instagram
+        if host.contains("instagram") {
+            placeNameLabel.text = "Instagram Post"
+            locationLabel.text = "Instagram"
+            return
+        }
+        
+        // Fallback: show the domain
+        placeNameLabel.text = host.replacingOccurrences(of: "www.", with: "")
+        locationLabel.text = "Web Link"
     }
+    
+    // MARK: - Place Name Extraction
     
     private func extractGoogleMapsPlace(from url: URL) -> String? {
         let path = url.path
-        NSLog("[ShareExtension] 🔍 Extracting from path: \(path)")
         
+        // Try /place/PlaceName/ pattern
         if path.contains("/place/") {
             let components = path.components(separatedBy: "/place/")
             if components.count > 1 {
                 let afterPlace = components[1].components(separatedBy: "/").first ?? ""
                 let decoded = afterPlace.removingPercentEncoding ?? afterPlace
-                let result = decoded.replacingOccurrences(of: "+", with: " ")
-                NSLog("[ShareExtension] ✅ Extracted place: \(result)")
-                return result
+                let cleaned = decoded.replacingOccurrences(of: "+", with: " ")
+                if !cleaned.isEmpty {
+                    return cleaned
+                }
             }
         }
         
-        NSLog("[ShareExtension] ⚠️ No /place/ found in path")
+        // Try query parameter "q" (e.g., ?q=Restaurant+Name)
+        if let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems {
+            for item in queryItems {
+                if item.name == "q", let value = item.value, !value.isEmpty {
+                    let decoded = value.removingPercentEncoding ?? value
+                    return decoded.replacingOccurrences(of: "+", with: " ")
+                }
+            }
+        }
+        
         return nil
     }
+    
+    private func extractAppleMapsPlace(from url: URL) -> String? {
+        if let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems {
+            for item in queryItems {
+                if item.name == "q" || item.name == "address", let value = item.value, !value.isEmpty {
+                    return value.removingPercentEncoding ?? value
+                }
+            }
+        }
+        return nil
+    }
+    
+    private func extractYelpPlace(from url: URL) -> String? {
+        // Yelp URLs: /biz/restaurant-name-city
+        let path = url.path
+        if path.contains("/biz/") {
+            let bizPart = path.replacingOccurrences(of: "/biz/", with: "")
+            let name = bizPart.components(separatedBy: "-").dropLast().joined(separator: " ")
+            if !name.isEmpty {
+                return name.capitalized
+            }
+        }
+        return nil
+    }
+    
+    private func extractTripAdvisorPlace(from url: URL) -> String? {
+        // TripAdvisor URLs often have place name in path
+        let path = url.path
+        if let range = path.range(of: "-Reviews-") {
+            let beforeReviews = path[..<range.lowerBound]
+            let components = beforeReviews.components(separatedBy: "-")
+            if components.count > 1 {
+                return components.dropFirst().joined(separator: " ")
+            }
+        }
+        return nil
+    }
+    
+    // MARK: - Actions
     
     @objc private func saveTapped() {
         guard !sharedText.isEmpty else {
@@ -394,12 +442,10 @@ class ShareViewController: UIViewController {
     private func showSuccessAndClose() {
         activityIndicator.stopAnimating()
         
-        // Update button to success state
         saveButton.layer.sublayers?.first?.removeFromSuperlayer()
         saveButton.backgroundColor = UIColor.systemGreen
         saveButton.setTitle("✓ Saved", for: .normal)
         
-        // Haptic feedback
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
         
@@ -418,7 +464,7 @@ class ShareViewController: UIViewController {
             return
         }
         
-        NSLog("[ShareExtension] 📝 Attempting to save: \(text.prefix(50))...")
+        NSLog("[ShareExtension] 📝 Saving: \(text.prefix(100))...")
         
         guard let defaults = UserDefaults(suiteName: appGroupID) else {
             NSLog("[ShareExtension] ❌ CRITICAL: Could not access App Group: \(appGroupID)")
@@ -426,12 +472,11 @@ class ShareViewController: UIViewController {
         }
         
         var items = defaults.array(forKey: sharedKey) as? [[String: Any]] ?? []
-        NSLog("[ShareExtension] 📊 Current items count: \(items.count)")
         
-        // Check for duplicates in recent items
+        // Check for duplicates
         let recentTexts = items.suffix(10).compactMap { $0["rawText"] as? String }
         if recentTexts.contains(text) {
-            NSLog("[ShareExtension] ⚠️ Duplicate detected, skipping save")
+            NSLog("[ShareExtension] ⚠️ Duplicate detected, skipping")
             return
         }
         
@@ -444,17 +489,10 @@ class ShareViewController: UIViewController {
         
         items.append(newItem)
         defaults.set(items, forKey: sharedKey)
-        
-        // Force synchronization
         defaults.synchronize()
         CFPreferencesAppSynchronize(appGroupID as CFString)
         
-        // Verify the write
-        if let verifyDefaults = UserDefaults(suiteName: appGroupID),
-           let savedItems = verifyDefaults.array(forKey: sharedKey) as? [[String: Any]] {
-            NSLog("[ShareExtension] ✅ Successfully saved! Total items: \(savedItems.count)")
-        } else {
-            NSLog("[ShareExtension] ❌ Failed to verify save!")
-        }
+        NSLog("[ShareExtension] ✅ Saved successfully! Total items: \(items.count)")
     }
 }
+

@@ -205,19 +205,24 @@ const InboxPage: React.FC = () => {
   };
 
   useEffect(() => {
+    // Initial import on mount
     void importFromShareExtension();
     setItems(getInboxItems());
+
+    // Listen for internal updates (e.g. from other components)
     const handler = () => setItems(getInboxItems());
     window.addEventListener("inboxUpdated", handler);
+
+    // Import when app comes to foreground
     const handleVisibility = () => {
-      if (!document.hidden) void importFromShareExtension();
+      if (!document.hidden) {
+        void importFromShareExtension();
+      }
     };
-    window.addEventListener("focus", importFromShareExtension);
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       window.removeEventListener("inboxUpdated", handler);
-      window.removeEventListener("focus", importFromShareExtension);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);

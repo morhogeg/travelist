@@ -1,6 +1,6 @@
 # Travelist AI - Context & Quick Reference
 
-**Last Updated:** January 2026
+**Last Updated:** January 18, 2026
 
 ---
 

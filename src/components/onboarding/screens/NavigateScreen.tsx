@@ -166,7 +166,8 @@ export const NavigateScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
                     className="text-[17px] text-muted-foreground leading-relaxed"
                 >
                     Export your route directly to<br />
-                    Google Maps or Apple Maps.
+                    <span className="text-foreground font-medium">Google Maps</span> or <span className="text-foreground font-medium">Apple Maps</span>.<br />
+                    No more manual searching.
                 </motion.p>
 
                 {/* Map badges with bounce */}
@@ -181,22 +182,20 @@ export const NavigateScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ type: 'spring', stiffness: 200, delay: 0.6 }}
                         whileHover={{ scale: 1.1, y: -5 }}
-                        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/30 cursor-pointer"
+                        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/30 cursor-pointer border border-border/50"
                     >
                         <span className="text-xl">🗺️</span>
                         <span className="text-sm font-semibold text-foreground">Google Maps</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
                     </motion.div>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ type: 'spring', stiffness: 200, delay: 0.7 }}
                         whileHover={{ scale: 1.1, y: -5 }}
-                        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/30 cursor-pointer"
+                        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/30 cursor-pointer border border-border/50"
                     >
                         <span className="text-xl">🍎</span>
                         <span className="text-sm font-semibold text-foreground">Apple Maps</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
                     </motion.div>
                 </motion.div>
             </div>

@@ -149,7 +149,7 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
           }}
           className="text-[34px] font-bold text-foreground leading-tight mb-4"
         >
-          Never forget<br />a great place.
+          Your Personal<br />Travel Memory.
         </motion.h1>
 
         {/* Subtitle */}
@@ -159,8 +159,9 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
           transition={{ delay: 0.55, duration: 0.5 }}
           className="text-[17px] text-muted-foreground leading-relaxed"
         >
-          Your personal travel memory.<br />
-          Save. Organize. Navigate.
+          Travelist is the smartest way to<br />
+          <span className="text-foreground font-medium">Save</span>, <span className="text-foreground font-medium">Organize</span>, and <span className="text-foreground font-medium">Navigate</span><br />
+          every place you discover.
         </motion.p>
       </div>
 

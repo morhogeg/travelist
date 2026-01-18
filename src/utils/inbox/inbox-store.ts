@@ -52,10 +52,19 @@ export function getInboxItems(): InboxItem[] {
 
 export function addInboxItem(rawText: string, sourceApp?: string): InboxItem {
   const items = getInboxItems();
+
+  // Check for duplicates
+  const trimmedText = rawText.trim();
+  const existing = items.find(i => i.rawText.trim() === trimmedText);
+  if (existing) {
+    console.log("[Inbox] Item already exists, skipping:", trimmedText.substring(0, 30));
+    return existing;
+  }
+
   const meta = deriveLinkMeta(rawText);
   const item: InboxItem = {
     id: uuidv4(),
-    rawText: rawText.trim(),
+    rawText: trimmedText,
     ...meta,
     sourceApp,
     receivedAt: new Date().toISOString(),
@@ -108,15 +117,100 @@ export async function parseInboxItem(id: string): Promise<InboxItem | null> {
 
   try {
     const result = await parseSharedText(target.rawText);
-    if (result.error) {
-      return updateInboxItem(id, { status: "needs_info", error: result.error }) as InboxItem;
+
+    // If AI returned results, use them
+    if (result.places.length > 0) {
+      const status = deriveStatusFromPlaces(result.places);
+      return updateInboxItem(id, { parsedPlaces: result.places, status, error: undefined }) as InboxItem;
     }
 
-    const status = deriveStatusFromPlaces(result.places);
-    return updateInboxItem(id, { parsedPlaces: result.places, status, error: undefined }) as InboxItem;
+    // If AI returned empty, try local URL parsing as fallback
+    const localParsed = parseURLLocally(target.rawText);
+    if (localParsed) {
+      const places = [localParsed];
+      const status = deriveStatusFromPlaces(places);
+      return updateInboxItem(id, { parsedPlaces: places, status, error: undefined }) as InboxItem;
+    }
+
+    // If both failed, mark as needs_info
+    return updateInboxItem(id, {
+      status: "needs_info",
+      error: result.error || "Could not extract place info - please add manually"
+    }) as InboxItem;
   } catch (err: any) {
     console.error("[Inbox] Parse failed", err);
     return updateInboxItem(id, { status: "needs_info", error: err?.message || "Parse failed" }) as InboxItem;
+  }
+}
+
+/**
+ * Local URL parsing fallback - extracts place names from URLs without AI
+ */
+function parseURLLocally(rawText: string): InboxParsedPlace | null {
+  try {
+    const urlMatch = rawText.match(/https?:\/\/[^\s]+/);
+    if (!urlMatch) return null;
+
+    const url = new URL(urlMatch[0]);
+    const host = url.host.toLowerCase();
+    const path = url.pathname;
+
+    // Google Maps: /place/PlaceName/
+    if (host.includes("google") && path.includes("/place/")) {
+      const parts = path.split("/place/");
+      if (parts.length > 1) {
+        const afterPlace = parts[1].split("/")[0];
+        const name = decodeURIComponent(afterPlace).replace(/\+/g, " ");
+        if (name) {
+          return {
+            name,
+            category: "general",
+            confidence: 0.8,
+          };
+        }
+      }
+    }
+
+    // Google Maps: ?q=PlaceName
+    const qParam = url.searchParams.get("q");
+    if (host.includes("google") && qParam) {
+      return {
+        name: decodeURIComponent(qParam).replace(/\+/g, " "),
+        category: "general",
+        confidence: 0.7,
+      };
+    }
+
+    // Yelp: /biz/restaurant-name-city
+    if (host.includes("yelp") && path.includes("/biz/")) {
+      const bizPart = path.replace("/biz/", "").split("?")[0];
+      const nameParts = bizPart.split("-").slice(0, -1); // Remove city part
+      const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+      if (name) {
+        return {
+          name,
+          category: "food",
+          confidence: 0.8,
+        };
+      }
+    }
+
+    // TripAdvisor
+    if (host.includes("tripadvisor") && path.includes("-Reviews-")) {
+      const match = path.match(/-Reviews-([^-]+)/);
+      if (match) {
+        const name = match[1].replace(/_/g, " ");
+        return {
+          name,
+          category: "general",
+          confidence: 0.7,
+        };
+      }
+    }
+
+    return null;
+  } catch {
+    return null;
   }
 }
 

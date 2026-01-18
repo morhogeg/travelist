@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hand, Trash2, FolderPlus, Lightbulb } from 'lucide-react';
+import { Hand, Trash2, FolderPlus, MapPin, Lightbulb } from 'lucide-react';
 import { OnboardingButton } from '../components/OnboardingButton';
 import { OnboardingScreenProps } from '../types';
 import { haptics } from '@/utils/ios/haptics';
@@ -68,7 +68,7 @@ export const GestureTutorialScreen: React.FC<OnboardingScreenProps> = ({ onNext,
                             >
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500">
-                                        <Lightbulb className="w-6 h-6" />
+                                        <MapPin className="w-6 h-6" />
                                     </div>
                                     <div className="text-left">
                                         <div className="h-4 w-24 bg-muted rounded-full mb-2" />
@@ -97,15 +97,15 @@ export const GestureTutorialScreen: React.FC<OnboardingScreenProps> = ({ onNext,
                                 key="action"
                                 initial={{ scale: 0.5, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className={`flex flex-col items-center gap-3 ${swipeState === 'left' ? 'text-destructive' : 'text-purple-500'
+                                className={`flex flex-col items-center gap-3 ${swipeState === 'left' ? 'text-red-500' : 'text-purple-500'
                                     }`}
                             >
-                                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${swipeState === 'left' ? 'bg-destructive/10' : 'bg-purple-500/10'
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${swipeState === 'left' ? 'bg-red-500/10' : 'bg-purple-500/10'
                                     }`}>
                                     {swipeState === 'left' ? <Trash2 className="w-8 h-8" /> : <FolderPlus className="w-8 h-8" />}
                                 </div>
-                                <span className="font-bold uppercase tracking-widest text-xs">
-                                    {swipeState === 'left' ? 'Deleted' : 'Added to Collection'}
+                                <span className="font-bold uppercase tracking-widest text-[10px]">
+                                    {swipeState === 'left' ? 'Removed' : 'Added to Collection'}
                                 </span>
                             </motion.div>
                         )}
@@ -128,8 +128,8 @@ export const GestureTutorialScreen: React.FC<OnboardingScreenProps> = ({ onNext,
 
                 <div className="mt-8 flex gap-8 text-[13px] font-medium text-muted-foreground">
                     <div className="flex flex-col items-center gap-1">
-                        <span className="text-destructive font-bold">← Swipe Left</span>
-                        <span>to Delete</span>
+                        <span className="text-red-500/70 font-bold">← Swipe Left</span>
+                        <span>to Remove</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                         <span className="text-purple-500 font-bold">Swipe Right →</span>
