@@ -3,6 +3,8 @@ name: Antigravity Bridge
 on:
   push:
   issue_comment: {}
+  issues:
+    types: [opened]
   workflow_dispatch:
 
 jobs:
@@ -18,8 +20,9 @@ jobs:
       - name: Run Antigravity
         if: |
           github.event_name == 'workflow_dispatch' ||
+          github.event_name == 'issues' ||
           (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@'))
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./scripts/bridge_worker.sh "${{ github.event.issue.number || '0' }}" "${{ github.event.comment.body || 'Manual Trigger' }}"
+          ./scripts/bridge_worker.sh "${{ github.event.issue.number || '0' }}" "${{ github.event.comment.body || github.event.issue.body || 'Manual Trigger' }}"
