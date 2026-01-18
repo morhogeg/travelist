@@ -178,15 +178,107 @@ class ShareViewController: UIViewController {
         
         NSLog("[ShareExtension] 🔍 Starting to extract shared content")
         
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let attachments = extensionItem.attachments else {
-            NSLog("[ShareExtension] ❌ No extension items or attachments found")
+        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem else {
+            NSLog("[ShareExtension] ❌ No extension items found")
+            placeNameLabel.text = "No content"
+            return
+        }
+        
+        // Log attributes map
+        if let userInfo = extensionItem.userInfo {
+            NSLog("[ShareExtension] 📋 UserInfo keys: \(userInfo.keys)")
+            for (key, value) in userInfo {
+                NSLog("[ShareExtension] 📋   - \(key): \(type(of: value))")
+            }
+        }
+        
+        if let attributedTitle = extensionItem.attributedTitle {
+            NSLog("[ShareExtension] 📌 Attributed title: \(attributedTitle.string)")
+        }
+        
+        if let attributedContentText = extensionItem.attributedContentText {
+            NSLog("[ShareExtension] 📝 Attributed content: \(attributedContentText.string)")
+        }
+        
+        guard let attachments = extensionItem.attachments else {
+            NSLog("[ShareExtension] ❌ No attachments found")
             placeNameLabel.text = "No content"
             return
         }
         
         NSLog("[ShareExtension] 📦 Found \(attachments.count) attachment(s)")
         
+        // Log all available type identifiers for each attachment
+        for (index, provider) in attachments.enumerated() {
+            NSLog("[ShareExtension] 📦 Attachment \(index) type identifiers:")
+            for identifier in provider.registeredTypeIdentifiers {
+                NSLog("[ShareExtension] 📦   - \(identifier)")
+            }
+        }
+        
+        // Try property list first (Google Maps uses this)
+        for provider in attachments {
+            if provider.hasItemConformingToTypeIdentifier("com.apple.property-list") {
+                NSLog("[ShareExtension] 📋 Found property-list type attachment")
+                provider.loadItem(forTypeIdentifier: "com.apple.property-list", options: nil) { [weak self] (item, error) in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            NSLog("[ShareExtension] ❌ Error loading property list: \(error.localizedDescription)")
+                        }
+                        if let data = item as? Data {
+                            NSLog("[ShareExtension] 📦 Loaded property list data: \(data.count) bytes")
+                            do {
+                                if let dict = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] {
+                                    NSLog("[ShareExtension] 📋 Property list keys: \(dict.keys)")
+                                    for (key, value) in dict {
+                                        NSLog("[ShareExtension] 📋   - \(key): \(value)")
+                                    }
+                                    
+                                    // Extract URL and title from property list
+                                    if let urlString = dict["URL"] as? String {
+                                        NSLog("[ShareExtension] ✅ Found URL in property list: \(urlString)")
+                                        self?.sharedText = urlString
+                                        if let url = URL(string: urlString) {
+                                            self?.parseURL(url)
+                                        }
+                                    }
+                                    
+                                    if let title = dict["Title"] as? String {
+                                        NSLog("[ShareExtension] ✅ Found Title in property list: \(title)")
+                                        self?.placeNameLabel.text = title
+                                    }
+                                }
+                            } catch {
+                                NSLog("[ShareExtension] ❌ Error parsing property list: \(error)")
+                            }
+                        } else if let dict = item as? [String: Any] {
+                            NSLog("[ShareExtension] 📋 Property list dictionary keys: \(dict.keys)")
+                            for (key, value) in dict {
+                                NSLog("[ShareExtension] 📋   - \(key): \(value)")
+                            }
+                            
+                            if let urlString = dict["URL"] as? String {
+                                NSLog("[ShareExtension] ✅ Found URL in property dict: \(urlString)")
+                                self?.sharedText = urlString
+                                if let url = URL(string: urlString) {
+                                    self?.parseURL(url)
+                                }
+                            }
+                            
+                            if let title = dict["Title"] as? String {
+                                NSLog("[ShareExtension] ✅ Found Title in property dict: \(title)")
+                                self?.placeNameLabel.text = title
+                            }
+                        } else {
+                            NSLog("[ShareExtension] ⚠️ Property list item was unexpected type: \(type(of: item))")
+                        }
+                    }
+                }
+                return
+            }
+        }
+        
+        // Try URL second
         for provider in attachments {
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
                 NSLog("[ShareExtension] 🔗 Found URL type attachment")
@@ -204,13 +296,16 @@ class ShareViewController: UIViewController {
                             self?.sharedText = urlString
                             self?.parseURL(url)
                         } else {
-                            NSLog("[ShareExtension] ⚠️ URL item was neither URL nor String")
+                            NSLog("[ShareExtension] ⚠️ URL item was neither URL nor String: \(type(of: item))")
                         }
                     }
                 }
                 return
             }
-            
+        }
+        
+        // Try plain text last
+        for provider in attachments {
             if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
                 NSLog("[ShareExtension] 📝 Found plain text type attachment")
                 provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] (item, error) in
@@ -223,13 +318,17 @@ class ShareViewController: UIViewController {
                             self?.sharedText = text
                             self?.placeNameLabel.text = String(text.prefix(60))
                             self?.locationLabel.text = ""
+                        } else {
+                            NSLog("[ShareExtension] ⚠️ Plain text item was not a String: \(type(of: item))")
                         }
                     }
                 }
                 return
             }
         }
-        NSLog("[ShareExtension] ⚠️ No URL or plain text attachment found")
+        
+        NSLog("[ShareExtension] ⚠️ No URL, property-list, or plain text attachment found")
+        placeNameLabel.text = "Unable to extract content"
     }
     
     private func parseURL(_ url: URL) {

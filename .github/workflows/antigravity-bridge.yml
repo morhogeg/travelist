@@ -1,0 +1,17 @@
+name: Antigravity Bridge
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  antigravity:
+    if: contains(github.event.comment.body, '@gemini-bot')
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Antigravity
+        run: |
+          antigravity run --issue-number ${{ github.event.issue.number }} --comment-body "${{ github.event.comment.body }}" --branch "ai-dev/${{ github.event.issue.number }}"

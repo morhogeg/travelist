@@ -1,0 +1,9 @@
+{
+    "turbo_mode": {
+        "allowed_commands": [
+            "xcodebuild",
+            "swift test"
+        ],
+        "enabled": true
+    }
+}
