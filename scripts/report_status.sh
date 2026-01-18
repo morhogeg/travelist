@@ -6,17 +6,11 @@ STATUS=$1
 ISSUE_NUMBER=$2
 PR_LINK=$3
 
-if [ "$STATUS" == "success" ]; then
-  MESSAGE="## 🚀 Mission Accomplished!
-The requested work has been completed.
-You can review the changes here: $PR_LINK
+MESSAGE=$3
 
-Tag me again if you need further adjustments!"
-else
-  MESSAGE="## ❌ Mission Failed
-I encountered some issues while executing the task.
-Please check the logs for more details.
-PR (if any): $PR_LINK"
+if [ -z "$MESSAGE" ]; then
+  echo "Error: No message provided."
+  exit 1
 fi
 
 # Post comment using GitHub API

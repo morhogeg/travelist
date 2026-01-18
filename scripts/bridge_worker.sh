@@ -19,20 +19,35 @@ echo "🤖 Running Gemini Agent..."
 if /Users/morhogeg/.nvm/versions/node/v22.16.0/bin/gemini --yolo "$COMMENT_BODY"; then
     echo "✅ Gemini finished successfully."
     
+    # Get summary of changes
+    CHANGES=$(git status --porcelain | sed 's/^...//')
+    FILES_LIST=$(echo "$CHANGES" | awk '{printf "- %s\\n", $0}')
+    
     # 3. Push Changes
     echo "📤 Pushing changes..."
     git add .
-    # Use a generic commit message if none provided
     COMMIT_MSG="ai: $COMMENT_BODY (Issue #$ISSUE_NUMBER)"
     git commit -m "$COMMIT_MSG" || echo "No changes to commit"
     git push origin "$BRANCH"
     
     # 4. Report Status
+    REPORT="## 🚀 Mission Accomplished!
+I have completed the task: **$COMMENT_BODY**
+
+### 📂 Files Modified:
+$FILES_LIST
+
+### 💻 How to Review on your Mac:
+1. Open your terminal in \`travelist-2\`.
+2. Run: \`./review.sh preview $ISSUE_NUMBER\`
+3. Check the results in the Xcode simulator.
+4. If you like it, run: \`./review.sh approve $ISSUE_NUMBER\`
+5. If not, run: \`./review.sh deny $ISSUE_NUMBER\`"
+
     echo "📢 Reporting success..."
-    ./scripts/report_status.sh success "$ISSUE_NUMBER" "https://github.com/morhogeg/travelist/tree/$BRANCH"
+    ./scripts/report_status.sh "success" "$ISSUE_NUMBER" "$REPORT"
 else
     echo "❌ Gemini failed."
-    # 4. Report Failure
-    ./scripts/report_status.sh failure "$ISSUE_NUMBER" "N/A"
+    ./scripts/report_status.sh "failure" "$ISSUE_NUMBER" "I encountered an error while trying to execute this task. Please check the runner logs."
     exit 1
 fi
