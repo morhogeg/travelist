@@ -2,10 +2,7 @@ name: Antigravity Bridge
 
 on:
   push:
-    paths:
-      - '.github/workflows/bridge.yml'
-  issue_comment:
-    types: [created, edited]
+  issue_comment: {}
   workflow_dispatch:
 
 jobs:
@@ -16,16 +13,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Antigravity
-        if: |
-          github.event_name == 'push' ||
-          github.event_name == 'workflow_dispatch' ||
-          (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@'))
         run: |
-          ISSUE_NUM="${{ github.event.issue.number || '0' }}"
-          BODY="${{ github.event.comment.body || 'Manual/Push Trigger' }}"
-          BRANCH="ai-dev/${{ github.event.issue.number || 'manual' }}"
-          
           /Users/morhogeg/.antigravity/antigravity/bin/antigravity run \
-            --issue-number "$ISSUE_NUM" \
-            --comment-body "$BODY" \
-            --branch "$BRANCH"
+            --issue-number "${{ github.event.issue.number || '0' }}" \
+            --comment-body "${{ github.event.comment.body || 'No Body' }}" \
+            --branch "ai-dev/${{ github.event.issue.number || 'manual' }}"
