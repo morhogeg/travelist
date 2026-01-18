@@ -45,7 +45,7 @@ function AppContent() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
   const { toast } = useToast();
 
   // Proximity notification - place card state
@@ -130,23 +130,6 @@ function AppContent() {
         const incoming = new URL(url);
         // For custom schemes, host often carries the "path" (e.g., travelist://share?text=...)
         const path = incoming.pathname.replace(/^\//, '') || incoming.host;
-
-        if (path === 'reset-onboarding') {
-          resetOnboarding();
-          setShowOnboarding(true);
-          return;
-        }
-
-        if (path === 'profile') {
-          navigate('/profile');
-          return;
-        }
-
-        if (path === 'settings') {
-          navigate('/settings');
-          return;
-        }
-
         if (path !== 'share') return;
 
         const text = incoming.searchParams.get('text') || incoming.searchParams.get('sharedText');
