@@ -26,8 +26,16 @@ if [ -z "$GITHUB_TOKEN" ]; then
   exit 1
 fi
 
+# Create JSON payload safely
+PAYLOAD=$(cat <<EOF
+{
+  "body": "$(echo "$MESSAGE" | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}' | sed 's/\\n$//')"
+}
+EOF
+)
+
 curl -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
   https://api.github.com/repos/morhogeg/travelist/issues/$ISSUE_NUMBER/comments \
-  -d "{\"body\":\"$MESSAGE\"}"
+  -d "$PAYLOAD"
