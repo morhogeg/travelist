@@ -9,15 +9,22 @@ jobs:
   antigravity:
     runs-on: self-hosted
     steps:
+      - name: Check Trigger
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Actor: ${{ github.actor }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Antigravity
-        if: |
-          github.event_name == 'push' ||
+        if: >
           github.event_name == 'workflow_dispatch' ||
           (github.event_name == 'issue_comment' && 
            (contains(github.event.comment.body, '@gemini-bot') || 
             contains(github.event.comment.body, '@Gemini-bot')))
         run: |
-          /Users/morhogeg/.antigravity/antigravity/bin/antigravity run --issue-number "${{ github.event.issue.number || '0' }}" --comment-body "${{ github.event.comment.body || 'Manual Trigger' }}" --branch "ai-dev/${{ github.event.issue.number || 'manual' }}"
+          /Users/morhogeg/.antigravity/antigravity/bin/antigravity run \
+            --issue-number "${{ github.event.issue.number || '0' }}" \
+            --comment-body "${{ github.event.comment.body || 'Manual Trigger' }}" \
+            --branch "ai-dev/${{ github.event.issue.number || 'manual' }}"
