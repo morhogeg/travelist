@@ -102,6 +102,14 @@ min-h-11  /* 44px minimum (iOS touch target) */
 - Users can swipe down or tap backdrop to dismiss
 - No X close buttons in headers
 
+### Full-Screen Guides
+**Design Philosophy:**
+- Used for immersive tutorials (e.g., "Saving from other apps").
+- **Consistency with Onboarding:** Uses the same progress bars, button styles, and background particles.
+- **Header:** Title and "GUIDE" label in top-left; small, subtle "X" button in top-right.
+- **Navigation:** Vertical button stack (Primary "Next" on top, Ghost "Back" below).
+- **Ambient Glow:** Subtle, static background gradients for a premium feel.
+
 **Header Design:**
 - Title on the left (bold, purple, `leading-none` for perfect alignment)
 - Action button on the right (text-only, no background)
