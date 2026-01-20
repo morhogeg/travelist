@@ -20,6 +20,9 @@ All notable changes to the Travelist iOS app will be documented in this file.
   - **URL Matching**: Automatically merges duplicate shares from the same Google Maps link
   - **Normalized Name Matching**: Ignores case, whitespace, and special characters
   - **Inclusion Matching**: Detects and merges similar names (e.g., "The Coffee Shop" vs "The Coffee Shop - City Center")
+- **Improved Country Extraction** - Significantly reduced "Needs Info" cards for Google Maps shares
+  - **AI Inference**: AI now uses URL paths, TLDs, and recognized city names to automatically fill in the country
+  - **Local Fallback**: Enhanced local URL parsing to extract location details from Google Maps paths
 
 ### 🐛 Fixed
 - **Profile Page Lint Error**: Resolved a persistent type error regarding `visited` state access
