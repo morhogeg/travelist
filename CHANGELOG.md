@@ -4,18 +4,32 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ---
 
-## [Unreleased] - Next TestFlight Build
-
-> **Instructions:** Add features/fixes here as they're completed. Move to versioned section when TestFlight is uploaded.
+## [Build 6] - 2026-01-20
 
 ### ✨ Added
-- (none yet)
+- **Mobile-to-IDE Bridge (Antigravity)** - Trigger AI tasks directly from your iPhone
+  - **Issue Trigger**: Create a GitHub issue with `@Gemini-bot` to start a task
+  - **Comment Trigger**: Tag the bot in any comment to request changes
+  - **Mission Reports**: Get automated summaries of AI work directly in GitHub
+  - **"Plan Only" Mode**: Request technical research or plans without code changes
+- **Premium Guides & Tutorials Area** - Centralized help content in a dedicated section
+  - **New Guides Page**: Accessible from Profile, focusing on feature discoverability
+  - **Redesigned "Saving from other apps" Guide**: A full-screen, immersive tutorial
+  - **Onboarding Consistency**: Guides now match the onboarding flow's design, animations, and button styles
+- **Smart Duplicate Detection** - Keeps your travel cards organized across shares
+  - **URL Matching**: Automatically merges duplicate shares from the same Google Maps link
+  - **Normalized Name Matching**: Ignores case, whitespace, and special characters
+  - **Inclusion Matching**: Detects and merges similar names (e.g., "The Coffee Shop" vs "The Coffee Shop - City Center")
 
 ### 🐛 Fixed
-- (none yet)
+- **Profile Page Lint Error**: Resolved a persistent type error regarding `visited` state access
+- **Share Extension UI Fixes**: Fixed icon overflow and layout issues on smaller devices
+- **Plugin Registration**: Improved reliability of native plugin registration in Capacitor 7
 
 ### 🔧 Changed
-- (none yet)
+- **Settings Cleanup**: Removed redundant guide links from Settings to focus on preferences
+- **Profile Subtitle**: Updated to "Learn how to use Travelist AI" for better clarity
+- **Navigation Buttons**: Standardized guide navigation to match onboarding (Vertical stack: Next Step / Back)
 
 ---
 
