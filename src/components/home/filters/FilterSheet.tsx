@@ -57,8 +57,8 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={handleDrawerChange}>
-      <DrawerContent className="p-0 flex flex-col transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '40vh', maxHeight: '85vh' }}>
-        <div className="flex flex-col h-full">
+      <DrawerContent includeWrapper={false} className="p-0 flex flex-col transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '40vh', maxHeight: '85vh' }}>
+        <div className="flex flex-col flex-1 w-full overflow-hidden">
           {/* Header */}
           <div className="relative flex items-center justify-center px-6 pt-2 pb-4 border-b border-white/10 shrink-0">
             <h2 className="text-xl font-bold text-[#667eea] leading-none">Filters</h2>
