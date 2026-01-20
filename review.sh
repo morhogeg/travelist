@@ -35,11 +35,19 @@ case $COMMAND in
         git fetch origin
         git checkout "$BRANCH" || git checkout -b "$BRANCH" "origin/$BRANCH"
         
-        echo "🏗️ Building web assets..."
+        echo "🏗️ Building web assets (Production)..."
+        export NODE_ENV=production
         npm run build
         
         echo "📦 Syncing with iOS..."
         npx cap sync ios
+        
+        # Ensure the shared inbox plugin script runs if needed
+        if [ -f "scripts/ensure-shared-inbox-plugin.js" ]; then
+            echo "🔧 Running plugin setup..."
+            node scripts/ensure-shared-inbox-plugin.js
+        fi
+
         echo "🚀 Opening Xcode..."
         open ios/App/App.xcworkspace
         echo "✨ Done! Review the changes in Xcode. When ready, run ./review.sh approve $ISSUE_NUM"
