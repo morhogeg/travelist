@@ -142,3 +142,12 @@ Root cause: Capacitor 7 doesn't auto-discover local Swift plugins. The fix:
 - **AI Parser**: Updated prompt to strictly prevent hallucination. It returns `[]` if no real place data is found.
 - **Local Fallback**: `inbox-store.ts` now includes regex-based parsing for Google Maps, Yelp, and TripAdvisor as a fallback.
 - **Duplicate Fix**: Added store-level duplicate checking and import locking to prevent items from appearing multiple times.
+
+### January 20, 2026 - Smart Duplicate Detection
+**Status: ✅ Fixed Cross-App Duplicate Clutter**
+
+- **Improved Duplicate Logic**: `recommendation-manager.ts` now uses a multi-tier check:
+  - **URL Matching**: Strongest signal for Google Maps shares.
+  - **Normalized Name Matching**: Ignores case, whitespace, and special characters.
+  - **Inclusion Matching**: Detects if one name is a subset of another (e.g., "The Coffee Shop" vs "The Coffee Shop - City Center") to prevent redundant cards.
+- **Lint Fix**: Resolved a persistent type error in `Profile.tsx` regarding `visited` state access.
