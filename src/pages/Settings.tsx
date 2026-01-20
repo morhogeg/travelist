@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
-import { Moon, Sun, Sparkles, Mail } from "lucide-react";
+import { Moon, Sun, Sparkles } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { lightHaptic } from "@/utils/ios/haptics";
 import { motion } from "framer-motion";
@@ -11,16 +11,17 @@ import ProximitySettings from "@/components/settings/ProximitySettings";
 import AuthSettings from "@/components/settings/AuthSettings";
 import DeleteAccountSettings from "@/components/settings/DeleteAccountSettings";
 import SettingsRow from "@/components/settings/SettingsRow";
+import { useNavigate } from "react-router-dom";
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 
 const Settings = () => {
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showAISuggestions, setShowAISuggestions] = useState(() => {
     const saved = localStorage.getItem("showAISuggestions");
     return saved === null ? true : saved === "true";
   });
-  const [showShareGuide, setShowShareGuide] = useState(false);
 
   // Compute cities list for proximity settings
   const allCities = useMemo(() => {
@@ -59,7 +60,7 @@ const Settings = () => {
   // Load current auth session for conditional rendering
   useEffect(() => {
     if (!supabase) return;
-    
+
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
       setUserEmail(data.session?.user?.email ?? null);
@@ -128,16 +129,6 @@ const Settings = () => {
 
           <Separator />
 
-          {/* Share Extension Guide */}
-          <SettingsRow
-            icon={Mail}
-            title="Share Extension Guide"
-            subtitle="Learn how to save places from other apps."
-            onClick={() => setShowShareGuide(true)}
-          />
-
-          <Separator />
-
           {/* Supabase Auth */}
           <AuthSettings />
 
@@ -157,12 +148,6 @@ const Settings = () => {
           </p>
         </div>
       </motion.div>
-
-      {/* Share Extension Guide Modal */}
-      <ShareExtensionGuide
-        isOpen={showShareGuide}
-        onClose={() => setShowShareGuide(false)}
-      />
     </Layout>
   );
 };

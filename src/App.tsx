@@ -29,6 +29,7 @@ import RouteDetail from "./pages/RouteDetail";
 import TravelStory from "./pages/TravelStory";
 import TripDetailPage from "./pages/TripDetailPage";
 import Inbox from "./pages/Inbox";
+import Guides from "./pages/Guides";
 
 // Declare global window interface
 declare global {
@@ -212,6 +213,7 @@ function AppContent() {
           <Route path="/trip/:id" element={<TripDetailPage />} /> {/* ✅ AI Trip detail */}
           <Route path="/story" element={<TravelStory />} /> {/* ✅ Travel Story */}
           <Route path="/inbox" element={<Inbox />} /> {/* ✅ Shared inbox */}
+          <Route path="/guides" element={<Guides />} /> {/* ✅ Guides & Tutorials */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
