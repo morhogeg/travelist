@@ -44,7 +44,7 @@ const Profile = () => {
         ...place,
         city: rec.city,
         country: rec.country,
-        visited: place.visited || rec.visited
+        visited: place.visited
       }))
     );
 

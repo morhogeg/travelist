@@ -64,11 +64,37 @@ export const storeRecommendation = async (
 
   if (existingIndex >= 0) {
     const existing = recommendations[existingIndex];
-    const existingNames = new Set(existing.places.map((p) => p.name.toLowerCase()));
 
-    recommendation.places.forEach((place) => {
-      if (!existingNames.has(place.name.toLowerCase())) {
-        existing.places.push(place);
+    // Helper to normalize strings for comparison
+    const normalize = (s: string) => s.toLowerCase().trim().replace(/[^\w\s]/g, '');
+
+    recommendation.places.forEach((newPlace) => {
+      const newNameNorm = normalize(newPlace.name);
+      const newUrl = newPlace.source?.url;
+
+      const isDuplicate = existing.places.some((existingPlace) => {
+        const existingNameNorm = normalize(existingPlace.name);
+        const existingUrl = existingPlace.source?.url;
+
+        // 1. URL Match (Strongest signal)
+        if (newUrl && existingUrl && newUrl === existingUrl) return true;
+
+        // 2. Name Match (Normalized)
+        if (newNameNorm === existingNameNorm) return true;
+
+        // 3. Name Inclusion (e.g., "The Coffee Shop" vs "The Coffee Shop - City Center")
+        // Only if names are reasonably long to avoid false positives with short names
+        if (newNameNorm.length > 5 && existingNameNorm.length > 5) {
+          if (newNameNorm.includes(existingNameNorm) || existingNameNorm.includes(newNameNorm)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+      if (!isDuplicate) {
+        existing.places.push(newPlace);
       }
     });
 
