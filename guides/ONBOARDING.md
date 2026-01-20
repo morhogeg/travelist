@@ -2,7 +2,7 @@
 
 ## Overview
 
-The onboarding flow introduces first-time users to Travelist's core features through an **8-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
+The onboarding flow introduces first-time users to Travelist's core features through a **7-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
 
 ## Screens
 
@@ -12,18 +12,13 @@ The onboarding flow introduces first-time users to Travelist's core features thr
 - **Visual:** Animated Compass icon with pulsing glow ring and floating particles
 - **CTA:** "Get Started"
 
-### Screen 2: Save
-- **Title:** "Save from any app."
-- **Subtitle:** "Found a place you love? Tap Share → Travelist."
-- **Visual:** Share icon with orbiting ring and app flow animation
-- **App Icons:** Safari 🧭, Instagram 📸, Maps 🗺️, TikTok 🎵 → Travelist
-
-### Screen 3: Share Extension (Guide)
+### Screen 2: Save from Anywhere
 - **Title:** "Save from Anywhere."
-- **Subtitle:** "Found a place in Safari or Instagram? Save it instantly without leaving the app."
-- **Visual:** Mockup of the iOS Share Sheet with the Travelist app icon.
+- **Subtitle:** "Found a place in Safari or Instagram? Share to Travelist and our AI will automatically pull the details."
+- **Visual:** Share icon with orbiting ring and app flow animation
+- **App Icons:** Safari 🧭, Instagram 📸, Maps 🗺️ → Travelist
 
-### Screen 4: Organize
+### Screen 3: Organize
 - **Title:** "Collections. Routes."
 - **Subtitle:** "Group places by theme. Build day-by-day itineraries."
 - **Visual:** Folder and Route icons with connecting line animation
@@ -58,15 +53,14 @@ The onboarding flow introduces first-time users to Travelist's core features thr
 src/components/onboarding/
 ├── index.ts                  # Exports
 ├── types.ts                  # Types + localStorage helpers
-├── OnboardingFlow.tsx        # Main controller (8 steps)
+├── OnboardingFlow.tsx        # Main controller (7 steps)
 ├── screens/
-│   ├── WelcomeScreen.tsx     # "Never forget a great place"
-│   ├── SaveScreen.tsx        # Share Extension
-│   ├── ShareExtensionScreen.tsx # Detailed Share Extension guide
-│   ├── OrganizeScreen.tsx    # Collections & Routes
+│   ├── WelcomeScreen.tsx     # "Your Personal Travel Memory"
+│   ├── ShareToSaveScreen.tsx # "Save from Anywhere"
+│   ├── AIMagicScreen.tsx     # AI features showcase
+│   ├── ProximityAlertsScreen.tsx # Proximity alerts
 │   ├── GestureTutorialScreen.tsx # Interactive gesture practice
 │   ├── NavigateScreen.tsx    # Export to Maps
-│   ├── AISuggestionsScreen.tsx # AI features showcase
 │   └── SignInScreen.tsx      # Cloud Sync
 └── components/
     ├── OnboardingProgress.tsx  # Animated dots

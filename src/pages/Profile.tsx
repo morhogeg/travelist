@@ -211,12 +211,9 @@ const Profile = () => {
           />
           <ActionRow
             icon={BookOpen}
-            label="View Welcome Tour"
-            subtitle="See the app introduction again"
-            onClick={() => {
-              resetOnboarding();
-              window.dispatchEvent(new CustomEvent('resetOnboarding'));
-            }}
+            label="Guides & Tutorials"
+            subtitle="Learn how to use Travelist AI"
+            onClick={() => navigate('/guides')}
             isLast
           />
         </div>

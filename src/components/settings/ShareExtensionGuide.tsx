@@ -3,23 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     X,
     Share,
-    ExternalLink,
     CheckCircle2,
     ChevronRight,
     ChevronLeft,
     Smartphone,
+    Instagram,
+    MapPin,
+    Music2,
+    Sparkles,
     Globe,
-    Plus
+    MessageSquare
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-    Drawer,
-    DrawerContent,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerFooter,
-    DrawerClose
-} from '@/components/ui/drawer';
+import { OnboardingButton } from '../onboarding/components/OnboardingButton';
+import { OnboardingProgress } from '../onboarding/components/OnboardingProgress';
 import { lightHaptic, mediumHaptic } from '@/utils/ios/haptics';
 
 interface ShareExtensionGuideProps {
@@ -27,30 +23,59 @@ interface ShareExtensionGuideProps {
     onClose: () => void;
 }
 
+// Floating particle component for consistency with onboarding
+const Particle = ({ delay, duration, x, y, size }: { delay: number; duration: number; x: string; y: string; size: number }) => (
+    <motion.div
+        className="absolute rounded-full"
+        style={{
+            width: size,
+            height: size,
+            left: x,
+            top: y,
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%)',
+        }}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{
+            opacity: [0, 0.8, 0.4, 0.8, 0],
+            scale: [0.5, 1.2, 1, 1.1, 0.5],
+            y: [0, -30, -10, -25, 0],
+        }}
+        transition={{
+            duration,
+            delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+        }}
+    />
+);
+
 const steps = [
     {
-        title: "Find a Place",
-        description: "Open any app like Instagram, TikTok, or Safari and find a place you want to save.",
-        icon: <Smartphone className="h-8 w-8 text-blue-500" />,
-        image: "https://images.unsplash.com/photo-1512428559083-a40ce12044a5?auto=format&fit=crop&w=400&q=80"
+        title: "Find Inspiration",
+        description: "Browse Instagram, TikTok, Google Maps, or even texts from friends for places you want to visit.",
+        icon: <Sparkles className="h-10 w-10 text-yellow-400" />,
+        apps: [
+            { name: "Instagram", icon: <Instagram className="h-4 w-4" /> },
+            { name: "TikTok", icon: <Music2 className="h-4 w-4" /> },
+            { name: "Google Maps", icon: <MapPin className="h-4 w-4" /> },
+            { name: "Texts", icon: <MessageSquare className="h-4 w-4" /> },
+            { name: "Safari", icon: <Globe className="h-4 w-4" /> }
+        ]
     },
     {
         title: "Tap Share",
-        description: "Tap the share icon (usually a square with an arrow) in that app.",
-        icon: <Share className="h-8 w-8 text-purple-500" />,
-        image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80"
+        description: "Tap the share icon in the app. Look for the 'Share' button or the arrow icon.",
+        icon: <Share className="h-10 w-10 text-blue-400" />
     },
     {
         title: "Select Travelist",
-        description: "Find 'Travelist' in the list of apps. You might need to tap 'More' to find it.",
-        icon: <Plus className="h-8 w-8 text-pink-500" />,
-        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=80"
+        description: "Find 'Travelist' in the share sheet. You might need to scroll to the end and tap 'More'.",
+        icon: <Smartphone className="h-10 w-10 text-pink-400" />
     },
     {
-        title: "AI Does the Rest",
-        description: "Travelist AI will automatically extract the name, location, and details for you!",
-        icon: <CheckCircle2 className="h-8 w-8 text-green-500" />,
-        image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=400&q=80"
+        title: "AI Magic",
+        description: "Travelist AI automatically creates a card for you to review in your inbox before it's added to your home screen!",
+        icon: <CheckCircle2 className="h-10 w-10 text-green-400" />
     }
 ];
 
@@ -62,6 +87,7 @@ export const ShareExtensionGuide: React.FC<ShareExtensionGuideProps> = ({ isOpen
         if (currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
+            mediumHaptic();
             onClose();
         }
     };
@@ -74,85 +100,102 @@ export const ShareExtensionGuide: React.FC<ShareExtensionGuideProps> = ({ isOpen
     };
 
     return (
-        <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '60vh', maxHeight: '85vh' }}>
-                <div className="flex flex-col h-full">
-                    <DrawerHeader className="shrink-0">
-                        <div className="flex items-center justify-between">
-                            <DrawerTitle className="text-xl font-bold">Share Extension Guide</DrawerTitle>
-                            <DrawerClose asChild>
-                                <Button variant="ghost" size="icon" className="rounded-full">
-                                    <X className="h-5 w-5" />
-                                </Button>
-                            </DrawerClose>
-                        </div>
-                    </DrawerHeader>
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] bg-background flex flex-col pt-safe-area-top pb-safe-area-bottom"
+                >
+                    {/* Floating particles background for consistency */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
+                        <Particle delay={0} duration={6} x="15%" y="20%" size={8} />
+                        <Particle delay={1} duration={7} x="80%" y="15%" size={6} />
+                        <Particle delay={2} duration={5} x="25%" y="70%" size={10} />
+                        <Particle delay={0.5} duration={8} x="75%" y="60%" size={7} />
+                    </div>
 
-                    <div className="flex-1 overflow-y-auto px-6 pb-6">
+                    {/* Progress Bar */}
+                    <div className="pt-4 px-6 relative z-10">
+                        <OnboardingProgress currentStep={currentStep} totalSteps={steps.length} />
+                    </div>
+
+                    {/* Header */}
+                    <div className="relative z-10 flex items-center justify-between px-8 pt-8 pb-4">
+                        <div className="flex flex-col">
+                            <h2 className="text-sm font-bold tracking-widest uppercase text-primary/60">Guide</h2>
+                            <h1 className="text-xl font-bold">Saving from other apps</h1>
+                        </div>
+                        <button
+                            onClick={() => { lightHaptic(); onClose(); }}
+                            className="p-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md"
+                        >
+                            <X className="h-5 w-5 text-muted-foreground" />
+                        </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-8 text-center">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentStep}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                transition={{ duration: 0.3 }}
-                                className="space-y-6"
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 1.1, y: -20 }}
+                                transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                                className="w-full max-w-sm flex flex-col items-center"
                             >
-                                <div className="flex flex-col items-center text-center space-y-4">
-                                    <div className="p-4 rounded-2xl bg-primary/10">
-                                        {steps[currentStep].icon}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-lg font-semibold">{steps[currentStep].title}</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            {steps[currentStep].description}
-                                        </p>
-                                    </div>
-                                    <div className="w-full aspect-video rounded-2xl overflow-hidden border border-border bg-muted">
-                                        <img
-                                            src={steps[currentStep].image}
-                                            alt={steps[currentStep].title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
+                                <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center mb-8 shadow-2xl">
+                                    {steps[currentStep].icon}
                                 </div>
+
+                                <h3 className="text-3xl font-bold mb-4 tracking-tight">
+                                    {steps[currentStep].title}
+                                </h3>
+
+                                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                                    {steps[currentStep].description}
+                                </p>
+
+                                {steps[currentStep].apps && (
+                                    <div className="flex flex-wrap justify-center gap-3 mb-4">
+                                        {steps[currentStep].apps.map(app => (
+                                            <div key={app.name} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium">
+                                                {app.icon}
+                                                {app.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </motion.div>
                         </AnimatePresence>
-
-                        {/* Step Indicators */}
-                        <div className="flex justify-center gap-2 mt-8">
-                            {steps.map((_, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentStep ? "w-8 bg-primary" : "w-2 bg-muted"
-                                        }`}
-                                />
-                            ))}
-                        </div>
                     </div>
 
-                    <DrawerFooter className="shrink-0 border-t border-border p-6">
-                        <div className="flex gap-3">
+                    {/* Footer */}
+                    <div className="relative z-10 p-8 pb-10">
+                        <div className="space-y-3">
+                            <OnboardingButton
+                                onClick={handleNext}
+                                className="w-full"
+                            >
+                                {currentStep === steps.length - 1 ? "Start Exploring" : "Next Step"}
+                            </OnboardingButton>
+
                             {currentStep > 0 && (
-                                <Button
-                                    variant="outline"
-                                    className="flex-1"
+                                <OnboardingButton
                                     onClick={handlePrev}
+                                    variant="ghost"
+                                    className="w-full"
                                 >
                                     Back
-                                </Button>
+                                </OnboardingButton>
                             )}
-                            <Button
-                                className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
-                                onClick={handleNext}
-                            >
-                                {currentStep === steps.length - 1 ? "Got it!" : "Next"}
-                            </Button>
                         </div>
-                    </DrawerFooter>
-                </div>
-            </DrawerContent>
-        </Drawer>
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
 
