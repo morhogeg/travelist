@@ -151,3 +151,10 @@ Root cause: Capacitor 7 doesn't auto-discover local Swift plugins. The fix:
   - **Normalized Name Matching**: Ignores case, whitespace, and special characters.
   - **Inclusion Matching**: Detects if one name is a subset of another (e.g., "The Coffee Shop" vs "The Coffee Shop - City Center") to prevent redundant cards.
 - **Lint Fix**: Resolved a persistent type error in `Profile.tsx` regarding `visited` state access.
+
+### January 20, 2026 - Improved Country Extraction
+**Status: ✅ Fixed "Needs Info" for Google Maps Shares**
+
+- **AI Prompt Optimization**: Updated the `SHARE_SYSTEM_PROMPT` to encourage the AI to infer city and country from URL paths, TLDs, and recognized city names.
+- **Local Fallback Enhancement**: Improved `inbox-store.ts` to locally extract city and country from Google Maps URLs (e.g., `/place/Name,+City,+Country/`) when present.
+- **Reduced Friction**: These changes significantly increase the number of cards that reach the "Ready to Save" state automatically.

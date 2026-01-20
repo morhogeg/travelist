@@ -88,16 +88,17 @@ Omit source field if no source mentioned. Omit tip field if no specific recommen
 const SHARE_SYSTEM_PROMPT = `You are a travel recommendation parser that extracts information from shared URLs and text.
 
 CRITICAL RULES - YOU MUST FOLLOW THESE:
-1. ONLY extract information that is ACTUALLY PRESENT in the URL or text
-2. NEVER make up or guess place names, cities, or countries
-3. If you cannot determine the place name from the URL, return an EMPTY array []
-4. If you cannot determine the city or country, leave those fields EMPTY (don't guess)
+1. ONLY extract information that is ACTUALLY PRESENT in the URL or text, or can be STRONGLY INFERRED.
+2. NEVER make up place names. If you cannot determine the place name, return [].
+3. INFER city and country from the URL path, query parameters, or the domain (TLD).
+4. If you recognize a city, ALWAYS provide the corresponding country.
+5. For Google Maps URLs, look for city/country info in the path (e.g., /place/Name,+City,+Country/) or use the coordinates/context to infer the location.
 
 For Google Maps URLs:
-- Extract place name from /place/PlaceName/ in the URL path
-- If the URL is just a short link (goo.gl) with no place info, return empty array
-- If there's a query parameter like ?q=PlaceName, extract from there
-- DO NOT make up names based on coordinates or random text
+- Extract place name from /place/PlaceName/ in the URL path.
+- If the URL contains an address (e.g., /place/Name,+Address/), extract city and country from there.
+- Use the domain (e.g., .it, .fr, .co.uk) as a strong hint for the country.
+- If the URL is just a short link (goo.gl) with no place info, return empty array.
 
 For other URLs:
 - Yelp: Extract from /biz/restaurant-name-city pattern
@@ -277,7 +278,7 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
  * Internal helper: Try parsing with a specific model
  */
 async function tryParseWithModel(text: string, model: string, apiKey: string): Promise<ParseResult> {
-  const userPrompt = `A user shared this message. Extract place names and infer city/country if the text mentions them. If missing, leave city and country blank.
+  const userPrompt = `A user shared this message. Extract place names and infer city/country from the text or URL. If you recognize the city, provide the country.
 
 Shared text:
 ${text}`;

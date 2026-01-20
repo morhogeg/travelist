@@ -160,10 +160,15 @@ function parseURLLocally(rawText: string): InboxParsedPlace | null {
       const parts = path.split("/place/");
       if (parts.length > 1) {
         const afterPlace = parts[1].split("/")[0];
-        const name = decodeURIComponent(afterPlace).replace(/\+/g, " ");
-        if (name) {
+        const decoded = decodeURIComponent(afterPlace).replace(/\+/g, " ");
+
+        // Try to split by comma: "Name, City, Country"
+        const segments = decoded.split(",").map(s => s.trim());
+        if (segments.length >= 1) {
           return {
-            name,
+            name: segments[0],
+            city: segments.length > 1 ? segments[1] : undefined,
+            country: segments.length > 2 ? segments[2] : undefined,
             category: "general",
             confidence: 0.8,
           };
