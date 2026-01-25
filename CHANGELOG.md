@@ -4,6 +4,21 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ---
 
+## [Build 7] - 2026-01-25 (Unreleased)
+
+### 🐛 Fixed
+- **Google Maps City/Country Extraction** - Fixed parsing for URLs without country
+  - URLs like "Villa Mare, Derech Ben Gurion 69, Bat Yam" now correctly set city: "Bat Yam", country: "Israel"
+  - AI now checks if last segment is a city (not always a country) and infers country from known city names
+  - Added comprehensive list of Israeli cities for automatic country detection
+- **AI Response Parsing** - Fixed JSON parsing bug where AI responses with prefix characters (`: ` or `→`) failed to parse
+- **Fallback AI Models** - Updated to currently available free models after previous ones became unavailable/rate-limited
+- **AI Description Hallucinations** - Made description generator much more conservative
+  - No longer guesses cuisine types (was saying "Colombian restaurant" for an Israeli pizza place)
+  - Only mentions food types when explicitly in the place name (e.g., "Joe's Pizza" → pizza OK)
+
+---
+
 ## [Build 6] - 2026-01-20
 
 ### ✨ Added
