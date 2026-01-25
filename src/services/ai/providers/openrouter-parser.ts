@@ -7,11 +7,10 @@ import { SourceType, RecommendationSource } from '@/utils/recommendation/types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 // Primary and fallback models for reliability (free tier)
-// Using the same model as AI suggestions for consistency
 const PRIMARY_MODEL = 'google/gemma-3-27b-it:free';
 const FALLBACK_MODELS = [
-  'google/gemma-2-9b-it:free',
-  'meta-llama/llama-3.2-3b-instruct:free',
+  'google/gemini-2.0-flash-lite-preview-02-05:free',
+  'meta-llama/llama-3.3-70b-instruct:free',
 ];
 const MODEL = PRIMARY_MODEL;
 
@@ -85,41 +84,46 @@ Respond ONLY with valid JSON array, no markdown, no explanation:
 
 Omit source field if no source mentioned. Omit tip field if no specific recommendation mentioned.`;
 
-const SHARE_SYSTEM_PROMPT = `You are a travel recommendation parser that extracts information from shared URLs and text.
+const SHARE_SYSTEM_PROMPT = `You are a travel recommendation parser that extracts place info from shared URLs.
 
-CRITICAL RULES - YOU MUST FOLLOW THESE:
-1. ONLY extract information that is ACTUALLY PRESENT in the URL or text, or can be STRONGLY INFERRED.
-2. NEVER make up place names. If you cannot determine the place name, return [].
-3. INFER city and country from the URL path, query parameters, or the domain (TLD).
-4. If you recognize a city, ALWAYS provide the corresponding country.
-5. For Google Maps URLs, look for city/country info in the path (e.g., /place/Name,+City,+Country/) or use the coordinates/context to infer the location.
+CRITICAL: Extract name, city, and country from Google Maps URLs.
 
-For Google Maps URLs:
-- Extract place name from /place/PlaceName/ in the URL path.
-- If the URL contains an address (e.g., /place/Name,+Address/), extract city and country from there.
-- Use the domain (e.g., .it, .fr, .co.uk) as a strong hint for the country.
-- If the URL is just a short link (goo.gl) with no place info, return empty array.
+PARSING GOOGLE MAPS ADDRESSES:
+The URL format is: /place/Name,+Street,+City,+Country/ OR /place/Name,+Street,+City/
 
-For other URLs:
-- Yelp: Extract from /biz/restaurant-name-city pattern
-- TripAdvisor: Extract from the URL path
-- Instagram: Just note it's an Instagram post, don't guess the place
+IMPORTANT: Not all URLs include the country! When country is missing, you MUST infer it from the city.
 
-Categories (use exactly these lowercase values):
-- food: restaurants, cafes, bakeries
-- nightlife: bars, clubs
-- attractions: museums, landmarks
-- lodging: hotels
-- shopping: stores, markets
-- outdoors: parks, beaches
-- general: anything else
+EXAMPLES:
+1. /place/Villa+Mare,+Derech+Ben+Gurion+69,+Bat+Yam/
+   → name: "Villa Mare", city: "Bat Yam", country: "Israel"
+   (Bat Yam is an Israeli city, so country = "Israel")
 
-IMPORTANT: It's better to return an empty array than to make up incorrect information!
+2. /place/Café+Central,+Herrengasse+14,+Vienna/
+   → name: "Café Central", city: "Vienna", country: "Austria"
+   (Vienna is in Austria)
 
-Respond ONLY with valid JSON array:
-[{"name": "Actual Place Name From URL", "category": "food", "confidence": 0.9, "city": "City if known from URL", "country": "Country if known"}]
+3. /place/Joe's+Pizza,+7+Carmine+St,+New+York,+USA/
+   → name: "Joe's Pizza", city: "New York", country: "USA"
 
-If you cannot extract a real place name, respond with: []`;
+HOW TO PARSE:
+- First segment = place name
+- Last segment = check if it's a COUNTRY or a CITY:
+  - If it's a country name (Israel, USA, UK, Italy, etc.) → use as country, previous segment = city
+  - If it's a city name → use as city, infer country from city
+- Middle segments = street address (ignore)
+
+ISRAELI CITIES (country = "Israel"):
+Tel Aviv, Jerusalem, Haifa, Bat Yam, Netanya, Herzliya, Ramat Gan, Eilat, Beersheba, Ashdod, Ashkelon, Petah Tikva, Rishon LeZion, Holon, Bnei Brak, Ra'anana, Kfar Saba, Givatayim
+
+COMMON COUNTRIES:
+Israel, USA, UK, Italy, France, Spain, Germany, Austria, Greece, Portugal, Japan, Thailand, Vietnam, Turkey, Netherlands, Belgium, Switzerland
+
+Categories: food, nightlife, attractions, lodging, shopping, outdoors, general
+
+Respond ONLY with JSON array:
+[{"name": "Place Name", "category": "general", "confidence": 0.9, "city": "City Name", "country": "Country Name"}]
+
+If cannot extract place name, respond: []`;
 
 
 /**
@@ -278,9 +282,14 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
  * Internal helper: Try parsing with a specific model
  */
 async function tryParseWithModel(text: string, model: string, apiKey: string): Promise<ParseResult> {
-  const userPrompt = `A user shared this message. Extract place names and infer city/country from the text or URL. If you recognize the city, provide the country.
+  const userPrompt = `Extract place information from this Google Maps URL.
 
-Shared text:
+CRITICAL: The last segment may be a CITY (not a country). If it's a city like "Bat Yam", "Tel Aviv", etc., set it as city and infer country = "Israel".
+
+Example: /place/Villa+Mare,+Derech+Ben+Gurion+69,+Bat+Yam/
+→ name: "Villa Mare", city: "Bat Yam", country: "Israel"
+
+Shared URL:
 ${text}`;
 
   try {
@@ -319,10 +328,20 @@ ${text}`;
 
     let parsed: any[];
     try {
-      const cleanContent = content
+      // Clean the response - handle various AI response formats
+      let cleanContent = content
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
         .trim();
+
+      // Handle responses that start with ": " or "→ " or other prefixes
+      // Find the first [ and extract from there
+      const arrayStart = cleanContent.indexOf('[');
+      const arrayEnd = cleanContent.lastIndexOf(']');
+      if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+        cleanContent = cleanContent.substring(arrayStart, arrayEnd + 1);
+      }
+
       parsed = JSON.parse(cleanContent);
 
       // Ensure it's an array

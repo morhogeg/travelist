@@ -162,15 +162,60 @@ function parseURLLocally(rawText: string): InboxParsedPlace | null {
         const afterPlace = parts[1].split("/")[0];
         const decoded = decodeURIComponent(afterPlace).replace(/\+/g, " ");
 
-        // Try to split by comma: "Name, City, Country"
-        const segments = decoded.split(",").map(s => s.trim());
+        // Split by comma: "Name, Street Address, City, Country"
+        const segments = decoded.split(",").map(s => s.trim()).filter(s => s.length > 0);
+
         if (segments.length >= 1) {
+          const name = segments[0];
+          let city: string | undefined;
+          let country: string | undefined;
+
+          // Common Israeli cities for automatic country detection
+          const israeliCities = [
+            "tel aviv", "jerusalem", "haifa", "bat yam", "netanya", "herzliya",
+            "ramat gan", "eilat", "beersheba", "ashdod", "ashkelon", "petah tikva",
+            "rishon lezion", "holon", "bnei brak", "raanana", "kfar saba", "givatayim",
+            "herzliya pituach", "tel aviv-yafo", "tel-aviv"
+          ];
+
+          if (segments.length >= 4) {
+            // Format: Name, Street, City, Country
+            city = segments[segments.length - 2];
+            country = segments[segments.length - 1];
+          } else if (segments.length === 3) {
+            // Format: Name, City, Country OR Name, Street, City
+            // Check if last segment looks like a country
+            const lastLower = segments[2].toLowerCase();
+            const knownCountries = ["israel", "usa", "uk", "italy", "france", "spain", "germany", "austria", "greece", "portugal", "japan", "thailand", "vietnam"];
+            if (knownCountries.some(c => lastLower.includes(c))) {
+              city = segments[1];
+              country = segments[2];
+            } else {
+              // Might be Name, Street, City - check if segment[2] is a known city
+              if (israeliCities.some(c => segments[2].toLowerCase().includes(c))) {
+                city = segments[2];
+                country = "Israel";
+              } else {
+                city = segments[2];
+              }
+            }
+          } else if (segments.length === 2) {
+            // Format: Name, City - try to detect country from city
+            const secondLower = segments[1].toLowerCase();
+            if (israeliCities.some(c => secondLower.includes(c))) {
+              city = segments[1];
+              country = "Israel";
+            } else {
+              city = segments[1];
+            }
+          }
+
           return {
-            name: segments[0],
-            city: segments.length > 1 ? segments[1] : undefined,
-            country: segments.length > 2 ? segments[2] : undefined,
+            name,
+            city,
+            country,
             category: "general",
-            confidence: 0.8,
+            confidence: 0.85,
           };
         }
       }
