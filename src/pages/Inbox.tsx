@@ -23,7 +23,7 @@ import {
   parseInboxItem,
 } from "@/utils/inbox/inbox-store";
 import { InboxItem, InboxParsedPlace, InboxStatus } from "@/types/inbox";
-import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, RefreshCw, ClipboardPaste } from "lucide-react";
+import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, RefreshCw, ClipboardPaste, Plus } from "lucide-react";
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
@@ -66,6 +66,10 @@ const InboxPage: React.FC = () => {
   const [itemToDelete, setItemToDelete] = useState<InboxItem | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
+  const [showTextInputDrawer, setShowTextInputDrawer] = useState(false);
+  const [textInput, setTextInput] = useState("");
+  const [selectedPlaceIndex, setSelectedPlaceIndex] = useState(0);
+  const [selectedPlaceIds, setSelectedPlaceIds] = useState<Set<number>>(new Set());
 
   const recommendationCities = useMemo(() => {
     const recs = getRecommendations();
@@ -81,6 +85,19 @@ const InboxPage: React.FC = () => {
       .map((r) => r.country?.trim())
       .filter(Boolean) as string[];
     return Array.from(new Set(countries)).sort();
+  }, []);
+
+  const existingFriendNames = useMemo(() => {
+    const recs = getRecommendations();
+    const friendNames: string[] = [];
+    recs.forEach(rec => {
+      rec.places?.forEach(place => {
+        if (place.source?.type === 'friend' && place.source.name) {
+          friendNames.push(place.source.name);
+        }
+      });
+    });
+    return Array.from(new Set(friendNames)).sort();
   }, []);
 
   const getSourceLabel = (item: InboxItem) => {
@@ -204,6 +221,31 @@ const InboxPage: React.FC = () => {
     }
   };
 
+  const handleAddTextSubmit = () => {
+    if (!textInput.trim()) {
+      toast({
+        title: "Empty text",
+        description: "Please enter or paste some text first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newItem = addInboxItem(textInput.trim(), "manual-text-input");
+    setItems(getInboxItems());
+    setShowTextInputDrawer(false);
+    setTextInput("");
+
+    toast({
+      title: "Added to Inbox",
+      description: "Text added. Tap to review and save.",
+    });
+
+    // Auto-parse in background
+    triggerParse(newItem.id, true);
+  };
+
+
   useEffect(() => {
     // Initial import on mount
     void importFromShareExtension();
@@ -270,20 +312,35 @@ const InboxPage: React.FC = () => {
 
   const handleOpenItem = async (item: InboxItem) => {
     setSelectedItem(item);
-    setEditablePlaces(item.parsedPlaces.length ? [item.parsedPlaces[0]] : [placeholderPlace]);
 
     // Auto-parse on open if we don't have structured data yet
     if (!item.parsedPlaces.length) {
       const updated = await triggerParse(item.id, true);
-      if (updated) {
+      if (updated && updated.parsedPlaces.length > 0) {
+        setEditablePlaces(updated.parsedPlaces);
+        setSelectedPlaceIndex(0);
+        // Auto-select all places by default
+        setSelectedPlaceIds(new Set(updated.parsedPlaces.map((_, i) => i)));
         setSelectedItem(updated);
-        setEditablePlaces(updated.parsedPlaces.length ? [updated.parsedPlaces[0]] : [placeholderPlace]);
+      } else {
+        setEditablePlaces([placeholderPlace]);
+        setSelectedPlaceIndex(0);
+        setSelectedPlaceIds(new Set([0]));
       }
+    } else {
+      setEditablePlaces(item.parsedPlaces);
+      setSelectedPlaceIndex(0);
+      // Auto-select all places by default
+      setSelectedPlaceIds(new Set(item.parsedPlaces.map((_, i) => i)));
     }
   };
 
   const handleUpdatePlace = (index: number, field: keyof InboxParsedPlace, value: string) => {
     setEditablePlaces((prev) => prev.map((place, i) => i === index ? { ...place, [field]: value } : place));
+  };
+
+  const handleUpdateSource = (sourceName: string, sourceType: 'friend' | 'instagram' | 'tiktok' | 'article' | 'other', sourceUrl?: string) => {
+    setEditablePlaces((prev) => prev.map((place, i) => i === 0 ? { ...place, sourceName, sourceType, sourceUrl } : place));
   };
 
   const getHost = (item: InboxItem) => {
@@ -330,36 +387,48 @@ const InboxPage: React.FC = () => {
       window.open(link, "_blank");
     } else {
       toast({ title: "No link found", description: "This inbox item has no URL to open.", variant: "destructive" });
+      toast({ title: "No link found", description: "This inbox item has no URL to open.", variant: "destructive" });
     }
   };
 
   const handleSaveAsCard = async () => {
     if (!selectedItem) return;
-    const place = editablePlaces[0];
-    if (!place.name || !place.city || !place.country) {
-      toast({ title: "Missing details", description: "Add name, city, and country before saving.", variant: "destructive" });
+
+    const currentPlace = editablePlaces[selectedPlaceIndex];
+
+    if (!currentPlace.name || !currentPlace.city || !currentPlace.country) {
+      toast({
+        title: "Missing details",
+        description: "Add name, city, and country before saving.",
+        variant: "destructive"
+      });
       return;
     }
 
     const address =
       selectedItem.displayTitle ||
-      [place.name, place.city, place.country].filter(Boolean).join(", ") ||
+      [currentPlace.name, currentPlace.city, currentPlace.country].filter(Boolean).join(", ") ||
       selectedItem.rawText;
 
     const recId = uuidv4();
     const newRecommendation = {
       id: recId,
-      city: place.city.trim(),
-      country: place.country.trim(),
+      city: currentPlace.city!.trim(),
+      country: currentPlace.country!.trim(),
       location: address,
-      categories: [place.category || "general"],
+      categories: [currentPlace.category || "general"],
       places: [
         {
-          name: place.name.trim(),
-          category: place.category || "general",
-          description: place.description?.trim(),
+          name: currentPlace.name.trim(),
+          category: currentPlace.category || "general",
+          description: currentPlace.description?.trim(),
+          source: currentPlace.sourceName && currentPlace.sourceType ? {
+            type: currentPlace.sourceType,
+            name: currentPlace.sourceName,
+            url: currentPlace.sourceUrl,
+          } : undefined,
           context: {
-            ...(place.description?.trim() ? { specificTip: place.description.trim() } : {}),
+            ...(currentPlace.description?.trim() ? { specificTip: currentPlace.description.trim() } : {}),
             ...(address ? { address } : {}),
           },
         },
@@ -369,12 +438,39 @@ const InboxPage: React.FC = () => {
     };
 
     await storeRecommendation(newRecommendation);
-    markImported(selectedItem.id);
-    // Remove from inbox after saving as a card
-    deleteInboxItem(selectedItem.id);
-    setItems(getInboxItems());
-    setSelectedItem(null);
-    toast({ title: "Saved to list", description: `${place.name} added to your cards and removed from Inbox.` });
+
+    // Remove saved place from editablePlaces
+    const updatedPlaces = editablePlaces.filter((_, i) => i !== selectedPlaceIndex);
+
+    if (updatedPlaces.length === 0) {
+      // All places saved, remove inbox item
+      markImported(selectedItem.id);
+      deleteInboxItem(selectedItem.id);
+      setItems(getInboxItems());
+      setSelectedItem(null);
+    } else {
+      // Update item with remaining places
+      setEditablePlaces(updatedPlaces);
+      // Adjust selected index if needed
+      if (selectedPlaceIndex >= updatedPlaces.length) {
+        setSelectedPlaceIndex(updatedPlaces.length - 1);
+      }
+      // Update the inbox item
+      const updatedItem = { ...selectedItem, parsedPlaces: updatedPlaces };
+      setSelectedItem(updatedItem);
+      // Update in storage
+      const items = getInboxItems();
+      const itemIndex = items.findIndex(i => i.id === selectedItem.id);
+      if (itemIndex !== -1) {
+        items[itemIndex] = updatedItem;
+        setItems([...items]);
+      }
+    }
+
+    toast({
+      title: "Saved to list",
+      description: `${currentPlace.name} added to your cards.${updatedPlaces.length > 0 ? ` ${updatedPlaces.length} place(s) remaining.` : ''}`
+    });
   };
 
   const placeholderPlace: InboxParsedPlace = {
@@ -417,17 +513,12 @@ const InboxPage: React.FC = () => {
           </h1>
           <div className="absolute right-0 flex items-center gap-2">
             <button
-              onClick={handlePasteFromClipboard}
-              disabled={isPasting}
-              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-50"
-              aria-label="Paste from clipboard"
-              title="Paste URL or text from clipboard"
+              onClick={() => setShowTextInputDrawer(true)}
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+              aria-label="Add text"
+              title="Add text recommendation"
             >
-              {isPasting ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <ClipboardPaste className="h-5 w-5" />
-              )}
+              <Plus className="h-5 w-5" />
             </button>
             <FilterButton
               activeCount={filterCities.length + filterCountries.length + filterSources.length}
@@ -513,9 +604,16 @@ const InboxPage: React.FC = () => {
                   </div>
 
                   {/* Place name - prominent */}
-                  <h3 className="text-base font-semibold text-foreground leading-tight mb-1">
-                    {placeName || item.rawText.slice(0, 50)}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-base font-semibold text-foreground leading-tight">
+                      {placeName || item.rawText.slice(0, 50)}
+                    </h3>
+                    {item.parsedPlaces.length > 1 && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap">
+                        {item.parsedPlaces.length}
+                      </span>
+                    )}
+                  </div>
 
                   {/* Location + timestamp */}
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -550,32 +648,83 @@ const InboxPage: React.FC = () => {
                   Open link
                 </Button>
               ) : null}
-              <p className="text-sm text-muted-foreground break-all">
-                {selectedItem?.displayTitle || selectedItem?.rawText}
-              </p>
+              <div className="text-sm text-muted-foreground break-all flex items-center gap-2 justify-center">
+                <span className="truncate">
+                  {selectedItem?.displayTitle || selectedItem?.rawText}
+                </span>
+                {selectedItem?.parsedPlaces && selectedItem.parsedPlaces.length > 1 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap flex-shrink-0">
+                    {selectedItem.parsedPlaces.length} places
+                  </span>
+                )}
+              </div>
+
+              {/* Place tabs if multiple places */}
+              {editablePlaces.length > 1 && (
+                <div className="w-full space-y-2 pt-2">
+                  <p className="text-xs text-muted-foreground">
+                    {selectedPlaceIds.size} of {editablePlaces.length} places selected
+                  </p>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {editablePlaces.map((place, index) => {
+                      const isSelected = selectedPlaceIds.has(index);
+                      const isActive = selectedPlaceIndex === index;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedPlaceIndex(index)}
+                          className={cn(
+                            "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0",
+                            isActive
+                              ? "bg-primary/10 text-primary border border-primary/20"
+                              : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                          )}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              const newSet = new Set(selectedPlaceIds);
+                              if (e.target.checked) {
+                                newSet.add(index);
+                              } else {
+                                newSet.delete(index);
+                              }
+                              setSelectedPlaceIds(newSet);
+                            }}
+                            className="rounded"
+                          />
+                          <span>{place.name || `Place ${index + 1}`}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </DrawerHeader>
 
             <div className="space-y-4 pb-4">
               <div className="space-y-3">
                 <ClearableInput
                   placeholder="Name"
-                  value={editablePlaces[0]?.name || ""}
-                  onChange={(e) => handleUpdatePlace(0, "name", e.target.value)}
+                  value={editablePlaces[selectedPlaceIndex]?.name || ""}
+                  onChange={(e) => handleUpdatePlace(selectedPlaceIndex, "name", e.target.value)}
                   className="text-base"
                 />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="relative">
                     <ClearableInput
                       placeholder="City"
-                      value={editablePlaces[0]?.city || ""}
+                      value={editablePlaces[selectedPlaceIndex]?.city || ""}
                       onChange={(e) => handleUpdatePlace(0, "city", e.target.value)}
                       onFocus={() => setShowCitySuggestions(true)}
                       onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
                       className="text-base"
                     />
-                    {showCitySuggestions && filterOptions(recommendationCities, editablePlaces[0]?.city).length > 0 && (
+                    {showCitySuggestions && filterOptions(recommendationCities, editablePlaces[selectedPlaceIndex]?.city).length > 0 && (
                       <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
-                        {filterOptions(recommendationCities, editablePlaces[0]?.city).map((city) => (
+                        {filterOptions(recommendationCities, editablePlaces[selectedPlaceIndex]?.city).map((city) => (
                           <button
                             key={city}
                             type="button"
@@ -599,15 +748,15 @@ const InboxPage: React.FC = () => {
                   <div className="relative">
                     <ClearableInput
                       placeholder="Country"
-                      value={editablePlaces[0]?.country || ""}
+                      value={editablePlaces[selectedPlaceIndex]?.country || ""}
                       onChange={(e) => handleUpdatePlace(0, "country", e.target.value)}
                       onFocus={() => setShowCountrySuggestions(true)}
                       onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
                       className="text-base"
                     />
-                    {showCountrySuggestions && filterOptions(recommendationCountries, editablePlaces[0]?.country).length > 0 && (
+                    {showCountrySuggestions && filterOptions(recommendationCountries, editablePlaces[selectedPlaceIndex]?.country).length > 0 && (
                       <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
-                        {filterOptions(recommendationCountries, editablePlaces[0]?.country).map((country) => (
+                        {filterOptions(recommendationCountries, editablePlaces[selectedPlaceIndex]?.country).map((country) => (
                           <button
                             key={country}
                             type="button"
@@ -631,7 +780,7 @@ const InboxPage: React.FC = () => {
                       key={cat.id}
                       label={cat.label}
                       icon={cat.icon}
-                      isActive={editablePlaces[0]?.category === cat.id}
+                      isActive={editablePlaces[selectedPlaceIndex]?.category === cat.id}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -640,9 +789,90 @@ const InboxPage: React.FC = () => {
                     />
                   ))}
                 </div>
+
+                {/* Source selection */}
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-muted-foreground">Source</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { id: 'friend', label: 'Friend', icon: '👤' },
+                      { id: 'instagram', label: 'Instagram', icon: '📸', linkable: true },
+                      { id: 'tiktok', label: 'TikTok', icon: '🎵', linkable: true },
+                      { id: 'article', label: 'Article', icon: '📝', linkable: true },
+                      { id: 'other', label: 'Other', icon: '🌐' },
+                    ].map((source) => (
+                      <button
+                        key={source.id}
+                        onClick={() => {
+                          const currentType = editablePlaces[selectedPlaceIndex]?.sourceType;
+                          const currentName = editablePlaces[selectedPlaceIndex]?.sourceName;
+
+                          if (source.id === 'friend') {
+                            // For friend, keep existing name if already set, else prompt for name
+                            handleUpdateSource(
+                              currentName && currentType === 'friend' ? currentName : 'Friend',
+                              'friend'
+                            );
+                          } else {
+                            // For non-friend sources, use the label as the name
+                            handleUpdateSource(source.label, source.id as any);
+                          }
+                        }}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                          editablePlaces[selectedPlaceIndex]?.sourceType === source.id
+                            ? "bg-primary/10 text-primary border-primary/20"
+                            : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
+                        )}
+                      >
+                        {source.icon} {source.label}
+                      </button>
+                    ))}
+                  </div>
+                  {editablePlaces[selectedPlaceIndex]?.sourceType === 'friend' && (
+                    <div className="space-y-2 mt-2">
+                      {existingFriendNames.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {existingFriendNames.map((friendName) => (
+                            <button
+                              key={friendName}
+                              onClick={() => handleUpdateSource(friendName, 'friend')}
+                              className="px-2.5 py-1 rounded-full text-xs font-medium bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              {friendName}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <Input
+                        placeholder="Friend's name..."
+                        value={editablePlaces[selectedPlaceIndex]?.sourceName || ''}
+                        onChange={(e) => handleUpdateSource(e.target.value, 'friend')}
+                        className="text-sm"
+                      />
+                    </div>
+                  )}
+                  {/* URL field for linkable sources */}
+                  {(editablePlaces[selectedPlaceIndex]?.sourceType === 'instagram' ||
+                    editablePlaces[selectedPlaceIndex]?.sourceType === 'tiktok' ||
+                    editablePlaces[selectedPlaceIndex]?.sourceType === 'article') && (
+                      <Input
+                        placeholder="Source URL (optional)"
+                        value={editablePlaces[selectedPlaceIndex]?.sourceUrl || ''}
+                        onChange={(e) => handleUpdateSource(
+                          editablePlaces[selectedPlaceIndex]?.sourceName || editablePlaces[selectedPlaceIndex]?.sourceType || '',
+                          editablePlaces[selectedPlaceIndex]?.sourceType as any,
+                          e.target.value
+                        )}
+                        className="text-sm mt-2"
+                        type="url"
+                      />
+                    )}
+                </div>
+
                 <Textarea
                   placeholder="Description or tip"
-                  value={editablePlaces[0]?.description || ""}
+                  value={editablePlaces[selectedPlaceIndex]?.description || ""}
                   onChange={(e) => handleUpdatePlace(0, "description", e.target.value)}
                   className="text-base"
                 />
@@ -655,7 +885,7 @@ const InboxPage: React.FC = () => {
                 onClick={handleSaveAsCard}
                 disabled={!selectedItem}
               >
-                Save as Card
+                Save {editablePlaces[selectedPlaceIndex]?.name || 'Place'} as Card
               </Button>
               <Button variant="ghost" onClick={() => setSelectedItem(null)}>Close</Button>
             </DrawerFooter>
@@ -757,6 +987,44 @@ const InboxPage: React.FC = () => {
                 </div>
               </div>
             </div>
+          </DrawerContent>
+        </Drawer>
+
+        {/* Text Input Drawer */}
+        <Drawer open={showTextInputDrawer} onOpenChange={(open) => !open && setShowTextInputDrawer(false)}>
+          <DrawerContent className="max-h-[85vh] px-4">
+            <DrawerHeader className="pb-2">
+              <DrawerTitle>Add Text Recommendation</DrawerTitle>
+              <DrawerDescription>
+                Paste or type a place recommendation from Instagram, WhatsApp, or anywhere else.
+              </DrawerDescription>
+            </DrawerHeader>
+
+            <div className="px-4 pb-4">
+              <Textarea
+                placeholder="Example: Found this amazing café in Barcelona! ☕ Café Federal on Carrer del Parlament - amazing brunch spot. Highly recommend the shakshuka! 🍳"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                className="min-h-[200px] text-base"
+                autoFocus
+              />
+            </div>
+
+            <DrawerFooter>
+              <Button
+                className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                onClick={handleAddTextSubmit}
+                disabled={!textInput.trim()}
+              >
+                Add to Inbox
+              </Button>
+              <Button variant="ghost" onClick={() => {
+                setShowTextInputDrawer(false);
+                setTextInput("");
+              }}>
+                Cancel
+              </Button>
+            </DrawerFooter>
           </DrawerContent>
         </Drawer>
 

@@ -61,12 +61,18 @@ export function addInboxItem(rawText: string, sourceApp?: string): InboxItem {
     return existing;
   }
 
+  // Detect input type
+  const urlPattern = /https?:\/\/[^\s]+/;
+  const hasURL = urlPattern.test(trimmedText);
+  const inputType = hasURL ? 'url' : 'text';
+
   const meta = deriveLinkMeta(rawText);
   const item: InboxItem = {
     id: uuidv4(),
     rawText: trimmedText,
     ...meta,
     sourceApp,
+    inputType,
     receivedAt: new Date().toISOString(),
     status: "new",
     parsedPlaces: [],
@@ -120,8 +126,20 @@ export async function parseInboxItem(id: string): Promise<InboxItem | null> {
 
     // If AI returned results, use them
     if (result.places.length > 0) {
-      const status = deriveStatusFromPlaces(result.places);
-      return updateInboxItem(id, { parsedPlaces: result.places, status, error: undefined }) as InboxItem;
+      // Map AI ParsedPlace to InboxParsedPlace with source data
+      const mappedPlaces: InboxParsedPlace[] = result.places.map(p => ({
+        name: p.name,
+        category: p.category,
+        city: p.city,
+        country: p.country,
+        description: p.description,
+        confidence: p.confidence,
+        sourceName: p.source?.name,
+        sourceType: p.source?.type as 'friend' | 'instagram' | 'tiktok' | 'article' | 'other' | undefined,
+        sourceUrl: p.source?.url,
+      }));
+      const status = deriveStatusFromPlaces(mappedPlaces);
+      return updateInboxItem(id, { parsedPlaces: mappedPlaces, status, error: undefined }) as InboxItem;
     }
 
     // If AI returned empty, try local URL parsing as fallback

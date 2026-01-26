@@ -125,6 +125,57 @@ Respond ONLY with JSON array:
 
 If cannot extract place name, respond: []`;
 
+const FREEFORM_TEXT_PROMPT = `You are a travel recommendation parser that extracts place info from natural language text (e.g., Instagram captions, friend recommendations, messages).
+
+Extract place names, cities, countries, categories, tips, and sources from descriptive text.
+
+Categories (use exactly these lowercase values):
+- food: restaurants, cafes, bakeries, any eating establishment
+- nightlife: bars, clubs, pubs, lounges
+- attractions: museums, landmarks, monuments, tourist sites
+- lodging: hotels, hostels, B&Bs, accommodations
+- shopping: stores, malls, markets, boutiques
+- outdoors: parks, beaches, hiking trails, nature spots
+- general: anything that doesn't fit above
+
+Source types (use exactly these lowercase values if detected):
+- friend: recommended by a person (extract their name if mentioned)
+- instagram: saw on Instagram or shared from Instagram app
+- tiktok: saw on TikTok
+- youtube: saw on YouTube
+- blog: read in a blog or article
+- article: read in news/magazine
+- email: received via email
+- text: received via text message
+- other: any other source mentioned
+
+RULES:
+1. Extract the actual place NAME (e.g., "Amazing café called Café Central" → name: "Café Central")
+2. Look for city and country mentions (e.g., "in Barcelona", "Tel Aviv", "Israel")
+3. If city/country not explicitly mentioned, try to infer from context or hashtags (#barcelona, #telaviv)
+4. Extract TIPS from descriptive text:
+   - "try the shakshuka" → tip: "Try the shakshuka"
+   - "best coffee in town" → tip: "Great coffee"
+   - "go for sunset" → tip: "Go for sunset"
+5. Extract SOURCE if mentioned:
+   - "via @username" → source: {type: "instagram", name: "@username"}
+   - "my friend Sarah recommended" → source: {type: "friend", name: "Sarah"}
+6. Handle emojis and hashtags gracefully (ignore or use for context)
+7. Confidence: 1.0 if clear, 0.7-0.9 if inferred, 0.5 if uncertain
+8. LANGUAGE: Keep tips in the SAME LANGUAGE as input
+
+EXAMPLES:
+- "Found this amazing café in Barcelona! ☕ Café Federal on Carrer del Parlament - amazing brunch spot. Highly recommend the shakshuka! 🍳 #barcelona #foodie"
+  → [{"name": "Café Federal", "city": "Barcelona", "category": "food", "tip": "Highly recommend the shakshuka", "confidence": 0.95}]
+
+- "Villa Mare in Bat Yam has the best seafood!via @foodie_israel"
+  → [{"name": "Villa Mare", "city": "Bat Yam", "country": "Israel", "category": "food", "tip": "Best seafood", "source": {"type": "instagram", "name": "@foodie_israel"}, "confidence": 0.9}]
+
+Respond ONLY with valid JSON array:
+[{"name": "Place Name", "city": "City", "country": "Country", "category": "food", "confidence": 0.9, "tip": "Try X", "source": {"type": "friend", "name": "Sarah"}}]
+
+Omit source field if no source. Omit tip if no specific recommendation. Omit city/country if truly unable to determine (but try hard to infer from context/hashtags).`;
+
 
 /**
  * Parse free-text recommendations using Grok via OpenRouter
@@ -242,7 +293,7 @@ ${text}`;
 
 /**
  * Parse shared text (no guaranteed location) and infer city/country when present.
- * Now includes fallback model logic for better reliability.
+ * Now includes fallback model logic and detection of URL vs freeform text input.
  */
 export async function parseSharedText(text: string): Promise<ParseResult> {
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
@@ -252,13 +303,20 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
     return { places: [], error: 'API key not configured' };
   }
 
+  // Detect if input is URL or freeform text
+  const urlPattern = /https?:\/\/[^\s]+/;
+  const hasURL = urlPattern.test(text);
+  const inputType = hasURL ? 'url' : 'text';
+
+  console.log('[Parser] Detected input type:', inputType);
+
   const modelsToTry = [PRIMARY_MODEL, ...FALLBACK_MODELS];
   let lastError = 'Unknown error';
 
   for (const model of modelsToTry) {
     console.log('[Parser] Trying model:', model);
 
-    const result = await tryParseWithModel(text, model, apiKey);
+    const result = await tryParseWithModel(text, model, apiKey, inputType);
 
     if (result.places.length > 0 || !result.error) {
       // Success or empty but valid response
@@ -281,8 +339,12 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
 /**
  * Internal helper: Try parsing with a specific model
  */
-async function tryParseWithModel(text: string, model: string, apiKey: string): Promise<ParseResult> {
-  const userPrompt = `Extract place information from this Google Maps URL.
+async function tryParseWithModel(text: string, model: string, apiKey: string, inputType: 'url' | 'text' = 'url'): Promise<ParseResult> {
+  // Choose prompt and user message based on input type
+  const systemPrompt = inputType === 'url' ? SHARE_SYSTEM_PROMPT : FREEFORM_TEXT_PROMPT;
+
+  const userPrompt = inputType === 'url'
+    ? `Extract place information from this Google Maps URL.
 
 CRITICAL: The last segment may be a CITY (not a country). If it's a city like "Bat Yam", "Tel Aviv", etc., set it as city and infer country = "Israel".
 
@@ -290,7 +352,11 @@ Example: /place/Villa+Mare,+Derech+Ben+Gurion+69,+Bat+Yam/
 → name: "Villa Mare", city: "Bat Yam", country: "Israel"
 
 Shared URL:
+${text}`
+    : `Extract place information from this text:
+
 ${text}`;
+
 
   try {
     const response = await fetch(OPENROUTER_API_URL, {
@@ -304,7 +370,7 @@ ${text}`;
       body: JSON.stringify({
         model: model,
         messages: [
-          { role: 'system', content: SHARE_SYSTEM_PROMPT },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.1,

@@ -4,7 +4,27 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ---
 
-## [Build 7] - 2026-01-25 (Unreleased)
+## [Build 7] - 2026-01-26 (Unreleased)
+
+### ✨ Added
+- **Freeform Text Input** - Add recommendations from Instagram, friends, or any text source
+  - **In-App "+" Button**: Opens drawer with textarea for pasting/typing recommendations
+  - **AI Text Parser**: Automatically extracts place names, cities, tips, and sources from natural language
+  - **Share Extension Support**: Share text directly from other apps to Travelist
+  - **Auto-Detection**: System automatically routes URLs vs text to appropriate AI parsers
+  - **Multi-Language Support**: Preserves original language in tips (Hebrew, English, etc.)
+- **Source Attribution System** - Track recommendation origins with full attribution
+  - **5 Source Types**: Friend (with name input), Instagram, TikTok, Article, Other
+  - **Friend Name Suggestions**: Shows previously used friend names as quick-select pills
+  - **Optional URLs**: Instagram/TikTok/Article sources include optional source URL field
+  - **AI Auto-Detection**: Extracts sources from text like "via @username" or "my friend Sarah"
+  - **Visual Indicators**: Source info displayed on recommendation cards
+- **Multi-Place Support** - Extract and save multiple places from one text
+  - **Tabbed Review Interface**: Each extracted place gets its own tab for individual editing
+  - **Individual Save**: Save places one at a time, not in batch
+  - **Progress Badges**: Inbox items show count badge (e.g., "2 places") for multi-place entries
+  - **Smart Workflow**: After saving a place, it's removed from drawer; item auto-deleted when all places saved
+  - **Use Case**: Perfect for "Top 10" articles or multi-recommendation texts from friends
 
 ### 🐛 Fixed
 - **Google Maps City/Country Extraction** - Fixed parsing for URLs without country
@@ -16,6 +36,9 @@ All notable changes to the Travelist iOS app will be documented in this file.
 - **AI Description Hallucinations** - Made description generator much more conservative
   - No longer guesses cuisine types (was saying "Colombian restaurant" for an Israeli pizza place)
   - Only mentions food types when explicitly in the place name (e.g., "Joe's Pizza" → pizza OK)
+
+### 🔧 Changed
+- **"Blog" Source Renamed to "Article"**: More accurate terminology for written content sources
 
 ---
 

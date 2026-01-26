@@ -213,8 +213,8 @@ class ShareViewController: UIViewController {
                             if let url = self?.extractURL(from: text) {
                                 self?.handleURL(url)
                             } else {
-                                self?.sharedText = text
-                                self?.placeNameLabel.text = String(text.prefix(60))
+                                // Plain text without URL - display as text recommendation
+                                self?.handlePlainText(text)
                             }
                         }
                     }
@@ -351,6 +351,15 @@ class ShareViewController: UIViewController {
         placeNameLabel.text = host.replacingOccurrences(of: "www.", with: "")
         locationLabel.text = "Web Link"
     }
+    
+    // Helper to handle plain text (non-URL) content
+    private func handlePlainText(_ text: String) {
+        sharedText = text
+        placeNameLabel.text = String(text.prefix(80))
+        locationLabel.text = "Text · AI will extract details"
+        subtitleLabel.text = "Travelist AI will find places in this text"
+    }
+
     
     // MARK: - Place Name Extraction
     
