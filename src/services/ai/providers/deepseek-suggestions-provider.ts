@@ -14,7 +14,7 @@ import {
 } from '../types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'google/gemma-3-27b-it:free'; // Gemma 3 27B via OpenRouter (free tier)
+const MODEL = 'meta-llama/llama-3.3-70b-instruct:free'; // Llama 3.3 70B via OpenRouter (free tier)
 
 /**
  * Generates a unique ID for suggestions
