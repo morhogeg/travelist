@@ -43,6 +43,11 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ### 🔧 Changed
 - **"Blog" Source Renamed to "Article"**: More accurate terminology for written content sources
+- **App Store Preparation** - Codebase cleanup for production readiness
+  - **Bundle Size**: Reduced by ~1MB through removal of 11 unused UI components and 72 unused npm packages
+  - **Production Logging**: Added `logger.ts` utility to suppress debug logs in production builds
+  - **Code Quality**: Removed Xcode backup files, updated .gitignore and ESLint configurations
+  - **Performance**: Configured Vite to strip console.log statements from production builds
 
 ---
 
