@@ -7,6 +7,10 @@ All notable changes to the Travelist iOS app will be documented in this file.
 ## [Build 7] - 2026-01-26 (Unreleased)
 
 ### ✨ Added
+- **Free AI Models** - Switched to high-performance free models from OpenRouter to ensure zero API costs
+  - **Parsing**: `google/gemma-3-27b-it:free` for accurate extraction from shared links
+  - **Suggestions**: `meta-llama/llama-3.3-70b-instruct:free` for personalized recommendations
+  - **Trip Planning**: `google/gemma-3-27b-it:free` for optimizing itineraries
 - **Freeform Text Input** - Add recommendations from Instagram, friends, or any text source
   - **In-App "+" Button**: Opens drawer with textarea for pasting/typing recommendations
   - **AI Text Parser**: Automatically extracts place names, cities, tips, and sources from natural language
