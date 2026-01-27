@@ -11,6 +11,7 @@ const PRIMARY_MODEL = 'google/gemma-3-27b-it:free';
 const FALLBACK_MODELS = [
   'google/gemini-2.0-flash-lite-preview-02-05:free',
   'meta-llama/llama-3.3-70b-instruct:free',
+  'qwen/qwen-2.5-72b-instruct:free',
 ];
 const MODEL = PRIMARY_MODEL;
 
