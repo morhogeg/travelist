@@ -90,6 +90,8 @@ export interface StructuredFormValues {
   country?: string;
   description?: string;
   website?: string;
+  source?: RecommendationSource;
+  context?: RecommendationContext;
 }
 
 export interface FreeTextFormValues {

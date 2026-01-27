@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  parseRecommendation 
+import {
+  parseRecommendation
 } from "@/utils/recommendation/parser";
-import { 
-  storeRecommendation, 
+import {
+  storeRecommendation,
   addToUserPlaces,
   getRecommendations
 } from "@/utils/recommendation-parser";
@@ -22,7 +22,7 @@ export const useRecommendationSubmit = () => {
     try {
       // Process free text recommendation
       const result = parseRecommendation(values.city, values.recommendations);
-      
+
       if (result.places.length > 1) {
         const uniquePlaceNames = new Set<string>();
         result.places = result.places.filter(place => {
@@ -34,22 +34,22 @@ export const useRecommendationSubmit = () => {
           return true;
         });
       }
-      
+
       storeRecommendation(result);
-      
+
       // Add city to user places
       addToUserPlaces(values.city);
-      
+
       // Dispatch a custom event to notify other components
       window.dispatchEvent(new CustomEvent('recommendationAdded'));
       window.dispatchEvent(new CustomEvent('userPlacesChanged'));
       window.dispatchEvent(new CustomEvent('placeDeleted'));
-      
+
       toast({
         title: "Recommendation added!",
         description: `Added ${result.places.length} ${result.places.length === 1 ? 'place' : 'places'} to ${result.city}`,
       });
-      
+
       return true;
     } catch (error) {
       console.error("Error analyzing recommendation:", error);
@@ -63,7 +63,7 @@ export const useRecommendationSubmit = () => {
       setIsAnalyzing(false);
     }
   };
-  
+
   const handleStructuredSubmit = async (values: StructuredFormValues, existingRecId?: string): Promise<boolean> => {
     setIsAnalyzing(true);
     try {
@@ -71,13 +71,13 @@ export const useRecommendationSubmit = () => {
       console.log("🔍 Source data:", values.source);
       console.log("🔍 Context data:", values.context);
       console.log("Editing existing recommendation ID:", existingRecId);
-      
+
       // Check if we're editing an existing recommendation
       if (existingRecId) {
         // Get all recommendations
         const recommendations = getRecommendations();
         let found = false;
-        
+
         // Loop through all recommendations to find the place to update
         for (const rec of recommendations) {
           // Try to find the place in this recommendation
@@ -85,7 +85,7 @@ export const useRecommendationSubmit = () => {
             const place = rec.places[i];
             if (place.id === existingRecId || place.recId === existingRecId) {
               console.log("Found place to update:", place);
-              
+
               // Update the existing recommendation
               rec.places[i] = {
                 ...place,
@@ -100,17 +100,17 @@ export const useRecommendationSubmit = () => {
                 source: values.source,
                 context: values.context,
               };
-              
+
               // Update categories if needed
               if (!rec.categories.includes(values.category)) {
                 rec.categories.push(values.category);
               }
-              
+
               // Update country if provided
               if (values.country && values.country !== "none") {
                 rec.country = values.country;
               }
-              
+
               // Save the updated recommendations
               localStorage.setItem("recommendations", JSON.stringify(recommendations));
               window.dispatchEvent(new CustomEvent("recommendationAdded"));
@@ -118,10 +118,10 @@ export const useRecommendationSubmit = () => {
               break;
             }
           }
-          
+
           if (found) break;
         }
-        
+
         if (found) {
           toast({
             title: "Recommendation updated!",
@@ -129,7 +129,7 @@ export const useRecommendationSubmit = () => {
           });
           return true;
         }
-        
+
         // If we didn't find the recommendation to edit, show an error
         toast({
           title: "Error updating recommendation",
@@ -138,7 +138,7 @@ export const useRecommendationSubmit = () => {
         });
         return false;
       }
-      
+
       // Create a single recommendation place from the form values
       const place = {
         name: values.name,
@@ -159,28 +159,28 @@ export const useRecommendationSubmit = () => {
 
       console.log("🔍 parseRecommendation result:", result);
       console.log("🔍 Result places[0]:", result.places[0]);
-      
+
       // Add country if provided
       if (values.country && values.country !== "none") {
         result.country = values.country;
       }
-      
+
       console.log("Parsed recommendation:", result);
       storeRecommendation(result);
-      
+
       // Add city to user places with country
       addToUserPlaces(values.city, values.country !== "none" ? values.country : undefined);
-      
+
       // Dispatch a custom event to notify other components
       window.dispatchEvent(new CustomEvent('recommendationAdded'));
       window.dispatchEvent(new CustomEvent('userPlacesChanged'));
       window.dispatchEvent(new CustomEvent('placeDeleted'));
-      
+
       toast({
         title: "Recommendation added!",
         description: `Added "${values.name}" to ${values.city}`,
       });
-      
+
       return true;
     } catch (error) {
       console.error("Error adding structured recommendation:", error);
@@ -195,9 +195,61 @@ export const useRecommendationSubmit = () => {
     }
   };
 
+  const submitAIParsedRecommendation = async (values: { city: string; country: string; recommendations: string; parsedPlaces: any[] }): Promise<string[] | null> => {
+    setIsAnalyzing(true);
+    try {
+      const savedIds: string[] = [];
+
+      for (const parsedPlace of values.parsedPlaces) {
+        const place = {
+          name: parsedPlace.name,
+          category: parsedPlace.category || 'general',
+          description: parsedPlace.tip || parsedPlace.description || undefined,
+          website: parsedPlace.website || undefined,
+          source: parsedPlace.source,
+          context: parsedPlace.context,
+          id: crypto.randomUUID()
+        };
+
+        const result = parseRecommendation(values.city, [place]);
+
+        if (values.country && values.country !== "none") {
+          result.country = values.country;
+        }
+
+        storeRecommendation(result);
+        savedIds.push(place.id);
+      }
+
+      addToUserPlaces(values.city, values.country !== "none" ? values.country : undefined);
+
+      window.dispatchEvent(new CustomEvent('recommendationAdded'));
+      window.dispatchEvent(new CustomEvent('userPlacesChanged'));
+      window.dispatchEvent(new CustomEvent('placeDeleted'));
+
+      toast({
+        title: "Recommendations added!",
+        description: `Added ${savedIds.length} ${savedIds.length === 1 ? 'place' : 'places'} to ${values.city}`,
+      });
+
+      return savedIds;
+    } catch (error) {
+      console.error("Error adding AI-parsed recommendations:", error);
+      toast({
+        title: "Something went wrong",
+        description: "We couldn't add your recommendations. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return {
-    isAnalyzing,
-    handleFreeTextSubmit,
-    handleStructuredSubmit
+    isLoading: isAnalyzing,
+    submitStructuredRecommendation: handleStructuredSubmit,
+    submitFreeTextRecommendation: handleFreeTextSubmit,
+    submitAIParsedRecommendation,
   };
 };
