@@ -27,3 +27,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# iOS/Xcode
+ios/DerivedData/
+ios/**/*.backup
+ios/**/*.xcuserstate
+ios/**/.build/
+*.ipa
+*.dSYM.zip
+*.dSYM

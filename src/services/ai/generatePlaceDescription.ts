@@ -3,6 +3,8 @@
  * Uses OpenRouter API (Google Gemma) to generate brief descriptions for user's saved places
  */
 
+import { logger } from '@/utils/logger';
+
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'google/gemma-3-27b-it:free';
 
@@ -23,7 +25,7 @@ export async function generatePlaceDescription(
     const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
     if (!apiKey) {
-        console.error('[AI Description] OpenRouter API key not configured');
+        logger.error('AI Description', 'OpenRouter API key not configured');
         return { description: null, error: 'API key not configured' };
     }
 
@@ -48,7 +50,7 @@ Respond with ONLY the description, no quotes or explanation.`;
     const userPrompt = `Describe: ${placeName} in ${city}, ${country}${categoryHint}`;
 
     try {
-        console.log('[AI Description] Generating description for:', placeName);
+        logger.debug('AI Description', 'Generating description for:', placeName);
 
         const response = await fetch(OPENROUTER_API_URL, {
             method: 'POST',
@@ -71,7 +73,7 @@ Respond with ONLY the description, no quotes or explanation.`;
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('[AI Description] API error:', response.status, errorData);
+            logger.error('AI Description', 'API error:', response.status, errorData);
             return {
                 description: null,
                 error: `API error: ${response.status}`
@@ -85,11 +87,11 @@ Respond with ONLY the description, no quotes or explanation.`;
             return { description: null, error: 'Empty response from AI' };
         }
 
-        console.log('[AI Description] Generated:', content);
+        logger.debug('AI Description', 'Generated:', content);
         return { description: content };
 
     } catch (error) {
-        console.error('[AI Description] Network error:', error);
+        logger.error('AI Description', 'Network error:', error);
         return { description: null, error: 'Network error - please try again' };
     }
 }

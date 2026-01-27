@@ -9,6 +9,7 @@ import {
     getCurrentLocation,
     calculateDistance
 } from './geocoding-service';
+import { logger } from '@/utils/logger';
 
 // Types
 interface ProximityPlace {
@@ -37,14 +38,14 @@ export async function initializeProximity(): Promise<boolean> {
         const permission = await Geolocation.checkPermissions();
 
         if (permission.location === 'denied') {
-            console.log('[ProximityService] Location permission denied');
+            logger.debug('ProximityService', 'Location permission denied');
             return false;
         }
 
         if (permission.location === 'prompt' || permission.location === 'prompt-with-rationale') {
             const result = await Geolocation.requestPermissions();
             if (result.location === 'denied') {
-                console.log('[ProximityService] Location permission denied after request');
+                logger.debug('ProximityService', 'Location permission denied after request');
                 return false;
             }
         }
@@ -59,10 +60,10 @@ export async function initializeProximity(): Promise<boolean> {
         await setupNotificationListeners();
 
         isInitialized = true;
-        console.log('[ProximityService] Initialized successfully');
+        logger.info('ProximityService', 'Initialized successfully');
         return true;
     } catch (error) {
-        console.error('[ProximityService] Initialization error:', error);
+        logger.error('ProximityService', 'Initialization error:', error);
         return false;
     }
 }
@@ -76,7 +77,7 @@ export async function startProximityMonitoring(
     const settings = getProximitySettings();
 
     if (!settings.enabled) {
-        console.log('[ProximityService] Proximity disabled, not starting monitoring');
+        logger.debug('ProximityService', 'Proximity disabled, not starting monitoring');
         return;
     }
 
@@ -93,7 +94,7 @@ export async function startProximityMonitoring(
             place.lng !== undefined
     );
 
-    console.log(`[ProximityService] Monitoring ${monitoredPlaces.length} places from ${settings.enabledCityIds.length} cities`);
+    logger.info('ProximityService', `Monitoring ${monitoredPlaces.length} places from ${settings.enabledCityIds.length} cities`);
 
     // Stop existing watch if any
     if (watchId) {
@@ -109,7 +110,7 @@ export async function startProximityMonitoring(
         },
         (position, err) => {
             if (err) {
-                console.error('[ProximityService] Watch position error:', err);
+                logger.error('ProximityService', 'Watch position error:', err);
                 return;
             }
             if (position) {
@@ -126,7 +127,7 @@ export async function stopProximityMonitoring(): Promise<void> {
     if (watchId) {
         await Geolocation.clearWatch({ id: watchId });
         watchId = null;
-        console.log('[ProximityService] Stopped monitoring');
+        logger.debug('ProximityService', 'Stopped monitoring');
     }
 }
 
@@ -146,7 +147,7 @@ function checkProximity(position: Position): void {
         const distance = calculateDistance(userLat, userLng, place.lat, place.lng);
 
         if (distance <= settings.distanceMeters) {
-            console.log(`[ProximityService] User is ${Math.round(distance)}m from "${place.name}"`);
+            logger.debug('ProximityService', `User is ${Math.round(distance)}m from "${place.name}"`);
             sendProximityNotification(place, Math.round(distance));
             markPlaceNotified(placeKey);
         }
@@ -185,7 +186,7 @@ async function sendProximityNotification(
     };
 
     await LocalNotifications.schedule(notification);
-    console.log(`[ProximityService] Sent notification for "${place.name}"`);
+    logger.debug('ProximityService', `Sent notification for "${place.name}"`);
 }
 
 /**
@@ -197,7 +198,7 @@ async function setupNotificationListeners(): Promise<void> {
         const { notification: notif } = notification;
         const extra = notif.extra as { placeId?: string; recId?: string; placeName?: string; cityId?: string };
 
-        console.log(`[ProximityService] Notification tapped for place: ${extra?.placeName}`);
+        logger.debug('ProximityService', `Notification tapped for place: ${extra?.placeName}`);
 
         // Dispatch event for the app to open the place card
         window.dispatchEvent(new CustomEvent('proximityPlaceTapped', {
@@ -228,7 +229,7 @@ export async function updateMonitoredPlaces(
             place.lng !== undefined
     );
 
-    console.log(`[ProximityService] Updated to monitor ${monitoredPlaces.length} places`);
+    logger.debug('ProximityService', `Updated to monitor ${monitoredPlaces.length} places`);
 }
 
 /**

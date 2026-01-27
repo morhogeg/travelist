@@ -3,14 +3,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-  optimizeDeps: {
-    include: ['mapbox-gl'],
+  esbuild: {
+    // Remove console.log in production builds
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
   },
-});
+}));

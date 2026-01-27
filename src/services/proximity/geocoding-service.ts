@@ -1,4 +1,5 @@
 import { Geolocation } from '@capacitor/geolocation';
+import { logger } from '@/utils/logger';
 
 /**
  * Geocoding service using Apple CLGeocoder via Capacitor Geolocation's reverse geocoding
@@ -62,15 +63,15 @@ export async function geocodePlace(
                 // Cache the result
                 geocodeCache.set(cacheKey, result);
 
-                console.log(`[Geocoding] Found coordinates for "${name}" in ${city}: ${result.lat}, ${result.lng}`);
+                logger.debug('Geocoding', `Found coordinates for "${name}" in ${city}: ${result.lat}, ${result.lng}`);
                 return result;
             }
         }
 
-        console.warn(`[Geocoding] Could not find coordinates for "${name}" in ${city}, ${country}`);
+        logger.warn('Geocoding', `Could not find coordinates for "${name}" in ${city}, ${country}`);
         return null;
     } catch (error) {
-        console.error('[Geocoding] Error geocoding place:', error);
+        logger.error('Geocoding', 'Error geocoding place:', error);
         return null;
     }
 }
@@ -83,7 +84,7 @@ export async function getCurrentLocation(): Promise<{ lat: number; lng: number }
         const permission = await Geolocation.checkPermissions();
 
         if (permission.location === 'denied') {
-            console.warn('[Geocoding] Location permission denied');
+            logger.warn('Geocoding', 'Location permission denied');
             return null;
         }
 
@@ -101,7 +102,7 @@ export async function getCurrentLocation(): Promise<{ lat: number; lng: number }
             lng: position.coords.longitude
         };
     } catch (error) {
-        console.error('[Geocoding] Error getting current location:', error);
+        logger.error('Geocoding', 'Error getting current location:', error);
         return null;
     }
 }
