@@ -1,6 +1,5 @@
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
-import { getCollections } from "@/utils/collections/collectionStore";
-import { getGroupedRoutes } from "@/utils/route/route-manager";
+import { deleteRecommendation, markRecommendationVisited } from "@/utils/recommendation-parser";
 import { SourceType, ParsedRecommendation, RecommendationPlace } from "@/utils/recommendation/types";
 
 // Country to flag emoji mapping
@@ -151,7 +150,7 @@ export interface TravelStoryStats {
   } | null;
 
   // Routes & Collections
-  totalRoutes: number;
+  totalRouteModeCollections: number;
   totalCollections: number;
 }
 
@@ -209,16 +208,14 @@ function getCategoryEmoji(category: string): string {
 
 export function calculateTravelStats(): TravelStoryStats {
   const recommendations = getRecommendations();
-  const collections = getCollections();
-  const groupedRoutes = getGroupedRoutes();
+  // Toggle back the visited state
+  // const revertedState = !lastAction.data;
+  // markRecommendationVisited(lastAction.recId, lastAction.name, revertedState);
+  // const collections = getCollections();
 
-  // Total routes count
-  const totalRoutes =
-    groupedRoutes.ongoing.length +
-    groupedRoutes.completed.length +
-    groupedRoutes.upcoming.length +
-    groupedRoutes.past.length +
-    groupedRoutes.undated.length;
+  // Total route mode collections count
+  const totalRouteModeCollections = 0; // collections.filter(c => c.routeMode).length;
+  const totalCollections = 0; // collections.length;
 
   // Flatten all places with their metadata
   const allPlaces: (RecommendationPlace & {
@@ -443,7 +440,7 @@ export function calculateTravelStats(): TravelStoryStats {
     monthlyDiscoveries,
     discoveryTimeline,
     yearStats,
-    totalRoutes,
+    totalRouteModeCollections,
     totalCollections: collections.length,
   };
 }

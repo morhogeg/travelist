@@ -2,13 +2,19 @@
 
 ## Overview
 
-The onboarding flow introduces first-time users to Travelist's core features through a **7-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
+The onboarding flow introduces first-time users to Travelist's core features through a **8-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
 
 ## Screens
 
-### Screen 1: Welcome
-- **Title:** "Never forget a great place."
-- **Subtitle:** "Your personal travel memory. Save. Organize. Navigate."
+### Screen 0: Lost in the Noise?
+- **Title:** "Lost in the noise?"
+- **Subtitle:** "Great places shouldn't get buried in screenshots, notes, or open tabs."
+- **Visual:** Muted dashed icon representating chaos/burial.
+- **CTA:** "Tell me more" (Secondary style)
+
+### Screen 1: The Solution
+- **Title:** "The Smart Way to Remember."
+- **Subtitle:** "Travelist AI is your personal memory for every place you discover."
 - **Visual:** Animated Compass icon with pulsing glow ring and floating particles
 - **CTA:** "Get Started"
 
@@ -18,12 +24,7 @@ The onboarding flow introduces first-time users to Travelist's core features thr
 - **Visual:** Share icon with orbiting ring and app flow animation
 - **App Icons:** Safari 🧭, Instagram 📸, Maps 🗺️ → Travelist
 
-### Screen 3: Organize
-- **Title:** "Collections. Routes."
-- **Subtitle:** "Group places by theme. Build day-by-day itineraries."
-- **Visual:** Folder and Route icons with connecting line animation
-
-### Screen 5: Gesture Tutorial
+### Screen 5: Gesture Tutorial (Optional)
 - **Title:** "Master the Gestures."
 - **Subtitle:** "Swipe cards to quickly organize your travel finds."
 - **Visual:** Interactive demo area where users can practice swipe-left (Delete) and swipe-right (Collect) gestures.
@@ -53,9 +54,10 @@ The onboarding flow introduces first-time users to Travelist's core features thr
 src/components/onboarding/
 ├── index.ts                  # Exports
 ├── types.ts                  # Types + localStorage helpers
-├── OnboardingFlow.tsx        # Main controller (7 steps)
+├── OnboardingFlow.tsx        # Main controller (8 steps)
 ├── screens/
-│   ├── WelcomeScreen.tsx     # "Your Personal Travel Memory"
+│   ├── ProblemScreen.tsx     # "Lost in the Noise?"
+│   ├── WelcomeScreen.tsx     # "The Smart Way to Remember"
 │   ├── ShareToSaveScreen.tsx # "Save from Anywhere"
 │   ├── AIMagicScreen.tsx     # AI features showcase
 │   ├── ProximityAlertsScreen.tsx # Proximity alerts

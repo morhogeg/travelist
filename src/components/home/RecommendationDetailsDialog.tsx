@@ -5,7 +5,7 @@ import {
   DrawerContent,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, UserCircle, FolderPlus, MapPin, ExternalLink, Sparkles, Loader2 } from "lucide-react";
+import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, ExternalLink, Sparkles, Loader2 } from "lucide-react";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import AddToDrawer from "@/components/common/AddToDrawer";
@@ -30,7 +30,6 @@ interface RecommendationDetailsDialogProps {
   onDelete?: () => void;
   onToggleVisited: (recId: string, name: string, visited: boolean) => void;
   hideEditDelete?: boolean;
-  routeNotes?: string;
   onAddToTrip?: () => void;
 }
 
@@ -132,13 +131,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
             {/* Content */}
             <div className="px-6 py-3 space-y-3 overflow-y-auto">
-              {routeNotes && (
-                <div className="px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30">
-                  <p className="text-sm text-amber-800 dark:text-amber-300">
-                    📝 {routeNotes}
-                  </p>
-                </div>
-              )}
 
               {/* Attribution/Tip */}
               <div className="flex flex-col items-center gap-2 text-center">
@@ -243,7 +235,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                       >
                         <FolderPlus className="h-4 w-4 mr-1.5" />
                         <span>Add</span>
-                        <MapPin className="h-4 w-4 ml-1.5" />
                       </Button>
 
                       {!hideEditDelete && (

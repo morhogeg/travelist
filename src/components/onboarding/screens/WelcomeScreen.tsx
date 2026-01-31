@@ -149,7 +149,7 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
           }}
           className="text-[34px] font-bold text-foreground leading-tight mb-4"
         >
-          Your Personal<br />Travel Memory.
+          The Smart Way<br />to Remember.
         </motion.h1>
 
         {/* Subtitle */}
@@ -159,9 +159,8 @@ export const WelcomeScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
           transition={{ delay: 0.55, duration: 0.5 }}
           className="text-[17px] text-muted-foreground leading-relaxed"
         >
-          Travelist is the smartest way to<br />
-          <span className="text-foreground font-medium">Save</span>, <span className="text-foreground font-medium">Organize</span>, and <span className="text-foreground font-medium">Navigate</span><br />
-          every place you discover.
+          Travelist AI is your personal memory<br />
+          for <span className="text-foreground font-medium">every place</span> you discover.
         </motion.p>
       </div>
 

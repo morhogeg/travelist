@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ProblemScreen } from './screens/ProblemScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { ShareToSaveScreen } from './screens/ShareToSaveScreen';
 import { AIMagicScreen } from './screens/AIMagicScreen';
@@ -14,7 +15,7 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -44,12 +45,19 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     switch (currentStep) {
       case 0:
         return (
-          <WelcomeScreen
+          <ProblemScreen
             onNext={handleNext}
             onSkip={handleSkip}
           />
         );
       case 1:
+        return (
+          <WelcomeScreen
+            onNext={handleNext}
+            onSkip={handleSkip}
+          />
+        );
+      case 2:
         return (
           <ShareToSaveScreen
             onNext={handleNext}
@@ -57,7 +65,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             onSkip={handleSkip}
           />
         );
-      case 2:
+      case 3:
         return (
           <AIMagicScreen
             onNext={handleNext}
@@ -65,7 +73,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             onSkip={handleSkip}
           />
         );
-      case 3:
+      case 4:
         return (
           <ProximityAlertsScreen
             onNext={handleNext}
@@ -73,7 +81,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             onSkip={handleSkip}
           />
         );
-      case 4:
+      case 5:
         return (
           <GestureTutorialScreen
             onNext={handleNext}
@@ -81,7 +89,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             onSkip={handleSkip}
           />
         );
-      case 5:
+      case 6:
         return (
           <NavigateScreen
             onNext={handleNext}
@@ -89,7 +97,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             onSkip={handleSkip}
           />
         );
-      case 6:
+      case 7:
         return (
           <SignInScreen
             onNext={handleNext}
