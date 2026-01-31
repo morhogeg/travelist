@@ -23,6 +23,7 @@ const Layout = ({ children }: LayoutProps) => {
         exit="exit"
         variants={pageVariants}
         className="flex-1 pb-24"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         {children}
       </motion.div>

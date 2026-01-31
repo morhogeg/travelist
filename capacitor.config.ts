@@ -24,7 +24,7 @@ const config: CapacitorConfig = {
     iosScheme: 'travelist'
   } : undefined,
   ios: {
-    contentInset: 'automatic'
+    contentInset: 'never'
   },
   plugins: {
     SplashScreen: {

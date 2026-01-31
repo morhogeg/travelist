@@ -22,7 +22,6 @@ const Navbar = () => {
     { path: "/", label: "Home", icon: <Home className="h-5 w-5" /> },
     { path: "/inbox", label: "Inbox", icon: <Inbox className="h-5 w-5" /> },
     { path: "/collections", label: "Collections", icon: <Folder className="h-5 w-5" /> },
-    { path: "/routes", label: "Routes", icon: <MapPin className="h-5 w-5" /> },
     { path: "/profile", label: "Profile", icon: <UserCircle className="h-5 w-5" /> },
   ];
 

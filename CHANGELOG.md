@@ -4,6 +4,25 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ---
 
+## [Build 8] - 2026-01-31 (Unreleased)
+
+### ✨ Added
+- **Routes & Collections Merger (Phase 2)**
+  - **Route Mode**: Collections now support a dedicated "Route Mode" for trip planning
+  - **Enhanced Collection Cards**: Polished card design to match the home screen's liquid glass aesthetic
+  - **Collection Renaming**: Integrated renaming functionality directly in the detail view
+  - **Place Categorization**: Collection items now display category icons and colors consistently
+- **Centralized iOS Safe Area Handling**
+  - **Central Layout Padding**: Moved safe-area logic to `Layout.tsx` for consistent protection across all tabs
+  - **Native Viewport Fit**: Backgrounds now flow behind the status bar and notch for a more premium look
+  - **Improved Capacitor Settings**: Optimized `contentInset` behavior to eliminate unwanted layout shifts
+
+### 🐛 Fixed
+- **Collection Deletion Logic**: Fixed a bug where deleting a collection didn't always reflect in the UI immediately
+- **Top Layout Gaps**: Eliminated the white gap at the top of the Home screen and other tabs
+
+---
+
 ## [Build 7] - 2026-01-26 (Unreleased)
 
 ### ✨ Added

@@ -745,7 +745,18 @@ Day sections flow without individual containers:
 ## 📱 Responsive Considerations
 
 ### Safe Areas
-All fixed/absolute positioned elements account for iOS safe areas:
+All pages use the central `Layout.tsx` component which handles top safe areas:
+```css
+/* In Layout.tsx motion.div */
+padding-top: env(safe-area-inset-top)
+```
+This ensures that page content starts below the notch/status bar while allowing backgrounds to stretch to the top.
+
+**Capacitor Configuration:**
+`capacitor.config.ts` uses `ios.contentInset: 'never'` to allow manual CSS control over safe areas without browser-added gaps.
+
+### Bottom Safe Area (FABs)
+Fixed/absolute elements like the Floating Action Button (FAB) use:
 ```css
 bottom: calc(5rem + env(safe-area-inset-bottom, 0px))
 ```

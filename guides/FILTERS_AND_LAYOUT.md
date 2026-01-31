@@ -133,10 +133,9 @@ Updates trigger `loadRecommendations()` which re-filters the entire list.
 - **Full width** - Maximizes input area.
 - **Scroll Fade** - Header and search bar fade out elegantly on scroll to maximize content area.
 
-**4. View Toggle**
-- **Top right** - Secondary control position
-- **Grid/List icons** - Clear affordance
-- **Consistent size** - Matches other header buttons
+**4. Safe Area Handling (Centralized)**
+- **Layout Padding** - Instead of global CSS padding (which creates scrollable gaps), we use `env(safe-area-inset-top)` on the main `Layout.tsx` container.
+- **Full-Width Backgrounds** - This allows backgrounds (like the search header's glass) to flow behind the status bar while keeping text/buttons safe.
 
 ### iOS Human Interface Guidelines Compliance
 

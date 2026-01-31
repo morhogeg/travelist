@@ -311,7 +311,7 @@
 
   /* Ensure viewport covers full screen including notch/Dynamic Island */
   html {
-    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    /* Padding removed to fix iOS shift-down issue */
   }
 }
 

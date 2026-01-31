@@ -22,14 +22,13 @@ import PlaceDetail from "./pages/place-detail/PlaceDetail";
 import CountryView from "./pages/CountryView";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
-import CollectionsTab from "@/components/collections/CollectionsTab"; // ✅ new
 import CollectionDetailPage from "@/pages/collections/CollectionDetailPage";
-import RoutesPage from "./pages/Routes";
-import RouteDetail from "./pages/RouteDetail";
+import CollectionsTab from "@/components/collections/CollectionsTab";
 import TravelStory from "./pages/TravelStory";
 import TripDetailPage from "./pages/TripDetailPage";
 import Inbox from "./pages/Inbox";
 import Guides from "./pages/Guides";
+import { migrateRoutesToCollections } from "@/utils/collections/migrateRoutesToCollections";
 
 // Declare global window interface
 declare global {
@@ -59,6 +58,8 @@ function AppContent() {
   // One-time sync with Supabase when signed in
   useEffect(() => {
     syncSupabaseRecommendationsOnce();
+    // Migrate existing Routes to Collections with Route Mode
+    migrateRoutesToCollections();
   }, []);
 
   // Listen for proximity notification taps
@@ -206,10 +207,8 @@ function AppContent() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/place/:id" element={<PlaceDetail />} />
           <Route path="/country/:countryName" element={<CountryView />} />
-          <Route path="/collections" element={<CollectionsTab />} /> {/* ✅ New route */}
-          <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ New route */}
-          <Route path="/routes" element={<RoutesPage />} /> {/* ✅ Routes feature */}
-          <Route path="/routes/:id" element={<RouteDetail />} /> {/* ✅ Route detail */}
+          <Route path="/collections" element={<CollectionsTab />} /> {/* ✅ Collections list */}
+          <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ Collection detail with Route Mode */}
           <Route path="/trip/:id" element={<TripDetailPage />} /> {/* ✅ AI Trip detail */}
           <Route path="/story" element={<TravelStory />} /> {/* ✅ Travel Story */}
           <Route path="/inbox" element={<Inbox />} /> {/* ✅ Shared inbox */}

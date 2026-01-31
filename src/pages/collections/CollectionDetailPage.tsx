@@ -1,19 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { getCollections, deleteCollection, removePlaceFromCollection } from "@/utils/collections/collectionStore";
+import { Reorder } from "framer-motion";
+import { getCollections, deleteCollection, removePlaceFromCollection, updateOrderedPlaceIds, renameCollection } from "@/utils/collections/collectionStore";
 import { getRecommendations, markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
 import { Button } from "@/components/ui/button";
 import SearchInput from "@/components/home/search/SearchInput";
 import CategoryList from "@/components/home/categories/CategoryList";
 import { categories, getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
-import { ArrowLeft, MapPin, MapPinned, Compass, Trash2, Search as SearchIcon, Plus } from "lucide-react";
-import { lightHaptic } from "@/utils/ios/haptics";
+import { ArrowLeft, MapPin, Trash2, Search as SearchIcon, Plus, GripVertical, Compass, Edit2, Check, X, Lightbulb } from "lucide-react";
+import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 import Layout from "@/components/layout/Layout";
 import countryToCode from "@/utils/flags/countryToCode";
-import { createRouteFromCollection, syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import { useToast } from "@/hooks/use-toast";
-import { mediumHaptic } from "@/utils/ios/haptics";
 import ItemActions from "@/components/home/category/recommendation-item/ItemActions";
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
@@ -31,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
 import { MapExportPlace } from "@/utils/maps/export-to-maps";
+import { Input } from "@/components/ui/input";
 
 const CollectionDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -50,14 +50,33 @@ const CollectionDetailPage: React.FC = () => {
   const [itemToRemove, setItemToRemove] = useState<{ id: string; name: string } | null>(null);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isAddPlacesDrawerOpen, setIsAddPlacesDrawerOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState("");
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const loadData = () => {
     if (!id || typeof id !== "string") return;
 
     const collections = getCollections();
     const found = collections.find((c) => c.id === id);
+
+    if (found) {
+      // Auto-initialize orderedPlaceIds if missing or desynced
+      const currentPlaceIds = found.placeIds || [];
+      const currentOrderedIds = found.orderedPlaceIds || [];
+      const hasAllIds = currentPlaceIds.every(pid => currentOrderedIds.includes(pid));
+      const hasIdenticalLength = currentPlaceIds.length === currentOrderedIds.length;
+
+      if (!found.orderedPlaceIds || !hasAllIds || !hasIdenticalLength) {
+        updateOrderedPlaceIds(id, currentPlaceIds);
+        loadData(); // Recursive call after update
+        return;
+      }
+    }
+
     setCollection(found || null);
+    if (found && !isEditingName) setTempName(found.name);
 
     const recs = getRecommendations();
     const flattened = recs.flatMap(rec =>
@@ -67,7 +86,7 @@ const CollectionDetailPage: React.FC = () => {
         cityId: rec.cityId || rec.id,
         country: rec.country,
         location: place.location || `${rec.city}, ${rec.country}`,
-        category: place.category || rec.category,
+        category: place.category || rec.categories?.[0],
         dateAdded: rec.dateAdded,
         recId: place.recId || place.id,
       }))
@@ -92,6 +111,36 @@ const CollectionDetailPage: React.FC = () => {
       window.removeEventListener("recommendationAdded", handleCollectionChange);
     };
   }, [id]);
+
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [isEditingName]);
+
+  const handleStartEditing = () => {
+    lightHaptic();
+    setIsEditingName(true);
+    setTempName(collection.name);
+  };
+
+  const handleCancelEditing = () => {
+    setIsEditingName(false);
+    setTempName(collection.name);
+  };
+
+  const handleSaveName = () => {
+    if (tempName.trim() && id) {
+      mediumHaptic();
+      renameCollection(id, tempName.trim());
+      setIsEditingName(false);
+      loadData();
+      toast({
+        title: "Collection renamed",
+        description: `Now named "${tempName.trim()}".`,
+      });
+    }
+  };
 
   const toggleCategory = (categoryId: string) => {
     if (categoryId === "all") {
@@ -132,7 +181,6 @@ const CollectionDetailPage: React.FC = () => {
   }, []);
 
   const handleViewDetails = (item: any) => {
-    // Convert to the format expected by RecommendationDetailsDialog
     const recommendation = {
       id: item.id,
       name: item.name,
@@ -156,25 +204,7 @@ const CollectionDetailPage: React.FC = () => {
   const handleToggleVisited = (itemId: string, itemName: string, currentVisited: boolean) => {
     const newVisitedState = !currentVisited;
     markRecommendationVisited(itemId, itemName, newVisitedState);
-
-    // Sync to routes containing this place
-    syncVisitedStateToRoutes(itemId, newVisitedState);
-
-    // Reload items to reflect the change
-    const recs = getRecommendations();
-    const flattened = recs.flatMap(rec =>
-      rec.places.map(place => ({
-        ...place,
-        city: rec.city,
-        cityId: rec.cityId || rec.id,
-        country: rec.country,
-        location: place.location || `${rec.city}, ${rec.country}`,
-        category: place.category || rec.category,
-        dateAdded: rec.dateAdded,
-        recId: place.recId || place.id,
-      }))
-    );
-    setAllItems(flattened);
+    loadData();
   };
 
   const handleDetailsEdit = () => {
@@ -188,22 +218,7 @@ const CollectionDetailPage: React.FC = () => {
       const idToDelete = detailsRecommendation.recId || detailsRecommendation.id;
       deleteRecommendation(idToDelete);
       setDetailsDialogOpen(false);
-
-      // Reload items to reflect the change
-      const recs = getRecommendations();
-      const flattened = recs.flatMap(rec =>
-        rec.places.map(place => ({
-          ...place,
-          city: rec.city,
-          cityId: rec.cityId || rec.id,
-          country: rec.country,
-          location: place.location || `${rec.city}, ${rec.country}`,
-          category: place.category || rec.category,
-          dateAdded: rec.dateAdded,
-          recId: place.recId || place.id,
-        }))
-      );
-      setAllItems(flattened);
+      loadData();
     }
   };
 
@@ -217,8 +232,10 @@ const CollectionDetailPage: React.FC = () => {
     );
   }
 
+  const orderedIds = collection.orderedPlaceIds || collection.placeIds || [];
+
   const matchedItems = allItems
-    .filter((item) => collection.placeIds.includes(item.recId) || collection.placeIds.includes(item.id))
+    .filter((item) => orderedIds.includes(item.recId) || orderedIds.includes(item.id))
     .filter((item) => {
       const matchesSearch =
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -229,9 +246,15 @@ const CollectionDetailPage: React.FC = () => {
         activeCategories.length === 0 || activeCategories.includes(item.category?.toLowerCase());
 
       return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      const aId = a.recId || a.id;
+      const bId = b.recId || b.id;
+      const aIndex = orderedIds.indexOf(aId);
+      const bIndex = orderedIds.indexOf(bId);
+      return aIndex - bIndex;
     });
 
-  // Prepare places for export
   const exportPlaces: MapExportPlace[] = matchedItems.map(item => ({
     name: item.name,
     address: item.location || item.name,
@@ -239,7 +262,6 @@ const CollectionDetailPage: React.FC = () => {
     country: item.country
   }));
 
-  // Get only categories that actually exist in this collection
   const availableCategories = Array.from(
     new Set(
       allItems
@@ -255,66 +277,6 @@ const CollectionDetailPage: React.FC = () => {
   ];
 
   const resolvedActiveCategories = activeCategories.length === 0 ? ["all"] : activeCategories;
-
-  const handleConvertToRoute = () => {
-    mediumHaptic();
-
-    if (!collection || matchedItems.length === 0) {
-      toast({
-        title: "Cannot create route",
-        description: "No places in this collection to add to a route.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Get the first item to determine city and country
-    const firstItem = matchedItems[0];
-    if (!firstItem.city || !firstItem.country) {
-      toast({
-        title: "Cannot create route",
-        description: "Collection items need city and country information.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check if all items are from the same city
-    const cities = new Set(matchedItems.map(item => item.city));
-    if (cities.size > 1) {
-      toast({
-        title: "Multiple cities",
-        description: "This collection contains places from multiple cities. Routes can only contain places from a single city.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const placeIds = matchedItems.map(item => item.id);
-      const route = createRouteFromCollection(
-        collection.name,
-        firstItem.cityId,
-        firstItem.city,
-        firstItem.country,
-        placeIds
-      );
-
-      toast({
-        title: "Route created!",
-        description: `"${collection.name}" has been converted to a route.`,
-      });
-
-      navigate(`/routes/${route.id}`);
-    } catch (error) {
-      console.error("Error creating route from collection:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create route. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const getFlag = (country: string | null): string => {
     if (!country) return "";
@@ -350,18 +312,22 @@ const CollectionDetailPage: React.FC = () => {
     if (itemToRemove && id) {
       mediumHaptic();
       removePlaceFromCollection(id, itemToRemove.id);
-
-      // Reload collection to reflect the change
-      const collections = getCollections();
-      const found = collections.find((c) => c.id === id);
-      setCollection(found || null);
-
+      loadData();
       toast({
         title: "Removed from collection",
-        description: `"${itemToRemove.name}" has been removed from this collection.`,
+        description: `"${itemToRemove.name}" has been removed.`,
       });
       setItemToRemove(null);
     }
+  };
+
+  const handleReorder = (newOrder: any[]) => {
+    if (!id) return;
+    const newOrderedIds = newOrder.map(item => item.recId || item.id);
+    updateOrderedPlaceIds(id, newOrderedIds);
+
+    // Quick local state update for smoothness
+    setCollection({ ...collection, orderedPlaceIds: newOrderedIds });
   };
 
   return (
@@ -372,9 +338,9 @@ const CollectionDetailPage: React.FC = () => {
         className="px-6 pt-2 pb-24"
       >
         {/* Header row - title centered, buttons on sides */}
-        <div className="flex items-center justify-between mb-1 relative">
+        <div className="flex items-center justify-between mb-4 relative min-h-[44px]">
           {/* Left side: Back + Search */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
               size="icon"
@@ -384,7 +350,6 @@ const CollectionDetailPage: React.FC = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
 
-            {/* Search icon button */}
             {!isSearchExpanded && (
               <motion.button
                 whileTap={{ scale: 0.92 }}
@@ -397,12 +362,39 @@ const CollectionDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Center: Title (absolutely positioned for true centering) */}
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-xl font-bold truncate max-w-[50%] text-center">
-            {collection.name}
-          </h1>
+          {/* Center: Title or Edit Input */}
+          <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-[60%] flex items-center justify-center gap-1">
+            {isEditingName ? (
+              <div className="flex items-center gap-1 w-full">
+                <Input
+                  ref={nameInputRef}
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveName();
+                    if (e.key === "Escape") handleCancelEditing();
+                  }}
+                  className="h-8 text-center font-bold text-lg bg-transparent border-b border-primary/50 focus:border-primary rounded-none px-1"
+                />
+                <button onClick={handleSaveName} className="p-1 text-success">
+                  <Check className="h-4 w-4" />
+                </button>
+                <button onClick={handleCancelEditing} className="p-1 text-destructive">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-1 max-w-full">
+                <h1 className="text-xl font-bold truncate text-center">
+                  {collection.name}
+                </h1>
+                <button onClick={handleStartEditing} className="shrink-0 p-1 opacity-40 hover:opacity-100 transition-opacity">
+                  <Edit2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
 
-          {/* Right side: Actions */}
           <div className="flex items-center gap-1">
             <ExportToMapsButton
               places={exportPlaces}
@@ -420,20 +412,6 @@ const CollectionDetailPage: React.FC = () => {
             </Button>
           </div>
         </div>
-
-        {/* Create Route button - centered below */}
-        {matchedItems.length > 0 && (
-          <div className="mb-4 text-center">
-            <Button
-              onClick={handleConvertToRoute}
-              variant="outline"
-              size="sm"
-            >
-              <MapPinned className="h-4 w-4 mr-2" />
-              Create Route
-            </Button>
-          </div>
-        )}
 
         {/* Expandable Search */}
         <AnimatePresence>
@@ -457,7 +435,7 @@ const CollectionDetailPage: React.FC = () => {
 
         {/* Category Filter */}
         {filteredCategories.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-3">
+          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
             <CategoryList
               categories={filteredCategories}
               activeCategories={resolvedActiveCategories}
@@ -466,80 +444,84 @@ const CollectionDetailPage: React.FC = () => {
           </div>
         )}
 
-        {/* Places List */}
-        <div className="space-y-3">
+        {/* Places List - Always draggable */}
+        <Reorder.Group
+          axis="y"
+          values={matchedItems}
+          onReorder={handleReorder}
+          className="space-y-3"
+        >
           {matchedItems.map((item, index) => {
             const borderColor = getCategoryColor(item.category || 'general');
             const itemId = item.recId || item.id;
 
             return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.05 * index }}
+              <Reorder.Item
+                key={itemId}
+                value={item}
+                className="list-none"
+                onPointerDown={() => lightHaptic()}
               >
-                <SwipeableCard
-                  onDeleteTrigger={() => handleRemoveItem(itemId, item.name)}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.05 * index }}
                 >
-                  <motion.div
-                    className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer relative ${item.visited ? 'ring-2 ring-success/30' : ''
-                      }`}
-                    style={{
-                      border: 'none',
-                      borderLeft: `4px solid ${borderColor}`,
-                      boxShadow: 'none'
-                    }}
-                    onClick={() => handleViewDetails(item)}
+                  <SwipeableCard
+                    onDeleteTrigger={() => handleRemoveItem(itemId, item.name)}
                   >
-                    <div className="px-3 py-2 flex gap-2">
-                      {/* Left side: Content */}
-                      <div className="flex-1 min-w-0 space-y-1">
-                        {/* Header with name and category icon */}
-                        <div className="flex items-center gap-2">
-                          {/* Category icon */}
-                          <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center" style={{ color: borderColor }}>
-                            {getCategoryIcon(item.category || 'general')}
-                          </div>
-                          <h3 className="text-base font-semibold leading-tight flex-1 truncate">{item.name}</h3>
+                    <motion.div
+                      className={`liquid-glass-clear rounded-2xl overflow-hidden ios26-transition-smooth cursor-pointer border border-white/30 dark:border-white/12 shadow-md relative ${item.visited ? 'ring-2 ring-success/30' : ''
+                        }`}
+                      onClick={() => handleViewDetails(item)}
+                    >
+                      <div className="px-2 py-1.5 sm:px-2 sm:py-2 flex items-center gap-2">
+                        {/* Drag Handle */}
+                        <div className="flex items-center justify-center text-muted-foreground/30 cursor-grab active:cursor-grabbing hover:text-muted-foreground transition-colors pl-1">
+                          <GripVertical className="h-4 w-4" />
                         </div>
 
-                        {item.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
-                        )}
+                        {/* Category Icon - Clean style like home screen */}
+                        <div
+                          className="flex-shrink-0 w-5 h-5 flex items-center justify-center"
+                          style={{ color: borderColor, filter: "saturate(1.4) brightness(0.9)" }}
+                        >
+                          {getCategoryIcon(item.category || 'general')}
+                        </div>
 
-                        {/* Location info */}
-                        {(item.city || item.country) && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <MapPin className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">
-                              {item.city && item.country
-                                ? `${item.city}, ${getFlag(item.country)} ${item.country}`
-                                : item.city || `${getFlag(item.country)} ${item.country}`}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-[15px] font-semibold leading-snug truncate">{item.name}</h3>
 
-                      {/* Right side: Actions (vertically stacked) */}
-                      <div className="flex flex-col justify-between items-center py-1">
-                        <ItemActions
-                          item={item}
-                          onToggleVisited={handleToggleVisited}
-                          onDelete={() => handleRemoveItem(itemId, item.name)}
-                          onEditClick={() => { }}
-                        />
+                          {/* Lightbulb Tip (matching home screen style) */}
+                          {(item.description || item.context?.specificTip) && (
+                            <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1 opacity-90">
+                              <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                              <span className="truncate">{item.description || item.context?.specificTip}</span>
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Actions inline (matching home screen) */}
+                        <div className="flex items-center gap-1 justify-end w-[76px]">
+                          <ItemActions
+                            item={item}
+                            onToggleVisited={handleToggleVisited}
+                            onDelete={() => handleRemoveItem(itemId, item.name)}
+                            onEditClick={() => { }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                </SwipeableCard>
-              </motion.div>
+                    </motion.div>
+                  </SwipeableCard>
+                </motion.div>
+              </Reorder.Item>
             );
           })}
-        </div>
+        </Reorder.Group>
       </motion.div>
 
-      {/* Details Dialog */}
+      {/* Dialogs & Drawers */}
       {detailsRecommendation && (
         <RecommendationDetailsDialog
           recommendation={detailsRecommendation}
@@ -554,21 +536,18 @@ const CollectionDetailPage: React.FC = () => {
         />
       )}
 
-      {/* Recommendation Drawer for Editing */}
       <RecommendationDrawer
         isDrawerOpen={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
         editRecommendation={selectedRecommendation}
       />
 
-      {/* Delete Collection Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Collection</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{collection.name}"? This action cannot be undone.
-              The places in this collection will not be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -583,14 +562,12 @@ const CollectionDetailPage: React.FC = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Remove Item from Collection Confirmation Dialog */}
       <AlertDialog open={isRemoveItemDialogOpen} onOpenChange={setIsRemoveItemDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove from Collection</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove "{itemToRemove?.name}" from this collection?
-              The place will not be deleted from your recommendations.
+              Are you sure you want to remove "{itemToRemove?.name}"?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -605,7 +582,6 @@ const CollectionDetailPage: React.FC = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Add Places to Collection Drawer */}
       <AddPlacesToCollectionDrawer
         isOpen={isAddPlacesDrawerOpen}
         onClose={() => setIsAddPlacesDrawerOpen(false)}
@@ -613,7 +589,7 @@ const CollectionDetailPage: React.FC = () => {
         onPlacesAdded={loadData}
       />
 
-      {/* Floating Add Button - hide when drawer is open */}
+      {/* FAB */}
       {!isAddPlacesDrawerOpen && !detailsDialogOpen && !isDrawerOpen && (
         <motion.button
           whileTap={{ scale: 0.9 }}
@@ -623,7 +599,6 @@ const CollectionDetailPage: React.FC = () => {
             setIsAddPlacesDrawerOpen(true);
           }}
           className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
-          aria-label="Add places"
           style={{
             bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

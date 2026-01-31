@@ -211,10 +211,10 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
         <div ref={searchContainerRef} className="mt-3 relative">
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <SearchInput 
-                searchTerm={searchTerm} 
-                onChange={handleSearch} 
-                onClear={clearSearch} 
+              <SearchInput
+                searchTerm={searchTerm}
+                onChange={handleSearch}
+                onClear={clearSearch}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
               />

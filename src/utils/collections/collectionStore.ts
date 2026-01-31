@@ -2,6 +2,8 @@ export interface Collection {
   id: string;
   name: string;
   placeIds: string[];
+  routeMode: boolean;  // Toggle for Route Mode
+  orderedPlaceIds?: string[];  // Order when route mode is enabled
   createdAt: string;
   lastModified: string;
 }
@@ -38,6 +40,7 @@ export function addCollection(name: string): Collection {
     id: generateId(),
     name,
     placeIds: [],
+    routeMode: false,
     createdAt: now,
     lastModified: now,
   };
@@ -77,6 +80,7 @@ export function removePlaceFromCollection(collectionId: string, placeId: string)
       return {
         ...col,
         placeIds: col.placeIds.filter((id) => id !== placeId),
+        orderedPlaceIds: col.orderedPlaceIds?.filter((id) => id !== placeId),
         lastModified: new Date().toISOString()
       };
     }
@@ -104,6 +108,58 @@ export function isPlaceInCollection(collectionId: string, placeId: string): bool
   const collections = getCollections();
   const collection = collections.find((col) => col.id === collectionId);
   return collection?.placeIds?.includes(placeId) ?? false;
+}
+
+// Toggle Route Mode for a collection
+export function toggleRouteMode(collectionId: string, enabled: boolean): void {
+  const collections = getCollections();
+  const updated = collections.map((col) => {
+    if (col.id === collectionId) {
+      return {
+        ...col,
+        routeMode: enabled,
+        orderedPlaceIds: enabled ? [...col.placeIds] : undefined,
+        lastModified: new Date().toISOString()
+      };
+    }
+    return col;
+  });
+  saveCollections(updated);
+  window.dispatchEvent(new CustomEvent("collectionUpdated"));
+}
+
+// Update ordered place IDs for a collection in route mode
+export function updateOrderedPlaceIds(collectionId: string, orderedPlaceIds: string[]): void {
+  const collections = getCollections();
+  const updated = collections.map((col) => {
+    if (col.id === collectionId && col.routeMode) {
+      return {
+        ...col,
+        orderedPlaceIds,
+        lastModified: new Date().toISOString()
+      };
+    }
+    return col;
+  });
+  saveCollections(updated);
+  window.dispatchEvent(new CustomEvent("collectionUpdated"));
+}
+
+// Rename a collection
+export function renameCollection(collectionId: string, newName: string): void {
+  const collections = getCollections();
+  const updated = collections.map((col) => {
+    if (col.id === collectionId) {
+      return {
+        ...col,
+        name: newName.trim(),
+        lastModified: new Date().toISOString()
+      };
+    }
+    return col;
+  });
+  saveCollections(updated);
+  window.dispatchEvent(new CustomEvent("collectionUpdated"));
 }
 
 // Delete a collection
