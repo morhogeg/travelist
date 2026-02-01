@@ -4,7 +4,7 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ---
 
-## [Build 8] - 2026-01-31 (Unreleased)
+## [Build 8] - 2026-02-01 (Unreleased)
 
 ### ✨ Added
 - **Onboarding Value Proposition Improvements**
