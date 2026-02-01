@@ -286,14 +286,11 @@ const PlaceDetail = () => {
 
   // Trip generation handler
   const handleGenerateTrip = async (durationDays: number) => {
-    const trip = await tripPlanner.generateTrip(durationDays);
-    if (trip) {
+    const tripData = await tripPlanner.generateTrip(durationDays);
+    if (tripData) {
       setIsDurationPickerOpen(false);
-      toast({
-        title: 'Trip created!',
-        description: `Your ${durationDays}-day ${place?.name} itinerary is ready.`,
-      });
-      navigate(`/trip/${trip.id}`);
+      // Navigate to preview page with trip data
+      navigate('/trip/preview', { state: { tripData } });
     } else if (tripPlanner.error) {
       toast({
         title: 'Could not create trip',

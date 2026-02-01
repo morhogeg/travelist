@@ -1,21 +1,34 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { EnrichedCollection } from "@/utils/collections/collectionHelpers";
+import { UnifiedSavedItem } from "./CollectionsTab";
 import SwipeableCard from "@/components/home/category/recommendation-item/SwipeableCard";
 import CategorySegmentBar from "./CategorySegmentBar";
+import { Sparkles, Calendar } from "lucide-react";
+import { getCategoryColor } from "@/components/recommendations/utils/category-data";
 
 interface CollectionCardProps {
-  collection: EnrichedCollection;
+  item: UnifiedSavedItem;
   onDelete: () => void;
   onClick: () => void;
 }
 
 const CollectionCard: React.FC<CollectionCardProps> = ({
-  collection,
+  item,
   onDelete,
   onClick,
 }) => {
-  const hasPlaces = collection.totalPlaces > 0;
+  const isAITrip = item.isAITrip;
+
+  // Calculate breakdown and totals based on item type
+  const totalPlaces = isAITrip
+    ? item.days.reduce((sum, day) => sum + day.places.length, 0)
+    : item.totalPlaces;
+
+  const hasPlaces = totalPlaces > 0;
+
+  // For AI Trips, we might want to synthesize a category breakdown if it's not provided
+  // But for now, let's just show the type and count
+  const categoryBreakdown = isAITrip ? [] : (item as any).categoryBreakdown;
 
   return (
     <SwipeableCard onDeleteTrigger={onDelete}>
@@ -26,18 +39,28 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       >
         {/* Header Row */}
         <div className="min-h-[44px]">
-          <h3 className="font-semibold text-base truncate mb-0.5">
-            {collection.name}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {collection.totalPlaces} place{collection.totalPlaces !== 1 ? "s" : ""}
-          </p>
+          <div className="flex items-center gap-2 mb-0.5">
+            {isAITrip && <Sparkles className="h-4 w-4 text-[#667eea]" />}
+            <h3 className="font-semibold text-base truncate">
+              {item.name}
+            </h3>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            {isAITrip ? (
+              <>
+                <Calendar className="h-3 w-3" />
+                <span>{item.generationParams.durationDays} days • {totalPlaces} stops</span>
+              </>
+            ) : (
+              <span>{totalPlaces} place{totalPlaces !== 1 ? "s" : ""}</span>
+            )}
+          </div>
         </div>
 
         {/* Category Segment Bar - only show if places exist */}
-        {hasPlaces && collection.categoryBreakdown.length > 0 && (
+        {hasPlaces && categoryBreakdown.length > 0 && (
           <div className="mt-2">
-            <CategorySegmentBar categories={collection.categoryBreakdown} />
+            <CategorySegmentBar categories={categoryBreakdown} />
           </div>
         )}
       </motion.div>

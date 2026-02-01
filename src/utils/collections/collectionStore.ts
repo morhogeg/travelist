@@ -168,3 +168,21 @@ export function deleteCollection(collectionId: string): void {
   const updated = collections.filter((col) => col.id !== collectionId);
   saveCollections(updated);
 }
+
+// Create a collection from a list of places
+export function createCollectionFromPlaces(name: string, placeIds: string[]): Collection {
+  const collections = getCollections();
+  const now = new Date().toISOString();
+  const newCollection: Collection = {
+    id: generateId(),
+    name: name.trim(),
+    placeIds: Array.from(new Set(placeIds)), // Ensure unique
+    routeMode: false,
+    createdAt: now,
+    lastModified: now,
+  };
+  const updated = [...collections, newCollection];
+  saveCollections(updated);
+  window.dispatchEvent(new CustomEvent("collectionUpdated"));
+  return newCollection;
+}

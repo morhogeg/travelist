@@ -11,7 +11,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map as MapIcon, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map as MapIcon, Sparkles, FolderPlus } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,6 +51,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { createCollectionFromPlaces } from '@/utils/collections/collectionStore';
 
 const TripDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -229,11 +230,26 @@ const TripDetailPage: React.FC = () => {
         });
     };
 
+    const handleSaveAsCollection = () => {
+        mediumHaptic();
+        if (!trip) return;
+
+        const placeIds = trip.days.flatMap(day => day.places.map(p => p.placeId));
+        const newCollection = createCollectionFromPlaces(`${trip.name} (Saved)`, placeIds);
+
+        toast({
+            title: 'Saved to Collections',
+            description: `"${newCollection.name}" has been created.`,
+        });
+
+        navigate('/collections');
+    };
+
     const confirmDeleteTrip = () => {
         mediumHaptic();
         if (!id) return;
         deleteTrip(id);
-        navigate('/routes');
+        navigate('/collections');
     };
 
     if (!trip) {
@@ -254,9 +270,24 @@ const TripDetailPage: React.FC = () => {
                         <h1 className="text-lg font-bold">{trip.name}</h1>
                         <p className="text-xs text-muted-foreground">{trip.city}, {trip.country}</p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => setIsDeleteDialogOpen(true)} className="text-muted-foreground hover:text-destructive">
-                        <Trash2 className="h-5 w-5" />
-                    </Button>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-muted-foreground">
+                                <MoreHorizontal className="h-5 w-5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={handleSaveAsCollection} className="gap-2">
+                                <FolderPlus className="h-4 w-4" />
+                                Save as Collection
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive gap-2">
+                                <Trash2 className="h-4 w-4" />
+                                Delete Trip
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
                 {/* Progress - subtle */}

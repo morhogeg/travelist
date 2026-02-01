@@ -11,7 +11,14 @@ import CollectionCard from "./CollectionCard";
 import { mediumHaptic } from "@/utils/ios/haptics";
 import { useToast } from "@/hooks/use-toast";
 import { getRecommendations } from "@/utils/recommendation-parser";
-import { getEnrichedAndGroupedCollections, EnrichedCollection } from "@/utils/collections/collectionHelpers";
+import { getEnrichedAndGroupedCollections, EnrichedCollection, enrichCollection } from "@/utils/collections/collectionHelpers";
+import { getTripsWithProgress, deleteTrip } from "@/utils/trip/trip-manager";
+import { TripWithProgress } from "@/types/trip";
+
+// Unified type for both Collections and AI Trips
+export type UnifiedSavedItem =
+  | (EnrichedCollection & { isAITrip?: false })
+  | (TripWithProgress & { isAITrip: true });
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,61 +31,117 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const CollectionsTab: React.FC = () => {
-  const [collections, setCollections] = useState<EnrichedCollection[]>([]);
+  const [items, setItems] = useState<UnifiedSavedItem[]>([]);
+  const [filterType, setFilterType] = useState<'all' | 'collections' | 'trips'>('all');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [collectionToDelete, setCollectionToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string; isAITrip: boolean } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const loadCollections = () => {
+  const loadData = () => {
     const rawCollections = getCollections();
     const recommendations = getRecommendations();
+    const rawTrips = getTripsWithProgress();
 
-    // Flatten all places from recommendations
+    // Flatten all places from recommendations for enrichment
     const allPlaces = recommendations.flatMap((rec) =>
       rec.places.map((place) => ({
         id: place.id,
         recId: place.recId || place.id,
-        category: place.category || rec.category,
+        category: place.category,
       }))
     );
 
-    // Enrich and group collections, then flatten into single sorted list
-    const grouped = getEnrichedAndGroupedCollections(rawCollections, allPlaces);
-    // Combine recent and older, maintaining the sort order (recent first, then older)
-    setCollections([...grouped.recent, ...grouped.older]);
+    // Enrich collections
+    const enrichedCollections: UnifiedSavedItem[] = rawCollections.map(col => ({
+      ...enrichCollection(col, allPlaces),
+      isAITrip: false as const
+    }));
+
+    // Wrap trips
+    const tripItems: UnifiedSavedItem[] = rawTrips.map(trip => ({
+      ...trip,
+      isAITrip: true as const
+    }));
+
+    // Combine and sort by date
+    const combined = [...enrichedCollections, ...tripItems].sort((a, b) => {
+      const dateA = new Date(
+        a.isAITrip ? a.dateModified : ((a as any).lastModified || (a as any).createdAt)
+      ).getTime();
+      const dateB = new Date(
+        b.isAITrip ? b.dateModified : ((b as any).lastModified || (b as any).createdAt)
+      ).getTime();
+      return dateB - dateA;
+    }) as UnifiedSavedItem[];
+
+    setItems(combined);
   };
 
   useEffect(() => {
-    loadCollections();
+    loadData();
+
+    // Listen for updates to keep list in sync
+    const handleRefresh = () => loadData();
+    window.addEventListener("collectionUpdated", handleRefresh);
+    window.addEventListener("tripUpdated", handleRefresh);
+    window.addEventListener("tripCreated", handleRefresh);
+    window.addEventListener("tripDeleted", handleRefresh);
+
+    return () => {
+      window.removeEventListener("collectionUpdated", handleRefresh);
+      window.removeEventListener("tripUpdated", handleRefresh);
+      window.removeEventListener("tripCreated", handleRefresh);
+      window.removeEventListener("tripDeleted", handleRefresh);
+    };
   }, []);
 
-  const handleOpenCollection = (collectionId: string) => {
-    navigate(`/collections/${collectionId}`);
+  const handleOpenItem = (item: UnifiedSavedItem) => {
+    if (item.isAITrip) {
+      navigate(`/trip/${item.id}`);
+    } else {
+      navigate(`/collections/${item.id}`);
+    }
   };
+
+  // Filter items based on selected filter type
+  const filteredItems = items.filter(item => {
+    if (filterType === 'all') return true;
+    if (filterType === 'collections') return !item.isAITrip;
+    if (filterType === 'trips') return item.isAITrip;
+    return true;
+  });
 
   const handleCreateCollection = () => {
     mediumHaptic();
     setIsDrawerOpen(true);
   };
 
-  const handleDeleteCollection = (collectionId: string, collectionName: string) => {
+  const handleCollectionCreated = () => {
+    loadData();
+  };
+
+  const handleDeleteItem = (item: UnifiedSavedItem) => {
     mediumHaptic();
-    setCollectionToDelete({ id: collectionId, name: collectionName });
+    setItemToDelete({ id: item.id, name: item.name, isAITrip: item.isAITrip });
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDeleteCollection = () => {
-    if (collectionToDelete) {
+  const confirmDelete = () => {
+    if (itemToDelete) {
       mediumHaptic();
-      deleteCollection(collectionToDelete.id);
-      loadCollections();
+      if (itemToDelete.isAITrip) {
+        deleteTrip(itemToDelete.id);
+      } else {
+        deleteCollection(itemToDelete.id);
+      }
+      loadData();
       toast({
-        title: "Collection deleted",
-        description: `"${collectionToDelete.name}" has been removed.`,
+        title: `${itemToDelete.isAITrip ? 'Trip' : 'Collection'} deleted`,
+        description: `"${itemToDelete.name}" has been removed.`,
       });
-      setCollectionToDelete(null);
+      setItemToDelete(null);
     }
   };
 
@@ -89,76 +152,111 @@ const CollectionsTab: React.FC = () => {
         animate={{ opacity: 1 }}
         className="px-4 pt-3 pb-24"
       >
-        {/* Header - matching Travelist heading style */}
-        <div className="flex justify-center mb-4">
-          <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            My Collections
-          </h1>
-        </div>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="px-4 pt-6 pb-3">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              My Collections
+            </h1>
+          </div>
 
-        {collections.length === 0 ? (
-          <EmptyState
-            variant="no-collections"
-            onCtaClick={handleCreateCollection}
-          />
-        ) : (
-          <>
-            <div>
-              {collections.map((collection, index) => (
-                <React.Fragment key={collection.id}>
-                  <CollectionCard
-                    collection={collection}
-                    onDelete={() => handleDeleteCollection(collection.id, collection.name)}
-                    onClick={() => handleOpenCollection(collection.id)}
-                  />
-                  {index < collections.length - 1 && (
-                    <div className="h-px bg-border/30 mx-4" />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-
-            {/* Floating Add Button - matching Routes tab */}
-            {!isDrawerOpen && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.05 }}
-                onClick={handleCreateCollection}
-                className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
-                aria-label="Add collection"
-                style={{
-                  bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
-                }}
+          {/* Filter Toggle */}
+          <div className="px-4 pb-3">
+            <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
+              <button
+                onClick={() => setFilterType('all')}
+                className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${filterType === 'all'
+                  ? 'bg-background shadow-sm text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+                  }`}
               >
-                <Plus className="h-6 w-6 text-white" />
-              </motion.button>
-            )}
-          </>
-        )}
+                All
+              </button>
+              <button
+                onClick={() => setFilterType('collections')}
+                className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${filterType === 'collections'
+                  ? 'bg-background shadow-sm text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+                  }`}
+              >
+                Collections
+              </button>
+              <button
+                onClick={() => setFilterType('trips')}
+                className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${filterType === 'trips'
+                  ? 'bg-background shadow-sm text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+                  }`}
+              >
+                AI Trips
+              </button>
+            </div>
+          </div>
+
+          {filteredItems.length === 0 ? (
+            <EmptyState
+              variant="no-collections"
+              onCtaClick={handleCreateCollection}
+            />
+          ) : (
+            <>
+              <div>
+                {filteredItems.map((item, index) => (
+                  <React.Fragment key={item.id}>
+                    <CollectionCard
+                      item={item}
+                      onDelete={() => handleDeleteItem(item)}
+                      onClick={() => handleOpenItem(item)}
+                    />
+                    {index < filteredItems.length - 1 && (
+                      <div className="h-px bg-border/30 mx-4" />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              {/* Floating Add Button - matching Routes tab */}
+              {!isDrawerOpen && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ scale: 1.05 }}
+                  onClick={handleCreateCollection}
+                  className="fixed bottom-20 right-4 rounded-full w-14 h-14 z-[100] ios26-transition-spring flex items-center justify-center text-white"
+                  aria-label="Add collection"
+                  style={{
+                    bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: "0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)"
+                  }}
+                >
+                  <Plus className="h-6 w-6 text-white" />
+                </motion.button>
+              )}
+            </>
+          )}
+        </div>
       </motion.div>
 
       <CreateCollectionDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        onCollectionCreated={loadCollections}
+        onCollectionCreated={handleCollectionCreated}
       />
 
       {/* Delete Collection Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Collection</AlertDialogTitle>
+            <AlertDialogTitle>Delete {itemToDelete?.isAITrip ? 'Trip' : 'Collection'}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{collectionToDelete?.name}"? This action cannot be undone.
-              The places in this collection will not be deleted.
+              Are you sure you want to delete "{itemToDelete?.name}"? This action cannot be undone.
+              {itemToDelete?.isAITrip ? " " : " The places in this collection will not be deleted."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setCollectionToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setItemToDelete(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={confirmDeleteCollection}
+              onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete

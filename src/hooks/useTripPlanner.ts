@@ -24,7 +24,7 @@ interface UseTripPlannerOptions {
 }
 
 interface UseTripPlannerReturn {
-    generateTrip: (durationDays: number, preferences?: TripPreferences) => Promise<Trip | null>;
+    generateTrip: (durationDays: number, preferences?: TripPreferences) => Promise<Omit<Trip, 'id' | 'dateCreated' | 'dateModified'> | null>;
     isGenerating: boolean;
     error: string | null;
     progress: string;
@@ -148,14 +148,13 @@ export function useTripPlanner(options: UseTripPlannerOptions): UseTripPlannerRe
                 // Call AI provider
                 const result = await tripPlannerProvider.generateTripPlan(request);
 
-                setProgress('Saving your trip...');
+                setProgress('Finalizing your trip...');
 
-                // Create and save the trip
+                // Create trip data structure but DON'T save it yet
                 const tripData = createTripFromPlan(result, city, country, durationDays, preferences);
-                const trip = createTrip(tripData);
 
                 setProgress('');
-                return trip;
+                return tripData;
             } catch (err) {
                 console.error('[useTripPlanner] Error:', err);
                 setError((err as Error).message || 'Failed to generate trip');

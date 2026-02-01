@@ -26,6 +26,7 @@ import CollectionDetailPage from "@/pages/collections/CollectionDetailPage";
 import CollectionsTab from "@/components/collections/CollectionsTab";
 import TravelStory from "./pages/TravelStory";
 import TripDetailPage from "./pages/TripDetailPage";
+import TripPreviewPage from './pages/TripPreviewPage';
 import Inbox from "./pages/Inbox";
 import Guides from "./pages/Guides";
 
@@ -206,6 +207,7 @@ function AppContent() {
           <Route path="/country/:countryName" element={<CountryView />} />
           <Route path="/collections" element={<CollectionsTab />} /> {/* ✅ Collections list */}
           <Route path="/collections/:id" element={<CollectionDetailPage />} /> {/* ✅ Collection detail with Route Mode */}
+          <Route path="/trip/preview" element={<TripPreviewPage />} /> {/* ✅ AI Trip preview (before saving) */}
           <Route path="/trip/:id" element={<TripDetailPage />} /> {/* ✅ AI Trip detail */}
           <Route path="/story" element={<TravelStory />} /> {/* ✅ Travel Story */}
           <Route path="/inbox" element={<Inbox />} /> {/* ✅ Shared inbox */}
