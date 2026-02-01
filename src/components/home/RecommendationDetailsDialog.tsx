@@ -48,10 +48,12 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   const [localDescription, setLocalDescription] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsVisited(!!recommendation?.visited);
     setLocalDescription(null); // Reset local description when recommendation changes
+    setAiError(null); // Reset error state
   }, [recommendation]);
 
   if (!recommendation) return null;
@@ -156,43 +158,60 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                     )}
                   </div>
                 ) : (
-                  <button
-                    onClick={async () => {
-                      setIsGeneratingDescription(true);
-                      const result = await generatePlaceDescription(
-                        recommendation.name,
-                        recommendation.city || '',
-                        recommendation.country || '',
-                        recommendation.category
-                      );
-                      setIsGeneratingDescription(false);
-                      if (result.description) {
-                        setLocalDescription(result.description);
-                        // Persist to storage and trigger home refresh
-                        if (recommendation.recId) {
-                          updateRecommendationMeta(recommendation.recId, {
-                            description: result.description
-                          });
-                          // Dispatch event to refresh home view
-                          window.dispatchEvent(new CustomEvent('recommendationUpdated'));
+                  <>
+                    <button
+                      onClick={async () => {
+                        setIsGeneratingDescription(true);
+                        setAiError(null);
+                        try {
+                          console.log('[AI Description] Requesting for:', recommendation.name, recommendation.city, recommendation.country);
+                          const result = await generatePlaceDescription(
+                            recommendation.name,
+                            recommendation.city || '',
+                            recommendation.country || '',
+                            recommendation.category
+                          );
+                          console.log('[AI Description] Result:', result);
+                          setIsGeneratingDescription(false);
+                          if (result.description) {
+                            setLocalDescription(result.description);
+                            // Persist to storage and trigger home refresh
+                            if (recommendation.recId) {
+                              updateRecommendationMeta(recommendation.recId, {
+                                description: result.description
+                              });
+                              // Dispatch event to refresh home view
+                              window.dispatchEvent(new CustomEvent('recommendationUpdated'));
+                            }
+                          } else {
+                            // Show error to user
+                            setAiError(result.error || 'Could not generate description. Please try again.');
+                          }
+                        } catch (err) {
+                          console.error('[AI Description] Exception:', err);
+                          setIsGeneratingDescription(false);
+                          setAiError('Network error. Please try again.');
                         }
-                      }
-                    }}
-                    disabled={isGeneratingDescription}
-                    className="flex items-center gap-1.5 text-[#667eea] text-sm hover:underline disabled:opacity-50"
-                  >
-                    {isGeneratingDescription ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Generating...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4" />
-                        <span>Get info from Travelist AI</span>
-                      </>
+                      }}
+                      disabled={isGeneratingDescription}
+                      className="flex items-center gap-1.5 text-[#667eea] text-sm hover:underline disabled:opacity-50"
+                    >
+                      {isGeneratingDescription ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Generating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          <span>Get info from Travelist AI</span>
+                        </>
+                      )}
+                    </button>
+                    {aiError && (
+                      <p className="text-red-500 text-xs mt-1">{aiError}</p>
                     )}
-                  </button>
+                  </>
                 )}
               </div>
 

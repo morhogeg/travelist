@@ -34,6 +34,11 @@ All notable changes to the Travelist iOS app will be documented in this file.
   - **Improved Capacitor Settings**: Optimized `contentInset` behavior to eliminate unwanted layout shifts
 
 ### 🐛 Fixed
+- **AI Description Button Not Working** - Fixed "Get info from Travelist AI" button that was silently failing
+  - Increased `max_tokens` from 60 to 500 to accommodate reasoning model's internal processing
+  - Added visible error messages when AI generation fails (no longer silent failure)
+  - Added retry logic with exponential backoff for rate-limited requests
+  - Improved prompt to generate richer, more helpful 1-2 sentence descriptions
 - **Collection Deletion Logic**: Fixed a bug where deleting a collection didn't always reflect in the UI immediately
 - **Top Layout Gaps**: Eliminated the white gap at the top of the Home screen and other tabs
 

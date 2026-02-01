@@ -15,57 +15,84 @@ export async function generatePlaceDescription(
     country: string,
     category?: string
 ): Promise<GenerateDescriptionResult> {
-    const systemPrompt = `You are a travel guide assistant. Write ONE sentence about a place.
+    const systemPrompt = `You are a knowledgeable travel guide assistant. Write a helpful 1-2 sentence description about a place that a traveler would find useful.
 
-CRITICAL RULES:
-1. NEVER guess the cuisine type, food style, or specialty - you will often be WRONG
-2. NEVER say "Colombian", "Italian", "Mexican" etc. unless the place NAME clearly indicates it
-3. For restaurants/cafes: Say "A popular dining spot" or "A local favorite" - NEVER guess the food type
-4. Only mention specific details if the place name OBVIOUSLY indicates them (e.g., "Joe's Pizza" = pizza)
-5. Maximum 20 words
-6. Better to be generic than WRONG
+GUIDELINES:
+1. Include what makes this place special or worth visiting
+2. Mention the type of experience (cozy café, upscale restaurant, hidden gem, iconic landmark, etc.)
+3. If it's a restaurant/café, you can mention the general cuisine or vibe if it's commonly known
+4. Add a helpful tip if relevant (best time to visit, what to try, atmosphere)
+5. Keep it concise but informative - 1-2 sentences maximum
 
-SAFE EXAMPLES:
-- "La Tigre" → "A popular local spot in [city] worth checking out." (NOT "Colombian restaurant"!)
-- "Joe's Pizza" → "A beloved pizza spot in [city]." (pizza is in the name, so OK)
-- "Cafe Central" → "A charming cafe in [city]." (cafe is in the name)
+EXAMPLES:
+- "A beloved neighborhood pizzeria known for its thin-crust pies and casual atmosphere. Perfect for a quick, authentic slice."
+- "An iconic Parisian landmark offering panoramic city views. Best visited at sunset for stunning photo opportunities."
+- "A charming café popular with locals for its specialty coffee and freshly baked pastries."
 
 Respond with ONLY the description, no quotes or explanation.`;
 
     const categoryHint = category ? ` (Category: ${category})` : '';
-    const userPrompt = `Describe: ${placeName} in ${city}, ${country}${categoryHint}`;
+    const userPrompt = `Write a brief, helpful description for: ${placeName} in ${city}, ${country}${categoryHint}`;
 
     const messages: OpenRouterMessage[] = [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
     ];
 
-    try {
-        logger.debug('AI Description', 'Generating description for:', placeName);
+    const maxRetries = 3;
+    let lastError = '';
 
-        const result = await callOpenRouter(messages, {
-            temperature: 0.3,
-            max_tokens: 60
-        });
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            logger.debug('AI Description', `Attempt ${attempt}/${maxRetries} for:`, placeName);
 
-        if (result.error) {
-            logger.error('AI Description', 'Error:', result.error);
-            return {
-                description: null,
-                error: result.error
-            };
+            const result = await callOpenRouter(messages, {
+                temperature: 0.3,
+                max_tokens: 500
+            });
+
+            if (result.error) {
+                lastError = result.error;
+                logger.error('AI Description', `Attempt ${attempt} error:`, result.error);
+
+                // If rate limited, wait and retry
+                if (result.error.includes('429') && attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                    continue;
+                }
+
+                // For other errors on last attempt, return error
+                if (attempt === maxRetries) {
+                    return {
+                        description: null,
+                        error: result.error
+                    };
+                }
+                continue;
+            }
+
+            if (!result.content) {
+                lastError = 'Empty response from AI';
+                if (attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+                    continue;
+                }
+                return { description: null, error: lastError };
+            }
+
+            const content = result.content.trim();
+            logger.debug('AI Description', 'Generated:', content);
+            return { description: content };
+
+        } catch (error) {
+            logger.error('AI Description', `Attempt ${attempt} network error:`, error);
+            lastError = 'Network error - please try again';
+            if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+                continue;
+            }
         }
-
-        if (!result.content) {
-            return { description: null, error: 'Empty response from AI' };
-        }
-
-        const content = result.content.trim();
-        logger.debug('AI Description', 'Generated:', content);
-        return { description: content };
-
-    } catch (error) {
-        logger.error('AI Description', 'Network error:', error);
-        return { description: null, error: 'Network error - please try again' };
     }
+
+    return { description: null, error: lastError || 'Failed after multiple attempts' };
 }
