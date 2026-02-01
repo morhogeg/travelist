@@ -147,6 +147,20 @@ The mock provider includes city-specific suggestions for:
 - Tokyo (Afuri Ramen, teamLab, Golden Gai, etc.)
 - Default fallback for all other cities
 
+## Transparency & Privacy
+
+To maintain user trust, the application includes several transparency features:
+
+- **Model Identity**: The active provider (e.g., DeepSeek via OpenRouter) is displayed in Settings.
+- **Connection Status**: Real-time checking of AI reachability.
+- **Data Usage Education**: A privacy dialog explaining that only anonymized place and city data is shared for enrichment.
+- **Attribution**: "POWERED BY TRAVELIST AI" badges on all AI-generated content.
+
+### Provider Details
+The app currently uses a centralized client (`src/services/ai/openrouter-client.ts`) that implements:
+1. **Primary**: `tngtech/deepseek-r1t2-chimera:free`
+2. **Fallback**: `openai/gpt-oss-120b:free` (with multi-turn reasoning)
+
 ## Future Enhancements
 
 - [x] Connect to real LLM provider (Grok 4.1 via OpenRouter)

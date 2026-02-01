@@ -13,6 +13,11 @@ All notable changes to the Travelist iOS app will be documented in this file.
   - **Streamlined Flow**: Updated the onboarding sequence to 8 steps for better psychological anchoring
   - **Premium Navigate Icons**: Replaced emoji map icons with professional SVG logos for Google and Apple Maps
   - **Navigate Screen Wording**: Improved screen text to be more action-oriented and premium
+- **AI Features Transparency**
+  - **AI Settings Hub**: New section in Settings for model status and provider info
+  - **Data Privacy Dialog**: "How we use your data" explanation of data usage policies
+  - **Transparent Attribution**: Added "POWERED BY TRAVELIST AI" badges to all suggestion sections
+  - **Enhanced AI Error Handling**: Improved retry UI and persistence logic for AI service failures
 - **Routes & Collections Merger (Phase 2)**
   - **Route Mode**: Collections now support a dedicated "Route Mode" for trip planning
   - **Enhanced Collection Cards**: Polished card design to match the home screen's liquid glass aesthetic

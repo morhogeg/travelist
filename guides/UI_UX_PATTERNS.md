@@ -6,6 +6,16 @@ This guide documents the established UI/UX patterns, design decisions, and conve
 
 ---
 
+## 🤖 AI Transparency & Attribution
+
+To maintain trust on which content is human-curated vs. AI-generated:
+
+- **Attribution Badge**: Use `POWERED BY TRAVELIST AI` in all AI-generated sections.
+- **Transparency in Settings**: Always expose the AI provider name and model status.
+- **Privacy Education**: Include the "How we use your data" link near AI toggles.
+
+---
+
 ## 🎨 Color System
 
 ### Primary Gradient (App Purple)
