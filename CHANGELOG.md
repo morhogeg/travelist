@@ -23,6 +23,11 @@ All notable changes to the Travelist iOS app will be documented in this file.
   - **Enhanced Collection Cards**: Polished card design to match the home screen's liquid glass aesthetic
   - **Collection Renaming**: Integrated renaming functionality directly in the detail view
   - **Place Categorization**: Collection items now display category icons and colors consistently
+- **AI Trip Planning Enhancements**
+  - **Opt-in Trip Saving**: AI-generated trips no longer auto-save; users now see a preview page after generation
+  - **Trip Preview Page**: Review the complete itinerary before choosing to save or discard
+  - **Collection Filtering**: Added filter toggle to Collections tab (All / Collections Only / AI Trips Only)
+  - **Explicit User Control**: Users decide what to keep, reducing clutter and improving organization
 - **Centralized iOS Safe Area Handling**
   - **Central Layout Padding**: Moved safe-area logic to `Layout.tsx` for consistent protection across all tabs
   - **Native Viewport Fit**: Backgrounds now flow behind the status bar and notch for a more premium look
