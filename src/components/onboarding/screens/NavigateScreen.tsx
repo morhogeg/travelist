@@ -167,7 +167,7 @@ export const NavigateScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
                 >
                     Export your route directly to<br />
                     <span className="text-foreground font-medium">Google Maps</span> or <span className="text-foreground font-medium">Apple Maps</span>.<br />
-                    No more manual searching.
+                    Ready to go the moment you are.
                 </motion.p>
 
                 {/* Map badges with bounce */}
@@ -182,20 +182,28 @@ export const NavigateScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ type: 'spring', stiffness: 200, delay: 0.6 }}
                         whileHover={{ scale: 1.1, y: -5 }}
-                        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/30 cursor-pointer border border-border/50"
+                        className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 backdrop-blur-md cursor-pointer border border-white/10 hover:bg-white/10 transition-colors shadow-lg"
                     >
-                        <span className="text-xl">🗺️</span>
-                        <span className="text-sm font-semibold text-foreground">Google Maps</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.5 10.3524C4.5 6.22158 7.85786 2.86371 11.9887 2.86371C16.1195 2.86371 19.4774 6.22158 19.4774 10.3524C19.4774 13.0645 18.0264 15.4377 15.8654 16.7402L11.9887 21.1364L8.11197 16.7402C5.95101 15.4377 4.5 13.0645 4.5 10.3524Z" fill="#34A853" />
+                            <path d="M15.8654 16.7402C13.7045 18.0427 11.9887 21.1364 11.9887 21.1364L8.11197 16.7402C10.2729 18.0427 11.9887 21.1364 11.9887 21.1364" fill="#EA4335" />
+                            <path d="M11.9887 13.4831C13.7171 13.4831 15.1193 12.0809 15.1193 10.3526C15.1193 8.62419 13.7171 7.22198 11.9887 7.22198C10.2604 7.22198 8.85815 8.62419 8.85815 10.3526C8.85815 12.0809 10.2604 13.4831 11.9887 13.4831Z" fill="#FBBC04" />
+                            <path d="M11.9887 2.86371C7.85786 2.86371 4.5 6.22158 4.5 10.3524C4.5 11.8315 4.93122 13.2098 5.67156 14.3672L11.9887 2.86371Z" fill="#4285F4" />
+                        </svg>
+                        <span className="text-[15px] font-semibold text-white tracking-tight">Google Maps</span>
                     </motion.div>
+
                     <motion.div
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ type: 'spring', stiffness: 200, delay: 0.7 }}
                         whileHover={{ scale: 1.1, y: -5 }}
-                        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/30 cursor-pointer border border-border/50"
+                        className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 backdrop-blur-md cursor-pointer border border-white/10 hover:bg-white/10 transition-colors shadow-lg"
                     >
-                        <span className="text-xl">🍎</span>
-                        <span className="text-sm font-semibold text-foreground">Apple Maps</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.05 20.28c-.96.95-2.12 1.43-3.08 1.43-1.03 0-2-.45-2.88-.45s-1.85.45-2.88.45c-.96 0-2.12-.48-3.08-1.43-2.13-2.13-3.2-5.48-3.2-8.31 0-2.83 1.07-5.59 3.2-7.72C6.17 3.12 7.33 2.64 8.29 2.64c1.03 0 2 .45 2.88.45.88 0 1.85-.45 2.88-.45.96 0 2.12.48 3.08 1.43 2.13 2.13 3.2 4.89 3.2 7.72 0 2.83-1.07 6.36-3.2 8.49zM12.01 5.48c-.01-1.42 1.14-2.58 2.56-2.59.01 1.42-1.14 2.58-2.56 2.59z" />
+                        </svg>
+                        <span className="text-[15px] font-semibold text-white tracking-tight">Apple Maps</span>
                     </motion.div>
                 </motion.div>
             </div>

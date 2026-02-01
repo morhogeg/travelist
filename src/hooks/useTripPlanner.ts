@@ -156,9 +156,9 @@ export function useTripPlanner(options: UseTripPlannerOptions): UseTripPlannerRe
 
                 setProgress('');
                 return trip;
-            } catch (err: any) {
+            } catch (err) {
                 console.error('[useTripPlanner] Error:', err);
-                setError(err.message || 'Failed to generate trip');
+                setError((err as Error).message || 'Failed to generate trip');
                 setProgress('');
                 return null;
             } finally {

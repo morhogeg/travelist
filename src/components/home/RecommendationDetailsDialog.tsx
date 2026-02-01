@@ -5,7 +5,7 @@ import {
   DrawerContent,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, ExternalLink, Sparkles, Loader2 } from "lucide-react";
+import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, ExternalLink, Sparkles, Loader2, FolderPlus, UserCircle, MapPin } from "lucide-react";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import AddToDrawer from "@/components/common/AddToDrawer";
@@ -41,7 +41,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   onDelete,
   onToggleVisited,
   hideEditDelete = false,
-  routeNotes,
   onAddToTrip,
 }) => {
   const [isVisited, setIsVisited] = useState<boolean>(!!recommendation?.visited);
@@ -121,7 +120,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                   onClick={(e) => handleExternalClick(e, mapUrl)}
                   className="flex items-center justify-center gap-1.5 mx-auto text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 transition-colors"
                 >
-                  <Navigation className="h-3.5 w-3.5" />
+                  <MapPin className="h-3.5 w-3.5" />
                   <span>{displayAddress}</span>
                 </button>
               )}

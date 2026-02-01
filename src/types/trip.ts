@@ -5,7 +5,19 @@
  * Extends the existing Route pattern with trip-specific metadata.
  */
 
-import { RoutePlaceReference, RouteDay as BaseRouteDay } from './route';
+/**
+ * Base types for route-like structures (previously in route.ts)
+ */
+export interface RoutePlaceReference {
+    placeId: string;
+    order: number;
+    visited: boolean;
+}
+
+export interface BaseRouteDay {
+    dayNumber: number;
+    places: RoutePlaceReference[];
+}
 
 /**
  * Time slots for scheduling places based on category

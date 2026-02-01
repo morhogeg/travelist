@@ -11,10 +11,9 @@ import RecommendationDetailsDialog from "@/components/home/RecommendationDetails
 import { FilterSheet } from "@/components/home/filters";
 import ActiveFilters from "@/components/home/filters/ActiveFilters";
 import SearchInput from "@/components/home/search/SearchInput";
-import { GroupedRecommendation } from "@/utils/recommendation/types";
+import { GroupedRecommendation, Recommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations, getAvailableOccasions, getAvailableSourceNames, getAvailableCities } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
-import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import countryToCode from "@/utils/flags/countryToCode";
 import { Plus, ArrowLeft, Search as SearchIcon, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,13 +28,13 @@ const CountryView: React.FC = () => {
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editRecommendation, setEditRecommendation] = useState<any>(null);
+  const [editRecommendation, setEditRecommendation] = useState<Recommendation | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   // Details dialog state
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
+  const [detailsRecommendation, setDetailsRecommendation] = useState<Recommendation | null>(null);
 
   // Filter state
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
@@ -84,7 +83,6 @@ const CountryView: React.FC = () => {
   const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
     const newVisitedState = !currentVisited;
     markRecommendationVisited(id, name, newVisitedState);
-    syncVisitedStateToRoutes(id, newVisitedState);
     loadCountryData();
   };
 
@@ -93,12 +91,12 @@ const CountryView: React.FC = () => {
     loadCountryData();
   };
 
-  const handleEditClick = (recommendation: any) => {
+  const handleEditClick = (recommendation: Recommendation) => {
     setEditRecommendation(recommendation);
     setIsDrawerOpen(true);
   };
 
-  const handleViewDetails = (recommendation: any) => {
+  const handleViewDetails = (recommendation: Recommendation) => {
     setDetailsRecommendation(recommendation);
     setDetailsDialogOpen(true);
   };
@@ -119,7 +117,6 @@ const CountryView: React.FC = () => {
 
   const handleDetailsToggleVisited = (recId: string, name: string, visited: boolean) => {
     markRecommendationVisited(recId, name, visited);
-    syncVisitedStateToRoutes(recId, visited);
     if (detailsRecommendation) {
       setDetailsRecommendation({
         ...detailsRecommendation,

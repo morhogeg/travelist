@@ -11,9 +11,8 @@ import RecommendationDrawer from "@/components/recommendations/RecommendationDra
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
 import { FilterSheet } from "@/components/home/filters";
 import ActiveFilters from "@/components/home/filters/ActiveFilters";
-import { GroupedRecommendation } from "@/utils/recommendation/types";
+import { GroupedRecommendation, Recommendation } from "@/utils/recommendation/types";
 import { getFilteredRecommendations, getAvailableOccasions, getAvailableSourceNames } from "@/utils/recommendation/filter-helpers";
-import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CategoriesScrollbar from "@/components/home/CategoriesScrollbar";
 import SearchInput from "@/components/home/search/SearchInput";
 import { Plus, ArrowLeft, Search as SearchIcon, SlidersHorizontal, Sparkles, Map } from "lucide-react";
@@ -42,7 +41,7 @@ const PlaceDetail = () => {
   const [place, setPlace] = useState<Place | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editRecommendation, setEditRecommendation] = useState<any>(null);
+  const [editRecommendation, setEditRecommendation] = useState<Recommendation | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | string[]>("all");
   const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +49,7 @@ const PlaceDetail = () => {
 
   // Details dialog state
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
+  const [detailsRecommendation, setDetailsRecommendation] = useState<Recommendation | null>(null);
 
   // Filter state
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
@@ -162,12 +161,12 @@ const PlaceDetail = () => {
     };
   }, []);
 
-  const handleEditClick = (recommendation: any) => {
+  const handleEditClick = (recommendation: Recommendation) => {
     setEditRecommendation(recommendation);
     setIsDrawerOpen(true);
   };
 
-  const handleViewDetails = (recommendation: any) => {
+  const handleViewDetails = (recommendation: Recommendation) => {
     setDetailsRecommendation(recommendation);
     setDetailsDialogOpen(true);
   };
@@ -189,13 +188,11 @@ const PlaceDetail = () => {
   const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
     const newVisitedState = !currentVisited;
     markRecommendationVisited(id, name, newVisitedState);
-    syncVisitedStateToRoutes(id, newVisitedState);
     loadRecommendations();
   };
 
   const handleDetailsToggleVisited = (recId: string, name: string, visited: boolean) => {
     markRecommendationVisited(recId, name, visited);
-    syncVisitedStateToRoutes(recId, visited);
     if (detailsRecommendation) {
       setDetailsRecommendation({
         ...detailsRecommendation,

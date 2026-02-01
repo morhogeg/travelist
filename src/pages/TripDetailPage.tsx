@@ -11,7 +11,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map as MapIcon } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map as MapIcon, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import {
@@ -384,6 +384,12 @@ const TripDetailPage: React.FC = () => {
                                     </Button>
                                 </div>
                             ))}
+                        </div>
+
+                        {/* Attribution */}
+                        <div className="mt-4 flex items-center justify-center gap-1.5 opacity-40">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            <span className="text-[9px] font-medium tracking-tight uppercase px-1 py-0.5 rounded-md border border-foreground/20">POWERED BY TRAVELIST AI</span>
                         </div>
                     </div>
                 )}

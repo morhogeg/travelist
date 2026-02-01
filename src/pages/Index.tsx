@@ -19,25 +19,25 @@ import {
   getAvailableSourceNames
 } from "@/utils/recommendation/filter-helpers";
 import { markRecommendationVisited, deleteRecommendation, getRecommendations } from "@/utils/recommendation-parser";
-import { syncVisitedStateToRoutes } from "@/utils/route/route-manager";
 import CountryGroupList from "@/components/home/category/CountryGroupList";
 import SectionIndex from "@/components/home/category/SectionIndex";
 import { mediumHaptic } from "@/utils/ios/haptics";
 import { FilterState, INITIAL_FILTER_STATE, countActiveFilters } from "@/types/filters";
+import { GroupedRecommendation, Recommendation, RecommendationPlace } from "@/utils/recommendation/types";
 import EmptyState from "@/components/ui/EmptyState";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 
 const Index: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [groupedRecommendations, setGroupedRecommendations] = useState<any[]>([]);
+  const [groupedRecommendations, setGroupedRecommendations] = useState<GroupedRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [selectedCountry, setSelectedCountry] = useState<string | undefined>(undefined);
-  const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
+  const [detailsRecommendation, setDetailsRecommendation] = useState<Recommendation | null>(null);
   const [hideFab, setHideFab] = useState(false);
   const isNative = Capacitor.isNativePlatform();
 
@@ -165,11 +165,17 @@ const Index: React.FC = () => {
         const place = rec.places.find(p => p.id === id || p.recId === id || p.id === placeId);
         if (place) {
           setDetailsRecommendation({
-            ...place,
+            id: place.id || place.recId || '',
+            name: place.name,
+            location: rec.city,
+            image: place.image || '',
+            category: place.category,
+            description: place.description,
+            website: place.website,
+            recId: place.recId || place.id,
             city: rec.city,
             country: rec.country,
-            location: rec.city
-          });
+          } as Recommendation);
           setDetailsDialogOpen(true);
           break;
         }
@@ -270,10 +276,6 @@ const Index: React.FC = () => {
   const handleToggleVisited = (id: string, name: string, currentVisited: boolean) => {
     const newVisitedState = !currentVisited;
     markRecommendationVisited(id, name, newVisitedState);
-
-    // Sync to all routes containing this place (two-way sync)
-    syncVisitedStateToRoutes(id, newVisitedState);
-
     loadRecommendations();
   };
 
@@ -282,18 +284,33 @@ const Index: React.FC = () => {
     loadRecommendations();
   };
 
-  const handleEditClick = (recommendation: any) => {
+  const handleEditClick = (recommendation: Recommendation) => {
     setSelectedRecommendation(recommendation);
     setIsDrawerOpen(true);
   };
 
   const handleRecommendationClick = (place: RecommendationPlace) => {
     console.log("🔍 Index: Clicked recommendation", place.name, "Website:", place.website);
-    setDetailsRecommendation(place);
+    const recommendation: Recommendation = {
+      id: place.id || place.recId || '',
+      name: place.name,
+      location: place.location || '',
+      image: place.image || '',
+      category: place.category,
+      description: place.description,
+      website: place.website,
+      recId: place.recId || place.id,
+      visited: place.visited,
+      country: place.country,
+      city: place.city,
+      source: place.source,
+      context: place.context,
+    };
+    setDetailsRecommendation(recommendation);
     setDetailsDialogOpen(true);
   };
 
-  const handleViewDetails = (recommendation: any) => {
+  const handleViewDetails = (recommendation: Recommendation) => {
     setDetailsRecommendation(recommendation);
     setDetailsDialogOpen(true);
   };
@@ -314,9 +331,6 @@ const Index: React.FC = () => {
 
   const handleDetailsToggleVisited = (recId: string, name: string, visited: boolean) => {
     markRecommendationVisited(recId, name, visited);
-
-    // Sync to all routes containing this place (two-way sync)
-    syncVisitedStateToRoutes(recId, visited);
 
     if (detailsRecommendation) {
       setDetailsRecommendation({

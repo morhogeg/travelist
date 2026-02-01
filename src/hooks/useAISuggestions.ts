@@ -41,6 +41,7 @@ interface UseAISuggestionsReturn {
   basedOnPlaces: string[];
   hasEnoughPlaces: boolean;
   savedPlacesCount: number;
+  providerName: string;
   refresh: () => Promise<void>;
 }
 
@@ -67,6 +68,7 @@ export function useAISuggestions(
   const [error, setError] = useState<string | null>(null);
   const [basedOnPlaces, setBasedOnPlaces] = useState<string[]>(memoryCached?.basedOnPlaces || []);
   const [savedPlaces, setSavedPlaces] = useState<SavedPlaceContext[]>([]);
+  const [providerName, setProviderName] = useState<string>("Travelist AI");
 
   // Get saved places for this city
   const loadSavedPlaces = useCallback(() => {
@@ -159,6 +161,7 @@ export function useAISuggestions(
 
       setSuggestions(result.suggestions);
       setBasedOnPlaces(result.basedOnPlaces);
+      setProviderName(result.model || "DeepSeek");
     } catch (e) {
       console.error('Failed to fetch AI suggestions:', e);
       setError('Unable to load suggestions');
@@ -204,6 +207,7 @@ export function useAISuggestions(
     basedOnPlaces,
     hasEnoughPlaces: savedPlaces.length >= minPlaces,
     savedPlacesCount: savedPlaces.length,
+    providerName,
     refresh,
   };
 }

@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/lib/supabase";
 import ShareExtensionGuide from "@/components/settings/ShareExtensionGuide";
 import ProximitySettings from "@/components/settings/ProximitySettings";
+import AISettings from "@/components/settings/AISettings";
 import AuthSettings from "@/components/settings/AuthSettings";
 import DeleteAccountSettings from "@/components/settings/DeleteAccountSettings";
 import SettingsRow from "@/components/settings/SettingsRow";
@@ -18,10 +19,6 @@ const Settings = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [showAISuggestions, setShowAISuggestions] = useState(() => {
-    const saved = localStorage.getItem("showAISuggestions");
-    return saved === null ? true : saved === "true";
-  });
 
   // Compute cities list for proximity settings
   const allCities = useMemo(() => {
@@ -48,13 +45,6 @@ const Settings = () => {
   const handleToggleTheme = () => {
     lightHaptic();
     toggleTheme();
-  };
-
-  const handleToggleAISuggestions = (checked: boolean) => {
-    lightHaptic();
-    setShowAISuggestions(checked);
-    localStorage.setItem("showAISuggestions", String(checked));
-    window.dispatchEvent(new CustomEvent("aiSuggestionsChanged"));
   };
 
   // Load current auth session for conditional rendering
@@ -114,20 +104,15 @@ const Settings = () => {
 
           <Separator />
 
-          {/* AI Suggestions Toggle */}
-          <SettingsRow
-            icon={Sparkles}
-            title="AI Suggestions"
-            subtitle="Show personalized travel recommendations."
-            action={
-              <Switch
-                checked={showAISuggestions}
-                onCheckedChange={handleToggleAISuggestions}
-              />
-            }
-          />
-
           <Separator />
+
+          {/* AI Settings Section */}
+          <div className="py-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60 px-1 mb-4">
+              Intelligence & Privacy
+            </h2>
+            <AISettings />
+          </div>
 
           {/* Supabase Auth */}
           <AuthSettings />

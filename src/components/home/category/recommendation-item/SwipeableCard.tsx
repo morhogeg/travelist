@@ -6,7 +6,6 @@ interface SwipeableCardProps {
   children: React.ReactNode;
   onDeleteTrigger: () => void;
   onAddTrigger?: () => void;
-  onAddRouteTrigger?: () => void;
 }
 
 const SWIPE_THRESHOLD = 80;
@@ -18,13 +17,12 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
   children,
   onDeleteTrigger,
   onAddTrigger,
-  onAddRouteTrigger
 }) => {
   const [openSide, setOpenSide] = useState<OpenSide>('none');
   const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
 
-  const addButtonCount = [onAddTrigger, onAddRouteTrigger].filter(Boolean).length;
+  const addButtonCount = [onAddTrigger].filter(Boolean).length;
   const leftWidth = addButtonCount * BUTTON_WIDTH;
 
   // Transform for the delete button (right side, revealed by swiping left)
@@ -94,12 +92,6 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     resetPosition();
   };
 
-  const handleAddRouteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onAddRouteTrigger?.();
-    resetPosition();
-  };
-
   return (
     <div
       ref={containerRef}
@@ -125,15 +117,6 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 aria-label="Add to collection"
               >
                 <FolderPlus className="h-5 w-5" />
-              </button>
-            )}
-            {onAddRouteTrigger && (
-              <button
-                onClick={handleAddRouteClick}
-                className="flex items-center justify-center w-11 h-full text-foreground active:opacity-80 transition-opacity"
-                aria-label="Add to route"
-              >
-                <MapPin className="h-5 w-5" />
               </button>
             )}
           </div>

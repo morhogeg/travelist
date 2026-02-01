@@ -5,9 +5,9 @@ import { OnboardingButton } from '../components/OnboardingButton';
 import { OnboardingScreenProps } from '../types';
 
 const apps = [
-    { name: 'Safari', emoji: '🧭', color: 'bg-blue-500' },
-    { name: 'Instagram', emoji: '📸', color: 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600' },
-    { name: 'Maps', emoji: '🗺️', color: 'bg-green-500' },
+    { name: 'Safari', icon: Compass, color: 'text-blue-500' },
+    { name: 'Instagram', icon: Instagram, color: 'text-pink-500' },
+    { name: 'Maps', icon: MapPin, color: 'text-green-500' },
 ];
 
 export const ShareToSaveScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack, onSkip }) => {
@@ -62,9 +62,9 @@ export const ShareToSaveScreen: React.FC<OnboardingScreenProps> = ({ onNext, onB
                     transition={{ delay: 0.1 }}
                     className="text-[17px] text-muted-foreground mb-10"
                 >
-                    Found a place in Safari or Instagram?<br />
-                    <span className="text-foreground font-medium">Share to Travelist</span> and our AI<br />
-                    will automatically pull the details.
+                    See a place you love online? Just share it to<br />
+                    <span className="text-foreground font-medium">Travelist</span> and our AI will instantly<br />
+                    save all the details for you.
                 </motion.p>
 
                 {/* Visual Flow Mockup */}
@@ -78,9 +78,9 @@ export const ShareToSaveScreen: React.FC<OnboardingScreenProps> = ({ onNext, onB
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 + i * 0.1 }}
-                                    className={`w-12 h-12 rounded-2xl ${app.color} flex items-center justify-center text-white shadow-lg border-2 border-background z-[10]`}
+                                    className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center shadow-lg border-2 border-background z-[10]"
                                 >
-                                    <span className="text-xl">{app.emoji}</span>
+                                    <app.icon className={`w-6 h-6 ${app.color}`} />
                                 </motion.div>
                             ))}
                         </div>

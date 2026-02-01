@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigation } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { SearchResult } from "./types";
 import { generateMapLink } from "@/utils/link-helpers";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
@@ -44,7 +44,7 @@ const SearchResultItem = ({ result, onClick }: SearchResultItemProps) => {
         onClick={(e) => e.stopPropagation()}
         aria-label="View on Google Maps"
       >
-        <Navigation className="h-3.5 w-3.5 text-[#667eea]" />
+        <MapPin className="h-3.5 w-3.5 text-[#667eea]" />
       </a>
     </div>
   );

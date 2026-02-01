@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Folder, MapPin, Plus, Check, X, Library } from "lucide-react";
+import { Folder, Plus, Check, X, Library } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     getCollections,
@@ -20,13 +20,6 @@ import {
     addPlaceToCollection,
     Collection,
 } from "@/utils/collections/collectionStore";
-import {
-    getRoutes,
-    createRoute,
-    addPlaceToRoute,
-    getRouteById,
-} from "@/utils/route/route-manager";
-import { Route } from "@/types/route";
 import { mediumHaptic, lightHaptic } from "@/utils/ios/haptics";
 
 interface AddToDrawerProps {

@@ -28,7 +28,6 @@ import TravelStory from "./pages/TravelStory";
 import TripDetailPage from "./pages/TripDetailPage";
 import Inbox from "./pages/Inbox";
 import Guides from "./pages/Guides";
-import { migrateRoutesToCollections } from "@/utils/collections/migrateRoutesToCollections";
 
 // Declare global window interface
 declare global {
@@ -58,8 +57,6 @@ function AppContent() {
   // One-time sync with Supabase when signed in
   useEffect(() => {
     syncSupabaseRecommendationsOnce();
-    // Migrate existing Routes to Collections with Route Mode
-    migrateRoutesToCollections();
   }, []);
 
   // Listen for proximity notification taps

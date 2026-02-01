@@ -11,6 +11,8 @@ All notable changes to the Travelist iOS app will be documented in this file.
   - **New "Problem" Screen**: Establish context by highlighting the frustration of losing track of travel finds
   - **Solution-Centric Welcome**: Reframed the welcome screen to present Travelist AI as the smart solution
   - **Streamlined Flow**: Updated the onboarding sequence to 8 steps for better psychological anchoring
+  - **Premium Navigate Icons**: Replaced emoji map icons with professional SVG logos for Google and Apple Maps
+  - **Navigate Screen Wording**: Improved screen text to be more action-oriented and premium
 - **Routes & Collections Merger (Phase 2)**
   - **Route Mode**: Collections now support a dedicated "Route Mode" for trip planning
   - **Enhanced Collection Cards**: Polished card design to match the home screen's liquid glass aesthetic

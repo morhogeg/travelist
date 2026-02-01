@@ -66,9 +66,6 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
         onAddTrigger={() => {
           setShowAddToDrawer(true);
         }}
-        onAddRouteTrigger={() => {
-          setShowAddToDrawer(true);
-        }}
       >
         <motion.div
           key={item.id}

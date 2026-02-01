@@ -8,28 +8,28 @@ import { haptics } from '@/utils/ios/haptics';
 
 export const useToastWithHaptics = () => {
   return {
-    success: (message: string | React.ReactNode, data?: any) => {
+    success: (message: string | React.ReactNode, data?: unknown) => {
       haptics.success();
-      return sonnerToast.success(message, data);
+      return sonnerToast.success(message, data as any);
     },
-    error: (message: string | React.ReactNode, data?: any) => {
+    error: (message: string | React.ReactNode, data?: unknown) => {
       haptics.error();
-      return sonnerToast.error(message, data);
+      return sonnerToast.error(message, data as any);
     },
-    warning: (message: string | React.ReactNode, data?: any) => {
+    warning: (message: string | React.ReactNode, data?: unknown) => {
       haptics.warning();
-      return sonnerToast.warning(message, data);
+      return sonnerToast.warning(message, data as any);
     },
-    info: (message: string | React.ReactNode, data?: any) => {
+    info: (message: string | React.ReactNode, data?: unknown) => {
       haptics.light();
-      return sonnerToast.info(message, data);
+      return sonnerToast.info(message, data as any);
     },
-    message: (message: string | React.ReactNode, data?: any) => {
+    message: (message: string | React.ReactNode, data?: unknown) => {
       haptics.light();
-      return sonnerToast(message, data);
+      return sonnerToast(message, data as any);
     },
-    loading: (message: string | React.ReactNode, data?: any) => {
-      return sonnerToast.loading(message, data);
+    loading: (message: string | React.ReactNode, data?: unknown) => {
+      return sonnerToast.loading(message, data as any);
     },
     dismiss: (id?: number | string) => {
       return sonnerToast.dismiss(id);
@@ -42,28 +42,28 @@ export const useToastWithHaptics = () => {
  * Import this instead of 'sonner' for automatic haptic feedback
  */
 export const toast = {
-  success: (message: string | React.ReactNode, data?: any) => {
+  success: (message: string | React.ReactNode, data?: unknown) => {
     haptics.success();
-    return sonnerToast.success(message, data);
+    return sonnerToast.success(message, data as any);
   },
-  error: (message: string | React.ReactNode, data?: any) => {
+  error: (message: string | React.ReactNode, data?: unknown) => {
     haptics.error();
-    return sonnerToast.error(message, data);
+    return sonnerToast.error(message, data as any);
   },
-  warning: (message: string | React.ReactNode, data?: any) => {
+  warning: (message: string | React.ReactNode, data?: unknown) => {
     haptics.warning();
-    return sonnerToast.warning(message, data);
+    return sonnerToast.warning(message, data as any);
   },
-  info: (message: string | React.ReactNode, data?: any) => {
+  info: (message: string | React.ReactNode, data?: unknown) => {
     haptics.light();
-    return sonnerToast.info(message, data);
+    return sonnerToast.info(message, data as any);
   },
-  message: (message: string | React.ReactNode, data?: any) => {
+  message: (message: string | React.ReactNode, data?: unknown) => {
     haptics.light();
-    return sonnerToast(message, data);
+    return sonnerToast(message, data as any);
   },
-  loading: (message: string | React.ReactNode, data?: any) => {
-    return sonnerToast.loading(message, data);
+  loading: (message: string | React.ReactNode, data?: unknown) => {
+    return sonnerToast.loading(message, data as any);
   },
   dismiss: (id?: number | string) => {
     return sonnerToast.dismiss(id);

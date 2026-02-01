@@ -1,28 +1,37 @@
-```javascript
 import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Settings, ChevronRight, BookOpen, Folder } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { useNavigate } from "react-router-dom";
+import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import { getCollections } from "@/utils/collections/collectionStore";
 import { TravelStoryCard } from "@/components/story";
 import { supabase } from "@/lib/supabase";
 import { resetOnboarding } from "@/components/onboarding";
-import { syncSupabaseRecommendationsOnce } from "@/utils/recommendation-parser"; // Assuming this is the new import
 
 const Profile = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
+    totalPlaces: 0,
+    totalRecommendations: 0,
+    visitedCount: 0,
     totalCollections: 0,
+    countriesVisited: 0,
+    citiesVisited: 0,
   });
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    syncSupabaseRecommendationsOnce();
-  }, []);
-
-  useEffect(() => {
+    // Calculate real statistics
+    const places = getUserPlaces();
+    const recommendations = getRecommendations();
     const collections = getCollections();
+
+    // Flatten all recommendations
+    const allRecs = recommendations.flatMap(rec =>
+      rec.places.map(place => ({
+        ...place,
+        city: rec.city,
         country: rec.country,
         visited: place.visited
       }))
@@ -157,7 +166,7 @@ const Profile = () => {
             <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 mb-2">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${ completionRate }% ` }}
+                animate={{ width: `${completionRate}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="h-2 rounded-full bg-gradient-to-r from-primary to-purple-500"
               />

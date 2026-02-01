@@ -1,19 +1,6 @@
-/**
- * Trip Planner Provider (OpenRouter)
- *
- * Uses OpenRouter AI to generate optimized trip itineraries
- * based on user's saved places in a city, considering:
- * - Geographic proximity (minimize travel between places)
- * - Time of day appropriateness (no viewpoints at night)
- * - Category balance across days
- * - Meal timing for restaurants
- */
-
 import { TripPlanRequest, TripPlanResult, TimeSlot } from '@/types/trip';
 import { PlaceCategory } from '../types';
-
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'google/gemma-3-27b-it:free'; // Gemma 3 27B via OpenRouter (free tier)
+import { callOpenRouter, OpenRouterMessage } from '../openrouter-client';
 
 /**
  * Map categories to their time-of-day constraints
@@ -40,13 +27,6 @@ export class TripPlannerProvider {
     name = 'trip-planner';
 
     async generateTripPlan(request: TripPlanRequest): Promise<TripPlanResult> {
-        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-
-        if (!apiKey) {
-            console.error('[Trip Planner] OpenRouter API key not configured');
-            throw new Error('OpenRouter API key not configured.');
-        }
-
         console.log('[Trip Planner] Generating plan for:', request.city, request.country);
         console.log('[Trip Planner] Duration:', request.durationDays, 'days');
         console.log('[Trip Planner] Places to schedule:', request.places.length);
@@ -54,44 +34,28 @@ export class TripPlannerProvider {
         const systemPrompt = this.buildSystemPrompt();
         const userPrompt = this.buildUserPrompt(request);
 
+        const messages: OpenRouterMessage[] = [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+        ];
+
         try {
             console.log('[Trip Planner] Calling OpenRouter API...');
 
-            const response = await fetch(OPENROUTER_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${apiKey}`,
-                    'HTTP-Referer': window.location.origin,
-                    'X-Title': 'Travelist App - Trip Planner',
-                },
-                body: JSON.stringify({
-                    model: MODEL,
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userPrompt },
-                    ],
-                    temperature: 0.5, // Lower for more deterministic planning
-                    max_tokens: 3000,
-                }),
+            const result = await callOpenRouter(messages, {
+                temperature: 0.5,
+                max_tokens: 3000,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('[Trip Planner] API error:', response.status, errorData);
-                throw new Error(`API error: ${response.status}`);
+            if (result.error) {
+                throw new Error(result.error);
             }
 
-            const data = await response.json();
-            const content = data.choices?.[0]?.message?.content;
-
-            console.log('[Trip Planner] Response received');
-
-            if (!content) {
+            if (!result.content) {
                 throw new Error('Empty response from API');
             }
 
-            return this.parseResponse(content, request);
+            return this.parseResponse(result.content, request);
         } catch (error) {
             console.error('[Trip Planner] Error:', error);
             throw error;
@@ -230,10 +194,10 @@ REQUIREMENTS:
     }
 
     private parseResponse(content: string, request: TripPlanRequest): TripPlanResult {
-        let parsed: any;
+        let parsed: { days?: any[]; suggestedAdditions?: any[] };
 
         try {
-            // Strip <think> blocks from DeepSeek R1 models
+            // Strip reasoning blocks and clean content
             let cleanContent = content
                 .replace(/<think>[\s\S]*?<\/think>/gi, '')
                 .replace(/```json\n?/g, '')

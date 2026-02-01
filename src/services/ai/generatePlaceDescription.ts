@@ -1,12 +1,5 @@
-/**
- * AI-powered place description generator
- * Uses OpenRouter API (Google Gemma) to generate brief descriptions for user's saved places
- */
-
 import { logger } from '@/utils/logger';
-
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'google/gemma-3-27b-it:free';
+import { callOpenRouter, OpenRouterMessage } from './openrouter-client';
 
 export interface GenerateDescriptionResult {
     description: string | null;
@@ -22,13 +15,6 @@ export async function generatePlaceDescription(
     country: string,
     category?: string
 ): Promise<GenerateDescriptionResult> {
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-
-    if (!apiKey) {
-        logger.error('AI Description', 'OpenRouter API key not configured');
-        return { description: null, error: 'API key not configured' };
-    }
-
     const systemPrompt = `You are a travel guide assistant. Write ONE sentence about a place.
 
 CRITICAL RULES:
@@ -49,44 +35,32 @@ Respond with ONLY the description, no quotes or explanation.`;
     const categoryHint = category ? ` (Category: ${category})` : '';
     const userPrompt = `Describe: ${placeName} in ${city}, ${country}${categoryHint}`;
 
+    const messages: OpenRouterMessage[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+    ];
+
     try {
         logger.debug('AI Description', 'Generating description for:', placeName);
 
-        const response = await fetch(OPENROUTER_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-                'HTTP-Referer': window.location.origin,
-                'X-Title': 'Travelist AI'
-            },
-            body: JSON.stringify({
-                model: MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userPrompt }
-                ],
-                temperature: 0.3,
-                max_tokens: 60
-            })
+        const result = await callOpenRouter(messages, {
+            temperature: 0.3,
+            max_tokens: 60
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            logger.error('AI Description', 'API error:', response.status, errorData);
+        if (result.error) {
+            logger.error('AI Description', 'Error:', result.error);
             return {
                 description: null,
-                error: `API error: ${response.status}`
+                error: result.error
             };
         }
 
-        const data = await response.json();
-        const content = data.choices?.[0]?.message?.content?.trim();
-
-        if (!content) {
+        if (!result.content) {
             return { description: null, error: 'Empty response from AI' };
         }
 
+        const content = result.content.trim();
         logger.debug('AI Description', 'Generated:', content);
         return { description: content };
 

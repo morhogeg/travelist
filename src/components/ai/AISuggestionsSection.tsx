@@ -52,6 +52,7 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
     error,
     hasEnoughPlaces,
     savedPlacesCount,
+    providerName,
     refresh,
   } = useAISuggestions(cityName, countryName);
   const [visibleSuggestions, setVisibleSuggestions] = useState<AISuggestion[]>([]);
@@ -132,7 +133,6 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
     return null;
   }
 
-  // Error state
   if (error) {
     return (
       <motion.div
@@ -140,16 +140,24 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
         animate={{ opacity: 1 }}
         className="px-4 mb-6"
       >
-        <div className="liquid-glass-clear rounded-2xl p-4 border border-destructive/20">
-          <div className="flex items-center gap-3">
-            <Info className="w-5 h-5 text-destructive" />
-            <p className="text-sm text-muted-foreground flex-1">{error}</p>
-            <button
+        <div className="liquid-glass-clear rounded-2xl p-6 border border-destructive/10 bg-destructive/[0.02]">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <Info className="w-6 h-6 text-destructive" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold text-foreground">AI Suggestions Unavailable</h4>
+              <p className="text-xs text-muted-foreground max-w-[200px]">{error}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleRefresh}
-              className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              className="mt-2 h-8 px-4 rounded-full border-neutral-200 dark:border-neutral-800"
             >
-              <RefreshCw className="w-4 h-4" />
-            </button>
+              <RefreshCw className="w-3 h-3 mr-2" />
+              Try Again
+            </Button>
           </div>
         </div>
       </motion.div>
@@ -282,6 +290,12 @@ export const AISuggestionsSection: React.FC<AISuggestionsSectionProps> = ({
                     ))
                   )}
                 </AnimatePresence>
+              </div>
+
+              {/* Attribution */}
+              <div className="px-4 py-2 flex items-center justify-center gap-1.5 opacity-40">
+                <Sparkles className="w-2.5 h-2.5" />
+                <span className="text-[9px] font-medium tracking-tight">POWERED BY {providerName.toUpperCase()}</span>
               </div>
             </motion.div>
           )}

@@ -1,5 +1,5 @@
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
-import { deleteRecommendation, markRecommendationVisited } from "@/utils/recommendation-parser";
+import { getCollections } from "@/utils/collections/collectionStore";
 import { SourceType, ParsedRecommendation, RecommendationPlace } from "@/utils/recommendation/types";
 
 // Country to flag emoji mapping
@@ -208,14 +208,10 @@ function getCategoryEmoji(category: string): string {
 
 export function calculateTravelStats(): TravelStoryStats {
   const recommendations = getRecommendations();
-  // Toggle back the visited state
-  // const revertedState = !lastAction.data;
-  // markRecommendationVisited(lastAction.recId, lastAction.name, revertedState);
-  // const collections = getCollections();
+  const collections = getCollections();
 
   // Total route mode collections count
-  const totalRouteModeCollections = 0; // collections.filter(c => c.routeMode).length;
-  const totalCollections = 0; // collections.length;
+  const totalRouteModeCollections = collections.filter(c => c.routeMode).length;
 
   // Flatten all places with their metadata
   const allPlaces: (RecommendationPlace & {

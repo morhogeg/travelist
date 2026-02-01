@@ -37,12 +37,12 @@ export const ExportToMapsButton: React.FC<ExportToMapsButtonProps> = ({
         exportToAppleMaps(places);
     };
 
-    if (places.length === 0) return null;
+    const isDisabled = places.length === 0;
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant={variant} size={size} className={className}>
+                <Button variant={variant} size={size} className={className} disabled={isDisabled}>
                     {icon ? (
                         icon
                     ) : (
@@ -51,16 +51,18 @@ export const ExportToMapsButton: React.FC<ExportToMapsButtonProps> = ({
                     {showText && "Export to Maps"}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={handleGoogleMaps} className="cursor-pointer">
-                    <Navigation className="mr-2 h-4 w-4" />
-                    <span>Google Maps</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleAppleMaps} className="cursor-pointer">
-                    <Map className="mr-2 h-4 w-4" />
-                    <span>Apple Maps</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
+            {!isDisabled && (
+                <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={handleGoogleMaps} className="cursor-pointer">
+                        <Navigation className="mr-2 h-4 w-4" />
+                        <span>Google Maps</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleAppleMaps} className="cursor-pointer">
+                        <Map className="mr-2 h-4 w-4" />
+                        <span>Apple Maps</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            )}
         </DropdownMenu>
     );
 };

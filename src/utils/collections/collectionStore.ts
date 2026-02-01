@@ -132,7 +132,7 @@ export function toggleRouteMode(collectionId: string, enabled: boolean): void {
 export function updateOrderedPlaceIds(collectionId: string, orderedPlaceIds: string[]): void {
   const collections = getCollections();
   const updated = collections.map((col) => {
-    if (col.id === collectionId && col.routeMode) {
+    if (col.id === collectionId) {
       return {
         ...col,
         orderedPlaceIds,

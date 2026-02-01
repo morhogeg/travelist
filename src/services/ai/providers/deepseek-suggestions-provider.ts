@@ -1,10 +1,3 @@
-/**
- * Suggestions Provider (OpenRouter)
- *
- * Uses OpenRouter to generate personalized place recommendations
- * based on the user's saved places in a city.
- */
-
 import {
   LLMProvider,
   AISuggestionRequest,
@@ -12,9 +5,7 @@ import {
   AISuggestion,
   PlaceCategory,
 } from '../types';
-
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'meta-llama/llama-3.3-70b-instruct:free'; // Llama 3.3 70B via OpenRouter (free tier)
+import { callOpenRouter, OpenRouterMessage } from '../openrouter-client';
 
 /**
  * Generates a unique ID for suggestions
@@ -47,60 +38,33 @@ export class DeepSeekSuggestionsProvider implements LLMProvider {
   name = 'grok';
 
   async generateSuggestions(request: AISuggestionRequest): Promise<AISuggestionResult> {
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-
-    if (!apiKey) {
-      console.error('[DeepSeek Suggestions] OpenRouter API key not configured');
-      throw new Error('OpenRouter API key not configured. Please set VITE_OPENROUTER_API_KEY in your .env file.');
-    }
-
     console.log('[AI Suggestions] Generating suggestions for:', request.cityName, request.countryName);
     console.log('[AI Suggestions] Based on saved places:', request.savedPlaces.map(p => p.name));
 
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(request);
 
-    try {
-      console.log('[AI Suggestions] Calling OpenRouter API with model:', MODEL);
+    const messages: OpenRouterMessage[] = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ];
 
-      const response = await fetch(OPENROUTER_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'Travelist App'
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          temperature: 0.7, // Slightly higher for creative suggestions
-          max_tokens: 2000
-        })
+    try {
+      const result = await callOpenRouter(messages, {
+        temperature: 0.7,
+        max_tokens: 2000
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('[AI Suggestions] API error:', response.status, errorData);
-        throw new Error(`API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}`);
+      if (result.error) {
+        throw new Error(result.error);
       }
 
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
-      const actualModel = data.model || MODEL;
-
-      console.log('[AI Suggestions] Response received from model:', actualModel);
-      console.log('[AI Suggestions] Raw response:', content);
-
-      if (!content) {
+      if (!result.content) {
         throw new Error('Empty response from API');
       }
 
       // Parse the JSON response
-      const suggestions = this.parseResponse(content, request.maxSuggestions || 5);
+      const suggestions = this.parseResponse(result.content, request.maxSuggestions || 5);
 
       console.log('[AI Suggestions] Parsed suggestions:', suggestions);
 
@@ -200,25 +164,23 @@ Please suggest ${maxSuggestions} additional places they would likely enjoy in ${
   }
 
   private parseResponse(content: string, maxSuggestions: number): AISuggestion[] {
-    let parsed: any[];
+    let parsed: unknown[];
 
     try {
       const cleanContent = content
+        .replace(/<think>[\s\S]*?<\/think>/gi, '') // Strip reasoning blocks
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
         .trim();
-      parsed = JSON.parse(cleanContent);
+      const data = JSON.parse(cleanContent);
+      parsed = Array.isArray(data) ? data : [data];
     } catch (e) {
       console.error('[DeepSeek Suggestions] Failed to parse response:', content);
       throw new Error('Failed to parse AI response');
     }
 
-    if (!Array.isArray(parsed)) {
-      throw new Error('AI response is not an array');
-    }
-
     // Validate and normalize the response
-    const suggestions: AISuggestion[] = parsed
+    const suggestions: AISuggestion[] = (parsed as any[])
       .filter((s: any) => s.name && typeof s.name === 'string')
       .slice(0, maxSuggestions)
       .map((s: any) => ({

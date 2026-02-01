@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Reorder } from "framer-motion";
-import { getCollections, deleteCollection, removePlaceFromCollection, updateOrderedPlaceIds, renameCollection } from "@/utils/collections/collectionStore";
-import { getRecommendations, markRecommendationVisited, deleteRecommendation } from "@/utils/recommendation-parser";
+import { getCollections, deleteCollection, removePlaceFromCollection, updateOrderedPlaceIds, renameCollection, Collection } from "@/utils/collections/collectionStore";
+import { getRecommendations, markRecommendationVisited, deleteRecommendation, Recommendation } from "@/utils/recommendation-parser";
 import { Button } from "@/components/ui/button";
 import SearchInput from "@/components/home/search/SearchInput";
 import CategoryList from "@/components/home/categories/CategoryList";
 import { categories, getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
-import { ArrowLeft, MapPin, Trash2, Search as SearchIcon, Plus, GripVertical, Compass, Edit2, Check, X, Lightbulb } from "lucide-react";
+import { ArrowLeft, MapPin, Trash2, Search as SearchIcon, Plus, GripVertical, Compass, Edit2, Check, X, Lightbulb, MoreHorizontal } from "lucide-react";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 import Layout from "@/components/layout/Layout";
 import countryToCode from "@/utils/flags/countryToCode";
@@ -28,6 +28,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu as DropdownMenuUI,
+  DropdownMenuContent as DropdownMenuContentUI,
+  DropdownMenuItem as DropdownMenuItemUI,
+  DropdownMenuTrigger as DropdownMenuTriggerUI,
+} from "@/components/ui/dropdown-menu";
 import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
 import { MapExportPlace } from "@/utils/maps/export-to-maps";
 import { Input } from "@/components/ui/input";
@@ -37,14 +43,14 @@ const CollectionDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [collection, setCollection] = useState<any>(null);
-  const [allItems, setAllItems] = useState<any[]>([]);
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const [allItems, setAllItems] = useState<Recommendation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [detailsRecommendation, setDetailsRecommendation] = useState<any>(null);
+  const [detailsRecommendation, setDetailsRecommendation] = useState<Recommendation | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isRemoveItemDialogOpen, setIsRemoveItemDialogOpen] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<{ id: string; name: string } | null>(null);
@@ -55,7 +61,7 @@ const CollectionDetailPage: React.FC = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     if (!id || typeof id !== "string") return;
 
     const collections = getCollections();
@@ -92,12 +98,12 @@ const CollectionDetailPage: React.FC = () => {
       }))
     );
 
-    setAllItems(flattened);
-  };
+    setAllItems(flattened as Recommendation[]);
+  }, [id, isEditingName]);
 
   useEffect(() => {
     loadData();
-  }, [id]);
+  }, [id, loadData]);
 
   // Listen for collection changes
   useEffect(() => {
@@ -110,7 +116,7 @@ const CollectionDetailPage: React.FC = () => {
       window.removeEventListener("collectionUpdated", handleCollectionChange);
       window.removeEventListener("recommendationAdded", handleCollectionChange);
     };
-  }, [id]);
+  }, [id, loadData]);
 
   useEffect(() => {
     if (isEditingName && nameInputRef.current) {
@@ -180,7 +186,7 @@ const CollectionDetailPage: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleViewDetails = (item: any) => {
+  const handleViewDetails = (item: Recommendation) => {
     const recommendation = {
       id: item.id,
       name: item.name,
@@ -321,7 +327,7 @@ const CollectionDetailPage: React.FC = () => {
     }
   };
 
-  const handleReorder = (newOrder: any[]) => {
+  const handleReorder = (newOrder: Recommendation[]) => {
     if (!id) return;
     const newOrderedIds = newOrder.map(item => item.recId || item.id);
     updateOrderedPlaceIds(id, newOrderedIds);
@@ -338,34 +344,20 @@ const CollectionDetailPage: React.FC = () => {
         className="px-6 pt-2 pb-24"
       >
         {/* Header row - title centered, buttons on sides */}
-        <div className="flex items-center justify-between mb-4 relative min-h-[44px]">
-          {/* Left side: Back + Search */}
-          <div className="flex items-center gap-0.5">
+        <div className="flex items-center justify-between mb-4 min-h-[44px] gap-3">
+          {/* Left side: Back Button + Title */}
+          <div className="flex items-center gap-1 flex-1 min-w-0">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
-              className="shrink-0"
+              className="h-10 w-10 text-neutral-600 dark:text-neutral-400 shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
 
-            {!isSearchExpanded && (
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                onClick={toggleSearch}
-                className="min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
-                aria-label="Open search"
-              >
-                <SearchIcon className="h-5 w-5" />
-              </motion.button>
-            )}
-          </div>
-
-          {/* Center: Title or Edit Input */}
-          <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-[60%] flex items-center justify-center gap-1">
             {isEditingName ? (
-              <div className="flex items-center gap-1 w-full">
+              <div className="flex items-center gap-1 flex-1 min-w-0 max-w-[280px]">
                 <Input
                   ref={nameInputRef}
                   value={tempName}
@@ -374,42 +366,71 @@ const CollectionDetailPage: React.FC = () => {
                     if (e.key === "Enter") handleSaveName();
                     if (e.key === "Escape") handleCancelEditing();
                   }}
-                  className="h-8 text-center font-bold text-lg bg-transparent border-b border-primary/50 focus:border-primary rounded-none px-1"
+                  className="h-9 text-left font-bold text-lg bg-transparent border-b border-primary/50 focus:border-primary rounded-none px-1 focus-visible:ring-0 w-full"
                 />
-                <button onClick={handleSaveName} className="p-1 text-success">
-                  <Check className="h-4 w-4" />
+                <button onClick={handleSaveName} className="p-1.5 text-success hover:opacity-70 transition-opacity shrink-0">
+                  <Check className="h-5 w-5" />
                 </button>
-                <button onClick={handleCancelEditing} className="p-1 text-destructive">
-                  <X className="h-4 w-4" />
+                <button onClick={handleCancelEditing} className="p-1.5 text-destructive hover:opacity-70 transition-opacity shrink-0">
+                  <X className="h-5 w-5" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-center gap-1 max-w-full">
-                <h1 className="text-xl font-bold truncate text-center">
-                  {collection.name}
-                </h1>
-                <button onClick={handleStartEditing} className="shrink-0 p-1 opacity-40 hover:opacity-100 transition-opacity">
-                  <Edit2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
+              <h1
+                onClick={handleStartEditing}
+                className="text-xl font-bold truncate cursor-pointer active:opacity-60 transition-opacity pr-2 flex-1"
+              >
+                {collection.name}
+              </h1>
             )}
           </div>
 
-          <div className="flex items-center gap-1">
+          {/* Right side: Action cluster */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            {!isSearchExpanded && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSearch}
+                className="h-10 w-10 text-neutral-600 dark:text-neutral-400"
+                aria-label="Open search"
+              >
+                <SearchIcon className="h-5 w-5" />
+              </Button>
+            )}
+
             <ExportToMapsButton
               places={exportPlaces}
               variant="ghost"
               size="icon"
               showText={false}
+              className="h-10 w-10 text-neutral-600 dark:text-neutral-400"
             />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDeleteCollection}
-              className="shrink-0 text-destructive hover:text-destructive"
-            >
-              <Trash2 className="h-5 w-5" />
-            </Button>
+
+            <DropdownMenuUI>
+              <DropdownMenuTriggerUI asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 text-neutral-600 dark:text-neutral-400"
+                >
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTriggerUI>
+              <DropdownMenuContentUI align="end" className="w-48 bg-background/95 backdrop-blur-md border-white/20">
+                <DropdownMenuItemUI onClick={handleStartEditing} className="cursor-pointer">
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  <span>Rename</span>
+                </DropdownMenuItemUI>
+                <DropdownMenuItemUI
+                  onClick={handleDeleteCollection}
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  <span>Delete Collection</span>
+                </DropdownMenuItemUI>
+              </DropdownMenuContentUI>
+            </DropdownMenuUI>
           </div>
         </div>
 

@@ -13,7 +13,7 @@ function deriveLinkMeta(rawText: string): Pick<InboxItem, "url" | "displayHost" 
     const pathParts = url.pathname.split("/").filter(Boolean);
     // Prefer the segment after "place" for Google Maps links
     const placeIndex = pathParts.indexOf("place");
-    let candidate =
+    const candidate =
       placeIndex !== -1 && pathParts[placeIndex + 1]
         ? pathParts[placeIndex + 1]
         : pathParts[pathParts.length - 1] || host;
@@ -155,9 +155,9 @@ export async function parseInboxItem(id: string): Promise<InboxItem | null> {
       status: "needs_info",
       error: result.error || "Could not extract place info - please add manually"
     }) as InboxItem;
-  } catch (err: any) {
+  } catch (err) {
     console.error("[Inbox] Parse failed", err);
-    return updateInboxItem(id, { status: "needs_info", error: err?.message || "Parse failed" }) as InboxItem;
+    return updateInboxItem(id, { status: "needs_info", error: (err as Error)?.message || "Parse failed" }) as InboxItem;
   }
 }
 

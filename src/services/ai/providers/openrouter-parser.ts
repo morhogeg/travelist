@@ -4,16 +4,7 @@
 
 import { PlaceCategory } from '../types';
 import { SourceType, RecommendationSource } from '@/utils/recommendation/types';
-
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Primary and fallback models for reliability (free tier)
-const PRIMARY_MODEL = 'google/gemma-3-27b-it:free';
-const FALLBACK_MODELS = [
-  'google/gemini-2.0-flash-lite-preview-02-05:free',
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'qwen/qwen-2.5-72b-instruct:free',
-];
-const MODEL = PRIMARY_MODEL;
+import { callOpenRouter, OpenRouterMessage } from '../openrouter-client';
 
 export interface ParsedPlace {
   name: string;
@@ -179,131 +170,33 @@ Omit source field if no source. Omit tip if no specific recommendation. Omit cit
 
 
 /**
- * Parse free-text recommendations using Grok via OpenRouter
+ * Parse free-text recommendations using AI via OpenRouter
  */
 export async function parseWithDeepSeek(
   text: string,
   city: string,
   country: string
 ): Promise<ParseResult> {
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+  console.log('[Parser] Starting parseWithDeepSeek');
 
-  if (!apiKey) {
-    console.error('[DeepSeek Parser] OpenRouter API key not configured');
-    return { places: [], error: 'API key not configured' };
+  const messages: OpenRouterMessage[] = [
+    { role: 'system', content: BASE_SYSTEM_PROMPT },
+    { role: 'user', content: `Location: ${city}, ${country}\n\nParse these recommendations:\n${text}` }
+  ];
+
+  const result = await callOpenRouter(messages, { temperature: 0.1 });
+
+  if (result.error) {
+    return { places: [], error: result.error, model: result.model };
   }
 
-  console.log('[DeepSeek Parser] Starting parse with model:', MODEL);
-  console.log('[DeepSeek Parser] Input text:', text);
-
-  const userPrompt = `Location: ${city}, ${country}
-
-Parse these recommendations:
-${text}`;
-
-  try {
-    console.log('[DeepSeek Parser] Calling OpenRouter API...');
-
-    const response = await fetch(OPENROUTER_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Travelist App'
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: 'system', content: BASE_SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.1,
-        max_tokens: 1000
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('[DeepSeek Parser] API error:', response.status, errorData);
-      return { places: [], error: `API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}` };
-    }
-
-    const data = await response.json();
-    const actualModel = data.model || MODEL;
-    const content = data.choices?.[0]?.message?.content;
-
-    console.log('[DeepSeek Parser] Response received from model:', actualModel);
-    console.log('[DeepSeek Parser] Raw response:', content);
-
-    if (!content) {
-      return { places: [], error: 'Empty response from API', model: actualModel };
-    }
-
-    // Parse the JSON response
-    let parsed: any[];
-    try {
-      const cleanContent = content
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-      parsed = JSON.parse(cleanContent);
-    } catch (e) {
-      console.error('[DeepSeek Parser] Failed to parse response:', content);
-      return { places: [], error: 'Failed to parse response', model: actualModel };
-    }
-
-    // Validate and normalize the response
-    const places: ParsedPlace[] = parsed
-      .filter((p: any) => p.name && typeof p.name === 'string')
-      .map((p: any, index: number) => {
-        const place: ParsedPlace = {
-          name: p.name.trim(),
-          category: validateCategory(p.category),
-          confidence: typeof p.confidence === 'number' ? p.confidence : 0.8,
-          originalText: text.split('\n')[index] || text,
-          // Use tip field if present, fallback to description
-          description: p.tip || p.description || undefined,
-          city: p.city || p.location?.city,
-          country: p.country || p.location?.country,
-        };
-
-        // Add source if present and valid
-        if (p.source && p.source.type) {
-          const sourceType = validateSourceType(p.source.type);
-          // Capitalize source name for display (e.g., "article" → "Article")
-          const sourceName = p.source.name || sourceType.charAt(0).toUpperCase() + sourceType.slice(1);
-          place.source = {
-            type: sourceType,
-            name: sourceName,
-            relationship: p.source.relationship,
-            url: p.source.url
-          };
-        }
-
-        return place;
-      });
-
-    console.log('[DeepSeek Parser] Parsed places:', places);
-    return { places, model: actualModel };
-  } catch (error) {
-    console.error('[DeepSeek Parser] Network error:', error);
-    return { places: [], error: 'Network error' };
-  }
+  return processAIResult(result.content, text, result.model);
 }
 
 /**
  * Parse shared text (no guaranteed location) and infer city/country when present.
- * Now includes fallback model logic and detection of URL vs freeform text input.
  */
 export async function parseSharedText(text: string): Promise<ParseResult> {
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-
-  if (!apiKey) {
-    console.error('[Parser] OpenRouter API key not configured');
-    return { places: [], error: 'API key not configured' };
-  }
-
   // Detect if input is URL or freeform text
   const urlPattern = /https?:\/\/[^\s]+/;
   const hasURL = urlPattern.test(text);
@@ -311,148 +204,104 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
 
   console.log('[Parser] Detected input type:', inputType);
 
-  const modelsToTry = [PRIMARY_MODEL, ...FALLBACK_MODELS];
-  let lastError = 'Unknown error';
+  const systemPrompt = inputType === 'url' ? SHARE_SYSTEM_PROMPT : FREEFORM_TEXT_PROMPT;
+  const userPrompt = inputType === 'url'
+    ? `Extract place information from this Google Maps URL.\n\nCRITICAL: The last segment may be a CITY (not a country). If it's a city like "Bat Yam", "Tel Aviv", etc., set it as city and infer country = "Israel".\n\nExample: /place/Villa+Mare,+Derech+Ben+Gurion+69,+Bat+Yam/\n→ name: "Villa Mare", city: "Bat Yam", country: "Israel"\n\nShared URL:\n${text}`
+    : `Extract place information from this text:\n\n${text}`;
 
-  for (const model of modelsToTry) {
-    console.log('[Parser] Trying model:', model);
+  const messages: OpenRouterMessage[] = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt }
+  ];
 
-    const result = await tryParseWithModel(text, model, apiKey, inputType);
+  const result = await callOpenRouter(messages, { temperature: 0.1, max_tokens: 900 });
 
-    if (result.places.length > 0 || !result.error) {
-      // Success or empty but valid response
-      return result;
-    }
-
-    console.warn(`[Parser] Model ${model} failed:`, result.error);
-    lastError = result.error || 'Unknown error';
-
-    // Don't retry on non-retryable errors
-    if (result.error?.includes('API key not configured')) {
-      return result;
-    }
+  if (result.error) {
+    return { places: [], error: result.error, model: result.model };
   }
 
-  console.error('[Parser] All models failed, returning last error');
-  return { places: [], error: lastError };
+  return processAIResult(result.content, text, result.model);
 }
 
 /**
- * Internal helper: Try parsing with a specific model
+ * Common helper to process AI JSON response
  */
-async function tryParseWithModel(text: string, model: string, apiKey: string, inputType: 'url' | 'text' = 'url'): Promise<ParseResult> {
-  // Choose prompt and user message based on input type
-  const systemPrompt = inputType === 'url' ? SHARE_SYSTEM_PROMPT : FREEFORM_TEXT_PROMPT;
+function processAIResult(content: string, originalText: string, model: string): ParseResult {
+  if (!content) {
+    return { places: [], error: 'Empty response from API', model };
+  }
 
-  const userPrompt = inputType === 'url'
-    ? `Extract place information from this Google Maps URL.
-
-CRITICAL: The last segment may be a CITY (not a country). If it's a city like "Bat Yam", "Tel Aviv", etc., set it as city and infer country = "Israel".
-
-Example: /place/Villa+Mare,+Derech+Ben+Gurion+69,+Bat+Yam/
-→ name: "Villa Mare", city: "Bat Yam", country: "Israel"
-
-Shared URL:
-${text}`
-    : `Extract place information from this text:
-
-${text}`;
-
-
+  let parsed: unknown[];
   try {
-    const response = await fetch(OPENROUTER_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Travelist App'
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.1,
-        max_tokens: 900
-      })
+    // Clean the response - handle various AI response formats
+    let cleanContent = content
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .trim();
+
+    // Find the first [ and extract from there to handle preamble text
+    const arrayStart = cleanContent.indexOf('[');
+    const arrayEnd = cleanContent.lastIndexOf(']');
+    if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+      cleanContent = cleanContent.substring(arrayStart, arrayEnd + 1);
+    }
+
+    const data = JSON.parse(cleanContent);
+    parsed = Array.isArray(data) ? data : [data];
+  } catch (e) {
+    console.error('[Parser] Failed to parse response:', content);
+    return { places: [], error: 'Failed to parse AI response', model };
+  }
+
+  interface AIResponsePlace {
+    name: string;
+    category: string;
+    confidence?: number;
+    tip?: string;
+    description?: string;
+    city?: string;
+    country?: string;
+    location?: {
+      city?: string;
+      country?: string;
+    };
+    source?: {
+      type: string;
+      name?: string;
+      relationship?: string;
+      url?: string;
+    };
+  }
+
+  const places: ParsedPlace[] = (parsed as AIResponsePlace[])
+    .filter((p) => p && p.name && typeof p.name === 'string')
+    .map((p, index: number) => {
+      const place: ParsedPlace = {
+        name: p.name.trim(),
+        category: validateCategory(p.category),
+        confidence: typeof p.confidence === 'number' ? p.confidence : 0.8,
+        originalText: originalText.split('\n')[index] || originalText,
+        description: p.tip || p.description || undefined,
+        city: (p.city ?? '').trim() || (p.location?.city ?? '').trim() || undefined,
+        country: (p.country ?? '').trim() || (p.location?.country ?? '').trim() || undefined,
+      };
+
+      if (p.source && p.source.type) {
+        const sourceType = validateSourceType(p.source.type);
+        const sourceName = p.source.name || sourceType.charAt(0).toUpperCase() + sourceType.slice(1);
+        place.source = {
+          type: sourceType,
+          name: sourceName,
+          relationship: p.source.relationship,
+          url: p.source.url
+        };
+      }
+
+      return place;
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('[Parser] API error:', response.status, errorData);
-      return { places: [], error: `API error: ${response.status} - ${errorData?.error?.message || 'Unknown'}`, model };
-    }
-
-    const data = await response.json();
-    const actualModel = data.model || model;
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      return { places: [], error: 'Empty response from API', model: actualModel };
-    }
-
-    let parsed: any[];
-    try {
-      // Clean the response - handle various AI response formats
-      let cleanContent = content
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-
-      // Handle responses that start with ": " or "→ " or other prefixes
-      // Find the first [ and extract from there
-      const arrayStart = cleanContent.indexOf('[');
-      const arrayEnd = cleanContent.lastIndexOf(']');
-      if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
-        cleanContent = cleanContent.substring(arrayStart, arrayEnd + 1);
-      }
-
-      parsed = JSON.parse(cleanContent);
-
-      // Ensure it's an array
-      if (!Array.isArray(parsed)) {
-        parsed = [parsed];
-      }
-    } catch (e) {
-      console.error('[Parser] Failed to parse response:', content);
-      return { places: [], error: 'Failed to parse AI response', model: actualModel };
-    }
-
-    const places: ParsedPlace[] = parsed
-      .filter((p: any) => p.name && typeof p.name === 'string')
-      .map((p: any) => {
-        const place: ParsedPlace = {
-          name: p.name.trim(),
-          category: validateCategory(p.category),
-          confidence: typeof p.confidence === 'number' ? p.confidence : 0.8,
-          originalText: text,
-          description: p.tip || p.description || undefined,
-          city: (p.city ?? '').trim() || (p.location?.city ?? '').trim() || undefined,
-          country: (p.country ?? '').trim() || (p.location?.country ?? '').trim() || undefined,
-        };
-
-        if (p.source && p.source.type) {
-          const sourceType = validateSourceType(p.source.type);
-          const sourceName = p.source.name || sourceType.charAt(0).toUpperCase() + sourceType.slice(1);
-          place.source = {
-            type: sourceType,
-            name: sourceName,
-            relationship: p.source.relationship,
-            url: p.source.url
-          };
-        }
-
-        return place;
-      });
-
-    console.log('[Parser] Successfully parsed places:', places, 'with model:', actualModel);
-    return { places, model: actualModel };
-  } catch (error) {
-    console.error('[Parser] Network error:', error);
-    return { places: [], error: 'Network error - please check your connection' };
-  }
+  console.log('[Parser] Successfully parsed places:', places, 'with model:', model);
+  return { places, model };
 }
 
 /**

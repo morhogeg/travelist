@@ -70,7 +70,9 @@ export interface Recommendation {
   recId?: string;
   dateAdded?: string;
   visited?: boolean;
-  country?: string;  // Added country property
+  country?: string;
+  city?: string;
+  cityId?: string;
   source?: RecommendationSource;
   context?: RecommendationContext;
 }
@@ -79,6 +81,7 @@ export interface GroupedRecommendation {
   cityId: string;
   cityName: string;
   cityImage: string;
+  country?: string;
   items: Recommendation[];
 }
 
