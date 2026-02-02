@@ -21,9 +21,11 @@ src/
 │   ├── types.ts                        # Type definitions
 │   ├── suggestion-cache.ts             # localStorage caching
 │   └── providers/
-│       ├── grok-suggestions-provider.ts # Grok 4.1 via OpenRouter (primary)
-│       ├── mock-provider.ts             # Mock responses (fallback)
-│       └── openrouter-parser.ts         # Free text parsing (shared API)
+│   ├── ai-cache-service.ts             # Global Firestore cache
+│   ├── gemini-service.ts               # Native bridge service
+│   ├── gemini-client.ts                # Centralized Gemini 3 client
+│   └── providers/
+│       ├── openrouter-parser.ts        # Fallback/Web-only parser
 ├── hooks/
 │   └── useAISuggestions.ts             # React hook for fetching suggestions
 └── components/ai/
@@ -58,22 +60,19 @@ The feature uses a provider pattern for easy swapping between providers:
 - **Grok Provider** (current): Uses Grok 4.1 Fast via OpenRouter for real AI recommendations
 - **Mock Provider** (fallback): Returns realistic-looking suggestions if API fails
 
-### Current Implementation: Grok 4.1 Fast
+### Current Implementation: Gemini 3 Flash (Native)
 
-The app uses **Grok 4.1 Fast** (`x-ai/grok-4.1-fast:free`) via OpenRouter API for generating personalized recommendations.
+The app utilizes **Gemini 3 Flash** via the **Firebase Vertex AI SDK** for native iOS performance.
 
-**API Configuration:**
-- Endpoint: `https://openrouter.ai/api/v1/chat/completions`
-- Model: `x-ai/grok-4.1-fast:free` (free tier)
-- API Key: Set `VITE_OPENROUTER_API_KEY` in `.env` file
+**Key Features:**
+- **Native Bridge**: Direct integration via `FirebaseAIPlugin.swift` for 2x faster performance on iOS.
+- **Thinking Budget**: Uses "Flash Thinking" for better reasoning during trip planning and place analysis.
+- **Google Search Grounding**: All generated descriptions are grounded in real-time Google Search data to prevent hallucinations.
+- **Global Firestore Cache**: AI-generated descriptions are shared across all users via a global `ai_cache` collection, saving API costs and providing instant results for popular spots.
 
-**How it works:**
-1. Analyzes user's saved places to understand preferences (budget, cuisine, activity types)
-2. Generates personalized "why recommended" explanations referencing saved places
-3. Suggests real, actual establishments that exist in the city
-4. Falls back to mock provider if API fails
-
-**Provider file:** `src/services/ai/providers/grok-suggestions-provider.ts`
+**Provider files:** 
+- `src/services/ai/gemini-client.ts` (Logic)
+- `ios/App/App/FirebaseAIPlugin.swift` (Native Bridge)
 
 ## Caching
 

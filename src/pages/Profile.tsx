@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
 import { getCollections } from "@/utils/collections/collectionStore";
 import { TravelStoryCard } from "@/components/story";
-import { supabase } from "@/lib/supabase";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { resetOnboarding } from "@/components/onboarding";
 
 const Profile = () => {
@@ -59,16 +60,17 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => {
-      const email = data.session?.user?.email ?? null;
-      setUserEmail(email);
+    if (!auth) return;
+
+    // Initial check
+    setUserEmail(auth.currentUser?.email ?? null);
+
+    // Listen for auth changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUserEmail(user?.email ?? null);
     });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      const email = session?.user?.email ?? null;
-      setUserEmail(email);
-    });
-    return () => listener?.subscription.unsubscribe();
+
+    return () => unsubscribe();
   }, []);
 
   const completionRate = useMemo(() => {

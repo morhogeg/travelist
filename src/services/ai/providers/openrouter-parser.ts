@@ -1,10 +1,11 @@
 /**
- * OpenRouter Provider for parsing free-text recommendations using Grok
+ * Gemini Provider for parsing free-text recommendations
+ * Uses Gemini 3 Flash with Google Search grounding
  */
 
 import { PlaceCategory } from '../types';
 import { SourceType, RecommendationSource } from '@/utils/recommendation/types';
-import { callOpenRouter, OpenRouterMessage } from '../openrouter-client';
+import { callGemini, GeminiMessage } from '../gemini-client';
 
 export interface ParsedPlace {
   name: string;
@@ -78,7 +79,7 @@ Omit source field if no source mentioned. Omit tip field if no specific recommen
 
 const SHARE_SYSTEM_PROMPT = `You are a travel recommendation parser that extracts place info from shared URLs.
 
-CRITICAL: Extract name, city, and country from Google Maps URLs.
+CRITICAL: Extract name, city, and country from Google Maps URLs. Use Google Search to verify the location details.
 
 PARSING GOOGLE MAPS ADDRESSES:
 The URL format is: /place/Name,+Street,+City,+Country/ OR /place/Name,+Street,+City/
@@ -119,7 +120,7 @@ If cannot extract place name, respond: []`;
 
 const FREEFORM_TEXT_PROMPT = `You are a travel recommendation parser that extracts place info from natural language text (e.g., Instagram captions, friend recommendations, messages).
 
-Extract place names, cities, countries, categories, tips, and sources from descriptive text.
+Extract place names, cities, countries, categories, tips, and sources from descriptive text. Use Google Search to verify the places actually exist.
 
 Categories (use exactly these lowercase values):
 - food: restaurants, cafes, bakeries, any eating establishment
@@ -170,21 +171,25 @@ Omit source field if no source. Omit tip if no specific recommendation. Omit cit
 
 
 /**
- * Parse free-text recommendations using AI via OpenRouter
+ * Parse free-text recommendations using AI via Gemini
  */
-export async function parseWithDeepSeek(
+export async function parseWithGemini(
   text: string,
   city: string,
   country: string
 ): Promise<ParseResult> {
-  console.log('[Parser] Starting parseWithDeepSeek');
+  console.log('[Parser] Starting parseWithGemini');
 
-  const messages: OpenRouterMessage[] = [
+  const messages: GeminiMessage[] = [
     { role: 'system', content: BASE_SYSTEM_PROMPT },
     { role: 'user', content: `Location: ${city}, ${country}\n\nParse these recommendations:\n${text}` }
   ];
 
-  const result = await callOpenRouter(messages, { temperature: 0.1 });
+  const result = await callGemini(messages, {
+    temperature: 0.1,
+    thinkingLevel: 'low',
+    enableGrounding: true,
+  });
 
   if (result.error) {
     return { places: [], error: result.error, model: result.model };
@@ -192,6 +197,9 @@ export async function parseWithDeepSeek(
 
   return processAIResult(result.content, text, result.model);
 }
+
+// Keep old function name for backward compatibility
+export const parseWithDeepSeek = parseWithGemini;
 
 /**
  * Parse shared text (no guaranteed location) and infer city/country when present.
@@ -209,12 +217,17 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
     ? `Extract place information from this Google Maps URL.\n\nCRITICAL: The last segment may be a CITY (not a country). If it's a city like "Bat Yam", "Tel Aviv", etc., set it as city and infer country = "Israel".\n\nExample: /place/Villa+Mare,+Derech+Ben+Gurion+69,+Bat+Yam/\n→ name: "Villa Mare", city: "Bat Yam", country: "Israel"\n\nShared URL:\n${text}`
     : `Extract place information from this text:\n\n${text}`;
 
-  const messages: OpenRouterMessage[] = [
+  const messages: GeminiMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
   ];
 
-  const result = await callOpenRouter(messages, { temperature: 0.1, max_tokens: 900 });
+  const result = await callGemini(messages, {
+    temperature: 0.1,
+    maxOutputTokens: 900,
+    thinkingLevel: 'low',
+    enableGrounding: true, // Use Google Search to verify location
+  });
 
   if (result.error) {
     return { places: [], error: result.error, model: result.model };

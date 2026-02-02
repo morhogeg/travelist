@@ -2,64 +2,68 @@ import React, { useState, useEffect } from "react";
 import { Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/lib/supabase";
+import { auth, isFirebaseReady } from "@/lib/firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User
+} from "firebase/auth";
 
 const AuthSettings = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // Load current auth session
   useEffect(() => {
-    if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => {
-      const currentEmail = data.session?.user?.email ?? null;
-      setUserEmail(currentEmail);
+    if (!auth) return;
+
+    // Initial check
+    setUser(auth.currentUser);
+
+    // Listen for auth changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      const currentEmail = session?.user?.email ?? null;
-      setUserEmail(currentEmail);
-    });
-
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const handleSignInOrUp = async () => {
-    if (!supabase) {
-      setAuthError("Supabase is not configured.");
+    if (!isFirebaseReady() || !auth) {
+      setAuthError("Firebase is not configured.");
       return;
     }
     setAuthLoading(true);
     setAuthMessage(null);
     setAuthError(null);
 
-    try {
-      // Try sign-in first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+    const trimmedEmail = email.trim();
 
-      if (signInError) {
-        // If credentials invalid, attempt sign-up
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-        });
-        if (signUpError) {
-          setAuthError(signUpError.message);
-        } else {
-          setAuthMessage("Check your email to confirm your account, then sign in.");
-        }
-      } else {
+    try {
+      // 1. Try sign-in first
+      try {
+        await signInWithEmailAndPassword(auth, trimmedEmail, password);
         setAuthMessage("Signed in!");
+      } catch (signInErr: any) {
+        // 2. If user not found (auth/user-not-found) or wrong password, try sign-up if it looks like a new user
+        // Note: Firebase v9+ doesn't always distinguish for security, but we can attempt signup
+        if (signInErr.code === 'auth/user-not-found' || signInErr.code === 'auth/invalid-credential') {
+          try {
+            await createUserWithEmailAndPassword(auth, trimmedEmail, password);
+            setAuthMessage("Account created and signed in!");
+          } catch (signUpErr: any) {
+            setAuthError(signUpErr.message);
+          }
+        } else {
+          setAuthError(signInErr.message);
+        }
       }
     } catch (err: any) {
       setAuthError(err?.message ?? "Unknown error");
@@ -69,13 +73,12 @@ const AuthSettings = () => {
   };
 
   const handleSignOut = async () => {
-    if (!supabase) return;
+    if (!auth) return;
     setAuthLoading(true);
     setAuthError(null);
     setAuthMessage(null);
     try {
-      await supabase.auth.signOut();
-      setUserEmail(null);
+      await signOut(auth);
       setEmail("");
       setPassword("");
       setAuthMessage("Signed out.");
@@ -86,14 +89,16 @@ const AuthSettings = () => {
     }
   };
 
+  const userEmail = user?.email;
+
   return (
     <div className="w-full py-3 px-1 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <Sparkles className="h-5 w-5 shrink-0" style={{ color: '#667eea' }} />
         <div className="flex-1 text-left min-w-0">
-          <p className="font-medium text-[15px]">Sync (Supabase)</p>
+          <p className="font-medium text-[15px]">Cloud Sync (Firebase)</p>
           <p className="text-xs text-muted-foreground">
-            Sign in to sync your recommendations securely.
+            Sign in to sync your recommendations across devices.
           </p>
         </div>
       </div>

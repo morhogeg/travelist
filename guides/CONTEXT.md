@@ -1,15 +1,15 @@
 # Travelist AI - Context & Quick Reference
 
-**Last Updated:** January 18, 2026
+**Last Updated:** February 2, 2026
 
 ---
 
 ## 🎯 Current Status
 
-**App State:** iOS 26 Liquid Glass transformation complete
+**App State:** Firebase Migration Complete (Build 9)
 **Primary Theme:** Purple Gradient (#667eea → #764ba2)
 **Current Branch:** main
-**Active Development:** UI polish and feature enhancement + Supabase sync/auth (email/password)
+**Active Development:** Performance optimization and Gemini 3 Flash grounding integration
 
 ---
 
@@ -41,12 +41,12 @@ npm run build:prod       # Production build
 
 ## 📁 Key Files & Locations
 
-### Cloud Sync & Auth
-- `src/lib/supabase.ts` - Supabase client + connectivity check
-- `src/utils/recommendation/supabase-recommendations.ts` - Supabase read/write + backfill (user-scoped)
-- `src/utils/recommendation/recommendation-manager.ts` - Local storage + Supabase merge on sign-in
-- `src/pages/Settings.tsx` - Email/password auth UI with inline password toggle
-- Env (local only): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+### Cloud Sync & Auth (Firebase)
+- `src/lib/firebase.ts` - Firebase initialization (Auth, Firestore, Persistence)
+- `src/utils/recommendation/firestore-places.ts` - Firestore read/write + backfill (UID-scoped)
+- `src/utils/recommendation/recommendation-manager.ts` - Local storage + Firestore real-time sync
+- `src/pages/Settings.tsx` - Firebase Auth UI
+- Env (local only): `VITE_FIREBASE_*` (API Key, Project ID, etc.)
 
 ### Design System
 - `src/index.css` - Liquid Glass materials, iOS 26 design tokens, animations
@@ -84,9 +84,11 @@ npm run build:prod       # Production build
 - `src/components/recommendations/ParsePreviewSheet.tsx` - Preview/edit AI-parsed results
 - `src/components/home/RecommendationDetailsDialog.tsx` - Compact details view with AI generation and logical action grouping
 
-### AI Services
-- `src/services/ai/providers/openrouter-parser.ts` - Grok 4.1 integration via OpenRouter
-- `src/utils/recommendation/ai-parsed-recommendation.ts` - Save AI-parsed places
+### AI Services (Gemini 3 Flash)
+- `src/services/ai/gemini-client.ts` - Central AI client (Native Bridge + Grounding)
+- `src/services/ai/ai-cache-service.ts` - Global Firestore caching for AI summaries
+- `ios/App/App/FirebaseAIPlugin.swift` - Native bridge to Firebase Vertex AI SDK
+- `src/services/ai/providers/openrouter-parser.ts` - Fallback parser for web/dev
 
 ### Native iOS
 - `src/hooks/native/useHaptics.ts` - Haptic feedback hook

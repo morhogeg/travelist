@@ -13,11 +13,15 @@ export {
   clearCitySuggestions,
 } from './suggestion-cache';
 
+// Gemini Client
+export { callGemini, buildCategoryAwarePrompt } from './gemini-client';
+export type { GeminiMessage, GeminiOptions, GeminiResponse } from './gemini-client';
+
 // Providers
 export { mockProvider, MockLLMProvider } from './providers/mock-provider';
-export { deepSeekSuggestionsProvider, DeepSeekSuggestionsProvider } from './providers/deepseek-suggestions-provider';
+export { geminiSuggestionsProvider, GeminiSuggestionsProvider, deepSeekSuggestionsProvider, DeepSeekSuggestionsProvider } from './providers/deepseek-suggestions-provider';
 export { tripPlannerProvider, TripPlannerProvider } from './providers/trip-planner-provider';
-export { parseWithDeepSeek, parseSharedText } from './providers/openrouter-parser';
+export { parseWithGemini, parseWithDeepSeek, parseSharedText } from './providers/openrouter-parser';
 export type { ParsedPlace, ParseResult } from './providers/openrouter-parser';
 
 // Re-export default config

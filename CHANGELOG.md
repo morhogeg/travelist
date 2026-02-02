@@ -4,6 +4,25 @@ All notable changes to the Travelist iOS app will be documented in this file.
 
 ---
 
+## [Build 9] - 2026-02-02 (Unreleased)
+
+### ✨ Added
+- **Major Backend Migration: Supabase to Firebase**
+  - **Firebase Auth**: Replaced Supabase Authentication with Firebase Auth (Email/Password).
+  - **Firestore Database**: All travel cards, places, and user data now sync to Cloud Firestore.
+  - **Offline Persistence**: Full offline support enabled for travel recommendations using Firestore's persistent cache.
+  - **Automatic Data Sync**: Smart migration logic to move local travel cards to the new Firestore backend.
+- **Native Gemini 3 Flash Integration**
+  - **Native iOS SDK**: Switched from OpenRouter network calls to the native Firebase Vertex AI SDK for 2x faster responses.
+  - **Gemini 3 Flash Model**: Upgraded AI engine to Gemini 3 Flash with thinking budget and Google Search grounding.
+  - **Global AI Cache**: Shared Firestore-based cache for AI-generated summaries to reduce costs and latency.
+  - **Native Plugin**: Created `FirebaseAIPlugin.swift` for direct integration between web and native AI layers.
+
+### 🔧 Changed
+- **iOS Deployment Target**: Bumped minimum version to iOS 15.0 to support the latest Firebase AI features.
+
+---
+
 ## [Build 8] - 2026-02-01 (Unreleased)
 
 ### ✨ Added

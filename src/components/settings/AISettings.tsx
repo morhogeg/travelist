@@ -25,9 +25,14 @@ const AISettings = () => {
     const [providerName, setProviderName] = useState("Travelist AI");
 
     useEffect(() => {
-        // Basic status check
-        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-        if (apiKey && apiKey.length > 5) {
+        // Check for Gemini API key (primary) or OpenRouter (fallback)
+        const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        const openrouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+
+        if (geminiKey && geminiKey.length > 5) {
+            setAiStatus("connected");
+            setProviderName("Gemini 3 Flash (Google AI)");
+        } else if (openrouterKey && openrouterKey.length > 5) {
             setAiStatus("connected");
             setProviderName("DeepSeek (via OpenRouter)");
         } else {
@@ -115,8 +120,8 @@ const AISettings = () => {
                                     </ul>
                                 </div>
                                 <p className="text-xs italic text-muted-foreground">
-                                    Our partners (DeepSeek/OpenRouter) are contractually prohibited from using
-                                    this data to train their models.
+                                    Our AI partner (Google Gemini) processes requests securely and does not
+                                    use your data to train models.
                                 </p>
                             </DialogDescription>
                         </DialogHeader>

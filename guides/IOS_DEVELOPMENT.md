@@ -16,6 +16,7 @@
 - **TypeScript** 5.5.3 - Type safety
 - **Vite** 5.4.1 - Build tool and dev server
 - **Capacitor** - iOS native wrapper
+- **Firebase** - Auth, Firestore, and Vertex AI (Gemini)
 
 ### UI/Styling
 - **Tailwind CSS** 3.4.11 - Styling
@@ -28,7 +29,8 @@
 
 ### Data & State
 - **React Router DOM** 6.26.2 - Client-side routing
-- **LocalStorage** - All data persistence (no backend)
+- **Firestore** - Centralized cloud storage with offline persistence
+- **Firebase Auth** - Email/password identity management
 - **Custom window events** - Cross-component communication
 
 ### External APIs
@@ -176,14 +178,10 @@ capacitor.config.ts          # Capacitor configuration
 - App running successfully in simulator
 
 ### 🎯 Next Steps: iOS Optimizations
-1. **Safe Area Support** - Handle iPhone notch/Dynamic Island
-2. **Status Bar Styling** - Configure iOS status bar
-3. **iOS Navigation** - Native swipe gestures
-4. **Touch Optimization** - Better tap targets
-5. **Splash Screen** - Custom launch screen
-6. **App Icon** - iOS icon set
-7. **Performance** - iOS-specific optimizations
-8. **Remove web-specific code** - Focus on mobile
+1. **Safe Area Support** - Handle iPhone notch/Dynamic Island ✓
+2. **Status Bar Styling** - Configure iOS status bar ✓
+3. **iOS 15+ Requirement** - Minimum version bumped to support Firebase AI features
+4. **Native AI Bridge** - Leverages `FirebaseVertexAI` for stable Gemini access
 
 ---
 

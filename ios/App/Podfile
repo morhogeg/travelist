@@ -27,7 +27,7 @@ module Xcodeproj
   end
 end
 
-platform :ios, '14.0'
+platform :ios, '15.0'
 use_frameworks!
 
 # workaround to avoid Xcode caching of Pods that requires
@@ -51,6 +51,13 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
+  
+  # Firebase SDK
+  pod 'FirebaseCore'
+  pod 'FirebaseAuth'
+  pod 'FirebaseFirestore'
+  pod 'FirebaseAnalytics'
+  pod 'FirebaseVertexAI'
 end
 
 post_install do |installer|

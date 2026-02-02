@@ -5,7 +5,8 @@ import { useTheme } from "@/components/ThemeProvider";
 import { lightHaptic } from "@/utils/ios/haptics";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/lib/supabase";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import ShareExtensionGuide from "@/components/settings/ShareExtensionGuide";
 import ProximitySettings from "@/components/settings/ProximitySettings";
 import AISettings from "@/components/settings/AISettings";
@@ -49,21 +50,17 @@ const Settings = () => {
 
   // Load current auth session for conditional rendering
   useEffect(() => {
-    if (!supabase) return;
+    if (!auth) return;
 
-    const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUserEmail(data.session?.user?.email ?? null);
-    };
-    getSession();
+    // Initial check
+    setUserEmail(auth.currentUser?.email ?? null);
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user?.email ?? null);
+    // Listen for auth changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUserEmail(user?.email ?? null);
     });
 
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const Separator = () => <div className="h-px bg-border/30 ml-8" />;

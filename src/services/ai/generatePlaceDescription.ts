@@ -1,13 +1,14 @@
 import { logger } from '@/utils/logger';
-import { callOpenRouter, OpenRouterMessage } from './openrouter-client';
+import { callGemini, buildCategoryAwarePrompt, GeminiMessage } from './gemini-client';
 
 export interface GenerateDescriptionResult {
     description: string | null;
+    thoughtSignature?: string;
     error?: string;
 }
 
 /**
- * Generate a brief 1-2 sentence description for a place
+ * Generate a brief 2-sentence description for a place using Gemini 3 Flash
  */
 export async function generatePlaceDescription(
     placeName: string,
@@ -15,26 +16,12 @@ export async function generatePlaceDescription(
     country: string,
     category?: string
 ): Promise<GenerateDescriptionResult> {
-    const systemPrompt = `You are a knowledgeable travel guide assistant. Write a helpful 1-2 sentence description about a place that a traveler would find useful.
+    // Build category-aware system prompt
+    const systemPrompt = buildCategoryAwarePrompt(category);
 
-GUIDELINES:
-1. Include what makes this place special or worth visiting
-2. Mention the type of experience (cozy café, upscale restaurant, hidden gem, iconic landmark, etc.)
-3. If it's a restaurant/café, you can mention the general cuisine or vibe if it's commonly known
-4. Add a helpful tip if relevant (best time to visit, what to try, atmosphere)
-5. Keep it concise but informative - 1-2 sentences maximum
+    const userPrompt = `Write a brief, helpful description for: ${placeName} in ${city}, ${country}${category ? ` (Category: ${category})` : ''}`;
 
-EXAMPLES:
-- "A beloved neighborhood pizzeria known for its thin-crust pies and casual atmosphere. Perfect for a quick, authentic slice."
-- "An iconic Parisian landmark offering panoramic city views. Best visited at sunset for stunning photo opportunities."
-- "A charming café popular with locals for its specialty coffee and freshly baked pastries."
-
-Respond with ONLY the description, no quotes or explanation.`;
-
-    const categoryHint = category ? ` (Category: ${category})` : '';
-    const userPrompt = `Write a brief, helpful description for: ${placeName} in ${city}, ${country}${categoryHint}`;
-
-    const messages: OpenRouterMessage[] = [
+    const messages: GeminiMessage[] = [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
     ];
@@ -46,9 +33,16 @@ Respond with ONLY the description, no quotes or explanation.`;
         try {
             logger.debug('AI Description', `Attempt ${attempt}/${maxRetries} for:`, placeName);
 
-            const result = await callOpenRouter(messages, {
+            const result = await callGemini(messages, {
                 temperature: 0.3,
-                max_tokens: 500
+                maxOutputTokens: 500,
+                thinkingLevel: 'low',
+                enableGrounding: true, // Use Google Search to verify location details
+            }, {
+                placeName,
+                city,
+                country,
+                category
             });
 
             if (result.error) {
@@ -82,7 +76,11 @@ Respond with ONLY the description, no quotes or explanation.`;
 
             const content = result.content.trim();
             logger.debug('AI Description', 'Generated:', content);
-            return { description: content };
+
+            return {
+                description: content,
+                thoughtSignature: result.thoughtSignature,
+            };
 
         } catch (error) {
             logger.error('AI Description', `Attempt ${attempt} network error:`, error);

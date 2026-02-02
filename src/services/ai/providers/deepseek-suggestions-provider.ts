@@ -5,7 +5,7 @@ import {
   AISuggestion,
   PlaceCategory,
 } from '../types';
-import { callOpenRouter, OpenRouterMessage } from '../openrouter-client';
+import { callGemini, GeminiMessage } from '../gemini-client';
 
 /**
  * Generates a unique ID for suggestions
@@ -32,10 +32,10 @@ function validatePriceRange(price: string | undefined): '$' | '$$' | '$$$' | '$$
 }
 
 /**
- * Grok LLM Provider implementation
+ * Gemini LLM Provider implementation for AI suggestions
  */
-export class DeepSeekSuggestionsProvider implements LLMProvider {
-  name = 'grok';
+export class GeminiSuggestionsProvider implements LLMProvider {
+  name = 'gemini-3-flash';
 
   async generateSuggestions(request: AISuggestionRequest): Promise<AISuggestionResult> {
     console.log('[AI Suggestions] Generating suggestions for:', request.cityName, request.countryName);
@@ -44,15 +44,17 @@ export class DeepSeekSuggestionsProvider implements LLMProvider {
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(request);
 
-    const messages: OpenRouterMessage[] = [
+    const messages: GeminiMessage[] = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
     ];
 
     try {
-      const result = await callOpenRouter(messages, {
+      const result = await callGemini(messages, {
         temperature: 0.7,
-        max_tokens: 2000
+        maxOutputTokens: 2000,
+        thinkingLevel: 'low',
+        enableGrounding: true, // Use Google Search to verify places exist
       });
 
       if (result.error) {
@@ -85,12 +87,13 @@ export class DeepSeekSuggestionsProvider implements LLMProvider {
     return `You are a knowledgeable travel recommendation AI. Your job is to suggest places a traveler would enjoy based on places they've already saved for a city.
 
 IMPORTANT GUIDELINES:
-1. Suggest REAL, ACTUAL places that exist - not generic placeholders
+1. Suggest REAL, ACTUAL places that exist - use Google Search to verify they are real establishments
 2. Each suggestion should be a specific named establishment or location
 3. Analyze the saved places to understand the user's preferences (budget, cuisine types, activity preferences, etc.)
 4. Recommend places that complement their existing list - similar vibes but different venues
 5. Include a mix of categories unless the user clearly prefers one type
 6. The "whyRecommended" field should specifically reference their saved places and explain the connection
+7. Do NOT suggest generic or made-up place names - only real, verifiable establishments
 
 Categories (use exactly these lowercase values):
 - food: restaurants, cafes, bakeries, any eating establishment
@@ -158,7 +161,7 @@ Please suggest ${maxSuggestions} additional places they would likely enjoy in ${
       prompt += `\n\nDo NOT suggest places in these categories: ${excludeCategories.join(', ')}`;
     }
 
-    prompt += `\n\nFocus on real, well-known establishments that match their apparent preferences. Each suggestion should have a clear connection to their existing saved places.`;
+    prompt += `\n\nFocus on real, well-known establishments that match their apparent preferences. Use Google Search to verify these places actually exist in ${cityName}, ${countryName}. Each suggestion should have a clear connection to their existing saved places.`;
 
     return prompt;
   }
@@ -175,18 +178,27 @@ Please suggest ${maxSuggestions} additional places they would likely enjoy in ${
       const data = JSON.parse(cleanContent);
       parsed = Array.isArray(data) ? data : [data];
     } catch (e) {
-      console.error('[DeepSeek Suggestions] Failed to parse response:', content);
+      console.error('[Gemini Suggestions] Failed to parse response:', content);
       throw new Error('Failed to parse AI response');
     }
 
+    interface ParsedSuggestion {
+      name: string;
+      category?: string;
+      description?: string;
+      whyRecommended?: string;
+      estimatedPriceRange?: string;
+      tags?: string[];
+    }
+
     // Validate and normalize the response
-    const suggestions: AISuggestion[] = (parsed as any[])
-      .filter((s: any) => s.name && typeof s.name === 'string')
+    const suggestions: AISuggestion[] = (parsed as ParsedSuggestion[])
+      .filter((s) => s.name && typeof s.name === 'string')
       .slice(0, maxSuggestions)
-      .map((s: any) => ({
+      .map((s) => ({
         id: generateId(),
         name: s.name.trim(),
-        category: validateCategory(s.category),
+        category: validateCategory(s.category || 'general'),
         description: s.description || 'A local favorite worth checking out.',
         whyRecommended: s.whyRecommended || 'Recommended based on your saved places',
         estimatedPriceRange: validatePriceRange(s.estimatedPriceRange),
@@ -198,4 +210,8 @@ Please suggest ${maxSuggestions} additional places they would likely enjoy in ${
 }
 
 // Export singleton instance
-export const deepSeekSuggestionsProvider = new DeepSeekSuggestionsProvider();
+export const geminiSuggestionsProvider = new GeminiSuggestionsProvider();
+
+// Keep old export name for backward compatibility
+export const deepSeekSuggestionsProvider = geminiSuggestionsProvider;
+export const DeepSeekSuggestionsProvider = GeminiSuggestionsProvider;

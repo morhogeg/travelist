@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import { ParsedRecommendation } from "./types";
 import { getCategoryPlaceholder } from "@/utils/image/getCategoryPlaceholder";
 import { getSmartImage } from "@/utils/image/getSmartImage";
-import { syncRecommendationToSupabase, fetchSupabaseRecommendations, backfillLocalToSupabase } from "./supabase-recommendations";
-import { supabase } from "@/lib/supabase";
+import { syncRecommendationToFirestore, fetchFirestorePlaces, backfillLocalToFirestore } from "./firestore-places";
+import { auth, isFirebaseReady } from "@/lib/firebase";
 
 export const getRecommendations = (): ParsedRecommendation[] => {
   try {
@@ -115,27 +115,27 @@ export const storeRecommendation = async (
   localStorage.setItem("recommendations", JSON.stringify(recommendations));
   window.dispatchEvent(new CustomEvent("recommendationAdded"));
 
-  // Non-blocking cloud sync (if Supabase is configured)
-  syncRecommendationToSupabase(recommendation).catch((err) => {
-    console.warn("[Supabase] Sync error:", err);
+  // Non-blocking cloud sync (if Firebase is configured)
+  syncRecommendationToFirestore(recommendation).catch((err) => {
+    console.warn("[Firestore] Sync error:", err);
   });
 };
 
-let hasSyncedSupabase = false;
+let hasSyncedFirestore = false;
 
-export async function syncSupabaseRecommendationsOnce(): Promise<void> {
-  if (hasSyncedSupabase) return;
-  hasSyncedSupabase = true;
+export async function syncFirestoreRecommendationsOnce(): Promise<void> {
+  if (hasSyncedFirestore) return;
+  hasSyncedFirestore = true;
 
-  if (!supabase) return;
+  if (!isFirebaseReady() || !auth) return;
 
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError || !sessionData.session?.user?.id) {
+  const user = auth.currentUser;
+  if (!user) {
     return;
   }
 
   // Fetch cloud data
-  const cloudRecs = await fetchSupabaseRecommendations();
+  const cloudRecs = await fetchFirestorePlaces();
   const local = getRecommendations();
 
   // Merge: keep local as source of truth, add any cloud recs/places missing locally
@@ -172,9 +172,12 @@ export async function syncSupabaseRecommendationsOnce(): Promise<void> {
 
   localStorage.setItem("recommendations", JSON.stringify(merged));
 
-  // Backfill local (merged) to cloud to ensure Supabase has everything
-  await backfillLocalToSupabase(merged);
+  // Backfill local (merged) to cloud to ensure Firestore has everything
+  await backfillLocalToFirestore(merged);
 }
+
+// Legacy alias for backward compatibility
+export const syncSupabaseRecommendationsOnce = syncFirestoreRecommendationsOnce;
 
 export const markRecommendationVisited = (
   recId: string,

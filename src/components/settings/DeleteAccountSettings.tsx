@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { auth, db } from "@/lib/firebase";
+import { signOut, onAuthStateChanged, User } from "firebase/auth";
+import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { heavyHaptic } from "@/utils/ios/haptics";
 import {
   AlertDialog,
@@ -17,30 +19,26 @@ import {
 const DeleteAccountSettings = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!supabase) return;
-    
-    // Check initial session
-    supabase.auth.getSession().then(({ data }) => {
-      setUserEmail(data.session?.user?.email ?? null);
-    });
+    if (!auth) return;
+
+    // Initial check
+    setUser(auth.currentUser);
 
     // Listen for auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user?.email ?? null);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
     });
 
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const handleDeleteAccount = async () => {
-    if (!supabase) return;
+    if (!auth || !db) return;
     setDeleteLoading(true);
     setError(null);
     setMessage(null);
@@ -48,32 +46,35 @@ const DeleteAccountSettings = () => {
     try {
       heavyHaptic();
 
-      // Get the current user
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
         setError("No user found to delete.");
         setDeleteLoading(false);
         return;
       }
 
-      // Delete user data from the recommendations table first
-      const { error: dataError } = await supabase
-        .from('recommendations')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (dataError) {
-        console.warn("[Settings] Could not delete user recommendations:", dataError.message);
-        // Continue anyway - we still want to delete the account
+      // 1. Delete user data from Firestore
+      try {
+        const q = query(
+          collection(db, 'places'),
+          where('user_id', '==', currentUser.uid)
+        );
+        const snapshot = await getDocs(q);
+        const deletePromises = snapshot.docs.map(placeDoc => deleteDoc(doc(db, 'places', placeDoc.id)));
+        await Promise.all(deletePromises);
+        console.log("[Settings] Deleted user places from Firestore");
+      } catch (dataError: any) {
+        console.warn("[Settings] Could not delete user records:", dataError.message);
       }
 
-      // Sign out the user (the actual account deletion requires admin API or Edge Function)
-      // For self-service deletion, we sign out and clear local data
-      await supabase.auth.signOut();
+      // 2. Sign out the user
+      // Note: Actual Firebase account deletion usually requires re-authentication.
+      // For now, we sign out and clear local data.
+      await signOut(auth);
 
-      // Clear all local storage data
+      // 3. Clear all local storage data
       const keysToRemove = [
+        'recommendations', // Updated key
         'travelist-recommendations',
         'travelist-routes',
         'travelist-collections',
@@ -83,7 +84,7 @@ const DeleteAccountSettings = () => {
       ];
       keysToRemove.forEach(key => localStorage.removeItem(key));
 
-      setUserEmail(null);
+      setUser(null);
       setIsDeleteDialogOpen(false);
       setMessage("Account data deleted successfully. Your account has been signed out.");
 
@@ -94,6 +95,7 @@ const DeleteAccountSettings = () => {
     }
   };
 
+  const userEmail = user?.email;
   if (!userEmail) return null;
 
   return (
@@ -116,7 +118,7 @@ const DeleteAccountSettings = () => {
         >
           Delete My Account
         </Button>
-        
+
         {message && <p className="text-xs text-green-600">{message}</p>}
         {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
@@ -126,7 +128,7 @@ const DeleteAccountSettings = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Account</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete your account? This will permanently remove all your cloud-synced data including saved places, collections, and routes. This action cannot be undone.
+              Are you sure you want to delete your account? This will permanently remove all your cloud-synced data including saved places and collections. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -6,7 +6,7 @@ import { AnimatePresence } from "framer-motion";
 import { useStatusBarTheme } from "@/hooks/native/useStatusBar";
 import RecommendationDrawer from "@/components/recommendations/RecommendationDrawer";
 import { OnboardingFlow, isOnboardingComplete } from "@/components/onboarding";
-import { syncSupabaseRecommendationsOnce, getRecommendations } from "@/utils/recommendation/recommendation-manager";
+import { syncFirestoreRecommendationsOnce, getRecommendations } from "@/utils/recommendation/recommendation-manager";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { addInboxItem, parseInboxItem } from "@/utils/inbox/inbox-store";
@@ -55,9 +55,9 @@ function AppContent() {
   // Automatically manage status bar based on theme
   useStatusBarTheme(theme === 'dark' ? 'dark' : 'light');
 
-  // One-time sync with Supabase when signed in
+  // One-time sync with Firestore when signed in
   useEffect(() => {
-    syncSupabaseRecommendationsOnce();
+    syncFirestoreRecommendationsOnce();
   }, []);
 
   // Listen for proximity notification taps

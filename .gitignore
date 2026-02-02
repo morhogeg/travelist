@@ -36,3 +36,6 @@ ios/**/.build/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+# Firebase secrets
+**/GoogleService-Info.plist

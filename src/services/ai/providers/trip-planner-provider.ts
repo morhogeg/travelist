@@ -1,6 +1,6 @@
 import { TripPlanRequest, TripPlanResult, TimeSlot } from '@/types/trip';
 import { PlaceCategory } from '../types';
-import { callOpenRouter, OpenRouterMessage } from '../openrouter-client';
+import { callGemini, GeminiMessage } from '../gemini-client';
 
 /**
  * Map categories to their time-of-day constraints
@@ -21,10 +21,10 @@ const CATEGORY_TIME_CONSTRAINTS: Record<string, TimeSlot[]> = {
 const NO_NIGHT_CATEGORIES = ['outdoors', 'attractions', 'shopping'];
 
 /**
- * Trip Planner AI Provider
+ * Trip Planner AI Provider using Gemini 3 Flash
  */
 export class TripPlannerProvider {
-    name = 'trip-planner';
+    name = 'trip-planner-gemini';
 
     async generateTripPlan(request: TripPlanRequest): Promise<TripPlanResult> {
         console.log('[Trip Planner] Generating plan for:', request.city, request.country);
@@ -34,17 +34,19 @@ export class TripPlannerProvider {
         const systemPrompt = this.buildSystemPrompt();
         const userPrompt = this.buildUserPrompt(request);
 
-        const messages: OpenRouterMessage[] = [
+        const messages: GeminiMessage[] = [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
         ];
 
         try {
-            console.log('[Trip Planner] Calling OpenRouter API...');
+            console.log('[Trip Planner] Calling Gemini API...');
 
-            const result = await callOpenRouter(messages, {
+            const result = await callGemini(messages, {
                 temperature: 0.5,
-                max_tokens: 3000,
+                maxOutputTokens: 3000,
+                thinkingLevel: 'low',
+                enableGrounding: true, // Verify location details
             });
 
             if (result.error) {
@@ -104,6 +106,7 @@ SUGGESTED ADDITIONS RULES:
 - Fill gaps: if they have no lunch spots, suggest restaurants; if all attractions, suggest a cafe break
 - Consider proximity to their planned areas
 - Explain WHY each suggestion fits their trip
+- Use Google Search to verify these places actually exist in the specified city
 
 Respond ONLY with a valid JSON object, no markdown, no explanation:
 {
@@ -194,7 +197,7 @@ REQUIREMENTS:
     }
 
     private parseResponse(content: string, request: TripPlanRequest): TripPlanResult {
-        let parsed: { days?: any[]; suggestedAdditions?: any[] };
+        let parsed: { days?: unknown[]; suggestedAdditions?: unknown[] };
 
         try {
             // Strip reasoning blocks and clean content
@@ -225,9 +228,24 @@ REQUIREMENTS:
         const validPlaceIds = new Set(request.places.map((p) => p.id));
         const usedPlaceIds = new Set<string>();
 
-        const validatedDays = parsed.days.map((day: any, index: number) => {
+        interface DayPlace {
+            placeId: string;
+            order?: number;
+            suggestedTimeSlot?: string;
+            suggestedTime?: string;
+            travelToNextMinutes?: number;
+        }
+
+        interface DayData {
+            theme?: string;
+            neighborhood?: string;
+            estimatedWalkingMinutes?: number;
+            places?: DayPlace[];
+        }
+
+        const validatedDays = (parsed.days as DayData[]).map((day, index: number) => {
             const validPlaces = (day.places || [])
-                .filter((p: any) => {
+                .filter((p) => {
                     // Must be a valid place ID from the request
                     if (!validPlaceIds.has(p.placeId)) return false;
 
@@ -237,11 +255,11 @@ REQUIREMENTS:
                     usedPlaceIds.add(p.placeId);
                     return true;
                 })
-                .map((p: any, pIndex: number) => ({
+                .map((p, pIndex: number) => ({
                     placeId: p.placeId,
                     order: pIndex + 1,
                     suggestedTimeSlot: this.validateTimeSlot(p.suggestedTimeSlot),
-                    suggestedTime: p.suggestedTime || this.getDefaultTime(p.suggestedTimeSlot || 'morning'),
+                    suggestedTime: p.suggestedTime || this.getDefaultTime(p.suggestedTimeSlot as TimeSlot || 'morning'),
                     travelToNextMinutes: typeof p.travelToNextMinutes === 'number' ? p.travelToNextMinutes : 10,
                 }));
 
@@ -254,11 +272,20 @@ REQUIREMENTS:
             };
         });
 
+        interface SuggestedAddition {
+            name: string;
+            category?: string;
+            description?: string;
+            whyItFits?: string;
+            suggestedDay?: number;
+            estimatedPriceRange?: string;
+        }
+
         // Parse suggested additions from AI
-        const suggestedAdditions = (parsed.suggestedAdditions || [])
-            .filter((s: any) => s.name && typeof s.name === 'string')
+        const suggestedAdditions = ((parsed.suggestedAdditions || []) as SuggestedAddition[])
+            .filter((s) => s.name && typeof s.name === 'string')
             .slice(0, 5)
-            .map((s: any) => ({
+            .map((s) => ({
                 name: s.name.trim(),
                 category: s.category || 'general',
                 description: s.description || '',
