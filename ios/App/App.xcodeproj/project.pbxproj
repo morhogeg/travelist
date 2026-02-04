@@ -16,7 +16,7 @@
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
-		D719FBF32F30B85900968C6D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D719FBF22F30B85900968C6D /* GoogleService-Info.plist */; };
+		D719FC372F3134A800968C6D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D719FC362F3134A800968C6D /* GoogleService-Info.plist */; };
 		D71D21882EF18550005D6F8F /* MyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71D21872EF18550005D6F8F /* MyViewController.swift */; };
 		D7D184022EDCA3BA002D63AB /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D7D183F82EDCA3BA002D63AB /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D7D1840A2EDCA468002D63AB /* SharedInboxPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D184092EDCA458002D63AB /* SharedInboxPlugin.swift */; };
@@ -60,7 +60,7 @@
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		B68144CAA6174B40BADEFA6F /* FirebaseAIPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirebaseAIPlugin.swift; path = App/FirebaseAIPlugin.swift; sourceTree = SOURCE_ROOT; };
 		D7157EC92F1A71CA00D3D7FA /* App-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "App-Bridging-Header.h"; sourceTree = "<group>"; };
-		D719FBF22F30B85900968C6D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D719FC362F3134A800968C6D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D71D21872EF18550005D6F8F /* MyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyViewController.swift; sourceTree = "<group>"; };
 		D7D183F32EDCA363002D63AB /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		D7D183F82EDCA3BA002D63AB /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,7 +69,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D7D184032EDCA3BA002D63AB = {
+		D7D184032EDCA3BA002D63AB /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -79,7 +79,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D7D183F92EDCA3BA002D63AB /* ShareExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (D7D184032EDCA3BA002D63AB, ); explicitFileTypes = {}; explicitFolders = (); path = ShareExtension; sourceTree = "<group>"; };
+		D7D183F92EDCA3BA002D63AB /* ShareExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (D7D184032EDCA3BA002D63AB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ShareExtension; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,7 +132,6 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
-				D719FBF22F30B85900968C6D /* GoogleService-Info.plist */,
 				D71D21872EF18550005D6F8F /* MyViewController.swift */,
 				D7157EC92F1A71CA00D3D7FA /* App-Bridging-Header.h */,
 				D7D184092EDCA458002D63AB /* SharedInboxPlugin.swift */,
@@ -146,6 +145,7 @@
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
 				B68144CAA6174B40BADEFA6F /* FirebaseAIPlugin.swift */,
+				D719FC362F3134A800968C6D /* GoogleService-Info.plist */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -257,7 +257,7 @@
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
-				D719FBF32F30B85900968C6D /* GoogleService-Info.plist in Resources */,
+				D719FC372F3134A800968C6D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

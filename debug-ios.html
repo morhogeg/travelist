@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>iOS Debug</title>
+    <script type="module">
+        import { GoogleGenAI } from 'https://esm.sh/@google/genai';
+        
+        window.testGemini = async function() {
+            const output = document.getElementById('output');
+            output.innerHTML = 'Testing...<br>';
+            
+            try {
+                const apiKey = 'AIzaSyBapIebFP0njPa3JvBSs6NgGIxGHiCmw-A';
+                output.innerHTML += `API Key: ${apiKey.substring(0, 10)}...<br>`;
+                
+                output.innerHTML += 'Creating client...<br>';
+                const ai = new GoogleGenAI({ apiKey });
+                
+                output.innerHTML += 'Calling API...<br>';
+                const response = await ai.models.generateContent({
+                    model: 'gemini-3-flash-preview',
+                    contents: [{ role: 'user', parts: [{ text: 'Say hello in one sentence' }] }],
+                    config: { temperature: 0.3, maxOutputTokens: 100 }
+                });
+                
+                output.innerHTML += `✅ SUCCESS!<br>Response: ${response.text}<br>`;
+            } catch (err) {
+                output.innerHTML += `❌ ERROR: ${err.message}<br>`;
+                console.error(err);
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>iOS Gemini Debug</h1>
+    <button onclick="testGemini()" style="font-size: 24px; padding: 20px;">Test Gemini</button>
+    <div id="output" style="margin-top: 20px; font-family: monospace; white-space: pre-wrap;"></div>
+</body>
+</html>

@@ -18,7 +18,7 @@ export interface FirebaseAIPlugin {
     }): Promise<{ content: string; groundingSources: string[]; thoughtSignature?: string }>;
 }
 
-const FirebaseAI = registerPlugin<FirebaseAIPlugin>('FirebaseAI');
+const NativeGemini = registerPlugin<FirebaseAIPlugin>('FirebaseAIPlugin');
 
 export interface GeminiResult {
     summary: string | null;
@@ -60,7 +60,7 @@ export async function generateGeminiDescription(
 
         // We attempt to call the native plugin. 
         // If we're on web and it's not implemented, it will fail.
-        const result = await FirebaseAI.generateDescription({
+        const result = await NativeGemini.generateDescription({
             placeName,
             city,
             country,

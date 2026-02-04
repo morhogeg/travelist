@@ -4,8 +4,7 @@ import FirebaseVertexAI
 
 /**
  * FirebaseAIPlugin
- * Bridges the native Firebase Vertex AI SDK to the web layer.
- * Used for calling Gemini 3 Flash natively on iOS.
+ * Uses Firebase Vertex AI with project-level credentials (no separate API key needed).
  */
 @objc(FirebaseAIPlugin)
 public class FirebaseAIPlugin: CAPPlugin, CAPBridgedPlugin {
@@ -15,10 +14,26 @@ public class FirebaseAIPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "generateDescription", returnType: CAPPluginReturnPromise)
     ]
 
-    // Use Gemini 1.5 Flash (assuming user meant 1.5 or is referring to latest preview)
-    // We'll use "gemini-1.5-flash" as the default stable model
+    // Use Vertex AI (works with Firebase project credentials)
     private lazy var vertex = VertexAI.vertexAI()
-    private lazy var model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+    private lazy var model = vertex.generativeModel(
+        modelName: "gemini-3-flash-preview",
+        generationConfig: GenerationConfig(
+            temperature: 0.3,
+            maxOutputTokens: 500
+        ),
+        systemInstruction: ModelContent(role: "system", parts: """
+            You are a travel guide assistant. Write exactly 2 sentences about a place that a traveler would find useful.
+            Include what makes it special and practical tips.
+            
+            CRITICAL LOCATION RULE: The user provides a SPECIFIC city and country. You MUST write about that EXACT location.
+            - If the user says "Tel Aviv, Israel" - write ONLY about Tel Aviv, NOT Jerusalem or any other city.
+            - If the user says "Paris, France" - write ONLY about Paris, NOT Lyon or any other city.
+            - Never guess or assume a different location than what is specified.
+            
+            CRITICAL: Output ONLY the final 2-sentence description. Do NOT include thinking, revisions, or explanations.
+            """)
+    )
 
     @objc func generateDescription(_ call: CAPPluginCall) {
         guard let placeName = call.getString("placeName"),
@@ -30,17 +45,18 @@ public class FirebaseAIPlugin: CAPPlugin, CAPBridgedPlugin {
 
         let category = call.getString("category") ?? "Attraction"
         
-        let systemPrompt = """
-        You are a travel guide assistant. Write a helpful 1-2 sentence description about a place.
-        Include what makes it special and the type of experience it offers.
-        Keep it concise (1-2 sentences).
-        """
+        let userPrompt = """
+        Write a brief description for: \(placeName)
+        LOCATION: \(city), \(country)
+        Category: \(category)
         
-        let userPrompt = "Write a brief, helpful description for: \(placeName) in \(city), \(country) (Category: \(category))"
+        Remember: This place is in \(city), \(country). Write ONLY about this specific location.
+        """
 
         Task {
             do {
-                // Generate content using Gemini
+                NSLog("[FirebaseAIPlugin] Generating for: \(placeName) in \(city), \(country)")
+                
                 let response = try await model.generateContent(userPrompt)
                 
                 guard let text = response.text else {
@@ -48,14 +64,12 @@ public class FirebaseAIPlugin: CAPPlugin, CAPBridgedPlugin {
                     return
                 }
 
-                // Grounding metadata access varies by SDK version. 
-                // For now, we'll return an empty array to fix the build.
-                let sources: [String] = []
-
+                NSLog("[FirebaseAIPlugin] Success: \(text.prefix(50))...")
+                
                 call.resolve([
                     "content": text.trimmingCharacters(in: .whitespacesAndNewlines),
-                    "groundingSources": sources,
-                    "thoughtSignature": "native-gemini-v1"
+                    "groundingSources": [] as [String],
+                    "thoughtSignature": "gemini-3-flash-vertex"
                 ])
                 
             } catch {

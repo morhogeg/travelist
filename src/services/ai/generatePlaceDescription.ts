@@ -33,17 +33,25 @@ export async function generatePlaceDescription(
         try {
             logger.debug('AI Description', `Attempt ${attempt}/${maxRetries} for:`, placeName);
 
-            const result = await callGemini(messages, {
-                temperature: 0.3,
-                maxOutputTokens: 500,
-                thinkingLevel: 'low',
-                enableGrounding: true, // Use Google Search to verify location details
-            }, {
-                placeName,
-                city,
-                country,
-                category
+            // Add 30-second timeout to prevent infinite loading
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => reject(new Error('Request timeout - please try again')), 30000);
             });
+
+            const result = await Promise.race([
+                callGemini(messages, {
+                    temperature: 0.3,
+                    maxOutputTokens: 1000, // Increased to accommodate response + thinking
+                    thinkingLevel: 'minimal', // Reduced from 'low' (1024) to 'minimal' (128) to prevent truncation
+                    enableGrounding: true,
+                }, {
+                    placeName,
+                    city,
+                    country,
+                    category
+                }),
+                timeoutPromise
+            ]);
 
             if (result.error) {
                 lastError = result.error;
