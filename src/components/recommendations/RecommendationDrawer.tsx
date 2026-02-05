@@ -148,7 +148,10 @@ const RecommendationDrawer = ({
             )}
           </DrawerHeader>
 
-          <div className="px-6 space-y-4 flex-1 overflow-y-auto pb-4">
+          <div
+            className="px-6 space-y-4 flex-1 overflow-y-auto pb-4 overscroll-contain no-tap-highlight"
+            style={{ touchAction: 'pan-y' }}
+          >
             {!localEditRecommendation && (
               <div className="flex items-center space-x-2 shrink-0">
                 <Button

@@ -196,7 +196,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-sans antialiased">
+    <div vaul-drawer-wrapper="" className="min-h-screen bg-background font-sans antialiased">
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Index />} />

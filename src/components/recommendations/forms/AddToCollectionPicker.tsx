@@ -48,11 +48,10 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
               key={collection.id}
               type="button"
               onClick={() => handleSelect(collection.id)}
-              className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all outline-none border focus:outline-none focus-visible:outline-none ${
-                isSelected
+              className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all outline-none border focus:outline-none focus-visible:outline-none ${isSelected
                   ? "border-transparent"
                   : "text-foreground border-border hover:bg-neutral-100/5 dark:hover:bg-neutral-800/40"
-              }`}
+                }`}
               style={{
                 background: isSelected
                   ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
@@ -75,10 +74,10 @@ const AddToCollectionPicker: React.FC<AddToCollectionPickerProps> = ({
         <Button
           type="button"
           onClick={handleCreateNew}
-          className="text-white font-semibold shrink-0"
+          className="text-white font-bold rounded-full px-5 transition-all duration-300"
           style={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+            boxShadow: '0 4px 12px -2px rgba(102, 126, 234, 0.4)'
           }}
         >
           Create

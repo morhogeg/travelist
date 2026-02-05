@@ -134,8 +134,8 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleToggleCollection(collection.id)}
                     className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ios26-transition-smooth ${isSelected
-                        ? "border-[#667eea] bg-gradient-to-r from-[#667eea]/10 to-[#764ba2]/10"
-                        : "border-border hover:border-[#667eea]/30"
+                      ? "border-[#667eea] bg-gradient-to-r from-[#667eea]/10 to-[#764ba2]/10"
+                      : "border-border hover:border-[#667eea]/30"
                       }`}
                   >
                     <div className={`flex-shrink-0 ${isSelected ? "text-[#667eea]" : "text-muted-foreground"}`}>
@@ -183,11 +183,12 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
                   size="sm"
                   onClick={handleCreateCollection}
                   disabled={!newCollectionName.trim()}
-                  className="text-white"
+                  className="rounded-full px-4 text-white font-bold"
                   style={{
                     background: newCollectionName.trim()
                       ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                       : undefined,
+                    boxShadow: newCollectionName.trim() ? '0 4px 12px -2px rgba(102, 126, 234, 0.4)' : 'none'
                   }}
                 >
                   Add
@@ -221,11 +222,12 @@ const CollectionPickerDrawer: React.FC<CollectionPickerDrawerProps> = ({
           <DrawerClose asChild>
             <Button
               variant="default"
-              className={`w-full ring-0 focus-visible:ring-0 active:bg-muted/60 ${selectedAdds.size === 0 ? "opacity-60 pointer-events-none" : ""
+              className={`w-full py-6 font-bold rounded-full transition-all duration-300 ${selectedAdds.size === 0 ? "opacity-60 pointer-events-none" : ""
                 }`}
               style={{
                 WebkitTapHighlightColor: 'transparent',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                boxShadow: selectedAdds.size > 0 ? '0 8px 16px -4px rgba(102, 126, 234, 0.4)' : 'none',
                 color: 'white',
               }}
               onClick={() => {

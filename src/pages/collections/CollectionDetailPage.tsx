@@ -343,9 +343,8 @@ const CollectionDetailPage: React.FC = () => {
         animate={{ opacity: 1 }}
         className="px-6 pt-2 pb-24"
       >
-        {/* Header row - title centered, buttons on sides */}
-        <div className="flex items-center justify-between mb-4 min-h-[44px] gap-3">
-          {/* Left side: Back Button + Title */}
+        {/* Header row - centered title, white in dark mode */}
+        <div className="flex items-center justify-between mb-2 min-h-[44px] gap-3">
           <div className="flex items-center gap-1 flex-1 min-w-0">
             <Button
               variant="ghost"
@@ -376,12 +375,10 @@ const CollectionDetailPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <h1
-                onClick={handleStartEditing}
-                className="text-xl font-bold truncate cursor-pointer active:opacity-60 transition-opacity pr-2 flex-1"
-              >
-                {collection.name}
-              </h1>
+              <div className="text-center flex-1 pr-1 cursor-pointer active:opacity-60 transition-opacity" onClick={handleStartEditing}>
+                <h1 className="text-lg font-bold text-[#667eea] dark:text-white leading-tight truncate">{collection.name}</h1>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Saved Collection</p>
+              </div>
             )}
           </div>
 
@@ -456,7 +453,7 @@ const CollectionDetailPage: React.FC = () => {
 
         {/* Category Filter */}
         {filteredCategories.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide px-2">
             <CategoryList
               categories={filteredCategories}
               activeCategories={resolvedActiveCategories}

@@ -57,11 +57,11 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={handleDrawerChange}>
-      <DrawerContent className="p-0 flex flex-col transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '40vh', maxHeight: '85vh' }}>
-        <div className="flex flex-col h-full">
+      <DrawerContent className="p-0 flex flex-col transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '60vh', maxHeight: '96vh' }}>
+        <div className="flex flex-col h-full max-h-[96vh]">
           {/* Header */}
-          <div className="relative flex items-center justify-center px-6 pt-2 pb-4 border-b border-white/10 shrink-0">
-            <h2 className="text-xl font-bold text-[#667eea] leading-none">Filters</h2>
+          <div className="relative flex items-center justify-center px-6 pt-2 pb-3 border-b border-white/5 shrink-0">
+            <h2 className="text-lg font-bold text-[#667eea] dark:text-white leading-none">Filters</h2>
             {hasFilters && (
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -74,7 +74,10 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
           </div>
 
           {/* Filter Sections - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-6 pt-2 pb-4 space-y-6">
+          <div
+            className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-7 overscroll-contain no-tap-highlight"
+            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+          >
             <VisitStatusSection
               value={localFilters.visitStatus}
               onChange={(value) => setLocalFilters({ ...localFilters, visitStatus: value })}
@@ -107,17 +110,24 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
           </div>
 
           {/* Footer with Apply Button */}
-          <div className="px-6 py-4 border-t border-white/10 shrink-0">
+          <div className="px-8 py-4 pb-8 border-t border-white/5 shrink-0 bg-background/80 backdrop-blur-md flex flex-col gap-2">
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={handleApply}
-              className="w-full py-2.5 rounded-xl text-white font-semibold ios26-transition-spring"
+              className="w-full py-3 rounded-full text-white font-bold text-sm ios26-transition-spring shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                boxShadow: "0 4px 15px rgba(102, 126, 234, 0.3)",
+                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.25)",
               }}
             >
               Apply Filters
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={onClose}
+              className="w-full py-2.5 rounded-full text-muted-foreground font-semibold text-sm ios26-transition-spring hover:bg-white/5"
+            >
+              Cancel
             </motion.button>
           </div>
         </div>

@@ -35,17 +35,17 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       <motion.div
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        className="py-3 px-4 cursor-pointer ios26-transition-smooth"
+        className="mx-4 my-2 p-4 cursor-pointer liquid-glass-clear rounded-2xl border border-white/20 dark:border-white/10 shadow-sm ios26-transition-smooth"
       >
         {/* Header Row */}
         <div className="min-h-[44px]">
           <div className="flex items-center gap-2 mb-0.5">
             {isAITrip && <Sparkles className="h-4 w-4 text-[#667eea]" />}
-            <h3 className="font-semibold text-base truncate">
+            <h3 className="font-bold text-[16px] truncate">
               {item.name}
             </h3>
           </div>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
             {isAITrip ? (
               <>
                 <Calendar className="h-3 w-3" />
@@ -59,7 +59,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 
         {/* Category Segment Bar - only show if places exist */}
         {hasPlaces && categoryBreakdown.length > 0 && (
-          <div className="mt-2">
+          <div className="mt-3">
             <CategorySegmentBar categories={categoryBreakdown} />
           </div>
         )}

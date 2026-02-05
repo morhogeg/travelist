@@ -117,15 +117,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                 </h2>
               </div>
 
-              {displayAddress && (
-                <button
-                  onClick={(e) => handleExternalClick(e, mapUrl)}
-                  className="flex items-center justify-center gap-1.5 mx-auto text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 transition-colors"
-                >
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span>{displayAddress}</span>
-                </button>
-              )}
+
             </div>
 
             <div className="h-px bg-neutral-100 dark:bg-neutral-800 w-full" />
@@ -284,20 +276,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                 </div>
 
                 {/* Metadata - Recommended by */}
-                {recommendation.source?.name && (
-                  <div className="flex items-center justify-center gap-1.5 text-[#667eea] text-sm">
-                    <UserCircle className="h-4 w-4" />
-                    <span>
-                      Recommended by{" "}
-                      <button
-                        onClick={() => window.dispatchEvent(new CustomEvent('sourceFilterChanged', { detail: recommendation.source?.name }))}
-                        className="font-semibold hover:underline"
-                      >
-                        {recommendation.source.name}
-                      </button>
-                    </span>
-                  </div>
-                )}
+
 
                 {/* Destructive Action - Delete */}
                 {!hideEditDelete && (

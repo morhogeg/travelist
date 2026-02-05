@@ -636,7 +636,7 @@ const InboxPage: React.FC = () => {
         </div>
 
         <Drawer open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
-          <DrawerContent className="max-h-[88vh] px-4 overflow-x-hidden overscroll-behavior-x-none" style={{ touchAction: 'pan-y' }}>
+          <DrawerContent className="max-h-[88vh] px-4 overflow-x-hidden overscroll-contain no-tap-highlight" style={{ touchAction: 'pan-y' }}>
             <DrawerHeader className="pb-0 pt-2 flex flex-col items-center justify-center space-y-0">
               <div
                 className={cn(
@@ -884,7 +884,11 @@ const InboxPage: React.FC = () => {
 
             <DrawerFooter className="pt-0 pb-3">
               <Button
-                className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white h-9 text-[13px] font-semibold px-6 mx-auto"
+                className="w-full text-white font-bold rounded-full py-6 transition-all duration-300"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  boxShadow: '0 8px 16px -4px rgba(102, 126, 234, 0.4)'
+                }}
                 onClick={handleSaveAsCard}
                 disabled={!selectedItem}
               >
@@ -1015,7 +1019,11 @@ const InboxPage: React.FC = () => {
 
             <DrawerFooter>
               <Button
-                className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                className="w-full text-white font-bold rounded-full py-6 transition-all duration-300"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  boxShadow: '0 8px 16px -4px rgba(102, 126, 234, 0.4)'
+                }}
                 onClick={handleAddTextSubmit}
                 disabled={!textInput.trim()}
               >

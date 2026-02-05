@@ -11,7 +11,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map as MapIcon, Sparkles, FolderPlus } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Lightbulb, MoreHorizontal, Map as MapIcon, Sparkles, FolderPlus, Check } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import {
@@ -265,24 +265,33 @@ const TripDetailPage: React.FC = () => {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-4 pt-2 pb-24">
                 {/* Minimal Header */}
                 <div className="flex items-center justify-between mb-2">
-                    <Button variant="ghost" size="icon" onClick={handleBack}><ArrowLeft className="h-5 w-5" /></Button>
-                    <div className="text-center flex-1">
-                        <h1 className="text-lg font-bold">{trip.name}</h1>
-                        <p className="text-xs text-muted-foreground">{trip.city}, {trip.country}</p>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleBack}
+                        className="h-10 w-10 text-neutral-600 dark:text-neutral-400"
+                    >
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <div className="text-center flex-1 pr-1">
+                        <h1 className="text-lg font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent leading-tight dark:from-white dark:to-white/80">
+                            {trip.name}
+                        </h1>
+                        <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">{trip.city}, {trip.country}</p>
                     </div>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-muted-foreground">
+                            <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-600 dark:text-neutral-400">
                                 <MoreHorizontal className="h-5 w-5" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={handleSaveAsCollection} className="gap-2">
+                        <DropdownMenuContent align="end" className="w-48 bg-background/95 backdrop-blur-md border-white/20">
+                            <DropdownMenuItem onClick={handleSaveAsCollection} className="gap-2 cursor-pointer font-medium">
                                 <FolderPlus className="h-4 w-4" />
                                 Save as Collection
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive gap-2">
+                            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive gap-2 cursor-pointer font-medium focus:text-destructive focus:bg-destructive/10">
                                 <Trash2 className="h-4 w-4" />
                                 Delete Trip
                             </DropdownMenuItem>
@@ -303,10 +312,16 @@ const TripDetailPage: React.FC = () => {
                     </div>
                 )}
 
-                {/* Export Button - Outline style, not filled */}
+                {/* Export Button - Premium elite style */}
                 {exportPlaces.length > 0 && (
-                    <div className="mb-6 flex gap-2">
-                        <ExportToMapsButton places={exportPlaces} variant="outline" size="default" showText={true} className="flex-1" />
+                    <div className="mb-8 px-2">
+                        <ExportToMapsButton
+                            places={exportPlaces}
+                            variant="default"
+                            showText={true}
+                            className="w-full py-6 rounded-full text-white font-bold text-sm shadow-lg transition-all duration-300"
+                            iconClassName="h-5 w-5"
+                        />
                     </div>
                 )}
 
@@ -334,38 +349,40 @@ const TripDetailPage: React.FC = () => {
                                         return (
                                             <Reorder.Item key={placeRef.placeId} value={placeRef}>
                                                 <motion.div
-                                                    className="flex items-center gap-3 p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-neutral-200/50 dark:border-neutral-700/30"
+                                                    className="flex items-center gap-3 p-3 rounded-2xl liquid-glass-clear border border-white/20 dark:border-white/10 shadow-sm"
                                                     whileTap={{ scale: 0.98 }}
                                                 >
                                                     {/* Time */}
-                                                    <span className="text-xs text-muted-foreground w-10 shrink-0">{placeRef.suggestedTime || '--:--'}</span>
+                                                    <span className="text-[11px] font-bold text-muted-foreground/60 w-10 shrink-0 text-center">{placeRef.suggestedTime || '--:--'}</span>
 
                                                     {/* Category Icon + Name */}
                                                     <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handlePlaceClick(placeRef.placeId)}>
                                                         <div className="flex items-center gap-2">
-                                                            <span style={{ color: categoryColor }}>{getCategoryIcon(place.category)}</span>
-                                                            <span className={`text-sm font-medium truncate ${placeRef.visited ? 'line-through text-muted-foreground' : ''}`}>{place.name}</span>
+                                                            <div className="p-1.5 rounded-lg bg-white/10 dark:bg-white/5" style={{ color: categoryColor }}>
+                                                                {getCategoryIcon(place.category)}
+                                                            </div>
+                                                            <span className={`text-[15px] font-semibold truncate ${placeRef.visited ? 'line-through text-muted-foreground opacity-60' : ''}`}>{place.name}</span>
                                                         </div>
                                                     </div>
 
                                                     {/* Visited checkmark */}
                                                     <button
                                                         onClick={() => handleToggleVisited(day.dayNumber, placeRef.placeId, placeRef.visited)}
-                                                        className={`p-1.5 rounded-full transition-colors ${placeRef.visited ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 'text-muted-foreground hover:bg-muted/50'}`}
+                                                        className={`p-2 rounded-xl transition-all duration-300 ${placeRef.visited
+                                                            ? 'bg-emerald-500 text-white shadow-sm'
+                                                            : 'bg-muted/30 text-muted-foreground hover:bg-muted/50'}`}
                                                     >
-                                                        <svg className="h-4 w-4" fill={placeRef.visited ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                        </svg>
+                                                        <Check className="h-4 w-4" />
                                                     </button>
 
                                                     {/* More menu */}
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <button className="p-1.5 rounded-full text-muted-foreground hover:bg-muted/50"><MoreHorizontal className="h-4 w-4" /></button>
+                                                            <button className="p-2 rounded-xl text-muted-foreground hover:bg-muted/50 transition-colors"><MoreHorizontal className="h-4 w-4" /></button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem onClick={() => handlePlaceClick(placeRef.placeId)}>View Details</DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleRemovePlace(day.dayNumber, placeRef.placeId)} className="text-destructive">Remove</DropdownMenuItem>
+                                                        <DropdownMenuContent align="end" className="bg-background/95 backdrop-blur-md border-white/20">
+                                                            <DropdownMenuItem onClick={() => handlePlaceClick(placeRef.placeId)} className="cursor-pointer font-medium">View Details</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleRemovePlace(day.dayNumber, placeRef.placeId)} className="text-destructive cursor-pointer font-medium focus:text-destructive focus:bg-destructive/10">Remove</DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </motion.div>
@@ -391,27 +408,31 @@ const TripDetailPage: React.FC = () => {
                             <span className="text-sm font-medium">You might also like</span>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             {visibleSuggestions.map((suggestion, idx) => (
                                 <div
                                     key={idx}
                                     onClick={() => handleSuggestionClick(suggestion)}
-                                    className="flex items-center justify-between p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/30 dark:border-amber-700/20 active:scale-[0.98] transition-transform cursor-pointer"
+                                    className="flex items-center justify-between p-3 rounded-2xl liquid-glass-clear border border-white/20 dark:border-white/10 active:scale-[0.98] transition-all cursor-pointer shadow-sm group"
                                 >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <span style={{ color: getCategoryColor(suggestion.category) }}>{getCategoryIcon(suggestion.category)}</span>
-                                        <span className="text-sm font-medium truncate">{suggestion.name}</span>
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="p-2 rounded-xl bg-amber-500/10 dark:bg-amber-400/5 group-hover:bg-amber-500/20 transition-colors" style={{ color: getCategoryColor(suggestion.category) }}>
+                                            {getCategoryIcon(suggestion.category)}
+                                        </div>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[15px] font-bold truncate leading-tight">{suggestion.name}</span>
+                                        </div>
                                     </div>
                                     <Button
                                         variant="ghost"
-                                        size="sm"
+                                        size="icon"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleAddSuggestion(suggestion);
                                         }}
-                                        className="shrink-0 text-muted-foreground hover:text-foreground"
+                                        className="h-10 w-10 rounded-xl text-[#667eea] dark:text-purple-400 hover:bg-purple-500/10 transition-colors"
                                     >
-                                        <Plus className="h-4 w-4" />
+                                        <Plus className="h-5 w-5" />
                                     </Button>
                                 </div>
                             ))}

@@ -42,7 +42,12 @@ export const ExportToMapsButton: React.FC<ExportToMapsButtonProps> = ({
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant={variant} size={size} className={className} disabled={isDisabled}>
+                <Button
+                    variant={variant}
+                    size={size}
+                    className={`${className} ${variant === 'default' ? 'app-purple-gradient border-none shadow-md hover:opacity-90' : ''}`}
+                    disabled={isDisabled}
+                >
                     {icon ? (
                         icon
                     ) : (

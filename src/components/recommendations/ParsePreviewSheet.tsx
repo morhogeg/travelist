@@ -298,10 +298,11 @@ export const ParsePreviewSheet: React.FC<ParsePreviewSheetProps> = ({
             <Button
               onClick={onConfirm}
               disabled={parsedPlaces.length === 0 || isLoading}
-              className="flex-1 text-white"
+              className="flex-1 text-white font-bold rounded-full py-6 transition-all duration-300"
               style={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 border: 'none',
+                boxShadow: '0 8px 16px -4px rgba(102, 126, 234, 0.4)'
               }}
             >
               {isLoading ? (

@@ -83,15 +83,15 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
   const filteredCities = cityInputValue.length === 0
     ? savedCities.slice(0, 8) // Show first 8 when empty
     : savedCities.filter(city =>
-        city.toLowerCase().startsWith(cityInputValue.toLowerCase())
-      );
+      city.toLowerCase().startsWith(cityInputValue.toLowerCase())
+    );
 
   // Filter countries based on typed input
   const filteredCountries = countryInputValue.length === 0
     ? [] // Don't show dropdown when empty
     : countryList.filter(country =>
-        country.toLowerCase().startsWith(countryInputValue.toLowerCase())
-      ).slice(0, 6);
+      country.toLowerCase().startsWith(countryInputValue.toLowerCase())
+    ).slice(0, 6);
 
   // Auto-fill country when city matches existing recommendation
   const autoFillCountry = (cityName: string) => {
@@ -321,10 +321,11 @@ export const FreeTextForm: React.FC<FreeTextFormProps> = ({
 
           <Button
             type="submit"
-            className="w-full text-white"
+            className="w-full text-white font-bold rounded-full py-6 transition-all duration-300"
             style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              border: 'none'
+              border: 'none',
+              boxShadow: '0 8px 16px -4px rgba(102, 126, 234, 0.4)'
             }}
             disabled={isParsing || isAnalyzing}
           >

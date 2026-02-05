@@ -155,18 +155,18 @@ const CollectionsTab: React.FC = () => {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="px-4 pt-6 pb-3">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold text-[#667eea] dark:text-white">
               My Collections
             </h1>
           </div>
 
           {/* Filter Toggle */}
           <div className="px-4 pb-3">
-            <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
+            <div className="flex gap-2 p-1 bg-neutral-100 dark:bg-white/5 rounded-xl border border-neutral-200/50 dark:border-white/10">
               <button
                 onClick={() => setFilterType('all')}
-                className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${filterType === 'all'
-                  ? 'bg-background shadow-sm text-foreground'
+                className={`flex-1 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 ${filterType === 'all'
+                  ? 'bg-white dark:bg-white/12 shadow-sm text-[#667eea] dark:text-white'
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
@@ -174,8 +174,8 @@ const CollectionsTab: React.FC = () => {
               </button>
               <button
                 onClick={() => setFilterType('collections')}
-                className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${filterType === 'collections'
-                  ? 'bg-background shadow-sm text-foreground'
+                className={`flex-1 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 ${filterType === 'collections'
+                  ? 'bg-white dark:bg-white/12 shadow-sm text-[#667eea] dark:text-white'
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
@@ -183,8 +183,8 @@ const CollectionsTab: React.FC = () => {
               </button>
               <button
                 onClick={() => setFilterType('trips')}
-                className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${filterType === 'trips'
-                  ? 'bg-background shadow-sm text-foreground'
+                className={`flex-1 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 ${filterType === 'trips'
+                  ? 'bg-white dark:bg-white/12 shadow-sm text-[#667eea] dark:text-white'
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
@@ -202,16 +202,12 @@ const CollectionsTab: React.FC = () => {
             <>
               <div>
                 {filteredItems.map((item, index) => (
-                  <React.Fragment key={item.id}>
-                    <CollectionCard
-                      item={item}
-                      onDelete={() => handleDeleteItem(item)}
-                      onClick={() => handleOpenItem(item)}
-                    />
-                    {index < filteredItems.length - 1 && (
-                      <div className="h-px bg-border/30 mx-4" />
-                    )}
-                  </React.Fragment>
+                  <CollectionCard
+                    key={item.id}
+                    item={item}
+                    onDelete={() => handleDeleteItem(item)}
+                    onClick={() => handleOpenItem(item)}
+                  />
                 ))}
               </div>
 
