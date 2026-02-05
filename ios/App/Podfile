@@ -53,11 +53,11 @@ target 'App' do
   # Add your Pods here
   
   # Firebase SDK
-  pod 'FirebaseCore'
-  pod 'FirebaseAuth'
-  pod 'FirebaseFirestore'
-  pod 'FirebaseAnalytics'
-  pod 'FirebaseVertexAI'
+  # pod 'FirebaseCore'
+  # pod 'FirebaseAuth'
+  # pod 'FirebaseFirestore'
+  # pod 'FirebaseAnalytics'
+  # pod 'FirebaseVertexAI'
 end
 
 post_install do |installer|

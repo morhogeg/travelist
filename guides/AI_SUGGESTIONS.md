@@ -60,19 +60,19 @@ The feature uses a provider pattern for easy swapping between providers:
 - **Grok Provider** (current): Uses Grok 4.1 Fast via OpenRouter for real AI recommendations
 - **Mock Provider** (fallback): Returns realistic-looking suggestions if API fails
 
-### Current Implementation: Gemini 3 Flash (Native)
+### Current Implementation: Gemini 3 Flash (Direct API)
 
-The app utilizes **Gemini 3 Flash** via the **Firebase Vertex AI SDK** for native iOS performance.
+The app utilizes **Gemini 3 Flash** via a direct **standard fetch API client** (`gemini-client.ts`). The previous implementation using the Firebase Vertex AI SDK was disabled to significantly improve Xcode build times and reduce dependency overhead.
 
 **Key Features:**
-- **Native Bridge**: Direct integration via `FirebaseAIPlugin.swift` for 2x faster performance on iOS.
+- **Centralized Client**: Standard fetch implementation that bypasses Node.js SDK compatibility issues on iOS.
 - **Thinking Budget**: Uses "Flash Thinking" for better reasoning during trip planning and place analysis.
 - **Google Search Grounding**: All generated descriptions are grounded in real-time Google Search data to prevent hallucinations.
-- **Global Firestore Cache**: AI-generated descriptions are shared across all users via a global `ai_cache` collection, saving API costs and providing instant results for popular spots.
+- **Global Firestore Cache**: AI-generated descriptions are shared across all users via a global `ai_cache` collection.
+- **Native Bridge (Legacy)**: The `FirebaseAIPlugin.swift` bridge is currently dormant to optimize build performance, but remains available if native-only features are needed in the future.
 
-**Provider files:** 
-- `src/services/ai/gemini-client.ts` (Logic)
-- `ios/App/App/FirebaseAIPlugin.swift` (Native Bridge)
+**Primary logic file:** 
+- `src/services/ai/gemini-client.ts`
 
 ## Caching
 

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ClearableInput } from "@/components/ui/clearable-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import SourcePill from "@/components/ui/SourcePill";
 import {
   Drawer,
   DrawerContent,
@@ -23,7 +24,7 @@ import {
   parseInboxItem,
 } from "@/utils/inbox/inbox-store";
 import { InboxItem, InboxParsedPlace, InboxStatus } from "@/types/inbox";
-import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, RefreshCw, ClipboardPaste, Plus } from "lucide-react";
+import { Loader2, Inbox as InboxIcon, Trash2, MapPin, Edit3, ExternalLink, RefreshCw, ClipboardPaste, Plus, Users, Instagram, Music, Youtube, BookOpen, FileText, Globe } from "lucide-react";
 import { storeRecommendation } from "@/utils/recommendation-parser";
 import { v4 as uuidv4 } from "uuid";
 import { categories as categoryPills } from "@/components/recommendations/utils/category-data";
@@ -635,37 +636,36 @@ const InboxPage: React.FC = () => {
         </div>
 
         <Drawer open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
-          <DrawerContent className="max-h-[85vh] px-4">
-            <DrawerHeader className="pb-2 space-y-2 text-center items-center">
-              {selectedItem && getLink(selectedItem) ? (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="mx-auto text-foreground"
-                  onClick={() => handleOpenLink(selectedItem)}
-                >
-                  <ExternalLink className="h-4 w-4 mr-1" />
-                  Open link
-                </Button>
-              ) : null}
-              <div className="text-sm text-muted-foreground break-all flex items-center gap-2 justify-center">
-                <span className="truncate">
+          <DrawerContent className="max-h-[88vh] px-4 overflow-x-hidden overscroll-behavior-x-none" style={{ touchAction: 'pan-y' }}>
+            <DrawerHeader className="pb-0 pt-2 flex flex-col items-center justify-center space-y-0">
+              <div
+                className={cn(
+                  "text-[13.5px] text-muted-foreground break-all flex items-center gap-1.5 justify-center w-full mt-0.5 opacity-90 transition-opacity active:opacity-60 select-none no-tap-highlight",
+                  selectedItem && getLink(selectedItem) ? "cursor-pointer hover:text-primary" : ""
+                )}
+                style={{ WebkitTapHighlightColor: 'transparent' } as React.CSSProperties}
+                onClick={() => selectedItem && getLink(selectedItem) && handleOpenLink(selectedItem)}
+              >
+                <span className="truncate max-w-[260px] font-medium">
                   {selectedItem?.displayTitle || selectedItem?.rawText}
                 </span>
+                {selectedItem && getLink(selectedItem) && (
+                  <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
+                )}
                 {selectedItem?.parsedPlaces && selectedItem.parsedPlaces.length > 1 && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap flex-shrink-0">
-                    {selectedItem.parsedPlaces.length} places
+                  <span className="px-1.5 py-0 rounded-full text-[9px] font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap flex-shrink-0">
+                    {selectedItem.parsedPlaces.length}
                   </span>
                 )}
               </div>
 
               {/* Place tabs if multiple places */}
               {editablePlaces.length > 1 && (
-                <div className="w-full space-y-2 pt-2">
-                  <p className="text-xs text-muted-foreground">
-                    {selectedPlaceIds.size} of {editablePlaces.length} places selected
+                <div className="w-full space-y-1 pt-1">
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    {selectedPlaceIds.size}/{editablePlaces.length} selected
                   </p>
-                  <div className="flex gap-2 overflow-x-auto pb-2">
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                     {editablePlaces.map((place, index) => {
                       const isSelected = selectedPlaceIds.has(index);
                       const isActive = selectedPlaceIndex === index;
@@ -674,7 +674,7 @@ const InboxPage: React.FC = () => {
                           key={index}
                           onClick={() => setSelectedPlaceIndex(index)}
                           className={cn(
-                            "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0",
+                            "flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0",
                             isActive
                               ? "bg-primary/10 text-primary border border-primary/20"
                               : "bg-muted/50 text-muted-foreground hover:bg-muted"
@@ -693,9 +693,9 @@ const InboxPage: React.FC = () => {
                               }
                               setSelectedPlaceIds(newSet);
                             }}
-                            className="rounded"
+                            className="h-3 w-3 rounded"
                           />
-                          <span>{place.name || `Place ${index + 1}`}</span>
+                          <span>{place.name || `P${index + 1}`}</span>
                         </button>
                       );
                     })}
@@ -704,13 +704,13 @@ const InboxPage: React.FC = () => {
               )}
             </DrawerHeader>
 
-            <div className="space-y-4 pb-4">
-              <div className="space-y-3">
+            <div className="space-y-2.5 pb-2">
+              <div className="space-y-2">
                 <ClearableInput
                   placeholder="Name"
                   value={editablePlaces[selectedPlaceIndex]?.name || ""}
                   onChange={(e) => handleUpdatePlace(selectedPlaceIndex, "name", e.target.value)}
-                  className="text-base"
+                  className="text-base h-11"
                 />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="relative">
@@ -720,7 +720,7 @@ const InboxPage: React.FC = () => {
                       onChange={(e) => handleUpdatePlace(0, "city", e.target.value)}
                       onFocus={() => setShowCitySuggestions(true)}
                       onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
-                      className="text-base"
+                      className="text-base h-11"
                     />
                     {showCitySuggestions && filterOptions(recommendationCities, editablePlaces[selectedPlaceIndex]?.city).length > 0 && (
                       <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
@@ -752,7 +752,7 @@ const InboxPage: React.FC = () => {
                       onChange={(e) => handleUpdatePlace(0, "country", e.target.value)}
                       onFocus={() => setShowCountrySuggestions(true)}
                       onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
-                      className="text-base"
+                      className="text-base h-11"
                     />
                     {showCountrySuggestions && filterOptions(recommendationCountries, editablePlaces[selectedPlaceIndex]?.country).length > 0 && (
                       <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-background shadow-lg">
@@ -793,16 +793,21 @@ const InboxPage: React.FC = () => {
                 {/* Source selection */}
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-muted-foreground">Source</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {[
-                      { id: 'friend', label: 'Friend', icon: '👤' },
-                      { id: 'instagram', label: 'Instagram', icon: '📸', linkable: true },
-                      { id: 'tiktok', label: 'TikTok', icon: '🎵', linkable: true },
-                      { id: 'article', label: 'Article', icon: '📝', linkable: true },
-                      { id: 'other', label: 'Other', icon: '🌐' },
+                      { id: 'friend', label: 'Friend', icon: <Users className="h-4 w-4" /> },
+                      { id: 'instagram', label: 'Instagram', icon: <Instagram className="h-4 w-4" />, linkable: true },
+                      { id: 'tiktok', label: 'TikTok', icon: <Music className="h-4 w-4" />, linkable: true },
+                      { id: 'youtube', label: 'YouTube', icon: <Youtube className="h-4 w-4" />, linkable: true },
+                      { id: 'blog', label: 'Blog', icon: <BookOpen className="h-4 w-4" />, linkable: true },
+                      { id: 'article', label: 'Article', icon: <FileText className="h-4 w-4" />, linkable: true },
+                      { id: 'other', label: 'Other', icon: <Globe className="h-4 w-4" /> },
                     ].map((source) => (
-                      <button
+                      <SourcePill
                         key={source.id}
+                        label={source.label}
+                        icon={source.icon}
+                        isActive={editablePlaces[selectedPlaceIndex]?.sourceType === source.id}
                         onClick={() => {
                           const currentType = editablePlaces[selectedPlaceIndex]?.sourceType;
                           const currentName = editablePlaces[selectedPlaceIndex]?.sourceName;
@@ -818,21 +823,13 @@ const InboxPage: React.FC = () => {
                             handleUpdateSource(source.label, source.id as any);
                           }
                         }}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-                          editablePlaces[selectedPlaceIndex]?.sourceType === source.id
-                            ? "bg-primary/10 text-primary border-primary/20"
-                            : "border-border text-foreground hover:bg-muted/20 dark:hover:bg-muted/30"
-                        )}
-                      >
-                        {source.icon} {source.label}
-                      </button>
+                      />
                     ))}
                   </div>
                   {editablePlaces[selectedPlaceIndex]?.sourceType === 'friend' && (
                     <div className="space-y-2 mt-2">
                       {existingFriendNames.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                           {existingFriendNames.map((friendName) => (
                             <button
                               key={friendName}
@@ -848,7 +845,7 @@ const InboxPage: React.FC = () => {
                         placeholder="Friend's name..."
                         value={editablePlaces[selectedPlaceIndex]?.sourceName || ''}
                         onChange={(e) => handleUpdateSource(e.target.value, 'friend')}
-                        className="text-sm"
+                        className="text-sm h-10"
                       />
                     </div>
                   )}
@@ -864,7 +861,7 @@ const InboxPage: React.FC = () => {
                           editablePlaces[selectedPlaceIndex]?.sourceType as any,
                           e.target.value
                         )}
-                        className="text-sm mt-2"
+                        className="text-sm mt-2 h-10"
                         type="url"
                       />
                     )}
@@ -873,21 +870,27 @@ const InboxPage: React.FC = () => {
                 <Textarea
                   placeholder="Description or tip"
                   value={editablePlaces[selectedPlaceIndex]?.description || ""}
-                  onChange={(e) => handleUpdatePlace(0, "description", e.target.value)}
-                  className="text-base"
+                  onChange={(e) => {
+                    handleUpdatePlace(0, "description", e.target.value);
+                    // Simple auto-resize logic
+                    e.target.style.height = 'auto';
+                    e.target.style.height = `${e.target.scrollHeight}px`;
+                  }}
+                  className="text-base min-h-[44px] max-h-[120px] resize-none overflow-hidden py-2"
+                  rows={1}
                 />
               </div>
             </div>
 
-            <DrawerFooter>
+            <DrawerFooter className="pt-0 pb-3">
               <Button
-                className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
+                className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white h-9 text-[13px] font-semibold px-6 mx-auto"
                 onClick={handleSaveAsCard}
                 disabled={!selectedItem}
               >
                 Save {editablePlaces[selectedPlaceIndex]?.name || 'Place'} as Card
               </Button>
-              <Button variant="ghost" onClick={() => setSelectedItem(null)}>Close</Button>
+              <Button variant="ghost" className="h-8 text-muted-foreground text-xs" onClick={() => setSelectedItem(null)}>Close</Button>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>

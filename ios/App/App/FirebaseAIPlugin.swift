@@ -1,6 +1,6 @@
 import Foundation
 import Capacitor
-import FirebaseVertexAI
+// import FirebaseVertexAI
 
 /**
  * FirebaseAIPlugin
@@ -14,6 +14,7 @@ public class FirebaseAIPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "generateDescription", returnType: CAPPluginReturnPromise)
     ]
 
+    /*
     // Use Vertex AI (works with Firebase project credentials)
     private lazy var vertex = VertexAI.vertexAI()
     private lazy var model = vertex.generativeModel(
@@ -34,8 +35,10 @@ public class FirebaseAIPlugin: CAPPlugin, CAPBridgedPlugin {
             CRITICAL: Output ONLY the final 2-sentence description. Do NOT include thinking, revisions, or explanations.
             """)
     )
+    */
 
     @objc func generateDescription(_ call: CAPPluginCall) {
+        /*
         guard let placeName = call.getString("placeName"),
               let city = call.getString("city"),
               let country = call.getString("country") else {
@@ -77,5 +80,7 @@ public class FirebaseAIPlugin: CAPPlugin, CAPBridgedPlugin {
                 call.reject("Gemini generation failed: \(error.localizedDescription)")
             }
         }
+        */
+        call.reject("Firebase Vertex AI is currently disabled.")
     }
 }

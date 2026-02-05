@@ -54,47 +54,47 @@ export async function generateGeminiDescription(
         logger.warn('Gemini Service', 'Cache lookup failed:', err);
     }
 
-    // 2. Call Native Gemini (FirebaseAI)
+    // 2. Call JS Client (Fallback for disabled Native Plugin)
     try {
-        logger.info('Gemini Service', 'Calling native Gemini for:', query);
+        logger.info('Gemini Service', 'Calling JS Gemini Client for:', query);
 
-        // We attempt to call the native plugin. 
-        // If we're on web and it's not implemented, it will fail.
-        const result = await NativeGemini.generateDescription({
-            placeName,
-            city,
-            country,
-            category
-        });
+        // Dynamic import to avoid circular dependency issues if any
+        const { callGemini, buildCategoryAwarePrompt } = await import('./gemini-client');
+
+        const systemPrompt = buildCategoryAwarePrompt(category);
+        const userMessage = `Write a brief description for: ${placeName}
+LOCATION: ${city}, ${country}
+Category: ${category}`;
+
+        const result = await callGemini(
+            [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userMessage }
+            ],
+            {
+                temperature: 0.3,
+                maxOutputTokens: 500,
+                enableGrounding: true
+            },
+            { placeName, city, country, category }
+        );
 
         if (result.content) {
-            // 3. Store in global cache
-            await cacheAISummary(
-                query,
-                category,
-                result.content,
-                result.groundingSources || [],
-                'gemini-3-flash',
-                result.thoughtSignature
-            );
-
             return {
                 summary: result.content,
-                groundingSources: result.groundingSources || [],
+                groundingSources: (result.groundingMetadata as any)?.groundingChunks?.map((c: any) => c.web?.uri).filter(Boolean) || [],
                 thoughtSignature: result.thoughtSignature
             };
         }
 
-        return { summary: null, groundingSources: [], error: 'Empty response from Gemini' };
+        return { summary: null, groundingSources: [], error: result.error || 'Empty response from Gemini' };
 
     } catch (err: any) {
         logger.error('Gemini Service', 'Generation failed:', err);
-
-        // Fallback or error return
         return {
             summary: null,
             groundingSources: [],
-            error: err?.message ?? 'Native Gemini call failed'
+            error: err?.message ?? 'Gemini call failed'
         };
     }
 }

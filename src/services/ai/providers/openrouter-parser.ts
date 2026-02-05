@@ -81,35 +81,21 @@ const SHARE_SYSTEM_PROMPT = `You are a travel recommendation parser that extract
 
 CRITICAL: Extract name, city, and country from Google Maps URLs. Use Google Search to verify the location details.
 
-PARSING GOOGLE MAPS ADDRESSES:
-The URL format is: /place/Name,+Street,+City,+Country/ OR /place/Name,+Street,+City/
-
-IMPORTANT: Not all URLs include the country! When country is missing, you MUST infer it from the city.
+PARSING RULES:
+1. STRICTLY SEPARATE the Name, City, and Country.
+2. The "Name" field must NOT contain the city or country.
+3. If the input is "Cafe Trumpeldor, Trumpeldor St 6, Tel Aviv", the Name is ONLY "Cafe Trumpeldor".
+4. Infer country if missing (e.g., Tel Aviv -> Israel, Paris -> France).
 
 EXAMPLES:
 1. /place/Villa+Mare,+Derech+Ben+Gurion+69,+Bat+Yam/
    → name: "Villa Mare", city: "Bat Yam", country: "Israel"
-   (Bat Yam is an Israeli city, so country = "Israel")
 
 2. /place/Café+Central,+Herrengasse+14,+Vienna/
    → name: "Café Central", city: "Vienna", country: "Austria"
-   (Vienna is in Austria)
 
 3. /place/Joe's+Pizza,+7+Carmine+St,+New+York,+USA/
    → name: "Joe's Pizza", city: "New York", country: "USA"
-
-HOW TO PARSE:
-- First segment = place name
-- Last segment = check if it's a COUNTRY or a CITY:
-  - If it's a country name (Israel, USA, UK, Italy, etc.) → use as country, previous segment = city
-  - If it's a city name → use as city, infer country from city
-- Middle segments = street address (ignore)
-
-ISRAELI CITIES (country = "Israel"):
-Tel Aviv, Jerusalem, Haifa, Bat Yam, Netanya, Herzliya, Ramat Gan, Eilat, Beersheba, Ashdod, Ashkelon, Petah Tikva, Rishon LeZion, Holon, Bnei Brak, Ra'anana, Kfar Saba, Givatayim
-
-COMMON COUNTRIES:
-Israel, USA, UK, Italy, France, Spain, Germany, Austria, Greece, Portugal, Japan, Thailand, Vietnam, Turkey, Netherlands, Belgium, Switzerland
 
 Categories: food, nightlife, attractions, lodging, shopping, outdoors, general
 
@@ -118,56 +104,27 @@ Respond ONLY with JSON array:
 
 If cannot extract place name, respond: []`;
 
-const FREEFORM_TEXT_PROMPT = `You are a travel recommendation parser that extracts place info from natural language text (e.g., Instagram captions, friend recommendations, messages).
+const FREEFORM_TEXT_PROMPT = `You are a travel recommendation parser that extracts place info from natural language text.
 
-Extract place names, cities, countries, categories, tips, and sources from descriptive text. Use Google Search to verify the places actually exist.
-
-Categories (use exactly these lowercase values):
-- food: restaurants, cafes, bakeries, any eating establishment
-- nightlife: bars, clubs, pubs, lounges
-- attractions: museums, landmarks, monuments, tourist sites
-- lodging: hotels, hostels, B&Bs, accommodations
-- shopping: stores, malls, markets, boutiques
-- outdoors: parks, beaches, hiking trails, nature spots
-- general: anything that doesn't fit above
-
-Source types (use exactly these lowercase values if detected):
-- friend: recommended by a person (extract their name if mentioned)
-- instagram: saw on Instagram or shared from Instagram app
-- tiktok: saw on TikTok
-- youtube: saw on YouTube
-- blog: read in a blog or article
-- article: read in news/magazine
-- email: received via email
-- text: received via text message
-- other: any other source mentioned
+Extract separate fields for Name, City, and Country.
 
 RULES:
-1. Extract the actual place NAME (e.g., "Amazing café called Café Central" → name: "Café Central")
-2. Look for city and country mentions (e.g., "in Barcelona", "Tel Aviv", "Israel")
-3. If city/country not explicitly mentioned, try to infer from context or hashtags (#barcelona, #telaviv)
-4. Extract TIPS from descriptive text:
-   - "try the shakshuka" → tip: "Try the shakshuka"
-   - "best coffee in town" → tip: "Great coffee"
-   - "go for sunset" → tip: "Go for sunset"
-5. Extract SOURCE if mentioned:
-   - "via @username" → source: {type: "instagram", name: "@username"}
-   - "my friend Sarah recommended" → source: {type: "friend", name: "Sarah"}
-6. Handle emojis and hashtags gracefully (ignore or use for context)
-7. Confidence: 1.0 if clear, 0.7-0.9 if inferred, 0.5 if uncertain
-8. LANGUAGE: Keep tips in the SAME LANGUAGE as input
+1. Extract the actual place NAME (e.g., "Amazing café called Café Central" → name: "Café Central").
+2. DO NOT include the city or country in the "Name" field.
+   - WRONG: name: "Cafe Trumpeldor, Tel Aviv"
+   - RIGHT: name: "Cafe Trumpeldor", city: "Tel Aviv"
+3. Look for city and country mentions and extract them into their own fields.
+4. Extract TIPS from descriptive text.
+5. Extract SOURCE if mentioned.
 
-EXAMPLES:
-- "Found this amazing café in Barcelona! ☕ Café Federal on Carrer del Parlament - amazing brunch spot. Highly recommend the shakshuka! 🍳 #barcelona #foodie"
-  → [{"name": "Café Federal", "city": "Barcelona", "category": "food", "tip": "Highly recommend the shakshuka", "confidence": 0.95}]
+Categories: food, nightlife, attractions, lodging, shopping, outdoors, general
 
-- "Villa Mare in Bat Yam has the best seafood!via @foodie_israel"
-  → [{"name": "Villa Mare", "city": "Bat Yam", "country": "Israel", "category": "food", "tip": "Best seafood", "source": {"type": "instagram", "name": "@foodie_israel"}, "confidence": 0.9}]
+Source types: friend, instagram, tiktok, youtube, blog, article, email, text, other
 
 Respond ONLY with valid JSON array:
 [{"name": "Place Name", "city": "City", "country": "Country", "category": "food", "confidence": 0.9, "tip": "Try X", "source": {"type": "friend", "name": "Sarah"}}]
 
-Omit source field if no source. Omit tip if no specific recommendation. Omit city/country if truly unable to determine (but try hard to infer from context/hashtags).`;
+Omit source field if no source. Omit tip if no specific recommendation.`;
 
 
 /**
