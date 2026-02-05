@@ -71,7 +71,8 @@ const RecommendationDrawer = ({
 
     if (savedId) {
       if (selectedCollectionId) {
-        addPlaceToCollection(selectedCollectionId, savedId);
+        // If savedId is a string, add it. If it was true (boolean), we might need to handle it but we fixed it to string.
+        addPlaceToCollection(selectedCollectionId, savedId as string);
         console.log("[Collection Debug] Adding", savedId, "to", selectedCollectionId);
       }
 
@@ -107,12 +108,13 @@ const RecommendationDrawer = ({
     }
 
     // Legacy free text submission (without AI parsing)
-    const savedId = await submitFreeTextRecommendation(values);
-
-    if (savedId) {
+    const savedIds = await submitFreeTextRecommendation(values);
+    if (savedIds) {
       if (selectedCollectionId) {
-        addPlaceToCollection(selectedCollectionId, savedId);
-        console.log("[Collection Debug] Adding", savedId, "to", selectedCollectionId);
+        savedIds.forEach(id => {
+          addPlaceToCollection(selectedCollectionId, id);
+          console.log("[Collection Debug] Adding", id, "to", selectedCollectionId);
+        });
       }
 
       toast({
@@ -126,7 +128,14 @@ const RecommendationDrawer = ({
 
   return (
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '40vh', maxHeight: '85vh' }}>
+      <DrawerContent
+        className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border transition-all duration-300 ease-in-out"
+        style={{
+          height: 'auto',
+          minHeight: mode === 'freetext' ? '75vh' : '50vh',
+          maxHeight: '94vh'
+        }}
+      >
         <div className="flex flex-col h-full">
           <DrawerHeader className="shrink-0">
             <DrawerTitle>

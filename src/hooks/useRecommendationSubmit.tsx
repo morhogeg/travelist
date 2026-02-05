@@ -17,7 +17,7 @@ export const useRecommendationSubmit = () => {
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const handleFreeTextSubmit = async (values: FreeTextFormValues): Promise<boolean> => {
+  const handleFreeTextSubmit = async (values: FreeTextFormValues): Promise<string[] | null> => {
     setIsAnalyzing(true);
     try {
       // Process free text recommendation
@@ -50,7 +50,7 @@ export const useRecommendationSubmit = () => {
         description: `Added ${result.places.length} ${result.places.length === 1 ? 'place' : 'places'} to ${result.city}`,
       });
 
-      return true;
+      return result.places.map(p => p.id);
     } catch (error) {
       console.error("Error analyzing recommendation:", error);
       toast({
@@ -58,13 +58,13 @@ export const useRecommendationSubmit = () => {
         description: "We couldn't analyze your recommendation. Please try again.",
         variant: "destructive",
       });
-      return false;
+      return null;
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const handleStructuredSubmit = async (values: StructuredFormValues, existingRecId?: string): Promise<boolean> => {
+  const handleStructuredSubmit = async (values: StructuredFormValues, existingRecId?: string): Promise<string | null> => {
     setIsAnalyzing(true);
     try {
       console.log("🔍 STRUCTURED SUBMIT - Full values:", values);
@@ -127,7 +127,7 @@ export const useRecommendationSubmit = () => {
             title: "Recommendation updated!",
             description: `Updated "${values.name}" in ${values.city}`,
           });
-          return true;
+          return existingRecId || null;
         }
 
         // If we didn't find the recommendation to edit, show an error
@@ -136,7 +136,7 @@ export const useRecommendationSubmit = () => {
           description: "Could not find the recommendation to update",
           variant: "destructive",
         });
-        return false;
+        return null;
       }
 
       // Create a single recommendation place from the form values
@@ -181,7 +181,7 @@ export const useRecommendationSubmit = () => {
         description: `Added "${values.name}" to ${values.city}`,
       });
 
-      return true;
+      return place.id;
     } catch (error) {
       console.error("Error adding structured recommendation:", error);
       toast({
@@ -189,7 +189,7 @@ export const useRecommendationSubmit = () => {
         description: "We couldn't add your recommendation. Please try again.",
         variant: "destructive",
       });
-      return false;
+      return null;
     } finally {
       setIsAnalyzing(false);
     }
