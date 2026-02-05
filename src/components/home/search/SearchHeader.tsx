@@ -186,25 +186,23 @@ const SearchHeader = ({ heading, activeFilterCount = 0, onFilterClick, scrollOpa
       )}
 
       {/* Heading */}
-      <div className="flex items-center gap-4">
-        <div className={`flex-1 ${!(isCityView || countryName) ? 'text-center' : 'pl-10'}`}>
-          {countryName && !isCityView ? (
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className="mr-2">📍{getFlag(countryName)}</span>
-              {countryName}
-            </h1>
-          ) : cityName && countryName ? (
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className="mr-2">📍</span>
-              {cityName}, {countryName}
-            </h1>
-          ) : (
-            <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              {heading || "Travelist AI"}
-            </h1>
-          )}
+      {(isCityView || countryName) && (
+        <div className="flex items-center gap-4 mb-1">
+          <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
+            {isCityView && cityName ? (
+              <span className="flex items-center gap-2">
+                <span>📍</span>
+                <span>{cityName}</span>
+              </span>
+            ) : countryName ? (
+              <span className="flex items-center gap-2">
+                <span>📍{getFlag(countryName)}</span>
+                <span>{countryName}</span>
+              </span>
+            ) : null}
+          </h1>
         </div>
-      </div>
+      )}
 
       {/* Always-visible Search Bar + Filter (home view only) */}
       {!(isCityView || countryName) && (

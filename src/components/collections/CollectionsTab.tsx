@@ -153,9 +153,8 @@ const CollectionsTab: React.FC = () => {
         className="px-4 pt-3 pb-24"
       >
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="px-4 pt-6 pb-3">
-            <h1 className="text-2xl font-bold text-[#667eea] dark:text-white">
+          <div className="px-4 pt-4 pb-2">
+            <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
               My Collections
             </h1>
           </div>
@@ -166,7 +165,7 @@ const CollectionsTab: React.FC = () => {
               <button
                 onClick={() => setFilterType('all')}
                 className={`flex-1 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 ${filterType === 'all'
-                  ? 'bg-white dark:bg-white/12 shadow-sm text-[#667eea] dark:text-white'
+                  ? 'bg-white dark:bg-neutral-800 shadow-sm text-[#667eea] dark:text-white'
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
@@ -175,7 +174,7 @@ const CollectionsTab: React.FC = () => {
               <button
                 onClick={() => setFilterType('collections')}
                 className={`flex-1 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 ${filterType === 'collections'
-                  ? 'bg-white dark:bg-white/12 shadow-sm text-[#667eea] dark:text-white'
+                  ? 'bg-white dark:bg-neutral-800 shadow-sm text-[#667eea] dark:text-white'
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
@@ -184,7 +183,7 @@ const CollectionsTab: React.FC = () => {
               <button
                 onClick={() => setFilterType('trips')}
                 className={`flex-1 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 ${filterType === 'trips'
-                  ? 'bg-white dark:bg-white/12 shadow-sm text-[#667eea] dark:text-white'
+                  ? 'bg-white dark:bg-neutral-800 shadow-sm text-[#667eea] dark:text-white'
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >

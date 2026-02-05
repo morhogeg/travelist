@@ -42,15 +42,13 @@ const LocationSection: React.FC<LocationSectionProps> = ({
       {availableCountries.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-[#667eea]" />
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Countries</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Country</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {availableCountries.map((country) => (
               <SourcePill
                 key={country}
                 label={country}
-                icon={<Globe className="h-4 w-4" />}
                 isActive={countries.includes(country)}
                 onClick={() => handleCountryToggle(country)}
               />
@@ -60,18 +58,21 @@ const LocationSection: React.FC<LocationSectionProps> = ({
       )}
 
       {/* Cities */}
+      {availableCities.length > 0 && availableCountries.length > 0 && (
+        <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent my-2" />
+      )}
+
+      {/* Cities */}
       {availableCities.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-[#667eea]" />
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Cities</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">City</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {availableCities.map((city) => (
               <SourcePill
                 key={city}
                 label={city}
-                icon={<MapPin className="h-4 w-4" />}
                 isActive={cities.includes(city)}
                 onClick={() => handleCityToggle(city)}
               />

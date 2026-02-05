@@ -182,12 +182,6 @@ const Profile = () => {
         {/* Quick Actions - iOS list style */}
         <div className="px-3">
           <ActionRow
-            icon={Folder}
-            label="Collections"
-            value={stats.totalCollections}
-            onClick={() => navigate('/collections')}
-          />
-          <ActionRow
             icon={Settings}
             label="Settings"
             subtitle="Customize your experience"

@@ -83,6 +83,8 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
               onChange={(value) => setLocalFilters({ ...localFilters, visitStatus: value })}
             />
 
+            <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent my-2" />
+
             <SourceSection
               values={localFilters.sources}
               onChange={(values) => setLocalFilters({ ...localFilters, sources: values })}
@@ -92,12 +94,17 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
             />
 
             {availableOccasions.length > 0 && (
-              <OccasionSection
-                values={localFilters.occasions}
-                availableOccasions={availableOccasions}
-                onChange={(values) => setLocalFilters({ ...localFilters, occasions: values })}
-              />
+              <>
+                <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent my-2" />
+                <OccasionSection
+                  values={localFilters.occasions}
+                  availableOccasions={availableOccasions}
+                  onChange={(values) => setLocalFilters({ ...localFilters, occasions: values })}
+                />
+              </>
             )}
+
+            <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent my-2" />
 
             <LocationSection
               countries={localFilters.countries}

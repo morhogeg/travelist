@@ -77,7 +77,7 @@ export const ParsePreviewSheet: React.FC<ParsePreviewSheetProps> = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border transition-all duration-300 ease-in-out" style={{ height: 'auto', minHeight: '40vh', maxHeight: '85vh' }}>
+      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border transition-all duration-300 ease-in-out" style={{ height: '94vh', minHeight: '80vh', maxHeight: '96vh' }}>
         <div className="flex flex-col h-full">
           <DrawerHeader className="border-b border-border pb-3 shrink-0">
             <DrawerTitle className="text-center">Review Recommendation</DrawerTitle>

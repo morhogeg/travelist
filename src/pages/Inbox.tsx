@@ -508,8 +508,8 @@ const InboxPage: React.FC = () => {
   return (
     <Layout>
       <div className="px-4 pt-3 pb-24 space-y-6">
-        <div className="relative flex items-center justify-center mb-4">
-          <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+        <div className="relative flex items-center justify-between mb-4">
+          <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
             Inbox
           </h1>
           <div className="absolute right-0 flex items-center gap-2">

@@ -73,8 +73,8 @@ const Settings = () => {
         className="px-4 pt-3 pb-24"
       >
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-[28px] font-semibold tracking-[-0.01em] bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+        <div className="mb-6">
+          <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
             Settings
           </h1>
         </div>

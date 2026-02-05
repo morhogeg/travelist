@@ -31,6 +31,7 @@ interface RecommendationDetailsDialogProps {
   onToggleVisited: (recId: string, name: string, visited: boolean) => void;
   hideEditDelete?: boolean;
   onAddToTrip?: () => void;
+  showAddToTrip?: boolean;
 }
 
 const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = ({
@@ -42,6 +43,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
   onToggleVisited,
   hideEditDelete = false,
   onAddToTrip,
+  showAddToTrip = true,
 }) => {
   const [isVisited, setIsVisited] = useState<boolean>(!!recommendation?.visited);
   const [showAddToDrawer, setShowAddToDrawer] = useState(false);
@@ -98,6 +100,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    a.remove();
   };
 
   return (
@@ -236,7 +239,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
                 {/* Primary Actions - Add & Edit */}
                 <div className="grid grid-cols-2 gap-2 pt-0.5">
-                  {!onAddToTrip && (
+                  {(!onAddToTrip || !showAddToTrip) && (
                     <>
                       <Button
                         variant="ghost"
@@ -260,7 +263,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                     </>
                   )}
 
-                  {onAddToTrip && (
+                  {onAddToTrip && showAddToTrip && (
                     <Button
                       className="h-9 rounded-xl text-white font-medium col-span-2"
                       style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}

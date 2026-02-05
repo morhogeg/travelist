@@ -235,7 +235,7 @@ const TripDetailPage: React.FC = () => {
         if (!trip) return;
 
         const placeIds = trip.days.flatMap(day => day.places.map(p => p.placeId));
-        const newCollection = createCollectionFromPlaces(`${trip.name} (Saved)`, placeIds);
+        const newCollection = createCollectionFromPlaces(trip.name, placeIds);
 
         toast({
             title: 'Saved to Collections',
@@ -273,7 +273,7 @@ const TripDetailPage: React.FC = () => {
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <div className="text-center flex-1 pr-1">
+                    <div className="flex-1 pr-1">
                         <h1 className="text-lg font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent leading-tight dark:from-white dark:to-white/80">
                             {trip.name}
                         </h1>
@@ -456,12 +456,13 @@ const TripDetailPage: React.FC = () => {
                     onToggleVisited={handleToggleVisitedFromDialog}
                     hideEditDelete={true}
                     onAddToTrip={() => {
-                        // Find the original suggestion object to add
                         const suggestion = visibleSuggestions.find(s => s.name === selectedPlaceDetails.name);
                         if (suggestion) {
                             handleAddSuggestion(suggestion);
                         }
                     }}
+                    // Only show Add to Trip if it's a suggestion
+                    showAddToTrip={visibleSuggestions.some(s => s.name === selectedPlaceDetails.name)}
                 />
             )}
 

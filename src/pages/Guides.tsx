@@ -61,15 +61,16 @@ const Guides = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="px-4 pt-6 pb-24"
             >
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
+                <div className="flex items-center gap-3 mb-8">
                     <button
                         onClick={handleBack}
-                        className="p-2 rounded-full hover:bg-muted transition-colors"
+                        className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
                     >
                         <ArrowLeft className="h-6 w-6" />
                     </button>
-                    <h1 className="text-2xl font-bold">Guides & Tutorials</h1>
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
+                        Guides & Tutorials
+                    </h1>
                 </div>
 
                 <div className="space-y-2">

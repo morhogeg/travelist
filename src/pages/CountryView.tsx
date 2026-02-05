@@ -183,60 +183,57 @@ const CountryView: React.FC = () => {
 
   return (
     <Layout>
-      <div className="px-4 pt-2 pb-4 relative">
-        {/* Header row - title centered, buttons on sides */}
-        <div className="flex items-center justify-between mb-1 relative">
-          {/* Left side: Back + Search */}
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="shrink-0"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-
-            {/* Search icon button */}
-            {!isSearchExpanded && (
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                onClick={toggleSearch}
-                className="min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 ios26-transition-smooth text-neutral-700 dark:text-neutral-300"
-                aria-label="Open search"
-              >
-                <SearchIcon className="h-5 w-5" />
-              </motion.button>
-            )}
-          </div>
-
-
-
-          {/* Right side: Filter */}
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={() => {
-              lightHaptic();
-              setIsFilterSheetOpen(true);
-            }}
-            className="min-h-11 min-w-11 rounded-full flex items-center justify-center hover:opacity-60 ios26-transition-smooth relative"
-            aria-label="Open filters"
+      <div className="px-4 pt-3 pb-2 relative">
+        {/* Header row - Back button and Actions */}
+        <div className="flex items-center justify-between mb-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="shrink-0 -ml-2 text-neutral-600 dark:text-neutral-400"
           >
-            <SlidersHorizontal className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#667eea] text-white text-xs flex items-center justify-center font-medium">
-                {activeFilterCount}
-              </span>
-            )}
-          </motion.button>
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+
+          <div className="flex items-center gap-2">
+            {/* Search icon button */}
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={toggleSearch}
+              className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors text-neutral-600 dark:text-neutral-400"
+              aria-label="Open search"
+            >
+              <SearchIcon className="h-5 w-5" />
+            </motion.button>
+
+            {/* Filter Button */}
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={() => {
+                lightHaptic();
+                setIsFilterSheetOpen(true);
+              }}
+              className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors relative text-neutral-600 dark:text-neutral-400"
+              aria-label="Open filters"
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+              {activeFilterCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#667eea] text-white text-[10px] flex items-center justify-center font-bold">
+                  {activeFilterCount}
+                </span>
+              )}
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Large Title Section */}
+        <div className="mb-2">
+          <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
+            <span className="text-foreground inline-block bg-none mr-2">{flagEmoji}</span>
+            {countryName}
+          </h1>
         </div>
       </div>
-
-      <Breadcrumb
-        items={[
-          { label: countryName || "Country", path: `/country/${encodeURIComponent(countryName || "")}` },
-        ]}
-      />
 
       {/* Expandable Search Bar */}
       <AnimatePresence>

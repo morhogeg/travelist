@@ -343,14 +343,14 @@ const CollectionDetailPage: React.FC = () => {
         animate={{ opacity: 1 }}
         className="px-6 pt-2 pb-24"
       >
-        {/* Header row - centered title, white in dark mode */}
-        <div className="flex items-center justify-between mb-2 min-h-[44px] gap-3">
+        {/* Header row - left aligned to prevent overlap */}
+        <div className="flex items-center justify-between mb-2 min-h-[44px] gap-2">
           <div className="flex items-center gap-1 flex-1 min-w-0">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
-              className="h-10 w-10 text-neutral-600 dark:text-neutral-400 shrink-0"
+              className="h-10 w-10 text-neutral-600 dark:text-neutral-400 shrink-0 -ml-2"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -375,9 +375,10 @@ const CollectionDetailPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="text-center flex-1 pr-1 cursor-pointer active:opacity-60 transition-opacity" onClick={handleStartEditing}>
-                <h1 className="text-lg font-bold text-[#667eea] dark:text-white leading-tight truncate">{collection.name}</h1>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Saved Collection</p>
+              <div className="flex-1 cursor-pointer active:opacity-60 transition-opacity" onClick={handleStartEditing}>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent leading-tight dark:from-white dark:to-white/80 truncate">
+                  {collection.name}
+                </h1>
               </div>
             )}
           </div>
@@ -396,38 +397,42 @@ const CollectionDetailPage: React.FC = () => {
               </Button>
             )}
 
-            <ExportToMapsButton
-              places={exportPlaces}
-              variant="ghost"
-              size="icon"
-              showText={false}
-              className="h-10 w-10 text-neutral-600 dark:text-neutral-400"
-            />
-
-            <DropdownMenuUI>
-              <DropdownMenuTriggerUI asChild>
-                <Button
+            {!isEditingName && (
+              <>
+                <ExportToMapsButton
+                  places={exportPlaces}
                   variant="ghost"
                   size="icon"
+                  showText={false}
                   className="h-10 w-10 text-neutral-600 dark:text-neutral-400"
-                >
-                  <MoreHorizontal className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTriggerUI>
-              <DropdownMenuContentUI align="end" className="w-48 bg-background/95 backdrop-blur-md border-white/20">
-                <DropdownMenuItemUI onClick={handleStartEditing} className="cursor-pointer">
-                  <Edit2 className="mr-2 h-4 w-4" />
-                  <span>Rename</span>
-                </DropdownMenuItemUI>
-                <DropdownMenuItemUI
-                  onClick={handleDeleteCollection}
-                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Delete Collection</span>
-                </DropdownMenuItemUI>
-              </DropdownMenuContentUI>
-            </DropdownMenuUI>
+                />
+
+                <DropdownMenuUI>
+                  <DropdownMenuTriggerUI asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 text-neutral-600 dark:text-neutral-400"
+                    >
+                      <MoreHorizontal className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTriggerUI>
+                  <DropdownMenuContentUI align="end" className="w-48 bg-background/95 backdrop-blur-md border-white/20">
+                    <DropdownMenuItemUI onClick={handleStartEditing} className="cursor-pointer">
+                      <Edit2 className="mr-2 h-4 w-4" />
+                      <span>Rename</span>
+                    </DropdownMenuItemUI>
+                    <DropdownMenuItemUI
+                      onClick={handleDeleteCollection}
+                      className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      <span>Delete Collection</span>
+                    </DropdownMenuItemUI>
+                  </DropdownMenuContentUI>
+                </DropdownMenuUI>
+              </>
+            )}
           </div>
         </div>
 
