@@ -9,6 +9,17 @@ export interface MapExportPlace {
     lng?: number;
 }
 
+export type MapAppPreference = 'google' | 'apple';
+const TRAVELIST_MAP_PREFERENCE_KEY = 'travelist_map_preference';
+
+export const getMapPreference = (): MapAppPreference | null => {
+    return localStorage.getItem(TRAVELIST_MAP_PREFERENCE_KEY) as MapAppPreference | null;
+};
+
+export const setMapPreference = (preference: MapAppPreference) => {
+    localStorage.setItem(TRAVELIST_MAP_PREFERENCE_KEY, preference);
+};
+
 /**
  * Opens a URL
  */
@@ -77,4 +88,25 @@ export const exportToAppleMaps = async (places: MapExportPlace[]) => {
     const url = `maps://?${destinations}&dirflg=d`; // dirflg=d for driving
 
     await openUrl(url);
+};
+
+/**
+ * Navigates to a single place using the preferred map app
+ */
+export const navigateToPlace = async (place: MapExportPlace) => {
+    const preference = getMapPreference();
+
+    if (preference === 'google') {
+        await exportToGoogleMaps([place]);
+    } else if (preference === 'apple') {
+        await exportToAppleMaps([place]);
+    } else {
+        // Fallback to platform default if no preference set
+        const platform = Capacitor.getPlatform();
+        if (platform === 'ios') {
+            await exportToAppleMaps([place]);
+        } else {
+            await exportToGoogleMaps([place]);
+        }
+    }
 };

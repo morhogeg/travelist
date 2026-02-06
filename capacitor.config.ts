@@ -8,16 +8,7 @@ const config: CapacitorConfig = {
   appId: 'com.travelist.app',
   appName: 'Travelist',
   webDir: 'dist',
-  packageClassList: [
-    'AppPlugin',
-    'HapticsPlugin',
-    'KeyboardPlugin',
-    'SharePlugin',
-    'SplashScreenPlugin',
-    'StatusBarPlugin',
-    'SharedInboxPlugin',
-    'AppleMapsPlugin',
-  ],
+
   server: process.env.USE_DEV_SERVER === 'true' ? {
     url: 'http://localhost:5173',
     cleartext: true,
@@ -36,6 +27,10 @@ const config: CapacitorConfig = {
       splashImmersive: true
     },
     StatusBar: {
+      style: 'dark'
+    },
+    Keyboard: {
+      resize: 'none',
       style: 'dark'
     }
   }

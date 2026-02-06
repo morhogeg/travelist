@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Circle } from "lucide-react";
+import { Check, Circle, Navigation } from "lucide-react";
 import { RecommendationItemProps } from "./types";
 import { ExportToMapsButton } from "@/components/maps/ExportToMapsButton";
 
@@ -49,9 +49,9 @@ const ItemActions: React.FC<ItemActionsProps> = ({
         aria-label={item.visited ? "Mark as not visited" : "Mark as visited"}
       >
         {item.visited ? (
-          <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+          <Check className="h-2.5 w-2.5" strokeWidth={2.5} />
         ) : (
-          <Circle className="h-3.5 w-3.5" />
+          <Circle className="h-2.5 w-2.5" />
         )}
       </button>
 
@@ -67,7 +67,7 @@ const ItemActions: React.FC<ItemActionsProps> = ({
         size="icon"
         showText={false}
         className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-muted/60"
-        iconClassName="h-3.5 w-3.5"
+        icon={<Navigation className="h-2.5 w-2.5" />}
       />
     </div>
   );

@@ -20,6 +20,8 @@ import {
   findCollectionIdByPlaceId,
 } from "@/utils/collections/collectionStore";
 
+import { Keyboard } from "@capacitor/keyboard";
+
 const RecommendationDrawer = ({
   isDrawerOpen,
   setIsDrawerOpen,
@@ -31,8 +33,10 @@ const RecommendationDrawer = ({
   const [localEditRecommendation, setLocalEditRecommendation] = useState<any>(null);
   const [collections, setCollections] = useState<any[]>([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const { toast } = useToast();
+  // ... (lines 35-42)
   const {
     isLoading,
     submitStructuredRecommendation,
@@ -40,8 +44,31 @@ const RecommendationDrawer = ({
     submitAIParsedRecommendation,
   } = useRecommendationSubmit();
 
+  // Keyboard listeners
+  useEffect(() => {
+    let showHandle: any;
+    let hideHandle: any;
+
+    const setupListeners = async () => {
+      showHandle = await Keyboard.addListener('keyboardWillShow', info => {
+        setKeyboardHeight(info.keyboardHeight);
+      });
+      hideHandle = await Keyboard.addListener('keyboardWillHide', () => {
+        setKeyboardHeight(0);
+      });
+    };
+
+    setupListeners();
+
+    return () => {
+      if (showHandle) showHandle.remove();
+      if (hideHandle) hideHandle.remove();
+    };
+  }, []);
+
   // Always reset or set localEditRecommendation when drawer opens
   useEffect(() => {
+    // ... (lines 45-66)
     if (isDrawerOpen) {
       // Reload collections every time drawer opens to get latest
       const loaded = getCollections();
@@ -62,6 +89,8 @@ const RecommendationDrawer = ({
     } else {
       setLocalEditRecommendation(null);
       setSelectedCollectionId("");
+      // Reset keyboard height when drawer closes
+      setKeyboardHeight(0);
     }
   }, [isDrawerOpen, editRecommendation]);
 
@@ -129,11 +158,14 @@ const RecommendationDrawer = ({
   return (
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
       <DrawerContent
-        className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border transition-all duration-300 ease-in-out"
+        className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border"
         style={{
           height: 'auto',
-          minHeight: mode === 'freetext' ? '75vh' : '50vh',
-          maxHeight: '94vh'
+          // Use fixed min/max instead of dynamic vh that fights with keyboard
+          minHeight: '600px',
+          maxHeight: '94vh',
+          // Add padding to bottom when keyboard is up
+          paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : undefined,
         }}
       >
         <div className="flex flex-col h-full">
@@ -150,7 +182,11 @@ const RecommendationDrawer = ({
 
           <div
             className="px-6 space-y-4 flex-1 overflow-y-auto pb-4 overscroll-contain no-tap-highlight"
-            style={{ touchAction: 'pan-y' }}
+            style={{
+              touchAction: 'pan-y',
+              // Extra space at bottom to allow scrolling above keyboard
+              marginBottom: keyboardHeight > 0 ? '20px' : '0'
+            }}
           >
             {!localEditRecommendation && (
               <div className="flex items-center space-x-2 shrink-0">
@@ -178,6 +214,7 @@ const RecommendationDrawer = ({
                 </Button>
               </div>
             )}
+
 
             {mode === "structured" ? (
               <StructuredInputForm

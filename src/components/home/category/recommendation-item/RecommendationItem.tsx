@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ItemActions from "./ItemActions";
 import { RecommendationItemProps } from "./types";
 import { UserCircle, Sparkles, Lightbulb } from "lucide-react";
@@ -31,6 +31,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAddToDrawer, setShowAddToDrawer] = useState(false);
+  const [isTipExpanded, setIsTipExpanded] = useState(false);
 
   React.useEffect(() => {
     if (showAddToDrawer || showDeleteDialog) {
@@ -93,7 +94,23 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
                 >
                   {getCategoryIcon(item.category)}
                 </div>
-                <h3 className="text-[15px] font-semibold leading-snug flex-1 truncate">{item.name}</h3>
+                <h3 className="text-[15px] font-semibold leading-snug flex-1 truncate flex items-center gap-2">
+                  <span>{item.name}</span>
+                  {(item.description || item.context?.specificTip) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsTipExpanded(!isTipExpanded);
+                      }}
+                      className={`flex-shrink-0 w-4 h-4 flex items-center justify-center rounded-full transition-all duration-300 ${isTipExpanded
+                        ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 scale-110'
+                        : 'text-amber-500/40 hover:text-amber-500/80 hover:bg-amber-50/50 dark:hover:bg-amber-900/20'
+                        }`}
+                    >
+                      <Lightbulb size={15} strokeWidth={isTipExpanded ? 3 : 2.5} />
+                    </button>
+                  )}
+                </h3>
               </div>
 
               {/* Right side: Actions inline */}
@@ -107,15 +124,20 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
               </div>
             </div>
 
-            {(item.description || item.context?.specificTip) && (
-              <p
-                className={`mt-1 text-xs text-amber-600 dark:text-amber-400 line-clamp-2 flex items-start gap-1 opacity-90 ${isRow ? "pl-7" : "pl-5"
-                  }`}
-              >
-                <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                {item.description || item.context?.specificTip}
-              </p>
-            )}
+            <AnimatePresence>
+              {isTipExpanded && (item.description || item.context?.specificTip) && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 0.9 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className={`mt-1 overflow-hidden ${isRow ? "pl-7" : "pl-5"}`}
+                >
+                  <p className="text-xs text-amber-600 dark:text-amber-400 leading-tight pr-6 pb-1">
+                    {item.description || item.context?.specificTip}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
       </SwipeableCard>

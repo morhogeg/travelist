@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Search } from "lucide-react";
 import { getCategoryColor, getCategoryIcon, categories } from "@/components/recommendations/utils/category-data";
 import { mediumHaptic } from "@/utils/ios/haptics";
+import { Keyboard } from "@capacitor/keyboard";
 
 interface AddPlacesToCollectionDrawerProps {
   isOpen: boolean;
@@ -46,6 +47,7 @@ const AddPlacesToCollectionDrawer: React.FC<AddPlacesToCollectionDrawerProps> = 
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([]);
   const [availablePlaces, setAvailablePlaces] = useState<PlaceItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { toast } = useToast();
 
   // Load available places when drawer opens
@@ -66,7 +68,7 @@ const AddPlacesToCollectionDrawer: React.FC<AddPlacesToCollectionDrawerProps> = 
               recId: placeId,
               name: place.name,
               description: place.description,
-              category: place.category || rec.category,
+              category: place.category || (rec.categories && rec.categories[0]),
               city: rec.city,
               country: rec.country,
               alreadyInCollection: existingPlaceIds.has(placeId) || existingPlaceIds.has(place.id)
@@ -96,6 +98,30 @@ const AddPlacesToCollectionDrawer: React.FC<AddPlacesToCollectionDrawerProps> = 
       setSelectedCategory(null);
     }
   }, [isOpen, collection]);
+
+  // Keyboard listeners
+  useEffect(() => {
+    let showHandle: any;
+    let hideHandle: any;
+
+    const setupListeners = async () => {
+      showHandle = await Keyboard.addListener('keyboardWillShow', (info) => {
+        setKeyboardHeight(info.keyboardHeight);
+      });
+      hideHandle = await Keyboard.addListener('keyboardWillHide', () => {
+        setKeyboardHeight(0);
+      });
+    };
+
+    if (isOpen) {
+      setupListeners();
+    }
+
+    return () => {
+      if (showHandle) showHandle.remove();
+      if (hideHandle) hideHandle.remove();
+    };
+  }, [isOpen]);
 
   const handleTogglePlace = (placeId: string, alreadyInCollection: boolean) => {
     if (alreadyInCollection) {
@@ -169,7 +195,15 @@ const AddPlacesToCollectionDrawer: React.FC<AddPlacesToCollectionDrawerProps> = 
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border max-h-[85vh]">
+      <DrawerContent
+        className="bg-background dark:bg-background text-foreground dark:text-foreground border-t border-border flex flex-col"
+        style={{
+          maxHeight: '94vh',
+          height: 'auto',
+          minHeight: '500px',
+          paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : undefined,
+        }}
+      >
         <DrawerHeader>
           <DrawerTitle>Add Places to {collection.name}</DrawerTitle>
           <DrawerDescription>
@@ -252,8 +286,8 @@ const AddPlacesToCollectionDrawer: React.FC<AddPlacesToCollectionDrawerProps> = 
                     <div
                       key={place.recId}
                       className={`flex items-center space-x-3 p-3 rounded-xl border-l-4 transition-all ${isDisabled
-                          ? 'opacity-50 cursor-not-allowed bg-muted/50'
-                          : 'cursor-pointer'
+                        ? 'opacity-50 cursor-not-allowed bg-muted/50'
+                        : 'cursor-pointer'
                         }`}
                       style={!isDisabled ? { borderLeftColor: categoryColor } : {}}
                       onClick={() => !isDisabled && handleTogglePlace(place.recId, isDisabled)}

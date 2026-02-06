@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Navigation, Trash2, Edit, Plus, Lightbulb, ExternalLink, Sparkles, Loader2, FolderPlus, UserCircle, MapPin } from "lucide-react";
 import { formatUrl, generateMapLink } from "@/utils/link-helpers";
+import { navigateToPlace } from "@/utils/maps/export-to-maps";
 import { getCategoryIcon, getCategoryColor } from "@/components/recommendations/utils/category-data";
 import AddToDrawer from "@/components/common/AddToDrawer";
 import { generatePlaceDescription } from "@/services/ai/generatePlaceDescription";
@@ -115,7 +116,15 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                 <span className="text-xl" style={{ color: categoryColor }}>
                   {categoryIcon}
                 </span>
-                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+                <h2
+                  className="text-2xl font-bold text-neutral-900 dark:text-white cursor-pointer active:opacity-70 transition-opacity"
+                  onClick={() => navigateToPlace({
+                    name: recommendation.name,
+                    address: rawAddress || recommendation.location,
+                    city: recommendation.city,
+                    country: recommendation.country
+                  })}
+                >
                   {recommendation.name}
                 </h2>
               </div>
@@ -237,27 +246,41 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                   </div>
                 )}
 
-                {/* Primary Actions - Add & Edit */}
-                <div className="grid grid-cols-2 gap-2 pt-0.5">
+                {/* Primary Actions - Add, Navigate & Edit */}
+                <div className="grid grid-cols-3 gap-2 pt-0.5">
                   {(!onAddToTrip || !showAddToTrip) && (
                     <>
                       <Button
                         variant="ghost"
-                        className="h-9 rounded-xl text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        className="h-14 flex-col rounded-2xl text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
                         onClick={() => setShowAddToDrawer(true)}
                       >
-                        <FolderPlus className="h-4 w-4 mr-1.5" />
-                        <span>Add</span>
+                        <FolderPlus className="h-5 w-5 mb-1" />
+                        <span className="text-[11px] font-bold uppercase tracking-tight">Add</span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        className="h-14 flex-col rounded-2xl text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        onClick={() => navigateToPlace({
+                          name: recommendation.name,
+                          address: rawAddress || recommendation.location,
+                          city: recommendation.city,
+                          country: recommendation.country
+                        })}
+                      >
+                        <Navigation className="h-5 w-5 mb-1" />
+                        <span className="text-[11px] font-bold uppercase tracking-tight">Navigate</span>
                       </Button>
 
                       {!hideEditDelete && (
                         <Button
                           variant="ghost"
-                          className="h-9 rounded-xl text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                          className="h-14 flex-col rounded-2xl text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
                           onClick={onEdit}
                         >
-                          <Edit className="h-4 w-4 mr-1.5" />
-                          Edit
+                          <Edit className="h-5 w-5 mb-1" />
+                          <span className="text-[11px] font-bold uppercase tracking-tight">Edit</span>
                         </Button>
                       )}
                     </>
@@ -265,7 +288,7 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
 
                   {onAddToTrip && showAddToTrip && (
                     <Button
-                      className="h-9 rounded-xl text-white font-medium col-span-2"
+                      className="h-9 rounded-xl text-white font-medium col-span-3"
                       style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
                       onClick={() => {
                         onAddToTrip();

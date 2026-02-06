@@ -9,6 +9,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import ShareExtensionGuide from "@/components/settings/ShareExtensionGuide";
 import ProximitySettings from "@/components/settings/ProximitySettings";
+import NavigationSettings from "@/components/settings/NavigationSettings";
 import AISettings from "@/components/settings/AISettings";
 import AuthSettings from "@/components/settings/AuthSettings";
 import DeleteAccountSettings from "@/components/settings/DeleteAccountSettings";
@@ -98,6 +99,11 @@ const Settings = () => {
 
           {/* Proximity Alerts */}
           <ProximitySettings allCities={allCities} />
+
+          <Separator />
+
+          {/* Navigation Settings */}
+          <NavigationSettings />
 
           <Separator />
 
