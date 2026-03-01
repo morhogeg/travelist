@@ -102,13 +102,13 @@ const RecommendationDrawer = ({
       if (selectedCollectionId) {
         // If savedId is a string, add it. If it was true (boolean), we might need to handle it but we fixed it to string.
         addPlaceToCollection(selectedCollectionId, savedId as string);
-        console.log("[Collection Debug] Adding", savedId, "to", selectedCollectionId);
       }
 
       toast({
         title: localEditRecommendation ? "Recommendation updated!" : "Recommendation added!",
-        description: `Your recommendation has been successfully ${localEditRecommendation ? "updated" : "added"
-          }.`,
+        description: navigator.onLine
+          ? `Your recommendation has been successfully ${localEditRecommendation ? "updated" : "added"}.`
+          : "Saved locally — will sync when you're back online.",
       });
 
       setIsDrawerOpen(false);
@@ -142,7 +142,6 @@ const RecommendationDrawer = ({
       if (selectedCollectionId) {
         savedIds.forEach(id => {
           addPlaceToCollection(selectedCollectionId, id);
-          console.log("[Collection Debug] Adding", id, "to", selectedCollectionId);
         });
       }
 

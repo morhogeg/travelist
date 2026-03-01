@@ -8,7 +8,6 @@ export const getFilteredRecommendations = async (
   filterCountry?: string,
   filters?: FilterState
 ): Promise<GroupedRecommendation[]> => {
-  console.log("🔍 Filtering by category:", category, "country:", filterCountry, "filters:", filters);
   const all = getRecommendations();
 
   const normalize = (v: string) => v.trim().toLowerCase();

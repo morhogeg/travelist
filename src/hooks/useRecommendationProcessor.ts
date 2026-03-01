@@ -14,8 +14,6 @@ export const useRecommendationProcessor = () => {
       const places = getUserPlaces();
       const recommendations = getRecommendations();
       
-      console.log("Saved places:", places);
-      console.log("Recommendations:", recommendations);
       
       // Extract all unique categories from user recommendations
       const allCategories = Array.from(new Set(

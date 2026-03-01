@@ -60,7 +60,6 @@ export const processAIParsedRecommendation = async (
       // Add source if detected by AI
       if (parsed.source) {
         newPlace.source = parsed.source;
-        console.log('[AI Parser] Source detected:', parsed.source);
       }
 
       places.push(newPlace);

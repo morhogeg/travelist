@@ -147,7 +147,9 @@ export function useAISuggestions(
       try {
         result = await deepSeekSuggestionsProvider.generateSuggestions(request);
       } catch (deepSeekError) {
-        console.warn('[AI Suggestions] DeepSeek provider failed, falling back to mock:', deepSeekError);
+        if (import.meta.env.DEV) {
+          console.warn('[AI Suggestions] DeepSeek provider failed, falling back to mock:', deepSeekError);
+        }
         result = await mockProvider.generateSuggestions(request);
       }
 

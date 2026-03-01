@@ -40,11 +40,8 @@ const LocationCard = ({
       return;
     }
 
-    console.log("LocationCard clicked with ID:", id);
     if (onClick) {
       onClick(id);
-    } else {
-      console.error("LocationCard: Missing onClick handler");
     }
   };
 

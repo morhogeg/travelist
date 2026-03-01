@@ -67,7 +67,9 @@ export const useRecommendationSubmit = () => {
   const handleStructuredSubmit = async (values: StructuredFormValues): Promise<boolean> => {
     setIsAnalyzing(true);
     try {
-      console.log("Handling structured submit with values:", values);
+      if (import.meta.env.DEV) {
+        console.log("Handling structured submit with values:", values);
+      }
       
       // Create a single recommendation place from the form values
       const place = {
@@ -86,7 +88,6 @@ export const useRecommendationSubmit = () => {
         result.country = values.country;
       }
       
-      console.log("Parsed recommendation:", result);
       storeRecommendation(result);
       
       // Add city to user places with country

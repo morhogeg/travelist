@@ -63,11 +63,8 @@ const PlaceRecommendations: React.FC<PlaceRecommendationsProps> = ({ placeId, pl
   }, [placeId]);
 
   const loadRecommendations = () => {
-    console.log("Loading recommendations for place ID:", placeId);
-    
     // Get recommendations for this city using the city-helpers utility
     const cityRecommendations = getRecommendationsForCity(placeId);
-    console.log("Found recommendations:", cityRecommendations);
 
     // Store all recommendations for the "All" category
     setAllRecommendations(cityRecommendations.map(rec => ({
@@ -111,9 +108,6 @@ const PlaceRecommendations: React.FC<PlaceRecommendationsProps> = ({ placeId, pl
     setCategories(["All", ...categoryList]);
     setRecommendations(grouped);
     setActiveTab(categoryList.length > 0 ? "All" : "");
-    
-    console.log("Grouped recommendations by category:", grouped);
-    console.log("Categories:", ["All", ...categoryList]);
   };
 
   if (categories.length === 0) {

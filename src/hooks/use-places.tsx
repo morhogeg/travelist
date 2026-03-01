@@ -25,7 +25,6 @@ export function usePlaces() {
   const loadPlaces = () => {
     try {
       const userPlaces = getUserPlaces();
-      console.log("Loaded user places:", userPlaces);
       setPlaces(userPlaces);
     } catch (error) {
       console.error("Error loading user places:", error);
@@ -67,7 +66,6 @@ export function usePlaces() {
       console.error("usePlaces: No place ID provided for navigation");
       return;
     }
-    console.log("usePlaces: Clicked on place with ID:", placeId);
     navigate(`/place/${placeId}`);
   };
 

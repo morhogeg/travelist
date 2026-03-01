@@ -290,7 +290,6 @@ const Index: React.FC = () => {
   };
 
   const handleRecommendationClick = (place: RecommendationPlace) => {
-    console.log("🔍 Index: Clicked recommendation", place.name, "Website:", place.website);
     const recommendation: Recommendation = {
       id: place.id || place.recId || '',
       name: place.name,

@@ -58,15 +58,21 @@ export async function getCachedAISummary(
             // Check for expiration (e.g., 30 days)
             const now = Timestamp.now();
             if (data.expiresAt && data.expiresAt.toMillis() < now.toMillis()) {
-                console.log('[AI Cache] Cached entry expired:', cacheKey);
+                if (import.meta.env.DEV) {
+                    console.log('[AI Cache] Cached entry expired:', cacheKey);
+                }
                 return null;
             }
 
-            console.log('[AI Cache] Using cached summary for:', query);
+            if (import.meta.env.DEV) {
+                console.log('[AI Cache] Using cached summary for:', query);
+            }
             return data;
         }
     } catch (error) {
-        console.warn('[AI Cache] Error reading from cache:', error);
+        if (import.meta.env.DEV) {
+            console.warn('[AI Cache] Error reading from cache:', error);
+        }
     }
 
     return null;
@@ -105,8 +111,12 @@ export async function cacheAISummary(
             expiresAt: Timestamp.fromDate(expiresAt),
         });
 
-        console.log('[AI Cache] Summary cached for:', query);
+        if (import.meta.env.DEV) {
+            console.log('[AI Cache] Summary cached for:', query);
+        }
     } catch (error) {
-        console.warn('[AI Cache] Error writing to cache:', error);
+        if (import.meta.env.DEV) {
+            console.warn('[AI Cache] Error writing to cache:', error);
+        }
     }
 }

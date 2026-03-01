@@ -27,9 +27,11 @@ export class TripPlannerProvider {
     name = 'trip-planner-gemini';
 
     async generateTripPlan(request: TripPlanRequest): Promise<TripPlanResult> {
-        console.log('[Trip Planner] Generating plan for:', request.city, request.country);
-        console.log('[Trip Planner] Duration:', request.durationDays, 'days');
-        console.log('[Trip Planner] Places to schedule:', request.places.length);
+        if (import.meta.env.DEV) {
+            console.log('[Trip Planner] Generating plan for:', request.city, request.country);
+            console.log('[Trip Planner] Duration:', request.durationDays, 'days');
+            console.log('[Trip Planner] Places to schedule:', request.places.length);
+        }
 
         const systemPrompt = this.buildSystemPrompt();
         const userPrompt = this.buildUserPrompt(request);
@@ -40,7 +42,9 @@ export class TripPlannerProvider {
         ];
 
         try {
-            console.log('[Trip Planner] Calling Gemini API...');
+            if (import.meta.env.DEV) {
+                console.log('[Trip Planner] Calling Gemini API...');
+            }
 
             const result = await callGemini(messages, {
                 temperature: 0.5,
@@ -213,7 +217,9 @@ REQUIREMENTS:
                 cleanContent = jsonMatch[0];
             }
 
-            console.log('[Trip Planner] Cleaned content length:', cleanContent.length);
+            if (import.meta.env.DEV) {
+                console.log('[Trip Planner] Cleaned content length:', cleanContent.length);
+            }
             parsed = JSON.parse(cleanContent);
         } catch (e) {
             console.error('[Trip Planner] Failed to parse response:', content.substring(0, 500));

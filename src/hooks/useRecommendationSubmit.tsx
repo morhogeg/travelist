@@ -67,10 +67,12 @@ export const useRecommendationSubmit = () => {
   const handleStructuredSubmit = async (values: StructuredFormValues, existingRecId?: string): Promise<string | null> => {
     setIsAnalyzing(true);
     try {
-      console.log("🔍 STRUCTURED SUBMIT - Full values:", values);
-      console.log("🔍 Source data:", values.source);
-      console.log("🔍 Context data:", values.context);
-      console.log("Editing existing recommendation ID:", existingRecId);
+      if (import.meta.env.DEV) {
+        console.log("🔍 STRUCTURED SUBMIT - Full values:", values);
+        console.log("🔍 Source data:", values.source);
+        console.log("🔍 Context data:", values.context);
+        console.log("Editing existing recommendation ID:", existingRecId);
+      }
 
       // Check if we're editing an existing recommendation
       if (existingRecId) {
@@ -84,7 +86,9 @@ export const useRecommendationSubmit = () => {
           for (let i = 0; i < rec.places.length; i++) {
             const place = rec.places[i];
             if (place.id === existingRecId || place.recId === existingRecId) {
-              console.log("Found place to update:", place);
+              if (import.meta.env.DEV) {
+                console.log("Found place to update:", place);
+              }
 
               // Update the existing recommendation
               rec.places[i] = {
@@ -150,22 +154,25 @@ export const useRecommendationSubmit = () => {
         id: crypto.randomUUID()
       };
 
-      console.log("🔍 Created place object:", place);
-      console.log("🔍 Place source:", place.source);
-      console.log("🔍 Place context:", place.context);
+      if (import.meta.env.DEV) {
+        console.log("🔍 Created place object:", place);
+        console.log("🔍 Place source:", place.source);
+        console.log("🔍 Place context:", place.context);
+      }
 
       // Process structured recommendation with a single place
       const result = parseRecommendation(values.city, [place]);
 
-      console.log("🔍 parseRecommendation result:", result);
-      console.log("🔍 Result places[0]:", result.places[0]);
+      if (import.meta.env.DEV) {
+        console.log("🔍 parseRecommendation result:", result);
+        console.log("🔍 Result places[0]:", result.places[0]);
+      }
 
       // Add country if provided
       if (values.country && values.country !== "none") {
         result.country = values.country;
       }
 
-      console.log("Parsed recommendation:", result);
       storeRecommendation(result);
 
       // Add city to user places with country

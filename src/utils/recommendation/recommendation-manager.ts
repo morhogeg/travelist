@@ -5,6 +5,9 @@ import { getSmartImage } from "@/utils/image/getSmartImage";
 import { syncRecommendationToFirestore, fetchFirestorePlaces, backfillLocalToFirestore } from "./firestore-places";
 import { auth, isFirebaseReady } from "@/lib/firebase";
 
+const toTitleCase = (s: string) =>
+  s.trim().replace(/\b\w/g, (c) => c.toUpperCase());
+
 export const getRecommendations = (): ParsedRecommendation[] => {
   try {
     const raw = localStorage.getItem("recommendations");
@@ -22,8 +25,11 @@ export const storeRecommendation = async (
 ): Promise<void> => {
   const recommendations = getRecommendations();
 
-  // Trim city name to prevent duplicates from whitespace
-  recommendation.city = recommendation.city.trim();
+  // Normalize city name to title case to prevent duplicates from whitespace/casing
+  recommendation.city = toTitleCase(recommendation.city);
+  if (recommendation.country) {
+    recommendation.country = toTitleCase(recommendation.country);
+  }
 
   const existingIndex = recommendations.findIndex(
     (r) => r.city.toLowerCase().trim() === recommendation.city.toLowerCase()
@@ -43,7 +49,9 @@ export const storeRecommendation = async (
         try {
           image = await getSmartImage(`${place.name} ${recommendation.city}`, place.category);
         } catch (err) {
-          console.warn(`❌ Failed to fetch image for ${place.name}`, err);
+          if (import.meta.env.DEV) {
+            console.warn(`❌ Failed to fetch image for ${place.name}`, err);
+          }
         }
 
         if (!image) {
@@ -117,7 +125,9 @@ export const storeRecommendation = async (
 
   // Non-blocking cloud sync (if Firebase is configured)
   syncRecommendationToFirestore(recommendation).catch((err) => {
-    console.warn("[Firestore] Sync error:", err);
+    if (import.meta.env.DEV) {
+      console.warn("[Firestore] Sync error:", err);
+    }
   });
 };
 

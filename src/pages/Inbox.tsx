@@ -136,8 +136,6 @@ const InboxPage: React.FC = () => {
       const imported = await importSharedInbox();
       if (imported > 0) {
         setItems(getInboxItems());
-      } else {
-        console.log("[Inbox] No new shared items found");
       }
     } catch (err: any) {
       toast({
@@ -169,7 +167,9 @@ const InboxPage: React.FC = () => {
         text = await navigator.clipboard.readText();
       } catch (clipboardErr: any) {
         // iOS often blocks clipboard access in WebViews
-        console.warn("[Inbox] Clipboard access denied:", clipboardErr?.message);
+        if (import.meta.env.DEV) {
+          console.warn("[Inbox] Clipboard access denied:", clipboardErr?.message);
+        }
         toast({
           title: "Use Share Extension",
           description: "Paste isn't available on iOS. Instead, tap Share in Safari or Google Maps, then choose Travelist.",

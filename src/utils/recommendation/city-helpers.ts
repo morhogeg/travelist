@@ -13,7 +13,6 @@ export const getRecommendationsForCity = (cityId: string): Recommendation[] => {
   
   const recommendations = getRecommendations();
   
-  console.log("Getting recommendations for city ID:", cityId);
   
   // Find recommendations directly matching this city ID
   const cityRecs = recommendations.filter(rec => {

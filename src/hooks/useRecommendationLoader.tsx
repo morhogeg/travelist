@@ -7,7 +7,6 @@ export const useRecommendationLoader = (category: string) => {
   const [version, setVersion] = useState(0);
 
   const loadRecommendations = () => {
-    console.log("Loading recommendations for category:", category);
     const recommendations = getFilteredRecommendations(category);
 
     // ✅ Deep clone the data to force React to re-render

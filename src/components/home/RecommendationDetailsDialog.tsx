@@ -84,7 +84,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
     e.preventDefault();
     e.stopPropagation();
     if (!url) {
-      console.warn('[External Link] No URL provided');
       return;
     }
     // Add protocol if missing so browser can open it
@@ -92,7 +91,6 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
     if (!finalUrl.match(/^https?:\/\//i)) {
       finalUrl = `https://${finalUrl}`;
     }
-    console.log('[External Link] Opening:', finalUrl);
     // Create and click anchor for iOS Safari compatibility
     const a = document.createElement('a');
     a.href = finalUrl;
@@ -168,14 +166,12 @@ const RecommendationDetailsDialog: React.FC<RecommendationDetailsDialogProps> = 
                         setIsGeneratingDescription(true);
                         setAiError(null);
                         try {
-                          console.log('[AI Description] Requesting for:', recommendation.name, recommendation.city, recommendation.country);
                           const result = await generatePlaceDescription(
                             recommendation.name,
                             recommendation.city || '',
                             recommendation.country || '',
                             recommendation.category
                           );
-                          console.log('[AI Description] Result:', result);
                           setIsGeneratingDescription(false);
                           if (result.description) {
                             setLocalDescription(result.description);

@@ -50,7 +50,6 @@ const SavedPlaceCard: React.FC<SavedPlaceCardProps> = ({
   const [showImageUploader, setShowImageUploader] = useState(false);
 
   const handleViewCity = () => {
-    console.log("SavedPlaceCard: View City clicked with ID:", place.id);
     onViewCity(place.id);
   };
 

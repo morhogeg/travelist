@@ -2,6 +2,13 @@
 
 iOS travel recommendation app built with React + Capacitor.
 
+## 🤖 For AI Assistants
+
+If you are an AI working on this codebase:
+1. **IDE-based (Cursor/Windsurf):** Refer to the `.cursorrules` file for persistent context.
+2. **Chat-based (ChatGPT/Claude):** Copy and paste the contents of `AI_CONTEXT.md` into your chat for an instant project briefing.
+3. **Deep Dive:** See the `/guides` folder for architecture and design system documentation.
+
 ## Development Setup
 
 ```bash

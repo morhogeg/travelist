@@ -60,7 +60,9 @@ function saveCache(cache: SuggestionCache): void {
   try {
     localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(cache));
   } catch (e) {
-    console.warn('Failed to save AI suggestions cache:', e);
+    if (import.meta.env.DEV) {
+      console.warn('Failed to save AI suggestions cache:', e);
+    }
   }
 }
 

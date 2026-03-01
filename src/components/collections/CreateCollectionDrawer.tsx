@@ -122,7 +122,6 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
   };
 
   const handleCreateCollection = () => {
-    console.log('Create collection clicked!', { collectionName, selectedPlaceIds });
 
     if (!collectionName.trim()) {
       toast({
@@ -136,7 +135,6 @@ const CreateCollectionDrawer: React.FC<CreateCollectionDrawerProps> = ({
     try {
       // Create the collection
       const newCollection = addCollection(collectionName.trim());
-      console.log('Collection created:', newCollection);
 
       // Add selected places to the collection
       selectedPlaceIds.forEach(placeId => {

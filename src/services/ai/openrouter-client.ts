@@ -42,7 +42,9 @@ export async function callOpenRouter(
 
     // 1. Try Primary Model
     try {
-        console.log('[OpenRouter Client] Calling primary model:', PRIMARY_MODEL);
+        if (import.meta.env.DEV) {
+            console.log('[OpenRouter Client] Calling primary model:', PRIMARY_MODEL);
+        }
         const result = await makeRequest(PRIMARY_MODEL, messages, apiKey, options);
 
         if (result.content) {
@@ -52,13 +54,17 @@ export async function callOpenRouter(
             };
         }
 
-        console.warn('[OpenRouter Client] Primary model returned empty content, falling back...');
+        if (import.meta.env.DEV) {
+            console.warn('[OpenRouter Client] Primary model returned empty content, falling back...');
+        }
     } catch (error) {
         console.error('[OpenRouter Client] Primary model failed:', error);
     }
 
     // 2. Fallback Logic with Reasoning Multi-turn
-    console.log('[OpenRouter Client] Starting fallback logic with model:', FALLBACK_MODEL);
+    if (import.meta.env.DEV) {
+        console.log('[OpenRouter Client] Starting fallback logic with model:', FALLBACK_MODEL);
+    }
     try {
         // Phase 1: Initial call with reasoning enabled
         const phase1Options = {
@@ -86,7 +92,9 @@ export async function callOpenRouter(
             }
         ];
 
-        console.log('[OpenRouter Client] Falling back to Phase 2 (Refinement)...');
+        if (import.meta.env.DEV) {
+            console.log('[OpenRouter Client] Falling back to Phase 2 (Refinement)...');
+        }
         const result2 = await makeRequest(FALLBACK_MODEL, refinedMessages, apiKey, phase1Options);
 
         if (result2.content) {

@@ -28,7 +28,7 @@ const isFirebaseConfigured =
     firebaseConfig.projectId &&
     firebaseConfig.appId;
 
-if (!isFirebaseConfigured) {
+if (!isFirebaseConfigured && import.meta.env.DEV) {
     console.warn('[Firebase] Missing configuration. Set VITE_FIREBASE_* environment variables.');
 }
 
@@ -46,11 +46,9 @@ if (isFirebaseConfigured) {
         // Enable offline persistence for travelers (works offline!)
         enableIndexedDbPersistence(db).catch((err) => {
             if (err.code === 'failed-precondition') {
-                // Multiple tabs open, persistence can only be enabled in one tab at a time
-                console.warn('[Firebase] Multiple tabs open, persistence only enabled in one tab');
+                if (import.meta.env.DEV) console.warn('[Firebase] Multiple tabs open, persistence only enabled in one tab');
             } else if (err.code === 'unimplemented') {
-                // The current browser doesn't support persistence
-                console.warn('[Firebase] Browser does not support offline persistence');
+                if (import.meta.env.DEV) console.warn('[Firebase] Browser does not support offline persistence');
             }
         });
 
@@ -61,7 +59,9 @@ if (isFirebaseConfigured) {
             console.log('[Firebase] Connected to emulators');
         }
 
-        console.log('[Firebase] Initialized successfully');
+        if (import.meta.env.DEV) {
+            console.log('[Firebase] Initialized successfully');
+        }
     } catch (error) {
         console.error('[Firebase] Initialization error:', error);
     }

@@ -24,9 +24,7 @@ export const usePlaceOperations = () => {
       
       // Trigger reload event
       window.dispatchEvent(new CustomEvent('userPlacesChanged'));
-      
-      console.log(`Image for place ${placeId} updated successfully`);
-      
+
     } catch (error) {
       console.error("Error updating place image:", error);
     }

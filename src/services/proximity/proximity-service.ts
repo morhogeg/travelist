@@ -136,6 +136,14 @@ export async function stopProximityMonitoring(): Promise<void> {
  */
 function checkProximity(position: Position): void {
     const settings = getProximitySettings();
+
+    // Skip check if GPS accuracy is too poor (accuracy radius > half the alert distance)
+    const accuracy = position.coords.accuracy;
+    if (accuracy !== null && accuracy > settings.distanceMeters * 0.5) {
+        logger.debug('ProximityService', `GPS accuracy too low (${Math.round(accuracy)}m), skipping check`);
+        return;
+    }
+
     const userLat = position.coords.latitude;
     const userLng = position.coords.longitude;
 

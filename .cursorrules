@@ -1,0 +1,33 @@
+# Travelist AI Rules & Context (v2)
+
+You are an expert developer working on **Travelist**, a premium iOS travel app.
+
+## 🛠 TECH STACK CONSTRAINTS
+- **Frontend:** React 18, TypeScript, Vite.
+- **Native:** Capacitor 7 (iOS Focus).
+- **Backend:** Supabase + Firebase (Auth/Firestore logic).
+- **Design:** iOS 26 "Liquid Glass" / Purple Gradient (#667eea → #764ba2).
+
+## 🚫 CRITICAL RULES
+1. **NO BLUE:** Never use `#007AFF` or standard "link blue". Always use Purple Gradient or neutral grays.
+2. **HAPTICS:** Every button/toggle MUST include haptic feedback (use `haptics.medium()` or `useHaptics` hook).
+3. **GLASS:** Every drawer or modal must use Liquid Glass classes (`liquid-glass-clear`, etc.).
+4. **IOS COMPACT:** Follow the compact spacing convention (`px-2.5 py-1.5` for cards).
+
+## 🚀 COMMAND REFERENCE FOR CLAUDE CODE
+- **Build/Sync:** `npm run build:sync`
+- **Dev:** `npm run dev`
+- **Lint:** `npm run lint`
+- **Test Share:** `npm run share:test`
+
+## 📁 RELEVANT ARCHITECTURE
+- **AI Logic:** `src/services/ai/` (Primary: **Gemini 3 Flash** via raw fetch).
+- **Trip Engine:** `src/types/trip.ts` and `src/services/ai/providers/trip-planner-provider.ts`.
+- **Native Hooks:** `src/hooks/native/`.
+- **Context Docs:** `guides/` folder (Read `CONTEXT.md` first).
+
+## 💡 BEST PRACTICES
+- **Absolute Paths:** Use them in all tool calls.
+- **Read Before Write:** Always `view_file` before editing.
+- **Minimalism:** If a UI feels cluttered, remove elements. "Less is more" is the iOS 26 philosophy.
+- **Clean Diffing:** When using Claude Code, ensure your edits are precise and avoid large, unnecessary file overwrites.

@@ -52,7 +52,6 @@ const SavedContent: React.FC<SavedContentProps> = ({
       console.error("No city ID provided for navigation");
       return;
     }
-    console.log("Navigating to city with ID:", cityId);
     navigate(`/place/${cityId}`);
   };
   

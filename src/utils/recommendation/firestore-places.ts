@@ -122,13 +122,11 @@ export async function syncPlaceToFirestore(
 
     const user = auth.currentUser;
     if (!user) {
-        console.warn('[Firestore] No signed-in user; skipping cloud sync.');
         return;
     }
 
     const placeId = place.recId || place.id;
     if (!placeId) {
-        console.warn('[Firestore] Place has no ID; skipping sync.');
         return;
     }
 
@@ -141,9 +139,13 @@ export async function syncPlaceToFirestore(
             updated_at: serverTimestamp(),
         }, { merge: true });
 
-        console.log('[Firestore] Synced place:', place.name);
+        if (import.meta.env.DEV) {
+            console.log('[Firestore] Synced place:', place.name);
+        }
     } catch (error) {
-        console.warn('[Firestore] Failed to sync place:', error);
+        if (import.meta.env.DEV) {
+            console.warn('[Firestore] Failed to sync place:', error);
+        }
     }
 }
 
@@ -156,7 +158,6 @@ export async function syncRecommendationToFirestore(rec: ParsedRecommendation): 
 
     const user = auth.currentUser;
     if (!user) {
-        console.warn('[Firestore] No signed-in user; skipping cloud sync.');
         return;
     }
 
@@ -187,7 +188,9 @@ export async function fetchFirestorePlaces(): Promise<ParsedRecommendation[]> {
 
         return groupDocsByCity(docs);
     } catch (error) {
-        console.warn('[Firestore] Failed to fetch places:', error);
+        if (import.meta.env.DEV) {
+            console.warn('[Firestore] Failed to fetch places:', error);
+        }
         return [];
     }
 }

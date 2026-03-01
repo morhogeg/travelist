@@ -83,10 +83,10 @@ const DeleteAccountSettings = () => {
           deleteDoc(doc(db, 'places', placeDoc.id))
         );
         await Promise.all(deletePromises);
-        console.log("[Settings] Deleted user places from Firestore");
       } catch (dataError: any) {
-        console.warn("[Settings] Could not delete user records:", dataError.message);
-        // Continue — account deletion should still proceed even if Firestore cleanup fails
+        if (import.meta.env.DEV) {
+          console.warn("[Settings] Could not delete user records:", dataError.message);
+        }
       }
 
       // 3. Delete the Firebase Auth account

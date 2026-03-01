@@ -64,7 +64,9 @@ function AppContent() {
   useEffect(() => {
     const handleProximityTap = (event: CustomEvent<{ placeId?: string; recId?: string; placeName?: string; cityId?: string }>) => {
       const { recId, placeName, cityId } = event.detail;
-      console.log('[App] Proximity notification tapped:', placeName, recId);
+      if (import.meta.env.DEV) {
+        console.log('[App] Proximity notification tapped:', placeName, recId);
+      }
 
       // Find the place in recommendations
       const allRecs = getRecommendations();
@@ -90,7 +92,9 @@ function AppContent() {
         }
       }
 
-      console.warn('[App] Could not find place for proximity notification:', recId);
+      if (import.meta.env.DEV) {
+        console.warn('[App] Could not find place for proximity notification:', recId);
+      }
     };
 
     window.addEventListener('proximityPlaceTapped', handleProximityTap as EventListener);
@@ -143,7 +147,9 @@ function AppContent() {
           description: "Added to Inbox and parsed",
         });
       } catch (err) {
-        console.warn('[DeepLink] Failed to handle url', url, err);
+        if (import.meta.env.DEV) {
+          console.warn('[DeepLink] Failed to handle url', url, err);
+        }
       }
     };
 

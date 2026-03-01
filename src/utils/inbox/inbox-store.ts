@@ -57,7 +57,6 @@ export function addInboxItem(rawText: string, sourceApp?: string): InboxItem {
   const trimmedText = rawText.trim();
   const existing = items.find(i => i.rawText.trim() === trimmedText);
   if (existing) {
-    console.log("[Inbox] Item already exists, skipping:", trimmedText.substring(0, 30));
     return existing;
   }
 

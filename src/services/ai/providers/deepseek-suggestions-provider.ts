@@ -38,8 +38,10 @@ export class GeminiSuggestionsProvider implements LLMProvider {
   name = 'gemini-3-flash';
 
   async generateSuggestions(request: AISuggestionRequest): Promise<AISuggestionResult> {
-    console.log('[AI Suggestions] Generating suggestions for:', request.cityName, request.countryName);
-    console.log('[AI Suggestions] Based on saved places:', request.savedPlaces.map(p => p.name));
+    if (import.meta.env.DEV) {
+      console.log('[AI Suggestions] Generating suggestions for:', request.cityName, request.countryName);
+      console.log('[AI Suggestions] Based on saved places:', request.savedPlaces.map(p => p.name));
+    }
 
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(request);
@@ -68,7 +70,9 @@ export class GeminiSuggestionsProvider implements LLMProvider {
       // Parse the JSON response
       const suggestions = this.parseResponse(result.content, request.maxSuggestions || 5);
 
-      console.log('[AI Suggestions] Parsed suggestions:', suggestions);
+      if (import.meta.env.DEV) {
+        console.log('[AI Suggestions] Parsed suggestions:', suggestions);
+      }
 
       return {
         suggestions,

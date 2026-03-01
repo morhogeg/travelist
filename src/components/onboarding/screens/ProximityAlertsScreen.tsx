@@ -1,10 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Bell, MapPin, Navigation, Smartphone } from 'lucide-react';
+import { Geolocation } from '@capacitor/geolocation';
 import { OnboardingButton } from '../components/OnboardingButton';
 import { OnboardingScreenProps } from '../types';
 
 export const ProximityAlertsScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack, onSkip }) => {
+    const handleContinue = async () => {
+        try {
+            await Geolocation.requestPermissions();
+        } catch {
+            // Permission denied or error — proximity just won't work
+        }
+        onNext();
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, x: 100 }}
@@ -129,7 +139,7 @@ export const ProximityAlertsScreen: React.FC<OnboardingScreenProps> = ({ onNext,
                 transition={{ delay: 0.6, type: 'spring', stiffness: 80, damping: 12 }}
                 className="space-y-3 relative z-10"
             >
-                <OnboardingButton onClick={onNext}>
+                <OnboardingButton onClick={handleContinue}>
                     Continue
                 </OnboardingButton>
                 <OnboardingButton onClick={onBack} variant="ghost">

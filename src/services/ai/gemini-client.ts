@@ -58,18 +58,22 @@ export async function callGemini(
 
             // If we got a real result (not null and not timeout)
             if (result && !('timeout' in result)) {
-                console.log('[Gemini Client] Using cached summary for:', query);
+                if (import.meta.env.DEV) {
+                    console.log('[Gemini Client] Using cached summary for:', query);
+                }
                 return {
                     content: result.summary,
                     model: result.model,
                     thoughtSignature: result.thoughtSignature,
                     groundingMetadata: { sources: result.groundingSources }
                 };
-            } else if ((result as any)?.timeout) {
+            } else if (import.meta.env.DEV && (result as any)?.timeout) {
                 console.warn('[Gemini Client] Cache lookup timed out - skipping cache');
             }
         } catch (err) {
-            console.warn('[Gemini Client] Cache lookup failed:', err);
+            if (import.meta.env.DEV) {
+                console.warn('[Gemini Client] Cache lookup failed:', err);
+            }
         }
     }
 
@@ -82,7 +86,9 @@ export async function callGemini(
     }
 
     try {
-        console.log('[Gemini Client] Calling Raw API model:', MODEL_ID);
+        if (import.meta.env.DEV) {
+            console.log('[Gemini Client] Calling Raw API model:', MODEL_ID);
+        }
 
         // Separate system instruction from messages
         const systemMessage = messages.find(m => m.role === 'system');

@@ -24,18 +24,14 @@ let isImporting = false;
  */
 export async function importSharedInbox(): Promise<number> {
   if (isImporting) {
-    console.log("[Inbox] ⏳ Import already in progress, skipping...");
     return 0;
   }
 
   try {
     isImporting = true;
-    console.log("[Inbox] 🔍 Checking for shared items from native extension...");
     const { items = [] } = await SharedInbox.readShared();
-    console.log(`[Inbox] 📊 Found ${items.length} item(s) from share extension`);
 
     if (!items.length) {
-      console.log("[Inbox] ℹ️ No new shared items to import");
       return 0;
     }
 
@@ -51,9 +47,10 @@ export async function importSharedInbox(): Promise<number> {
         const isNew = new Date().getTime() - new Date(added.receivedAt).getTime() < 5000;
 
         if (isNew && added.status === "new") {
-          console.log(`[Inbox] ✅ Added/Verified item: ${added.id}`);
           parseInboxItem(added.id).catch((err) => {
-            console.warn("[Inbox] Background parse failed", err);
+            if (import.meta.env.DEV) {
+              console.warn("[Inbox] Background parse failed", err);
+            }
           });
           importedCount++;
         }
@@ -61,7 +58,6 @@ export async function importSharedInbox(): Promise<number> {
     }
 
     await SharedInbox.clearShared();
-    console.log(`[Inbox] 🧹 Cleared shared items from native, imported ${importedCount} new items`);
     return importedCount;
   } catch (err) {
     console.error("[Inbox] ❌ Failed to import shared items", err);

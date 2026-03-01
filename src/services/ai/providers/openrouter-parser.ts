@@ -135,7 +135,9 @@ export async function parseWithGemini(
   city: string,
   country: string
 ): Promise<ParseResult> {
-  console.log('[Parser] Starting parseWithGemini');
+  if (import.meta.env.DEV) {
+    console.log('[Parser] Starting parseWithGemini');
+  }
 
   const messages: GeminiMessage[] = [
     { role: 'system', content: BASE_SYSTEM_PROMPT },
@@ -167,7 +169,9 @@ export async function parseSharedText(text: string): Promise<ParseResult> {
   const hasURL = urlPattern.test(text);
   const inputType = hasURL ? 'url' : 'text';
 
-  console.log('[Parser] Detected input type:', inputType);
+  if (import.meta.env.DEV) {
+    console.log('[Parser] Detected input type:', inputType);
+  }
 
   const systemPrompt = inputType === 'url' ? SHARE_SYSTEM_PROMPT : FREEFORM_TEXT_PROMPT;
   const userPrompt = inputType === 'url'
@@ -270,7 +274,9 @@ function processAIResult(content: string, originalText: string, model: string): 
       return place;
     });
 
-  console.log('[Parser] Successfully parsed places:', places, 'with model:', model);
+  if (import.meta.env.DEV) {
+    console.log('[Parser] Successfully parsed places:', places, 'with model:', model);
+  }
   return { places, model };
 }
 
