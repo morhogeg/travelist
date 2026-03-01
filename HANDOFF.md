@@ -1,6 +1,6 @@
 # Travelist AI — Developer Handoff Document
-**Generated:** March 1, 2026
-**Session summary:** App Store readiness review + code audit
+**Last updated:** March 1, 2026
+**Sessions:** App Store readiness review + code audit → Security hardening (Gemini proxy)
 **Next steps:** See "Action Plan" section at the bottom
 
 ---
@@ -10,13 +10,14 @@
 **App:** Travelist AI — iOS travel places curation app
 **Path:** `/Users/morhogeg/travelist-2`
 **Stack:** React 18 + TypeScript + Vite + Capacitor 7 (iOS)
-**Backend:** Firebase (Firestore + Auth, JS SDK) + Supabase
-**AI:** Google Gemini 3 Flash via raw `fetch()` in `src/services/ai/gemini-client.ts` (bypasses SDK for Capacitor compat). OpenRouter as fallback.
+**Backend:** Firebase (Firestore + Auth, JS SDK)
+**AI:** Google Gemini 3 Flash via Firebase Cloud Function proxy (`functions/src/index.ts`). Client calls `https://us-central1-travelistai-production.cloudfunctions.net/callGeminiProxy` — API key never touches the client.
 **Design:** "iOS 26 Liquid Glass" glassmorphism — purple gradient (#667eea → #764ba2). Zero #007AFF.
 **Bundle ID:** `com.travelist.app` | **App Name:** `Travelist AI`
 **iOS min:** 15.0 | Capacitor 7.4.4
 **TestFlight:** Build 1.0 (1) live, internal group "Mor's Team" — uploaded Jan 9, 2026
 **Privacy policy:** https://morhogeg.github.io/travelist/PRIVACY_POLICY
+**Firebase project:** `travelistai-production`
 
 ### Key npm scripts
 ```bash
@@ -30,37 +31,53 @@ npm run ios:dev          # build + sync + open Xcode
 
 ### Architecture at a glance
 - `src/pages/` — 12 pages: Index (home), Inbox, TripDetailPage, Profile, Settings, etc.
-- `src/services/ai/` — Gemini client, OpenRouter client, AI cache (Firestore, 30-day TTL)
+- `src/services/ai/` — Gemini client (proxy-based), AI cache (Firestore, 30-day TTL)
+- `functions/src/index.ts` — Firebase Cloud Function proxy for Gemini API (key in Firebase Secrets)
 - `src/services/proximity/` — Background location + local notifications
 - `src/utils/recommendation/` — localStorage CRUD for places
 - `src/utils/inbox/` — Share Extension inbox store
 - `ios/App/ShareExtension/` — Native Swift Share Extension (fully implemented)
 - App Groups: `group.com.travelist.shared` — used to pass data between Share Extension and main app
 
+### Firebase setup
+- **Project:** `travelistai-production`
+- **Web app ID:** `1:628341208308:web:fc7a9a90e6b881a5975aa1`
+- **Functions:** Node 20, region `us-central1`, Blaze plan
+- **Secrets:** `GEMINI_API_KEY` stored in Firebase Secret Manager (not in any file)
+- **Firestore rules:** require `request.auth != null` on all collections
+- **Firebase config:** in `.env` (not committed) — copy from `.env.example`
+
 ---
 
-## WHAT WAS DONE THIS SESSION
+## WHAT WAS DONE
 
-### ✅ Completed
+### Session 1 — App Store readiness + code audit
 1. **Apple Sign-In button removed** — `src/components/onboarding/screens/SignInScreen.tsx`
-   - The button was a dummy (just called `onNext()`), risking App Store rejection for non-functional UI
-   - Removed the `AppleLogo` SVG, `handleAppleSignIn` function, and the entire button
+   - Was a dummy (just called `onNext()`), risking App Store rejection
    - Screen now shows informational content + "Continue without account" only
-   - "Cloud sync coming soon" badge remains
 
 2. **Production console.log cleanup** — `src/lib/firebase.ts`
-   - 3 `console.warn` calls in firebase.ts were leaking to production builds
-   - Now guarded with `if (import.meta.env.DEV)`
-   - All other console calls in the codebase were already properly guarded — no further changes needed
+   - `console.warn` calls now guarded with `if (import.meta.env.DEV)`
 
-3. **App Store listing content written** — ready to paste into App Store Connect:
-   - Full description (4000 chars) — see Section 4 below
-   - Keywords: `travel,places,trip planner,bucket list,itinerary,maps,travel app,wanderlust,city guide,AI travel`
-   - Promotional text (139 chars): "Your AI-powered travel wishlist. Save places from any app, get smart descriptions, and plan perfect trips — all offline, no account needed."
-   - What's New text — see Section 4 below
-   - Age Rating: **4+** (no social features, no purchases, no adult content)
+3. **App Store listing content written** — ready to paste into App Store Connect (see section below)
 
-4. **Screenshots deferred** — requires manual navigation in Simulator. Build and sync ran successfully. iPhone 17 Pro Max simulator was booted and app installed. To take screenshots: open Simulator, navigate each key screen, run `xcrun simctl io booted screenshot <filename>.png`
+### Session 2 — Security hardening
+4. **Gemini API key secured** ✅ CRITICAL FIX
+   - Old key `AIzaSyCe4dodNptsQPS3QfK8V0IvS58B8A9qWGo` was in bundle — **rotated and invalidated**
+   - New key stored in Firebase Secret Manager only (`firebase functions:secrets:set GEMINI_API_KEY`)
+   - Client now calls a Firebase Cloud Function proxy via plain `fetch()` — no key in bundle
+   - Switched from `onCall` (callable) to `onRequest` (HTTP) — callable SDK was silently failing in Capacitor WKWebView
+
+5. **OpenRouter removed entirely** ✅
+   - `src/services/ai/openrouter-client.ts` deleted
+   - All imports and references cleaned up across the codebase
+   - Gemini is the sole AI provider
+
+6. **Firebase web app registered** — required for JS SDK initialization in Capacitor
+   - App ID: `1:628341208308:web:fc7a9a90e6b881a5975aa1`
+   - Firebase config vars added to `.env`
+
+7. **Firestore rules verified** — `allow read, write: if request.auth != null` on all collections (confirmed in Firebase Console)
 
 ---
 
@@ -77,8 +94,9 @@ npm run ios:dev          # build + sync + open Xcode
 | App Store Connect listing | ✅ Created | App name, category, subtitle done |
 | Signing & Certificates | ✅ | Auto-managed in Xcode |
 | TestFlight (internal) | ✅ Live | Build 1.0 (1) |
-| Apple Sign-In button | ✅ Fixed | Removed dummy button this session |
-| Production console.log | ✅ Fixed | Firebase.ts leak fixed this session |
+| Apple Sign-In button | ✅ Fixed | Removed dummy button |
+| Production console.log | ✅ Fixed | Firebase.ts leak fixed |
+| Gemini API key security | ✅ Fixed | Moved to Firebase Secrets proxy |
 | Screenshots | ❌ BLOCKING | Required for external TF + App Store |
 | App description / keywords | ✅ Written | Needs pasting into App Store Connect |
 | Age rating questionnaire | ❌ | Must complete in App Store Connect (answer: 4+) |
@@ -93,13 +111,8 @@ npm run ios:dev          # build + sync + open Xcode
 
 **[C1] Location permission never requested during onboarding**
 - File: `src/components/onboarding/OnboardingFlow.tsx`
-- The proximity alerts onboarding screen shows the feature beautifully but never calls `requestPermissions()`. Users complete onboarding without being asked for location permission. Proximity alerts silently don't work. Apple reviewers will test this feature and find it broken.
-- **Fix:** On the proximity alerts onboarding screen (or on first toggle in Settings), call `Geolocation.requestPermissions()` before showing the feature as enabled.
-
-**[C2] OpenRouter API key exposed in client JS bundle**
-- File: `src/services/ai/openrouter-client.ts`
-- The OpenRouter key is a real auth token (not a public key). It is bundled into the production JS and extractable from the IPA file by anyone. If abused, your account gets billed or suspended.
-- **Fix:** Proxy OpenRouter calls through a Supabase Edge Function. The client sends the prompt, the edge function holds the key and makes the request.
+- The proximity alerts onboarding screen shows the feature but never calls `requestPermissions()`. Users complete onboarding without being asked for location permission. Proximity alerts silently don't work.
+- **Fix:** On the proximity alerts onboarding screen (or on first toggle in Settings), call `Geolocation.requestPermissions()`.
 
 ---
 
@@ -112,137 +125,77 @@ npm run ios:dev          # build + sync + open Xcode
 
 **[H2] GPS accuracy not validated before proximity trigger**
 - File: `src/services/proximity/proximity-service.ts`
-- `calculateDistance()` runs without checking `position.coords.accuracy`. A device with 200m GPS error could trigger "you're nearby!" when the user is nowhere close. Erodes trust in the feature fast.
+- `calculateDistance()` runs without checking `position.coords.accuracy`. A device with 200m GPS error could trigger "you're nearby!" when the user is nowhere close.
 - **Fix:** Gate triggers on `coords.accuracy < (alertDistance * 0.5)` or similar threshold.
 
 **[H3] Firestore sync failures silent in production**
 - File: `src/utils/recommendation/recommendation-manager.ts:121–125`
-- Sync errors are swallowed silently in production. Low risk now (sync is "coming soon"), but when cloud sync ships, users could silently lose data.
-- **Fix:** When sync fails, write a flag to localStorage and surface a subtle "Sync paused" indicator in the UI.
+- Sync errors are swallowed silently. When cloud sync ships, users could silently lose data.
+- **Fix:** Write a flag to localStorage on failure and surface a subtle "Sync paused" indicator.
 
 ---
 
 ### MEDIUM — Good to fix before next release
 
 **[M1] Onboarding proximity toggle does nothing**
-- The "enable proximity alerts" step in onboarding doesn't actually request permission or toggle anything. It's a dead UI state.
+- The "enable proximity alerts" step in onboarding doesn't actually request permission or toggle anything.
 
 **[M2] City name fragmentation**
 - "Tel Aviv" and "tel aviv" and "Tel-Aviv" are stored as separate cities. No normalization.
 - **Fix:** `.trim()` and title-case normalization on city/country when saving.
 
 **[M3] Trip suggestions have no images**
-- AI-suggested places in `TripDetailPage.tsx` show placeholder images. Inconsistent vs. user-added places that get fetched images.
+- AI-suggested places in `TripDetailPage.tsx` show placeholder images.
 
 **[M4] No "saved offline" feedback**
-- Adding a place with no internet gives no confirmation. Feels like the save failed.
+- Adding a place with no internet gives no confirmation.
 
 **[M5] No crash reporting**
-- No Firebase Crashlytics or Sentry. Flying blind in production.
+- No Firebase Crashlytics or Sentry.
 - **Fix:** Add `@capacitor-firebase/crashlytics` — 30-minute integration.
 
 ---
 
 ### LOW
 
-**[L1] Performance** — `groupedRecommendations` recalculated on every filter change. Low impact on modern devices but worth memoizing for older iPhones.
+**[L1] Performance** — `groupedRecommendations` recalculated on every filter change.
 
-**[L2] Accessibility** — Several icon buttons lack `aria-label`. Low risk for App Store but worth addressing over time.
+**[L2] Accessibility** — Several icon buttons lack `aria-label`.
 
 **[L3] Token limit hardcoded** — `maxOutputTokens: 1000` in `gemini-client.ts` can truncate longer AI descriptions.
 
 ---
 
-## SECURITY FINDINGS (Dedicated Security Audit)
+## SECURITY STATUS
 
-**Overall Risk: MEDIUM-HIGH** — strong foundations but one critical issue that must be fixed before launch.
+### Resolved ✅
+- **[S-CRIT-1] Gemini API key** — rotated + moved to Firebase Secrets. Client never sees the key.
+- **[S-CRIT-2] OpenRouter** — removed entirely. No client-side AI keys remain.
+- **[S-HIGH-1] Firestore rules** — verified: `request.auth != null` on all collections.
 
-### What's Working Well ✅
-- **Firebase client config** — public by design, not a security issue
-- **Firestore queries all filter by `user_id`** — user A cannot read user B's data through the app
-- **No `dangerouslySetInnerHTML`** — AI response content is rendered as plain text, XSS-proof
-- **HTTPS everywhere** — all fetch() calls use HTTPS
-- **Share Extension validates input** — correct parsing of URLs/text, no code execution
-- **Entitlements minimal** — only App Group, no over-permissioning
-- **PrivacyInfo.xcprivacy is complete** — Apple's privacy requirements met
-- **AI data disclosure present** — `AISettings.tsx` clearly tells users what is shared with Google
-- **Dependencies are current** — no known high-severity CVEs found
+### Remaining
 
----
+**[S-MED-1] No rate limiting on AI calls** — users can hammer the proxy with no throttle.
+- **Fix:** Debounce the button (30 min), or enforce per-user quotas in the function (harder, requires auth).
 
-### CRITICAL — Fix Before Launch
+**[S-MED-2] Proxy has no auth check** — anyone who discovers the Cloud Function URL can invoke it.
+- Blocked by: real auth not implemented yet (Apple Sign-In is dummy).
+- **Fix (when auth is real):** Add `if (!request.auth) throw HttpsError('unauthenticated')` to the function.
 
-**[S-CRIT-1] Gemini API key exposed in .env AND in the built JS bundle**
-- The actual key `AIzaSyCe4dodNptsQPS3QfK8V0IvS58B8A9qWGo` was found in the `.env` file. It is compiled into the production iOS app bundle and can be extracted from the IPA by anyone.
-- The key is also passed as a URL query param (`?key=...`), which means it appears in system logs, proxy logs, and network monitoring tools.
-- **Impact:** Anyone who extracts this key can make unlimited Gemini API calls billed to your account.
-- **Action (immediate):** Rotate this key right now in Google Cloud Console. Then proxy all AI calls through a backend.
+**[S-MED-3] ai_cache writable by any authenticated user** — cache poisoning possible.
+- **Fix:** Validate document structure in Firestore rules, or move cache writes into the Cloud Function.
 
-**[S-CRIT-2] OpenRouter API key also in client bundle (if configured)**
-- `src/services/ai/openrouter-client.ts` reads `VITE_OPENROUTER_API_KEY`. If set, same problem — auth token exposed in bundle.
-- **Action:** Rotate and move to backend proxy.
-
----
-
-### HIGH
-
-**[S-HIGH-1] No Firestore Security Rules file in repo**
-- The app correctly filters all queries by `user_id` client-side, but there is no `firestore.rules` file. This means server-side enforcement is unknown.
-- If the Firestore rules say `allow read, write: if true;`, any authenticated user can read/write any other user's data by hitting the Firestore REST API directly (bypassing the app).
-- **Action:** Check Firebase Console → Firestore → Rules. Must have `request.auth.uid == resource.data.user_id` rule in place.
-
----
-
-### MEDIUM
-
-**[S-MED-1] No rate limiting on AI calls**
-- A user can hammer the "get AI description" button repeatedly with no throttle. Exhausts your API quota and runs up costs.
-- **Fix:** Add `debounce`/throttle on the button, or enforce per-user quotas in a backend proxy.
-
-**[S-MED-2] localStorage data is unencrypted at rest**
-- User's saved places are stored in plain text localStorage (NSUserDefaults on iOS). On a jailbroken or physically compromised device, this data is readable.
-- **Risk level for a travel app:** Low-medium. Place names/cities are not high-sensitivity PII. Acceptable for v1.
-
-**[S-MED-3] Prompt injection via Share Extension input**
-- User-shared text is concatenated directly into AI prompts. Gemini is robust against injection and output is schema-validated, so practical risk is low.
-- **Fix:** Low priority given the use case. No data exfiltration risk since Gemini has no access to stored data.
-
-**[S-MED-4] GDPR compliance unknown**
-- No GDPR consent flow, no explicit data processing agreement with Firebase, no "right to be forgotten" confirmation. Low risk if not targeting EU as primary market.
-
----
-
-### LOW
+**[S-MED-4] localStorage data unencrypted at rest** — readable on jailbroken device. Acceptable for v1.
 
 **[S-LOW-1] No email verification before account creation**
-- Users can create accounts with mistyped emails. Data is still protected by `user_id`, so no cross-user risk.
 
-**[S-LOW-2] Dev server HTTP mode (`cleartext: true`)**
-- Only active when `USE_DEV_SERVER=true`. Not a production concern, but must never be shipped in a release build.
-
-**[S-LOW-3] No crash reporting**
-- No Sentry or Firebase Crashlytics. Flying blind on production errors.
-
----
-
-### Security Action Plan (Priority Order)
-
-| # | Action | When | Effort |
-|---|--------|------|--------|
-| 1 | **Rotate Gemini API key** in Google Cloud Console | TODAY | 5 min |
-| 2 | **Verify Firestore Rules** in Firebase Console — confirm user_id filtering | TODAY | 10 min |
-| 3 | **Set Gemini API quota limit** in Google Cloud Console to cap max spend | This week | 10 min |
-| 4 | **Rotate OpenRouter key** if configured | This week | 5 min |
-| 5 | **Proxy AI calls through Supabase Edge Function** | Before launch | 2–4 hrs |
-| 6 | **Add debounce** on AI description button | Before launch | 30 min |
-| 7 | Add Firebase Crashlytics | Post-launch | 1 hr |
-| 8 | Add email verification | Post-launch | 1 hr |
+**[S-LOW-2] No crash reporting** — flying blind in production.
 
 ---
 
 ## APP STORE LISTING CONTENT (ready to paste)
 
-### Promotional Text (updates without resubmission — 139 chars)
+### Promotional Text (139 chars)
 ```
 Your AI-powered travel wishlist. Save places from any app, get smart descriptions, and plan perfect trips — all offline, no account needed.
 ```
@@ -315,33 +268,33 @@ Download Travelist AI and start building the travel life you've always imagined.
 |---|------|---------|--------|
 | 1 | Request location permission in onboarding | `OnboardingFlow.tsx` | 30 min |
 | 2 | Disable submit button while saving | `RecommendationDrawer.tsx` | 10 min |
-| 3 | Verify Firestore Rules in Firebase Console | Firebase Console | 15 min |
-| 4 | Increment build number in Xcode | Xcode project settings | 2 min |
-| 5 | Paste App Store listing content into App Store Connect | App Store Connect | 20 min |
-| 6 | Complete age rating questionnaire (answer: 4+) | App Store Connect | 5 min |
+| 3 | Increment build number in Xcode | Xcode project settings | 2 min |
+| 4 | Paste App Store listing content into App Store Connect | App Store Connect | 20 min |
+| 5 | Complete age rating questionnaire (answer: 4+) | App Store Connect | 5 min |
 
 ### Before App Store submission
 | # | Task | File(s) | Effort |
 |---|------|---------|--------|
-| 7 | Take screenshots in Simulator (manual) | iOS Simulator | 30 min |
-| 8 | Add GPS accuracy check to proximity trigger | `proximity-service.ts` | 20 min |
-| 9 | Set Gemini API key quota limit in Google Cloud Console | Google Cloud Console | 10 min |
-| 10 | Rotate OpenRouter key + move to backend (or disable if not critical) | `openrouter-client.ts` | 1–2 hrs |
+| 6 | Take screenshots in Simulator (manual) | iOS Simulator | 30 min |
+| 7 | Add GPS accuracy check to proximity trigger | `proximity-service.ts` | 20 min |
+| 8 | Add debounce on "Get info" button (rate limiting) | `RecommendationDetailsDialog.tsx` | 30 min |
+| 9 | Add auth check to Cloud Function proxy | `functions/src/index.ts` | 15 min (after auth works) |
 
 ### Post-launch / next release
 | # | Task | Notes |
 |---|------|-------|
-| 11 | Add Firebase Crashlytics | `@capacitor-firebase/crashlytics` |
-| 12 | City name normalization on save | trim + title-case |
-| 13 | Offline save feedback | "Saved locally" toast |
-| 14 | Sync failure indicator | when cloud sync ships |
+| 10 | Add Firebase Crashlytics | `@capacitor-firebase/crashlytics` |
+| 11 | City name normalization on save | trim + title-case |
+| 12 | Offline save feedback | "Saved locally" toast |
+| 13 | Sync failure indicator | when cloud sync ships |
+| 14 | Restrict ai_cache writes in Firestore rules | prevent cache poisoning |
 
 ---
 
 ## NOTES FOR NEXT SESSION
 
-- The simulator (iPhone 17 Pro Max, UDID: `68FC92C8-9CAF-4169-BE14-0BA54276FAC1`) was booted and had the app installed during this session. May still be running.
-- Screenshot command: `xcrun simctl io booted screenshot <path>.png`
-- To rebuild and see changes in simulator: `npm run build && npx cap sync ios`, then re-run `xcodebuild` and reinstall, OR use the Xcode simulator directly after `npx cap open ios`
-- The live simulator workflow: edit code → `npm run build && npx cap sync ios` → changes reflect in running simulator (Capacitor hot-reload)
+- **AI proxy:** Cloud Function is live at `https://us-central1-travelistai-production.cloudfunctions.net/callGeminiProxy`. To update the Gemini key: `echo "KEY" | firebase functions:secrets:set GEMINI_API_KEY && firebase deploy --only functions`
+- **Firebase config** lives in `.env` (not committed). All `VITE_FIREBASE_*` vars required for the app to initialize.
+- **Build workflow:** `npm run build:prod && npx cap sync ios` → then Run in Xcode
+- **Screenshot command:** `xcrun simctl io booted screenshot <path>.png`
 - `guides/APP_STORE_DEPLOYMENT.md` has the full upload process (archive in Xcode → Product → Archive → Distribute)
