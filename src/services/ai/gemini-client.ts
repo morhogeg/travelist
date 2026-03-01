@@ -6,6 +6,7 @@
 import { generateGeminiDescription } from './gemini-service';
 import { getCachedAISummary, cacheAISummary } from './ai-cache-service';
 import { Capacitor } from '@capacitor/core';
+const PROXY_URL = 'https://us-central1-travelistai-production.cloudfunctions.net/callGeminiProxy';
 
 const MODEL_ID = 'gemini-3-flash-preview';
 
@@ -77,17 +78,10 @@ export async function callGemini(
         }
     }
 
-    // 2. Fallback to Raw API
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-    if (!apiKey) {
-        console.error('[Gemini Client] API key not configured');
-        return { content: '', model: '', error: 'API key not configured' };
-    }
-
+    // 2. Call Gemini via Cloud Function proxy (key never touches the client)
     try {
         if (import.meta.env.DEV) {
-            console.log('[Gemini Client] Calling Raw API model:', MODEL_ID);
+            console.log('[Gemini Client] Calling proxy for model:', MODEL_ID);
         }
 
         // Separate system instruction from messages
@@ -125,24 +119,19 @@ export async function callGemini(
             payload.tools = [{ googleSearch: {} }];
         }
 
-        // Perform Fetch
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }
-        );
+        // Invoke proxy — API key stays server-side in Firebase Secrets
+        const proxyResponse = await fetch(PROXY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payload, modelId: MODEL_ID })
+        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API Error ${response.status}: ${errorText}`);
+        if (!proxyResponse.ok) {
+            const errText = await proxyResponse.text();
+            throw new Error(`Proxy error ${proxyResponse.status}: ${errText}`);
         }
 
-        const data = await response.json();
+        const data = await proxyResponse.json();
 
         const candidate = data.candidates?.[0];
         const contentPart = candidate?.content?.parts?.[0];

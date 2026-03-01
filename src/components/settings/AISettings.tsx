@@ -25,19 +25,17 @@ const AISettings = () => {
     const [providerName, setProviderName] = useState("Travelist AI");
 
     useEffect(() => {
-        // Check for Gemini API key (primary) or OpenRouter (fallback)
-        const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        // Gemini is served via Firebase Cloud Function proxy (no client-side key needed).
+        // OpenRouter stays as a client-side fallback when configured.
         const openrouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
-        if (geminiKey && geminiKey.length > 5) {
-            setAiStatus("connected");
-            setProviderName("Gemini 3 Flash (Google AI)");
-        } else if (openrouterKey && openrouterKey.length > 5) {
-            setAiStatus("connected");
-            setProviderName("DeepSeek (via OpenRouter)");
-        } else {
-            setAiStatus("disconnected");
-        }
+        // Firebase Functions proxy is always available when Firebase is configured
+        setAiStatus("connected");
+        setProviderName(
+            openrouterKey && openrouterKey.length > 5
+                ? "DeepSeek (via OpenRouter)"
+                : "Gemini 3 Flash (Google AI)"
+        );
     }, []);
 
     const handleToggleAISuggestions = (checked: boolean) => {

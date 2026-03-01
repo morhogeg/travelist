@@ -12,6 +12,7 @@ import {
     enableIndexedDbPersistence,
     connectFirestoreEmulator
 } from 'firebase/firestore';
+import { getFunctions, Functions } from 'firebase/functions';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -36,12 +37,14 @@ if (!isFirebaseConfigured && import.meta.env.DEV) {
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
+let functions: Functions | null = null;
 
 if (isFirebaseConfigured) {
     try {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
+        functions = getFunctions(app);
 
         // Enable offline persistence for travelers (works offline!)
         enableIndexedDbPersistence(db).catch((err) => {
@@ -67,7 +70,7 @@ if (isFirebaseConfigured) {
     }
 }
 
-export { app, auth, db };
+export { app, auth, db, functions };
 
 /**
  * Check if Firebase is ready to use
