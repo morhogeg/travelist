@@ -81,10 +81,10 @@ const RecommendationDrawer = ({
         setSelectedCollectionId(collectionId || "");
         setMode("structured");
       } else {
-        // ADD mode — clean state!
+        // ADD mode — clean state, default to AI free-text (the core USP)
         setLocalEditRecommendation(null);
         setSelectedCollectionId("");
-        setMode("structured");
+        setMode("freetext");
       }
     } else {
       setLocalEditRecommendation(null);
