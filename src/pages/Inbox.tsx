@@ -510,7 +510,7 @@ const InboxPage: React.FC = () => {
       <div className="px-4 pt-3 pb-24 space-y-6">
         <div className="relative flex items-center justify-between mb-4">
           <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
-            Inbox
+            Shared
           </h1>
           <div className="absolute right-0 flex items-center gap-2">
             <button
@@ -531,8 +531,11 @@ const InboxPage: React.FC = () => {
         <div className="space-y-3">
 
           {filteredItems.length === 0 && (
-            <div className="liquid-glass-clear border border-dashed border-border rounded-xl p-4 text-center text-sm text-muted-foreground">
-              Share places from apps like Google Maps or Instagram, then open the app to find them here.
+            <div className="liquid-glass-clear border border-dashed border-border rounded-xl p-6 text-center space-y-1">
+              <p className="text-sm font-medium text-foreground">Nothing here yet</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Tap the share button in Safari, Instagram, or Maps and choose <span className="font-medium text-foreground">Travelist</span> — links and places will appear here automatically.
+              </p>
             </div>
           )}
 
