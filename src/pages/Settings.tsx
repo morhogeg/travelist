@@ -1,28 +1,34 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
-import { Moon, Sun, Sparkles } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { lightHaptic } from "@/utils/ios/haptics";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import ShareExtensionGuide from "@/components/settings/ShareExtensionGuide";
 import ProximitySettings from "@/components/settings/ProximitySettings";
 import NavigationSettings from "@/components/settings/NavigationSettings";
 import AISettings from "@/components/settings/AISettings";
 import AuthSettings from "@/components/settings/AuthSettings";
 import DeleteAccountSettings from "@/components/settings/DeleteAccountSettings";
 import SettingsRow from "@/components/settings/SettingsRow";
-import { useNavigate } from "react-router-dom";
 import { getRecommendations } from "@/utils/recommendation/recommendation-manager";
 
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 px-1 mb-2">
+    {children}
+  </p>
+);
+
+const RowDivider = () => (
+  <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent ml-8" />
+);
+
 const Settings = () => {
-  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Compute cities list for proximity settings
   const allCities = useMemo(() => {
     const recommendations = getRecommendations();
     const cityMap = new Map<string, { cityId: string; cityName: string; placeCount: number }>();
@@ -39,9 +45,7 @@ const Settings = () => {
       city.placeCount += rec.places?.length || 0;
     });
 
-    return Array.from(cityMap.values()).sort((a, b) =>
-      a.cityName.localeCompare(b.cityName)
-    );
+    return Array.from(cityMap.values()).sort((a, b) => a.cityName.localeCompare(b.cityName));
   }, []);
 
   const handleToggleTheme = () => {
@@ -49,92 +53,88 @@ const Settings = () => {
     toggleTheme();
   };
 
-  // Load current auth session for conditional rendering
   useEffect(() => {
     if (!auth) return;
-
-    // Initial check
     setUserEmail(auth.currentUser?.email ?? null);
-
-    // Listen for auth changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUserEmail(user?.email ?? null);
     });
-
     return () => unsubscribe();
   }, []);
-
-  const Separator = () => <div className="h-px bg-border/30 ml-8" />;
 
   return (
     <Layout>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="px-4 pt-3 pb-24"
+        className="px-4 pt-3 pb-24 space-y-6"
       >
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
-            Settings
-          </h1>
+        <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent dark:from-white dark:to-white/80">
+          Settings
+        </h1>
+
+        {/* Appearance */}
+        <div>
+          <SectionLabel>Appearance</SectionLabel>
+          <div className="rounded-2xl overflow-hidden bg-neutral-100/80 dark:bg-transparent dark:ring-1 dark:ring-white/[0.08] px-3">
+            <SettingsRow
+              icon={theme === "light" ? Sun : Moon}
+              iconColor={theme === "light" ? "#FF9500" : "#5856D6"}
+              title="Theme"
+              subtitle={theme === "light" ? "Light mode" : "Dark mode"}
+              action={
+                <Switch
+                  checked={theme === "dark"}
+                  onCheckedChange={handleToggleTheme}
+                />
+              }
+            />
+          </div>
         </div>
 
-        {/* Settings List */}
-        <div className="px-3">
-          {/* Theme Toggle */}
-          <SettingsRow
-            icon={theme === "light" ? Sun : Moon}
-            title="Theme"
-            subtitle={theme === "light" ? "Light mode" : "Dark mode"}
-            action={
-              <Switch
-                checked={theme === "dark"}
-                onCheckedChange={handleToggleTheme}
-              />
-            }
-          />
+        {/* Location & Alerts */}
+        <div>
+          <SectionLabel>Location & Alerts</SectionLabel>
+          <div className="rounded-2xl overflow-hidden bg-neutral-100/80 dark:bg-transparent dark:ring-1 dark:ring-white/[0.08] px-3">
+            <ProximitySettings allCities={allCities} />
+          </div>
+        </div>
 
-          <Separator />
+        {/* Navigation */}
+        <div>
+          <SectionLabel>Navigation</SectionLabel>
+          <div className="rounded-2xl overflow-hidden bg-neutral-100/80 dark:bg-transparent dark:ring-1 dark:ring-white/[0.08] px-3">
+            <NavigationSettings />
+          </div>
+        </div>
 
-          {/* Proximity Alerts */}
-          <ProximitySettings allCities={allCities} />
-
-          <Separator />
-
-          {/* Navigation Settings */}
-          <NavigationSettings />
-
-          <Separator />
-
-          <Separator />
-
-          {/* AI Settings Section */}
-          <div className="py-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60 px-1 mb-4">
-              Intelligence & Privacy
-            </h2>
+        {/* Intelligence & Privacy */}
+        <div>
+          <SectionLabel>Intelligence & Privacy</SectionLabel>
+          <div className="rounded-2xl overflow-hidden bg-neutral-100/80 dark:bg-transparent dark:ring-1 dark:ring-white/[0.08] px-3">
             <AISettings />
           </div>
+        </div>
 
-          {/* Supabase Auth */}
-          <AuthSettings />
-
-          {/* Delete Account Section - Only show when signed in */}
-          {userEmail && (
-            <>
-              <div className="h-px bg-border/30 ml-8 mt-2" />
-              <DeleteAccountSettings />
-            </>
-          )}
+        {/* Account */}
+        <div>
+          <SectionLabel>Account</SectionLabel>
+          <div className="rounded-2xl overflow-hidden bg-neutral-100/80 dark:bg-transparent dark:ring-1 dark:ring-white/[0.08] px-3">
+            <AuthSettings />
+            {userEmail && (
+              <>
+                <RowDivider />
+                <DeleteAccountSettings />
+              </>
+            )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-muted-foreground">
-            Travelist AI v1.0.0
-          </p>
-        </div>
+        <p className="text-center text-xs text-muted-foreground/40 pb-2">
+          Travelist AI v1.0.0
+        </p>
       </motion.div>
     </Layout>
   );

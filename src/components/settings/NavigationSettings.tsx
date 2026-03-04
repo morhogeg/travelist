@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navigation, Map, RotateCcw } from "lucide-react";
+import { Navigation, RotateCcw } from "lucide-react";
 import { getMapPreference, MapAppPreference, setMapPreference } from "@/utils/maps/export-to-maps";
 import { lightHaptic, mediumHaptic } from "@/utils/ios/haptics";
 import SettingsRow from "./SettingsRow";
@@ -34,11 +34,14 @@ const NavigationSettings = () => {
     };
 
     return (
-        <div className="py-1">
+        <div>
             <SettingsRow
                 icon={Navigation}
+                iconColor="#FF3B30"
                 title="Navigation App"
-                subtitle={preference ? `Default: ${preference === 'google' ? 'Google Maps' : 'Apple Maps'}` : "Ask every time"}
+                subtitle={preference
+                    ? `Default: ${preference === 'google' ? 'Google Maps' : 'Apple Maps'}`
+                    : "Ask every time"}
                 action={preference ? (
                     <Button
                         variant="ghost"
@@ -52,29 +55,27 @@ const NavigationSettings = () => {
                 ) : null}
             />
 
-            <div className="flex gap-2 ml-8 mt-1 mb-2">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-8 px-3 text-[11px] font-bold uppercase tracking-tight rounded-xl ios26-transition-smooth ${preference === 'google'
-                        ? 'bg-accent/10 text-accent border-accent/20'
-                        : 'bg-muted/30 text-muted-foreground/60 border border-transparent'
-                        }`}
+            <div className="flex gap-2 ml-8 pb-3">
+                <button
+                    className={`h-8 px-4 text-xs font-semibold rounded-xl ios26-transition-smooth ${
+                        preference === 'google'
+                            ? 'bg-[#667eea]/15 text-[#667eea]'
+                            : 'bg-black/[0.06] dark:bg-white/[0.08] text-muted-foreground'
+                    }`}
                     onClick={() => handleSelect('google')}
                 >
                     Google Maps
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-8 px-3 text-[11px] font-bold uppercase tracking-tight rounded-xl ios26-transition-smooth ${preference === 'apple'
-                        ? 'bg-accent/10 text-accent border-accent/20'
-                        : 'bg-muted/30 text-muted-foreground/60 border border-transparent'
-                        }`}
+                </button>
+                <button
+                    className={`h-8 px-4 text-xs font-semibold rounded-xl ios26-transition-smooth ${
+                        preference === 'apple'
+                            ? 'bg-[#667eea]/15 text-[#667eea]'
+                            : 'bg-black/[0.06] dark:bg-white/[0.08] text-muted-foreground'
+                    }`}
                     onClick={() => handleSelect('apple')}
                 >
                     Apple Maps
-                </Button>
+                </button>
             </div>
         </div>
     );

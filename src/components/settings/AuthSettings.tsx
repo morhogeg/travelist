@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Cloud, Mail, Lock, Eye, EyeOff, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { auth, isFirebaseReady } from "@/lib/firebase";
 import {
   signInWithEmailAndPassword,
@@ -10,6 +9,7 @@ import {
   onAuthStateChanged,
   User
 } from "firebase/auth";
+import { lightHaptic } from "@/utils/ios/haptics";
 
 const AuthSettings = () => {
   const [email, setEmail] = useState("");
@@ -19,19 +19,15 @@ const AuthSettings = () => {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  // Load current auth session
   useEffect(() => {
     if (!auth) return;
-
-    // Initial check
     setUser(auth.currentUser);
-
-    // Listen for auth changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (u) setExpanded(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -45,19 +41,15 @@ const AuthSettings = () => {
     setAuthError(null);
 
     const trimmedEmail = email.trim();
-
     try {
-      // 1. Try sign-in first
       try {
         await signInWithEmailAndPassword(auth, trimmedEmail, password);
         setAuthMessage("Signed in!");
       } catch (signInErr: any) {
-        // 2. If user not found (auth/user-not-found) or wrong password, try sign-up if it looks like a new user
-        // Note: Firebase v9+ doesn't always distinguish for security, but we can attempt signup
         if (signInErr.code === 'auth/user-not-found' || signInErr.code === 'auth/invalid-credential') {
           try {
             await createUserWithEmailAndPassword(auth, trimmedEmail, password);
-            setAuthMessage("Account created and signed in!");
+            setAuthMessage("Account created!");
           } catch (signUpErr: any) {
             setAuthError(signUpErr.message);
           }
@@ -74,14 +66,12 @@ const AuthSettings = () => {
 
   const handleSignOut = async () => {
     if (!auth) return;
+    lightHaptic();
     setAuthLoading(true);
-    setAuthError(null);
-    setAuthMessage(null);
     try {
       await signOut(auth);
       setEmail("");
       setPassword("");
-      setAuthMessage("Signed out.");
     } catch (err: any) {
       setAuthError(err?.message ?? "Could not sign out");
     } finally {
@@ -89,83 +79,120 @@ const AuthSettings = () => {
     }
   };
 
+  const handleToggleExpand = () => {
+    lightHaptic();
+    setExpanded(v => !v);
+  };
+
   const userEmail = user?.email;
 
+  // Signed-in state
+  if (userEmail) {
+    return (
+      <div className="py-3 px-1 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+          <Cloud className="h-4 w-4 text-emerald-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-[15px]">Cloud Sync</p>
+          <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+        </div>
+        <button
+          onClick={handleSignOut}
+          disabled={authLoading}
+          className="text-xs font-medium text-muted-foreground/70 h-8 px-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 ios26-transition-smooth shrink-0"
+        >
+          {authLoading ? "..." : "Sign Out"}
+        </button>
+      </div>
+    );
+  }
+
+  // Signed-out: collapsed row with expandable form
   return (
-    <div className="w-full py-3 px-1 flex flex-col gap-3">
-      <div className="flex items-center gap-3">
-        <Sparkles className="h-5 w-5 shrink-0" style={{ color: '#667eea' }} />
-        <div className="flex-1 text-left min-w-0">
-          <p className="font-medium text-[15px]">Cloud Sync (Firebase)</p>
+    <div>
+      {/* Header row - tappable */}
+      <motion.div
+        whileTap={{ scale: 0.99 }}
+        className="py-3 px-1 flex items-center gap-3 cursor-pointer"
+        onClick={handleToggleExpand}
+      >
+        <div className="w-8 h-8 rounded-lg bg-[#667eea]/15 flex items-center justify-center shrink-0">
+          <Cloud className="h-4 w-4" style={{ color: '#667eea' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-[15px]">Cloud Sync</p>
           <p className="text-xs text-muted-foreground">
-            Sign in to sync your recommendations across devices.
+            {expanded ? "Enter your credentials below" : "Tap to sign in or create an account"}
           </p>
         </div>
-      </div>
+        <motion.div
+          animate={{ rotate: expanded ? 180 : 0 }}
+          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <ChevronDown className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+        </motion.div>
+      </motion.div>
 
-      <div className="flex flex-col gap-2">
-        {!userEmail && (
-          <>
-            <div className="relative">
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
-              />
-              <Mail className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-            </div>
+      {/* Expandable form */}
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="px-1 pb-3 pt-1 flex flex-col gap-2.5 pl-[44px]">
+              {/* Email field */}
+              <div className="relative">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground/40 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-10 pl-9 pr-3 text-sm rounded-xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] outline-none focus:border-[#667eea]/50 transition-colors placeholder:text-muted-foreground/40"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                />
+              </div>
 
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 pr-10"
-              />
-              <Lock className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+              {/* Password field */}
+              <div className="relative">
+                <Lock className="h-3.5 w-3.5 text-muted-foreground/40 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-10 pl-9 pr-10 text-sm rounded-xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] outline-none focus:border-[#667eea]/50 transition-colors placeholder:text-muted-foreground/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40"
+                >
+                  {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                </button>
+              </div>
+
+              {/* Sign in button */}
               <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={handleSignInOrUp}
+                disabled={authLoading || !email || !password}
+                className="h-10 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#667eea] to-[#764ba2] disabled:opacity-35 ios26-transition-smooth"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {authLoading ? "Working..." : "Continue"}
               </button>
-            </div>
-          </>
-        )}
 
-        <div className="flex items-center gap-2">
-          {!userEmail && (
-            <Button
-              onClick={handleSignInOrUp}
-              disabled={authLoading}
-              className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
-            >
-              {authLoading ? "Working..." : "Sign in / Create account"}
-            </Button>
-          )}
-          {userEmail && (
-            <Button
-              onClick={handleSignOut}
-              disabled={authLoading}
-              className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white"
-            >
-              {authLoading ? "Working..." : "Sign out"}
-            </Button>
-          )}
-        </div>
-        {userEmail && (
-          <p className="text-xs text-muted-foreground">
-            Signed in as <span className="font-semibold">{userEmail}</span>
-          </p>
+              {authMessage && <p className="text-xs text-emerald-500">{authMessage}</p>}
+              {authError && <p className="text-xs text-destructive/80">{authError}</p>}
+            </div>
+          </motion.div>
         )}
-        {authMessage && <p className="text-xs text-green-600">{authMessage}</p>}
-        {authError && <p className="text-xs text-destructive">{authError}</p>}
-      </div>
+      </AnimatePresence>
     </div>
   );
 };

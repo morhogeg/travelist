@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Trash2, Eye, EyeOff } from "lucide-react";
+import { Trash2, Eye, EyeOff, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { auth, db } from "@/lib/firebase";
@@ -34,13 +35,10 @@ const DeleteAccountSettings = () => {
 
   useEffect(() => {
     if (!auth) return;
-
     setUser(auth.currentUser);
-
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -67,12 +65,9 @@ const DeleteAccountSettings = () => {
         return;
       }
 
-      // 1. Re-authenticate to satisfy Firebase's recent-login requirement
-      //    (deleteUser is a sensitive operation and will fail without this)
       const credential = EmailAuthProvider.credential(currentUser.email, password);
       await reauthenticateWithCredential(currentUser, credential);
 
-      // 2. Delete user's places from Firestore
       try {
         const q = query(
           collection(db, 'places'),
@@ -89,10 +84,8 @@ const DeleteAccountSettings = () => {
         }
       }
 
-      // 3. Delete the Firebase Auth account
       await deleteUser(currentUser);
 
-      // 4. Clear all local storage data
       const keysToRemove = [
         'recommendations',
         'travelist-recommendations',
@@ -121,33 +114,26 @@ const DeleteAccountSettings = () => {
     }
   };
 
-  const userEmail = user?.email;
-  if (!userEmail) return null;
+  if (!user?.email) return null;
 
   return (
     <>
-      <div className="w-full py-3 px-1 flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <Trash2 className="h-5 w-5 shrink-0 text-destructive" />
-          <div className="flex-1 text-left min-w-0">
-            <p className="font-medium text-[15px]">Delete Account</p>
-            <p className="text-xs text-muted-foreground">
-              Permanently delete your account and all cloud data.
-            </p>
-          </div>
+      <motion.div
+        whileTap={{ scale: 0.98 }}
+        className="py-3 px-1 flex items-center gap-3 cursor-pointer ios26-transition-smooth"
+        onClick={handleOpenDialog}
+      >
+        <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+          <Trash2 className="h-4 w-4 text-destructive" />
         </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-[15px] text-destructive">Delete Account</p>
+          <p className="text-xs text-muted-foreground">Permanently remove all data</p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+      </motion.div>
 
-        <Button
-          variant="outline"
-          onClick={handleOpenDialog}
-          className="border-destructive text-destructive hover:bg-destructive/10"
-        >
-          Delete My Account
-        </Button>
-
-        {message && <p className="text-xs text-green-600">{message}</p>}
-        {error && !isDeleteDialogOpen && <p className="text-xs text-destructive">{error}</p>}
-      </div>
+      {message && <p className="text-xs text-green-600 px-1 pb-2">{message}</p>}
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>

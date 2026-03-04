@@ -28,7 +28,12 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
       } ${className}`}
       onClick={onClick}
     >
-      <Icon className="h-5 w-5 shrink-0" style={{ color: iconColor }} />
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+        style={{ backgroundColor: `${iconColor}18` }}
+      >
+        <Icon className="h-4 w-4" style={{ color: iconColor }} />
+      </div>
       <div className="flex-1 text-left min-w-0">
         <p className="font-medium text-[15px]">{title}</p>
         <p className="text-xs text-muted-foreground">{subtitle}</p>

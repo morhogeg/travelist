@@ -1,7 +1,7 @@
 # Travelist AI — Developer Handoff Document
 **Last updated:** March 4, 2026
-**Sessions:** App Store readiness + audit → Security hardening → Security hardening round 2 → New-user UX review + fixes
-**Next steps:** **Redesign Settings tab** (see Action Plan)
+**Sessions:** App Store readiness + audit → Security hardening → Security hardening round 2 → New-user UX review + fixes → Settings redesign
+**Next steps:** Increment build number + submit next TestFlight build (see Action Plan)
 
 ---
 
@@ -60,6 +60,29 @@ npm run ios:dev          # build + sync + open Xcode
    - `console.warn` calls now guarded with `if (import.meta.env.DEV)`
 
 3. **App Store listing content written** — ready to paste into App Store Connect (see section below)
+
+### Session 5 — Settings tab redesign (March 4, 2026)
+Full redesign of the Settings tab. All changes in `src/pages/Settings.tsx` and `src/components/settings/`.
+
+**Structural changes:**
+- Grouped settings into labeled iOS-style sections: Appearance / Location & Alerts / Navigation / Intelligence & Privacy / Account
+- Fixed double-separator bug and removed unused `ShareExtensionGuide` import
+
+**Visual/dark mode overhaul:**
+- Replaced `liquid-glass-clear` cards (heavy white border in dark mode) with `bg-neutral-100/80 dark:bg-transparent dark:ring-1 dark:ring-white/[0.08]` — transparent glass frames in dark mode, no grey fill
+- Reverted to app's original black background (removed `#111113` override that caused inconsistency with rest of app)
+
+**Icon system:**
+- `SettingsRow` updated: every icon now sits in a coloured rounded square (iOS 18 style), `iconColor` prop controls the tint
+- Colours chosen semantically: orange (theme), green (proximity), red (navigation), purple (AI), green (cloud), red (delete)
+
+**Component redesigns:**
+- `AISettings` — removed nested card-within-card. Model status and Privacy & Data are proper list rows with RowDividers. Privacy row has ChevronRight arrow.
+- `AuthSettings` — completely redesigned as a collapsible accordion. Shows a single clean row by default; tapping it animates open the sign-in form (`AnimatePresence` height transition). Signed-in state shows just email + Sign Out in one row.
+- `NavigationSettings` — fixed selected-state colour from `text-accent` (orange) to `bg-[#667eea]/15 text-[#667eea]` (app purple)
+- `DeleteAccountSettings` — converted from "row + separate button" to a single tappable row with ChevronRight that opens the confirmation dialog
+
+---
 
 ### Session 4 — New-user UX review + fixes (March 4, 2026)
 Full new-user review conducted, 7 fixes shipped to `main` (commit `7c5c4a3`).
@@ -307,7 +330,7 @@ Download Travelist AI and start building the travel life you've always imagined.
 ### 🔜 Next session
 | # | Task | File(s) | Status |
 |---|------|---------|--------|
-| 0 | **Redesign Settings tab** | `src/pages/Settings.tsx` + sub-components in `src/components/settings/` | ❌ TODO — next session |
+| 0 | **Redesign Settings tab** | `src/pages/Settings.tsx` + sub-components in `src/components/settings/` | ✅ Done Mar 4 (Session 5) |
 
 ### Before next TestFlight build
 | # | Task | File(s) | Status |
@@ -348,24 +371,21 @@ Download Travelist AI and start building the travel life you've always imagined.
 
 ## NOTES FOR NEXT SESSION
 
-### 🎯 Priority: Redesign the Settings tab
-`src/pages/Settings.tsx` — currently a basic list of settings sections with no strong visual hierarchy or design personality. Goal: make it beautiful, clear, and well-organized while staying on-brand.
+### 🎯 Priority: Increment build + new TestFlight
+1. Bump build number in Xcode (currently Build 1)
+2. Take App Store screenshots in Simulator (`xcrun simctl io booted screenshot <path>.png`)
+3. Archive → Distribute via Xcode → upload to App Store Connect
 
-Current Settings sections (for reference):
-- Theme toggle (dark/light)
-- Share Extension guide
-- Proximity alerts (distance slider + per-city toggles)
-- Navigation preferences
-- AI settings
-- Auth (Firebase email/password sign-in)
-- Delete account
+### Settings tab — current state (as of Session 5)
+Fully redesigned. Key files:
+- `src/pages/Settings.tsx` — page layout, section grouping
+- `src/components/settings/SettingsRow.tsx` — rounded-square icon system
+- `src/components/settings/AuthSettings.tsx` — collapsible accordion sign-in
+- `src/components/settings/AISettings.tsx` — flat row list (no nested cards)
+- `src/components/settings/NavigationSettings.tsx` — purple selected state
+- `src/components/settings/DeleteAccountSettings.tsx` — tappable row → AlertDialog
 
-**What to consider when redesigning:**
-- Group settings into logical sections with clear headers (Appearance, Notifications, AI, Account)
-- Use iOS Settings-style grouped list cards with liquid glass styling
-- Make destructive actions (Delete Account) clearly separated and visually distinct
-- The proximity section is complex — consider a dedicated sub-page rather than inline expansion
-- Auth section should feel inviting, not buried
+**Known remaining consideration:** The proximity section (distance slider + city manager) still expands inline inside the card. Could be moved to a dedicated sub-page if it grows more complex.
 
 ---
 

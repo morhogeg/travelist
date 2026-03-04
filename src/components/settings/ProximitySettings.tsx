@@ -48,7 +48,9 @@ const ProximitySettings: React.FC<ProximitySettingsProps> = ({ allCities }) => {
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3 px-1 ios26-transition-smooth flex items-center gap-3"
             >
-                <MapPin className="h-5 w-5 shrink-0" style={{ color: '#667eea' }} />
+                <div className="w-8 h-8 rounded-lg bg-[#34C759]/15 flex items-center justify-center shrink-0">
+                    <MapPin className="h-4 w-4 text-[#34C759]" />
+                </div>
                 <div className="flex-1 text-left min-w-0">
                     <p className="font-medium text-[15px]">Proximity Alerts</p>
                     <p className="text-xs text-muted-foreground">
