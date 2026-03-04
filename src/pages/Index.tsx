@@ -49,10 +49,22 @@ const Index: React.FC = () => {
   const [availableCountries, setAvailableCountries] = useState<string[]>([]);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [availableSourceNames, setAvailableSourceNames] = useState<string[]>([]);
+  const [showFabHint, setShowFabHint] = useState(false);
+
   const [showAISuggestions, setShowAISuggestions] = useState(() => {
     const saved = localStorage.getItem("showAISuggestions");
     return saved === null ? true : saved === "true";
   });
+
+  // First-launch FAB hint — shown once after onboarding completes
+  useEffect(() => {
+    const onboardingDone = localStorage.getItem('travelist-onboarding-completed');
+    const hintShown = localStorage.getItem('travelist-fab-hint-shown');
+    if (onboardingDone && !hintShown) {
+      const timer = setTimeout(() => setShowFabHint(true), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -530,6 +542,36 @@ const Index: React.FC = () => {
         />
       )}
 
+      {/* First-launch FAB hint tooltip */}
+      <AnimatePresence>
+        {showFabHint && !hideFab && !detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && !isCategorySheetOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+            className="fixed z-[99] right-4 text-white text-sm font-medium rounded-2xl px-4 py-3 max-w-[220px] text-right shadow-lg"
+            style={{
+              bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px) + 70px)',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            }}
+            onClick={() => {
+              setShowFabHint(false);
+              localStorage.setItem('travelist-fab-hint-shown', 'true');
+            }}
+          >
+            Tap + to save a place you heard about
+            <div
+              className="absolute right-5 -bottom-2 w-0 h-0"
+              style={{
+                borderLeft: '8px solid transparent',
+                borderRight: '8px solid transparent',
+                borderTop: '8px solid #764ba2',
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {!hideFab && !detailsDialogOpen && !isDrawerOpen && !isFilterSheetOpen && !isCategorySheetOpen && (
         <motion.button
           whileTap={{ scale: 0.9 }}
@@ -538,6 +580,10 @@ const Index: React.FC = () => {
           aria-label="Add recommendation"
           onClick={() => {
             mediumHaptic();
+            if (showFabHint) {
+              setShowFabHint(false);
+              localStorage.setItem('travelist-fab-hint-shown', 'true');
+            }
             setIsDrawerOpen(true);
           }}
           style={{
