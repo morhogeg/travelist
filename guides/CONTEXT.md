@@ -1,15 +1,15 @@
 # Travelist AI - Context & Quick Reference
 
-**Last Updated:** February 2, 2026
+**Last Updated:** March 4, 2026
 
 ---
 
 ## 🎯 Current Status
 
-**App State:** Firebase Migration Complete (Build 9)
+**App State:** Onboarding + In-App Guides polished. TestFlight Build 1.0 live (internal).
 **Primary Theme:** Purple Gradient (#667eea → #764ba2)
 **Current Branch:** main
-**Active Development:** Performance optimization and Gemini 3 Flash grounding integration
+**Active Development:** App Store submission prep
 
 ---
 
@@ -241,6 +241,32 @@ color: #764ba2;
 ---
 
 ## 🎯 Recent Changes Summary
+
+**Latest (March 4, 2026): Onboarding & Share Guide Polish**
+
+1. ✅ **Share Guide redesigned** (`ShareExtensionGuide.tsx`) — full visual match to onboarding: gradient icon boxes with blur glow, 34px bold titles, spring animations, per-step visual mockups (app pills, browser mock, iOS share sheet, Inbox card preview)
+2. ✅ **Consistent dismiss UI** — X button in top bar on both onboarding and share guide (replaces scattered per-screen "Skip" text buttons)
+3. ✅ **Progress bar on onboarding** — was invisible (pt-safe-area-top resolved to 0); fixed to `pt-14`. Color hardcoded to app purple `#667eea`
+4. ✅ **Stable CTA position** — buttons lifted out of individual onboarding screens into `OnboardingFlow.tsx`; Back uses `invisible` on steps 0–1 so layout never shifts. Same pattern in `ShareExtensionGuide`
+5. ✅ **Share sheet mockup clipping fixed** — reduced from 5→4 items, removed `overflow-hidden`
+6. ✅ **Wording fix** — AI step now correctly says card waits in Inbox for user to review (not "save to collection")
+7. ✅ **ONBOARDING.md updated** — documents current 6-screen flow, CTA pattern, X button pattern, and share guide architecture
+
+**Key files changed this session:**
+- `src/components/settings/ShareExtensionGuide.tsx`
+- `src/components/onboarding/OnboardingFlow.tsx`
+- `src/components/onboarding/components/OnboardingProgress.tsx`
+- `src/components/onboarding/screens/{ProblemScreen,WelcomeScreen,ShareToSaveScreen,AIMagicScreen,GestureTutorialScreen}.tsx`
+- `guides/ONBOARDING.md`
+
+---
+
+**Previous (March 2026): Settings Tab Redesign**
+- Grouped settings into glass cards with icon system
+- Accordion-style auth section
+- See commit `2789b44`
+
+---
 
 **Latest (Jan 2026): Proximity Notifications**
 - Added **Proximity Alerts** feature - notifies users when near saved places
@@ -626,14 +652,18 @@ acf64d5 - Add comprehensive roadmap
 
 ---
 
-## 🎯 Next Immediate Tasks (from ROADMAP.md)
+## 🎯 Next Immediate Tasks
 
-1. ✅ Pull-to-refresh on list views (Home implemented)
-2. Swipe-to-delete gestures (Collections/Routes implemented)
-3. Long-press context menus
-4. ✅ Loading states with shimmer
-5. ✅ Empty states with illustrations
-6. Image optimization
+### App Store Submission (Blocking)
+1. **Screenshots** — Required for external TestFlight + App Store. Need iPhone 6.9" and 6.5" sizes. Simulator screenshots are fine for initial submission.
+2. **Apple Sign-In** — Button exists in `SignInScreen.tsx` but calls `onNext()` immediately. Needs real implementation before App Store review (Apple requires working Sign-in with Apple if shown).
+3. **App Store metadata** — Description, keywords, age rating, What's New text all incomplete in App Store Connect.
+4. **Gemini API key** — Currently exposed client-side in the built bundle. Should move to a Firebase Function or proxy before public release.
+
+### Feature Work
+5. **Cloud sync** — Marked "coming soon" in onboarding. Connect Sign-In screen to Firebase Auth properly.
+6. **Long-press context menus** — Not yet implemented on cards.
+7. **Image optimization** — Placeholder images only; no real place photos yet.
 
 ---
 
