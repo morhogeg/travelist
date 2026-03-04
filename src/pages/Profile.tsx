@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Settings, ChevronRight, BookOpen, Folder } from "lucide-react";
+import { Settings, ChevronRight, BookOpen, Folder, MapPin } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { getUserPlaces, getRecommendations } from "@/utils/recommendation-parser";
@@ -154,6 +154,26 @@ const Profile = () => {
             <p className="text-xs text-muted-foreground">Cities</p>
           </div>
         </div>
+
+        {/* Welcome card - only shown to new users with 0 places */}
+        {stats.totalRecommendations === 0 && (
+          <div className="rounded-2xl bg-muted/40 p-4 mb-4">
+            <div className="flex items-center gap-2 mb-1.5">
+              <MapPin className="h-5 w-5 shrink-0" style={{ color: '#667eea' }} />
+              <p className="font-semibold text-[15px]">Welcome, explorer!</p>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              Save your first place — a restaurant tip from a friend, a spot from Instagram, anything.
+            </p>
+            <button
+              onClick={() => navigate('/')}
+              className="w-full rounded-xl py-2.5 text-sm font-semibold text-white"
+              style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+            >
+              Add your first place
+            </button>
+          </div>
+        )}
 
         {/* Travel Story Card - Entry point to the story feature */}
         <TravelStoryCard />

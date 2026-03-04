@@ -81,10 +81,10 @@ const RecommendationDrawer = ({
         setSelectedCollectionId(collectionId || "");
         setMode("structured");
       } else {
-        // ADD mode — clean state!
+        // ADD mode — clean state, default to AI free-text (the core USP)
         setLocalEditRecommendation(null);
         setSelectedCollectionId("");
-        setMode("structured");
+        setMode("freetext");
       }
     } else {
       setLocalEditRecommendation(null);
@@ -191,17 +191,6 @@ const RecommendationDrawer = ({
               <div className="flex items-center space-x-2 shrink-0">
                 <Button
                   variant="outline"
-                  onClick={() => setMode("structured")}
-                  className={`w-1/2 ${mode === "structured" ? "text-white border-transparent" : ""}`}
-                  style={mode === "structured" ? {
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-                  } : undefined}
-                >
-                  Structured Input
-                </Button>
-                <Button
-                  variant="outline"
                   onClick={() => setMode("freetext")}
                   className={`w-1/2 ${mode === "freetext" ? "text-white border-transparent" : ""}`}
                   style={mode === "freetext" ? {
@@ -210,6 +199,17 @@ const RecommendationDrawer = ({
                   } : undefined}
                 >
                   Free Text Input
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setMode("structured")}
+                  className={`w-1/2 ${mode === "structured" ? "text-white border-transparent" : ""}`}
+                  style={mode === "structured" ? {
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                  } : undefined}
+                >
+                  Structured Input
                 </Button>
               </div>
             )}

@@ -4,9 +4,7 @@ import { ProblemScreen } from './screens/ProblemScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { ShareToSaveScreen } from './screens/ShareToSaveScreen';
 import { AIMagicScreen } from './screens/AIMagicScreen';
-import { ProximityAlertsScreen } from './screens/ProximityAlertsScreen';
 import { GestureTutorialScreen } from './screens/GestureTutorialScreen';
-import { NavigateScreen } from './screens/NavigateScreen';
 import { SignInScreen } from './screens/SignInScreen';
 import { OnboardingProgress } from './components/OnboardingProgress';
 import { markOnboardingComplete } from './types';
@@ -15,7 +13,7 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 6;
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -75,29 +73,13 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
         );
       case 4:
         return (
-          <ProximityAlertsScreen
-            onNext={handleNext}
-            onBack={handleBack}
-            onSkip={handleSkip}
-          />
-        );
-      case 5:
-        return (
           <GestureTutorialScreen
             onNext={handleNext}
             onBack={handleBack}
             onSkip={handleSkip}
           />
         );
-      case 6:
-        return (
-          <NavigateScreen
-            onNext={handleNext}
-            onBack={handleBack}
-            onSkip={handleSkip}
-          />
-        );
-      case 7:
+      case 5:
         return (
           <SignInScreen
             onNext={handleNext}

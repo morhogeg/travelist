@@ -1,10 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Cloud, Sparkles } from 'lucide-react';
+import { CheckCircle, Sparkles } from 'lucide-react';
 import { OnboardingButton } from '../components/OnboardingButton';
 import { OnboardingScreenProps } from '../types';
 
-// Floating sparkle
 const FloatingSparkle = ({ delay, x, y }: { delay: number; x: string; y: string }) => (
   <motion.div
     className="absolute pointer-events-none"
@@ -26,11 +25,7 @@ const FloatingSparkle = ({ delay, x, y }: { delay: number; x: string; y: string 
   </motion.div>
 );
 
-export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }) => {
-  const handleSkip = () => {
-    onNext();
-  };
-
+export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext }) => {
   return (
     <motion.div
       initial={{ opacity: 0, x: 100 }}
@@ -64,33 +59,13 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
-        {/* Cloud icon with sync animation */}
+        {/* Checkmark icon */}
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 150, damping: 12, delay: 0.1 }}
           className="mb-12 relative"
         >
-          {/* Orbiting dots */}
-          <motion.div
-            className="absolute inset-[-25px]"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          >
-            <motion.div
-              className="absolute w-2 h-2 rounded-full bg-[#667eea]"
-              style={{ top: 0, left: '50%', marginLeft: -4 }}
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            <motion.div
-              className="absolute w-2 h-2 rounded-full bg-[#764ba2]"
-              style={{ bottom: 0, left: '50%', marginLeft: -4 }}
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 2, delay: 0.5, repeat: Infinity }}
-            />
-          </motion.div>
-
           {/* Glow */}
           <motion.div
             className="absolute inset-0 rounded-3xl"
@@ -108,14 +83,10 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
           <motion.div
             className="w-24 h-24 rounded-3xl flex items-center justify-center relative"
             style={{ background: 'rgba(102, 126, 234, 0.12)' }}
-            whileHover={{ scale: 1.05 }}
+            animate={{ scale: [1, 1.04, 1] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Cloud className="w-12 h-12 text-[#667eea]" />
-            </motion.div>
+            <CheckCircle className="w-12 h-12 text-[#667eea]" strokeWidth={1.5} />
           </motion.div>
         </motion.div>
 
@@ -126,7 +97,7 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
           transition={{ type: 'spring', stiffness: 100, damping: 12, delay: 0.25 }}
           className="text-[34px] font-bold text-foreground leading-tight mb-4"
         >
-          Sync across<br />all devices.
+          You're all set.
         </motion.h1>
 
         {/* Subtitle */}
@@ -134,54 +105,22 @@ export const SignInScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack }
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="text-[17px] text-muted-foreground leading-relaxed"
+          className="text-[17px] text-muted-foreground leading-relaxed max-w-[280px]"
         >
-          Keep your places backed up.<br />
-          Works offline, always.
+          Start saving places you discover — restaurants, hidden gems, tips from friends.{' '}
+          <span className="font-medium text-foreground">Just tap + and tell us what you heard.</span>
         </motion.p>
-
-        {/* Coming soon badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, type: 'spring' }}
-          className="mt-8"
-        >
-          <motion.span
-            className="px-4 py-2 rounded-full text-xs font-semibold text-[#667eea] uppercase tracking-wider inline-flex items-center gap-2"
-            style={{ background: 'rgba(102, 126, 234, 0.1)' }}
-            animate={{
-              boxShadow: [
-                '0 0 0 rgba(102, 126, 234, 0)',
-                '0 0 20px rgba(102, 126, 234, 0.2)',
-                '0 0 0 rgba(102, 126, 234, 0)',
-              ],
-            }}
-            transition={{ duration: 2.5, repeat: Infinity }}
-          >
-            <motion.div animate={{ rotate: [0, 20, -20, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-              <Sparkles className="w-3 h-3" />
-            </motion.div>
-            Cloud sync coming soon
-          </motion.span>
-        </motion.div>
       </div>
 
-      {/* Actions */}
+      {/* CTA */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, type: 'spring', stiffness: 80, damping: 12 }}
-        className="space-y-3 relative z-10"
+        className="relative z-10"
       >
-        {/* Skip */}
-        <OnboardingButton onClick={handleSkip} variant="ghost">
-          Continue without account
-        </OnboardingButton>
-
-        {/* Back */}
-        <OnboardingButton onClick={onBack} variant="ghost">
-          Back
+        <OnboardingButton onClick={onNext} variant="primary">
+          Start Exploring
         </OnboardingButton>
       </motion.div>
     </motion.div>
