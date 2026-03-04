@@ -22,10 +22,10 @@ export const OnboardingProgress: React.FC<OnboardingProgressProps> = ({
             height: 8,
             backgroundColor:
               index === currentStep
-                ? 'hsl(var(--primary))'
+                ? '#667eea'
                 : index < currentStep
-                  ? 'hsl(var(--primary) / 0.5)'
-                  : 'hsl(var(--muted-foreground) / 0.3)',
+                  ? 'rgba(102,126,234,0.5)'
+                  : 'rgba(255,255,255,0.2)',
           }}
           transition={{
             type: 'spring',

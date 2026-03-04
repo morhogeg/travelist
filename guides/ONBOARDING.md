@@ -2,71 +2,71 @@
 
 ## Overview
 
-The onboarding flow introduces first-time users to Travelist's core features through a **8-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
+The onboarding flow introduces first-time users to Travelist's core features through a **6-screen experience** with smooth animations, adhering to the "Liquid Glass" design system.
 
-## Screens
+## Screens (Active Flow)
 
-### Screen 0: Lost in the Noise?
-- **Title:** "Lost in the noise?"
-- **Subtitle:** "Great places shouldn't get buried in screenshots, notes, or open tabs."
-- **Visual:** Muted dashed icon representating chaos/burial.
-- **CTA:** "Tell me more" (Secondary style)
+### Screen 0: Great places keep getting lost.
+- **Visual:** Stacked chaos cards (Screenshot, DM, Saved post) with stagger animation
+- **CTA:** "There's a better way →" (Secondary style)
 
-### Screen 1: The Solution
-- **Title:** "The Smart Way to Remember."
-- **Subtitle:** "Travelist AI is your personal memory for every place you discover."
-- **Visual:** Animated Compass icon with pulsing glow ring and floating particles
+### Screen 1: Your travel memory, supercharged.
+- **Visual:** Animated "T" app icon with shimmer + 3 feature pills (Save, AI, Nearby)
 - **CTA:** "Get Started"
 
-### Screen 2: Save from Anywhere
-- **Title:** "Save from Anywhere."
-- **Subtitle:** "Found a place in Safari or Instagram? Share to Travelist and our AI will automatically pull the details."
-- **Visual:** Share icon with orbiting ring and app flow animation
-- **App Icons:** Safari 🧭, Instagram 📸, Maps 🗺️ → Travelist
+### Screen 2: Save from anywhere.
+- **Visual:** Share icon with sparkle badge + 3 numbered step cards
+- **CTA:** "Continue"
 
-### Screen 5: Gesture Tutorial (Optional)
-- **Title:** "Master the Gestures."
-- **Subtitle:** "Swipe cards to quickly organize your travel finds."
-- **Visual:** Interactive demo area where users can practice swipe-left (Delete) and swipe-right (Collect) gestures.
+### Screen 3: Just tell us what you heard.
+- **Visual:** Input mockup → AI parsing animation → result card (Luigi's Pizza, Paris)
+- **CTA:** "Continue"
 
-### Screen 6: Navigate
-- **Title:** "One tap. Start navigating."
-- **Subtitle:** "Export your route directly to Google Maps or Apple Maps."
-- **Visual:** Map icon with ripple effect and navigation indicator
+### Screen 4: Quick actions, no menus.
+- **Visual:** Interactive card — tap left half to delete, right half to collect. Animated swipe hint.
+- **CTA:** "Got it, let's go"
 
-### Screen 7: AI Insights
-- **Title:** "AI-Powered Insights."
-- **Subtitle:** "Just type what you heard. Our AI handles the details."
-- **Visual:** Mockup of the AI free-text input and a parsed result card.
+### Screen 5: You're all set. (SignIn)
+- **Visual:** Animated checkmark icon with floating sparkles
+- **CTA:** "Start Exploring" (owns its own button — not managed by OnboardingFlow)
 
-### Screen 8: Sign In
-- **Title:** "Sync across all devices."
-- **Subtitle:** "Keep your places backed up. Works offline, always."
-- **Visual:** Cloud icon with orbiting sync dots
-- **Badge:** "Cloud sync coming soon" (sparkle animation)
-- **Primary Action:** Sign in with Apple
-- **Secondary Action:** Continue without account
+## Architecture
 
-## Technical Details
+### CTA / Button Pattern
+All buttons for screens 0–4 live in `OnboardingFlow.tsx`, **not** inside individual screen components. This keeps the CTA in a fixed position regardless of content height.
+
+- Primary button label is defined per-step in the `STEP_CTA` array in `OnboardingFlow.tsx`
+- "Back" button uses `className="invisible"` on steps 0–1 to preserve layout without showing it
+- `SignInScreen` is the only screen that owns its own CTA
+
+### Dismiss / Skip Pattern
+- An **X button** sits in the top bar alongside the progress dots (consistent with the Share Guide)
+- X is hidden on the SignIn screen (step 5) — user must take an action there
+- Tapping X calls `markOnboardingComplete(true)` and exits
+
+### Progress Bar
+- Component: `OnboardingProgress` — pill-shaped dots, active dot expands to 24px wide
+- Color: explicitly `#667eea` (active), `rgba(102,126,234,0.5)` (completed), `rgba(255,255,255,0.2)` (upcoming)
+- Positioned at `pt-14` to clear the iPhone notch reliably (not `pt-safe-area-top` which resolves to 0 in web context)
 
 ### File Structure
 ```
 src/components/onboarding/
-├── index.ts                  # Exports
-├── types.ts                  # Types + localStorage helpers
-├── OnboardingFlow.tsx        # Main controller (8 steps)
+├── index.ts                      # Exports
+├── types.ts                      # Types + localStorage helpers
+├── OnboardingFlow.tsx            # Main controller — owns progress, X button, CTA for steps 0–4
 ├── screens/
-│   ├── ProblemScreen.tsx     # "Lost in the Noise?"
-│   ├── WelcomeScreen.tsx     # "The Smart Way to Remember"
-│   ├── ShareToSaveScreen.tsx # "Save from Anywhere"
-│   ├── AIMagicScreen.tsx     # AI features showcase
-│   ├── ProximityAlertsScreen.tsx # Proximity alerts
-│   ├── GestureTutorialScreen.tsx # Interactive gesture practice
-│   ├── NavigateScreen.tsx    # Export to Maps
-│   └── SignInScreen.tsx      # Cloud Sync
+│   ├── ProblemScreen.tsx         # "Great places keep getting lost"
+│   ├── WelcomeScreen.tsx         # "Your travel memory, supercharged"
+│   ├── ShareToSaveScreen.tsx     # "Save from anywhere"
+│   ├── AIMagicScreen.tsx         # "Just tell us what you heard"
+│   ├── GestureTutorialScreen.tsx # Interactive swipe demo
+│   ├── SignInScreen.tsx          # "You're all set" — owns its own CTA
+│   ├── NavigateScreen.tsx        # (unused in active flow)
+│   └── ProximityAlertsScreen.tsx # (unused in active flow)
 └── components/
-    ├── OnboardingProgress.tsx  # Animated dots
-    └── OnboardingButton.tsx    # Styled button
+    ├── OnboardingProgress.tsx    # Animated progress dots
+    └── OnboardingButton.tsx      # primary / secondary / ghost variants
 ```
 
 ### localStorage
@@ -90,20 +90,30 @@ localStorage.removeItem('travelist-onboarding-completed')
 location.reload()
 ```
 
-## Animations
+Or from the app: **Settings → Guides & Tutorials → Welcome Tour**
 
-- **Page transitions:** Spring-based slide with opacity
-- **Progress dots:** Spring animation with width change
-- **Elements:** Staggered fade-in with y-axis movement
-- **Icons:** Scale + rotation entrance with hover effects
-- **Backgrounds:** Floating particles, ambient glows, shimmer effects
+## Share Guide (`ShareExtensionGuide.tsx`)
+
+A 4-step in-app guide accessible from **Settings → Guides & Tutorials → Saving from other apps**.
+
+Shares the same visual language as onboarding: gradient icon boxes with blur glow, 34px bold titles, spring animations.
+
+### Steps
+1. **Find it anywhere** — app pill chips (Instagram, TikTok, Maps, Safari, Messages)
+2. **Tap the Share button** — mini browser + pulsing share button mockup
+3. **Choose Travelist** — iOS share sheet mockup (Safari, Maps, More + highlighted Travelist icon)
+4. **AI does the rest** — mini Inbox card preview ("Ready to Review" state)
+
+### Pattern
+Same as onboarding: buttons live outside the step components in the main `ShareExtensionGuide` component. `Back` is `invisible` on step 0. X button in top bar resets step to 0 on close.
 
 ## Design System
 
 - **Primary Gradient:** `#667eea` → `#764ba2`
-- **Typography:** 34px bold titles, 17px muted subtitles
-- **Spacing:** px-8 horizontal, pt-16/pb-10 vertical
-- **Border Radius:** rounded-2xl (buttons), rounded-3xl (icons)
+- **Typography:** 34px bold titles, 16–17px muted subtitles
+- **Icon box:** `w-20 h-20 rounded-[24px]` with gradient fill + `blur(24px)` glow behind
+- **Cards/mockups:** `rounded-2xl border border-border/50 bg-card/70 backdrop-blur-md`
+- **Page transitions:** `x: 60 → 0`, exit `x: -40`, spring stiffness 80 damping 18
 
 ## Future Enhancements
 
@@ -114,4 +124,4 @@ location.reload()
 
 ---
 
-Last Updated: January 2026
+Last Updated: March 2026

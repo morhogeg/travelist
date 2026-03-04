@@ -17,25 +17,13 @@ export const ProblemScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, x: -40 }}
       transition={{ duration: 0.35 }}
-      className="flex flex-col h-full px-6 pt-14 pb-10 relative overflow-hidden"
+      className="flex flex-col h-full px-6 pt-4 pb-2 relative overflow-hidden"
     >
       {/* Subtle background glow */}
       <div
         className="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(102,126,234,0.08) 0%, transparent 70%)' }}
       />
-
-      {/* Skip */}
-      <motion.div
-        className="flex justify-end relative z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <button onClick={onSkip} className="text-muted-foreground text-sm font-medium py-2 px-3">
-          Skip
-        </button>
-      </motion.div>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
@@ -86,17 +74,6 @@ export const ProblemScreen: React.FC<OnboardingScreenProps> = ({ onNext, onSkip 
         </motion.p>
       </div>
 
-      {/* CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 80, damping: 14, delay: 0.68 }}
-        className="relative z-10"
-      >
-        <OnboardingButton onClick={onNext} variant="secondary">
-          There's a better way →
-        </OnboardingButton>
-      </motion.div>
     </motion.div>
   );
 };

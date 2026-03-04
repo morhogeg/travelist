@@ -11,7 +11,7 @@ export const AIMagicScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack,
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -40 }}
       transition={{ type: 'spring', stiffness: 80, damping: 18 }}
-      className="flex flex-col h-full px-6 pt-14 pb-10 relative overflow-hidden"
+      className="flex flex-col h-full px-6 pt-4 pb-2 relative overflow-hidden"
     >
       {/* Ambient glow */}
       <motion.div
@@ -20,11 +20,6 @@ export const AIMagicScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack,
         animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.9, 0.5] }}
         transition={{ duration: 4.5, repeat: Infinity }}
       />
-
-      {/* Skip */}
-      <motion.div className="flex justify-end relative z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-        <button onClick={onSkip} className="text-muted-foreground text-sm font-medium py-2 px-3">Skip</button>
-      </motion.div>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center relative z-10">
@@ -124,16 +119,6 @@ export const AIMagicScreen: React.FC<OnboardingScreenProps> = ({ onNext, onBack,
         </div>
       </div>
 
-      {/* Navigation */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, type: 'spring', stiffness: 80, damping: 14 }}
-        className="space-y-2 relative z-10"
-      >
-        <OnboardingButton onClick={onNext}>Continue</OnboardingButton>
-        <OnboardingButton onClick={onBack} variant="ghost">Back</OnboardingButton>
-      </motion.div>
     </motion.div>
   );
 };
