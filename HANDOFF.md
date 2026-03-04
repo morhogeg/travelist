@@ -1,7 +1,7 @@
 # Travelist AI — Developer Handoff Document
-**Last updated:** March 1, 2026
-**Sessions:** App Store readiness review + code audit → Security hardening (Gemini proxy)
-**Next steps:** See "Action Plan" section at the bottom
+**Last updated:** March 4, 2026
+**Sessions:** App Store readiness + audit → Security hardening → Security hardening round 2 → New-user UX review + fixes
+**Next steps:** **Redesign Settings tab** (see Action Plan)
 
 ---
 
@@ -61,6 +61,54 @@ npm run ios:dev          # build + sync + open Xcode
 
 3. **App Store listing content written** — ready to paste into App Store Connect (see section below)
 
+### Session 4 — New-user UX review + fixes (March 4, 2026)
+Full new-user review conducted, 7 fixes shipped to `main` (commit `7c5c4a3`).
+
+**Onboarding overhaul**
+- Cut from 8 → 6 screens: removed `ProximityAlertsScreen` and `NavigateScreen`
+- Replaced broken Apple Sign-In screen (dummy button + "cloud sync coming soon") with a celebratory "You're all set." completion screen (`SignInScreen.tsx`)
+- Full visual redesign of all 5 onboarding screens — cleaner, on-brand, more useful:
+  - `ProblemScreen`: stacked chaos-card pile (Screenshot / DM / Saved) instead of XCircle
+  - `WelcomeScreen`: gradient T logo with shimmer, gradient headline, 3 animated feature pills
+  - `ShareToSaveScreen`: numbered 3-step flow with gradient step numbers
+  - `AIMagicScreen`: live input → parsed card demo matching actual app UI (amber tip, MapPin, source)
+  - `GestureTutorialScreen`: cleaner swipe labels, refined result state cards
+
+**Add drawer**
+- AI free-text tab moved to the left (it's the default) — `RecommendationDrawer.tsx`
+- Structured input tab moved to the right
+
+**Navigation**
+- "Inbox" renamed to "Shared" in bottom nav and page title — `Navbar.tsx`, `Inbox.tsx`
+- Inbox empty state rewritten to explain the iOS Share Sheet workflow
+
+**Profile**
+- Welcome card for new users with 0 places: "Welcome, explorer!" + "Add your first place" CTA — `Profile.tsx`
+
+**Home**
+- One-time first-launch tooltip above the + FAB: "Tap + to save a place you heard about" — `Index.tsx`
+- Dismissed on any tap, never shown again (`travelist-fab-hint-shown` localStorage flag)
+
+---
+
+### Session 3 — Security hardening round 2
+8. **"Get info" rate limiting** ✅
+   - 30-minute cooldown per place stored in `localStorage` (`ai_cooldown_<placeId>`)
+   - Button disabled with "Info refreshes in Xm" label during cooldown
+   - Cooldown only written on success — errors allow retry
+   - File: `src/components/home/RecommendationDetailsDialog.tsx`
+
+9. **`ai_cache` write-protected** ✅ CRITICAL FIX
+   - Cache writes moved from client → Cloud Function (Admin SDK, bypasses rules)
+   - Client-side `cacheAISummary` removed from `ai-cache-service.ts`
+   - `gemini-client.ts` now sends `cacheContext` in proxy request body
+   - `firestore.rules` created: `ai_cache` is read-only for clients (`allow write: if false`)
+   - Deployed: `firebase deploy --only functions && firebase deploy --only firestore:rules`
+
+10. **.env git tracking verified** ✅
+    - File is untracked (good). Was committed in 3 old commits (`Initial commit`, `Improve AI suggestions caching`, `fix(security): prevent API key leaks`) but all keys are rotated.
+    - If repo ever goes public, run BFG Repo-Cleaner to purge history.
+
 ### Session 2 — Security hardening
 4. **Gemini API key secured** ✅ CRITICAL FIX
    - Old key `AIzaSyCe4dodNptsQPS3QfK8V0IvS58B8A9qWGo` was in bundle — **rotated and invalidated**
@@ -109,24 +157,19 @@ npm run ios:dev          # build + sync + open Xcode
 
 ### CRITICAL — Must fix before App Store submission
 
-**[C1] Location permission never requested during onboarding**
-- File: `src/components/onboarding/OnboardingFlow.tsx`
-- The proximity alerts onboarding screen shows the feature but never calls `requestPermissions()`. Users complete onboarding without being asked for location permission. Proximity alerts silently don't work.
-- **Fix:** On the proximity alerts onboarding screen (or on first toggle in Settings), call `Geolocation.requestPermissions()`.
+**[C1] Location permission never requested during onboarding** ✅ ALREADY IMPLEMENTED
+- `src/components/onboarding/screens/ProximityAlertsScreen.tsx` calls `Geolocation.requestPermissions()` when user taps "Continue". No fix needed.
 
 ---
 
 ### HIGH — Fix before or immediately after launch
 
-**[H1] Duplicate place submission possible**
-- File: `src/components/recommendations/RecommendationDrawer.tsx`
-- No loading state disables the submit button while `submitStructuredRecommendation()` is in flight. A double-tap or slow network creates duplicate entries.
-- **Fix:** Set `disabled={isAnalyzing}` on the submit button.
+**[H1] Duplicate place submission possible** ✅ ALREADY IMPLEMENTED
+- `StructuredInputForm.tsx` and `FreeTextForm.tsx` both have `disabled={isAnalyzing}` with spinners. `isLoading` from `useRecommendationSubmit` is threaded down as `isAnalyzing`. No fix needed.
 
-**[H2] GPS accuracy not validated before proximity trigger**
+**[H2] GPS accuracy not validated before proximity trigger** ✅ FIXED (Mar 3, 2026)
 - File: `src/services/proximity/proximity-service.ts`
-- `calculateDistance()` runs without checking `position.coords.accuracy`. A device with 200m GPS error could trigger "you're nearby!" when the user is nowhere close.
-- **Fix:** Gate triggers on `coords.accuracy < (alertDistance * 0.5)` or similar threshold.
+- Threshold is now `Math.min(settings.distanceMeters * 0.5, 100)` — caps at 100m so large alert radii can't let bad GPS readings slip through. Debug log updated to show measured vs threshold values.
 
 **[H3] Firestore sync failures silent in production**
 - File: `src/utils/recommendation/recommendation-manager.ts:121–125`
@@ -137,8 +180,8 @@ npm run ios:dev          # build + sync + open Xcode
 
 ### MEDIUM — Good to fix before next release
 
-**[M1] Onboarding proximity toggle does nothing**
-- The "enable proximity alerts" step in onboarding doesn't actually request permission or toggle anything.
+**[M1] Onboarding proximity toggle removed** ✅ RESOLVED (Mar 4)
+- `ProximityAlertsScreen` removed from onboarding entirely (was non-functional). Proximity alerts are discoverable via Settings.
 
 **[M2] City name fragmentation**
 - "Tel Aviv" and "tel aviv" and "Tel-Aviv" are stored as separate cities. No normalization.
@@ -175,15 +218,13 @@ npm run ios:dev          # build + sync + open Xcode
 
 ### Remaining
 
-**[S-MED-1] No rate limiting on AI calls** — users can hammer the proxy with no throttle.
-- **Fix:** Debounce the button (30 min), or enforce per-user quotas in the function (harder, requires auth).
+**[S-MED-1] No rate limiting on AI calls** ✅ FIXED — 30-min client-side cooldown per place in `RecommendationDetailsDialog.tsx`.
 
 **[S-MED-2] Proxy has no auth check** — anyone who discovers the Cloud Function URL can invoke it.
 - Blocked by: real auth not implemented yet (Apple Sign-In is dummy).
 - **Fix (when auth is real):** Add `if (!request.auth) throw HttpsError('unauthenticated')` to the function.
 
-**[S-MED-3] ai_cache writable by any authenticated user** — cache poisoning possible.
-- **Fix:** Validate document structure in Firestore rules, or move cache writes into the Cloud Function.
+**[S-MED-3] ai_cache writable by any authenticated user** ✅ FIXED — writes moved to Cloud Function (Admin SDK). Firestore rules deny all client writes to `ai_cache`.
 
 **[S-MED-4] localStorage data unencrypted at rest** — readable on jailbroken device. Acceptable for v1.
 
@@ -263,22 +304,28 @@ Download Travelist AI and start building the travel life you've always imagined.
 
 ## PRIORITIZED ACTION PLAN
 
-### Before next TestFlight build
-| # | Task | File(s) | Effort |
+### 🔜 Next session
+| # | Task | File(s) | Status |
 |---|------|---------|--------|
-| 1 | Request location permission in onboarding | `OnboardingFlow.tsx` | 30 min |
-| 2 | Disable submit button while saving | `RecommendationDrawer.tsx` | 10 min |
-| 3 | Increment build number in Xcode | Xcode project settings | 2 min |
-| 4 | Paste App Store listing content into App Store Connect | App Store Connect | 20 min |
-| 5 | Complete age rating questionnaire (answer: 4+) | App Store Connect | 5 min |
+| 0 | **Redesign Settings tab** | `src/pages/Settings.tsx` + sub-components in `src/components/settings/` | ❌ TODO — next session |
+
+### Before next TestFlight build
+| # | Task | File(s) | Status |
+|---|------|---------|--------|
+| 1 | Request location permission in onboarding | ~~`ProximityAlertsScreen.tsx`~~ | ✅ Screen removed Mar 4 |
+| 2 | Disable submit button while saving | `RecommendationDrawer.tsx` | ✅ Already done |
+| 3 | Increment build number in Xcode | Xcode project settings | ❌ TODO |
+| 4 | Paste App Store listing content into App Store Connect | App Store Connect | ❌ TODO |
+| 5 | Complete age rating questionnaire (answer: 4+) | App Store Connect | ❌ TODO |
+| 6 | New-user UX fixes (onboarding, Shared tab, Profile, FAB hint) | Various — see Session 4 | ✅ Done Mar 4 |
 
 ### Before App Store submission
-| # | Task | File(s) | Effort |
+| # | Task | File(s) | Status |
 |---|------|---------|--------|
-| 6 | Take screenshots in Simulator (manual) | iOS Simulator | 30 min |
-| 7 | Add GPS accuracy check to proximity trigger | `proximity-service.ts` | 20 min |
-| 8 | Add debounce on "Get info" button (rate limiting) | `RecommendationDetailsDialog.tsx` | 30 min |
-| 9 | Add auth check to Cloud Function proxy | `functions/src/index.ts` | 15 min (after auth works) |
+| 6 | Take screenshots in Simulator (manual) | iOS Simulator | ❌ TODO |
+| 7 | Add GPS accuracy check to proximity trigger | `proximity-service.ts` | ✅ Fixed Mar 3 |
+| 8 | Add debounce on "Get info" button (rate limiting) | `RecommendationDetailsDialog.tsx` | ✅ Fixed Mar 3 |
+| 9 | Add auth check to Cloud Function proxy | `functions/src/index.ts` | ❌ Blocked on auth |
 
 ### Post-launch / next release
 | # | Task | Notes |
@@ -287,11 +334,40 @@ Download Travelist AI and start building the travel life you've always imagined.
 | 11 | City name normalization on save | trim + title-case |
 | 12 | Offline save feedback | "Saved locally" toast |
 | 13 | Sync failure indicator | when cloud sync ships |
-| 14 | Restrict ai_cache writes in Firestore rules | prevent cache poisoning |
+| 14 | ~~Restrict ai_cache writes in Firestore rules~~ | ✅ Fixed Mar 3 — writes moved to Cloud Function |
+
+### ⚠️ BEFORE ENABLING CLOUD SYNC — CRITICAL
+**[SYNC-BLOCK] Firestore rules are not user-scoped**
+- Current rules: `allow read, write: if request.auth != null` — any logged-in user can read ANY document in ANY collection
+- Required before sync: `allow read, write: if request.auth.uid == resource.data.userId`
+- User data (places, collections, routes) must include a `userId` field on every document
+- Without this fix, cloud sync = all users can see each other's data
+- `ai_cache` is intentionally global (shared cache) — keep its rules separate
 
 ---
 
 ## NOTES FOR NEXT SESSION
+
+### 🎯 Priority: Redesign the Settings tab
+`src/pages/Settings.tsx` — currently a basic list of settings sections with no strong visual hierarchy or design personality. Goal: make it beautiful, clear, and well-organized while staying on-brand.
+
+Current Settings sections (for reference):
+- Theme toggle (dark/light)
+- Share Extension guide
+- Proximity alerts (distance slider + per-city toggles)
+- Navigation preferences
+- AI settings
+- Auth (Firebase email/password sign-in)
+- Delete account
+
+**What to consider when redesigning:**
+- Group settings into logical sections with clear headers (Appearance, Notifications, AI, Account)
+- Use iOS Settings-style grouped list cards with liquid glass styling
+- Make destructive actions (Delete Account) clearly separated and visually distinct
+- The proximity section is complex — consider a dedicated sub-page rather than inline expansion
+- Auth section should feel inviting, not buried
+
+---
 
 - **AI proxy:** Cloud Function is live at `https://us-central1-travelistai-production.cloudfunctions.net/callGeminiProxy`. To update the Gemini key: `echo "KEY" | firebase functions:secrets:set GEMINI_API_KEY && firebase deploy --only functions`
 - **Firebase config** lives in `.env` (not committed). All `VITE_FIREBASE_*` vars required for the app to initialize.
