@@ -7,118 +7,62 @@ interface Props {
 }
 
 export function SourceBreakdown({ stats }: Props) {
-  const { topRecommenders, sourceTypeDistribution } = stats;
+  const { topRecommenders } = stats;
 
-  if (topRecommenders.length === 0 && sourceTypeDistribution.length === 0) {
-    return null;
-  }
+  if (topRecommenders.length === 0) return null;
 
-  const totalFromSources = sourceTypeDistribution.reduce((sum, s) => sum + s.count, 0);
+  const maxCount = topRecommenders[0].count;
 
   return (
-    <div className="mb-6">
-      {/* Section header */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-lg">👥</span>
-        <h3 className="text-lg font-semibold text-foreground">Your Taste Network</h3>
-      </div>
-
-      {/* Source type distribution bar */}
-      {sourceTypeDistribution.length > 0 && totalFromSources > 0 && (
-        <div className="mb-5">
-          <div className="flex h-3 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
-            {sourceTypeDistribution.map((source, i) => {
-              const percentage = (source.count / totalFromSources) * 100;
-              const colors = [
-                '#667eea', // purple
-                '#EC4899', // pink
-                '#F97316', // orange
-                '#10B981', // green
-                '#3B82F6', // blue
-                '#8B5CF6', // violet
-                '#F59E0B', // amber
-                '#EF4444', // red
-              ];
-              return (
-                <motion.div
-                  key={source.type}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${percentage}%` }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  style={{ backgroundColor: colors[i % colors.length] }}
-                  className="h-full"
-                />
-              );
-            })}
-          </div>
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-3">
-            {sourceTypeDistribution.slice(0, 5).map((source, i) => {
-              const colors = ['#667eea', '#EC4899', '#F97316', '#10B981', '#3B82F6'];
-              return (
-                <div key={source.type} className="flex items-center gap-1.5">
-                  <div
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: colors[i % colors.length] }}
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    {getSourceIcon(source.type)} {formatSourceType(source.type)} ({source.count})
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+    <div className="mb-3">
+      <div className="bg-neutral-50 dark:bg-neutral-900/60 rounded-2xl overflow-hidden">
+        <div className="px-5 pt-5 pb-1">
+          <p className="text-muted-foreground/60 font-semibold uppercase" style={{ fontSize: '10px', letterSpacing: '0.14em' }}>
+            Who Inspires You
+          </p>
         </div>
-      )}
 
-      {/* Top recommenders */}
-      {topRecommenders.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground mb-3">Top Recommenders</p>
-          {topRecommenders.map((rec, i) => (
-            <motion.div
-              key={`${rec.type}:${rec.name}`}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center gap-3 p-3 rounded-xl liquid-glass-clear"
-            >
-              {/* Rank badge */}
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{
-                  background: i === 0
-                    ? 'linear-gradient(135deg, #667eea, #764ba2)'
-                    : i === 1
-                    ? 'linear-gradient(135deg, #6B7280, #9CA3AF)'
-                    : 'linear-gradient(135deg, #9CA3AF, #D1D5DB)',
-                }}
+        <div className="px-5 pb-5 pt-4 space-y-5">
+          {topRecommenders.map((rec, i) => {
+            const barWidth = (rec.count / maxCount) * 100;
+            return (
+              <motion.div
+                key={`${rec.type}:${rec.name}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
               >
-                {i + 1}
-              </div>
-
-              {/* Source icon */}
-              <span className="text-lg">{getSourceIcon(rec.type)}</span>
-
-              {/* Name and type */}
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-foreground truncate">{rec.name}</p>
-                <p className="text-xs text-muted-foreground">{formatSourceType(rec.type)}</p>
-              </div>
-
-              {/* Count */}
-              <div className="text-right">
-                <p className="font-semibold text-sm" style={{ color: '#667eea' }}>
-                  {rec.count}
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  {rec.visitedCount} visited
-                </p>
-              </div>
-            </motion.div>
-          ))}
+                <div className="flex items-baseline justify-between mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base flex-shrink-0">{getSourceIcon(rec.type)}</span>
+                    <span className="text-sm font-semibold text-foreground truncate">{rec.name}</span>
+                    <span className="text-muted-foreground/50 flex-shrink-0" style={{ fontSize: '11px' }}>
+                      {formatSourceType(rec.type)}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 flex-shrink-0 ml-3">
+                    <span className="text-sm font-bold text-foreground">{rec.count}</span>
+                    {rec.visitedCount > 0 && (
+                      <span className="text-muted-foreground/50" style={{ fontSize: '10px' }}>
+                        · {rec.visitedCount} visited
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="h-1.5 rounded-full bg-neutral-200 dark:bg-white/[0.07] overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${barWidth}%` }}
+                    transition={{ duration: 0.65, delay: i * 0.08, ease: 'easeOut' }}
+                    className="h-full rounded-full"
+                    style={{ background: 'linear-gradient(90deg, #667eea, #764ba2)' }}
+                  />
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -1,27 +1,25 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Compass } from 'lucide-react';
-import { TravelStoryStats, getSourceIcon } from '@/utils/story/stats-calculator';
+import { TravelStoryStats } from '@/utils/story/stats-calculator';
 
 interface Props {
   stats: TravelStoryStats;
 }
 
-// Circular progress ring
-function ProgressRing({ progress, size = 72 }: { progress: number; size?: number }) {
-  const strokeWidth = 5;
+function ProgressRing({ progress, size = 60 }: { progress: number; size?: number }) {
+  const strokeWidth = 3.5;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90" width={size} height={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="rgba(255,255,255,0.2)"
+          stroke="rgba(255,255,255,0.12)"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -29,18 +27,19 @@ function ProgressRing({ progress, size = 72 }: { progress: number; size?: number
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="white"
+          stroke="rgba(255,255,255,0.85)"
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
+          transition={{ duration: 1.3, ease: 'easeOut', delay: 0.4 }}
           style={{ strokeDasharray: circumference }}
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-white text-sm font-bold">{progress}%</span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-white font-bold leading-none" style={{ fontSize: '13px' }}>{progress}%</span>
+        <span className="text-white/40 leading-none mt-0.5" style={{ fontSize: '8px' }}>visited</span>
       </div>
     </div>
   );
@@ -49,138 +48,115 @@ function ProgressRing({ progress, size = 72 }: { progress: number; size?: number
 export function StatsHeroCard({ stats }: Props) {
   const { yearStats, countries, totalPlaces, visitedCount, countriesCount, citiesCount, completionRate } = stats;
 
-  // Get top 4 country flags
-  const topCountries = countries.slice(0, 4);
+  const topCountries = countries.slice(0, 6);
   const currentYear = yearStats?.year || new Date().getFullYear();
 
   return (
-    <div className="mb-6">
-      {/* Main unified card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl w-full"
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative overflow-hidden rounded-3xl mb-3"
+      style={{ background: 'linear-gradient(155deg, #4f46e5 0%, #7c3aed 55%, #1e1b4b 100%)' }}
+    >
+      {/* Radial glow — top left */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(165deg, #667eea 0%, #764ba2 50%, #1a1a2e 100%)',
+          background: 'radial-gradient(ellipse 65% 55% at 10% 15%, rgba(167,139,250,0.35) 0%, transparent 70%)',
         }}
-      >
-        {/* Decorative circles */}
-        <div
-          className="absolute -right-16 -top-16 w-48 h-48 rounded-full opacity-15"
-          style={{ background: 'rgba(255,255,255,0.3)' }}
-        />
-        <div
-          className="absolute -left-12 bottom-24 w-40 h-40 rounded-full opacity-10"
-          style={{ background: 'rgba(255,255,255,0.3)' }}
-        />
+      />
 
-        <div className="relative p-5">
-          {/* Header with year and progress ring */}
-          <div className="flex items-center justify-between mb-4">
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <p className="text-white/50 text-xs font-medium tracking-wide uppercase mb-0.5">{currentYear} Journey</p>
-              <h2 className="text-white text-xl font-bold">My Travel Story</h2>
-            </motion.div>
-            <ProgressRing progress={completionRate} />
+      <div className="relative p-6">
+        {/* Label row */}
+        <div className="flex items-start justify-between mb-7">
+          <div>
+            <p className="text-white/40 font-semibold uppercase" style={{ fontSize: '10px', letterSpacing: '0.15em' }}>
+              Your Travel Story
+            </p>
+            <p className="text-white/30 mt-0.5" style={{ fontSize: '11px' }}>{currentYear}</p>
           </div>
+          <ProgressRing progress={completionRate} />
+        </div>
 
-          {/* Country flags row */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex items-center gap-2 mb-4"
+        {/* Hero number */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <p
+            className="text-white font-bold leading-none mb-1"
+            style={{ fontSize: '68px', letterSpacing: '-0.03em' }}
           >
-            {topCountries.map((country, i) => (
-              <motion.div
-                key={country.country}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.15 + i * 0.05, type: 'spring', bounce: 0.5 }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10"
-              >
-                <span className="text-lg">{country.flag}</span>
-                <span className="text-white/80 text-xs font-medium">{country.count}</span>
-              </motion.div>
-            ))}
-            {countriesCount > 4 && (
-              <span className="text-white/50 text-xs">+{countriesCount - 4}</span>
-            )}
-          </motion.div>
+            {totalPlaces}
+          </p>
+          <p className="text-white/40 font-medium" style={{ fontSize: '14px' }}>
+            {totalPlaces === 1 ? 'place saved' : 'places saved'}
+          </p>
+        </motion.div>
 
-          {/* Stats row - 4 compact stats */}
+        {/* Supporting stats */}
+        <motion.div
+          className="flex items-center gap-6 mb-7"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div>
+            <p className="text-white font-semibold leading-none" style={{ fontSize: '22px' }}>{visitedCount}</p>
+            <p className="text-white/40 mt-0.5" style={{ fontSize: '11px' }}>visited</p>
+          </div>
+          <div className="w-px h-7 bg-white/10" />
+          <div>
+            <p className="text-white font-semibold leading-none" style={{ fontSize: '22px' }}>{countriesCount}</p>
+            <p className="text-white/40 mt-0.5" style={{ fontSize: '11px' }}>{countriesCount === 1 ? 'country' : 'countries'}</p>
+          </div>
+          <div className="w-px h-7 bg-white/10" />
+          <div>
+            <p className="text-white font-semibold leading-none" style={{ fontSize: '22px' }}>{citiesCount}</p>
+            <p className="text-white/40 mt-0.5" style={{ fontSize: '11px' }}>{citiesCount === 1 ? 'city' : 'cities'}</p>
+          </div>
+        </motion.div>
+
+        {/* Country flags */}
+        {topCountries.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-4 gap-2 mb-4"
-          >
-            <div className="text-center p-2.5 rounded-xl bg-white/10">
-              <p className="text-xl font-bold text-white">{totalPlaces}</p>
-              <p className="text-white/60 text-[10px]">Places</p>
-            </div>
-            <div className="text-center p-2.5 rounded-xl bg-white/10">
-              <p className="text-xl font-bold text-white">{visitedCount}</p>
-              <p className="text-white/60 text-[10px]">Visited</p>
-            </div>
-            <div className="text-center p-2.5 rounded-xl bg-white/10">
-              <p className="text-xl font-bold text-white">{countriesCount}</p>
-              <p className="text-white/60 text-[10px]">Countries</p>
-            </div>
-            <div className="text-center p-2.5 rounded-xl bg-white/10">
-              <p className="text-xl font-bold text-white">{citiesCount}</p>
-              <p className="text-white/60 text-[10px]">Cities</p>
-            </div>
-          </motion.div>
-
-          {/* Year highlights - unique insights */}
-          {yearStats && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-1.5"
-            >
-              {yearStats.mostActiveMonth && (
-                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/10">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-3.5 h-3.5 text-white/60" />
-                    <span className="text-white/70 text-xs">Peak month</span>
-                  </div>
-                  <span className="text-white font-medium text-xs">{yearStats.mostActiveMonth}</span>
-                </div>
-              )}
-
-              {yearStats.topSource && (
-                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/10">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{getSourceIcon(yearStats.topSource.type)}</span>
-                    <span className="text-white/70 text-xs">Top recommender</span>
-                  </div>
-                  <span className="text-white font-medium text-xs truncate max-w-[80px]">
-                    {yearStats.topSource.name}
-                  </span>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* Watermark */}
-          <motion.div
+            className="flex items-center gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="flex items-center justify-center gap-2 text-white/30 mt-4"
+            transition={{ delay: 0.3 }}
           >
-            <span className="text-[10px] font-medium tracking-wider">TRAVELIST</span>
-            <span className="w-1 h-1 rounded-full bg-white/30" />
-            <span className="text-[9px]">{currentYear}</span>
+            {topCountries.map((country, i) => (
+              <motion.span
+                key={country.country}
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 + i * 0.05, type: 'spring', bounce: 0.4 }}
+                className="text-[26px]"
+                title={country.country}
+              >
+                {country.flag}
+              </motion.span>
+            ))}
+            {countriesCount > 6 && (
+              <span className="text-white/35 ml-1" style={{ fontSize: '12px' }}>+{countriesCount - 6}</span>
+            )}
           </motion.div>
-        </div>
-      </motion.div>
-    </div>
+        )}
+      </div>
+
+      {/* Bottom bar */}
+      <div className="relative flex items-center justify-between px-6 py-3 border-t border-white/[0.07]">
+        <span className="text-white/20 font-semibold uppercase" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>
+          Travelist
+        </span>
+        {yearStats?.mostActiveMonth && (
+          <span className="text-white/25" style={{ fontSize: '9px' }}>
+            Peak month · {yearStats.mostActiveMonth}
+          </span>
+        )}
+      </div>
+    </motion.div>
   );
 }
