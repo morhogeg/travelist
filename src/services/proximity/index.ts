@@ -1,8 +1,9 @@
 export {
+    getCachedCoords,
     geocodePlace,
     getCurrentLocation,
     calculateDistance,
-    batchGeocodePlaces
+    batchGeocodePlaces,
 } from './geocoding-service';
 
 export {
@@ -10,5 +11,7 @@ export {
     startProximityMonitoring,
     stopProximityMonitoring,
     updateMonitoredPlaces,
-    getProximityStatus
+    getProximityStatus,
 } from './proximity-service';
+
+export type { ProximityPlace } from './proximity-service';

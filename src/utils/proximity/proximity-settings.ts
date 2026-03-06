@@ -3,73 +3,76 @@
  */
 
 const STORAGE_KEY = 'travelist-proximity-settings';
+const NOTIFICATION_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export interface ProximitySettings {
     enabled: boolean;
     distanceMeters: number;
     enabledCityIds: string[];
-    notifiedPlaceIds: string[];
+    // placeId → timestamp (ms) of last notification. Replaces old string[] array.
+    notifiedPlaces: Record<string, number>;
 }
 
 const DEFAULT_SETTINGS: ProximitySettings = {
     enabled: false,
-    distanceMeters: 500, // Default 500m
+    distanceMeters: 500,
     enabledCityIds: [],
-    notifiedPlaceIds: []
+    notifiedPlaces: {},
 };
 
 /**
- * Get current proximity settings
+ * Migrate from old format (notifiedPlaceIds: string[]) to new Record<string, number>
  */
+function migrate(raw: any): ProximitySettings {
+    const s: ProximitySettings = { ...DEFAULT_SETTINGS, ...raw };
+
+    // Old format had notifiedPlaceIds: string[]
+    if (Array.isArray(raw?.notifiedPlaceIds)) {
+        // Drop old IDs — let places re-notify fresh after upgrade
+        delete (s as any).notifiedPlaceIds;
+    }
+
+    if (!s.notifiedPlaces || typeof s.notifiedPlaces !== 'object' || Array.isArray(s.notifiedPlaces)) {
+        s.notifiedPlaces = {};
+    }
+
+    return s;
+}
+
 export function getProximitySettings(): ProximitySettings {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
-        }
-    } catch (error) {
-        console.error('[ProximitySettings] Error reading settings:', error);
+        if (stored) return migrate(JSON.parse(stored));
+    } catch {
+        // ignore parse errors
     }
-    return { ...DEFAULT_SETTINGS };
+    return { ...DEFAULT_SETTINGS, notifiedPlaces: {} };
 }
 
-/**
- * Save proximity settings
- */
 function saveSettings(settings: ProximitySettings): void {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
         window.dispatchEvent(new CustomEvent('proximitySettingsChanged', { detail: settings }));
-    } catch (error) {
-        console.error('[ProximitySettings] Error saving settings:', error);
+    } catch {
+        // ignore
     }
 }
 
-/**
- * Set global proximity enabled state
- */
 export function setProximityEnabled(enabled: boolean): void {
     const settings = getProximitySettings();
     settings.enabled = enabled;
     saveSettings(settings);
 }
 
-/**
- * Set proximity distance (in meters)
- */
 export function setProximityDistance(meters: number): void {
     const settings = getProximitySettings();
     settings.distanceMeters = Math.max(100, Math.min(2000, meters));
     saveSettings(settings);
 }
 
-/**
- * Toggle proximity for a specific city
- */
 export function toggleCityProximity(cityId: string): boolean {
     const settings = getProximitySettings();
     const index = settings.enabledCityIds.indexOf(cityId);
-
     if (index >= 0) {
         settings.enabledCityIds.splice(index, 1);
         saveSettings(settings);
@@ -81,13 +84,9 @@ export function toggleCityProximity(cityId: string): boolean {
     }
 }
 
-/**
- * Set city proximity enabled/disabled directly
- */
 export function setCityProximity(cityId: string, enabled: boolean): void {
     const settings = getProximitySettings();
     const index = settings.enabledCityIds.indexOf(cityId);
-
     if (enabled && index < 0) {
         settings.enabledCityIds.push(cityId);
         saveSettings(settings);
@@ -97,64 +96,49 @@ export function setCityProximity(cityId: string, enabled: boolean): void {
     }
 }
 
-/**
- * Check if a city has proximity enabled
- */
 export function isCityProximityEnabled(cityId: string): boolean {
     const settings = getProximitySettings();
     return settings.enabledCityIds.includes(cityId);
 }
 
 /**
- * Mark a place as notified (to avoid duplicate notifications)
+ * Mark a place as notified. Uses current timestamp for 24h cooldown.
  */
 export function markPlaceNotified(placeId: string): void {
     const settings = getProximitySettings();
-    if (!settings.notifiedPlaceIds.includes(placeId)) {
-        settings.notifiedPlaceIds.push(placeId);
-        saveSettings(settings);
-    }
-}
-
-/**
- * Check if a place has been notified
- */
-export function hasPlaceBeenNotified(placeId: string): boolean {
-    const settings = getProximitySettings();
-    return settings.notifiedPlaceIds.includes(placeId);
-}
-
-/**
- * Reset notified places (e.g., when user wants to be notified again)
- */
-export function resetNotifiedPlaces(): void {
-    const settings = getProximitySettings();
-    settings.notifiedPlaceIds = [];
+    settings.notifiedPlaces[placeId] = Date.now();
     saveSettings(settings);
 }
 
 /**
- * Enable all cities
+ * Returns true only if the place was notified within the last 24 hours.
+ * After 24h the place can trigger again.
  */
+export function hasPlaceBeenNotified(placeId: string): boolean {
+    const settings = getProximitySettings();
+    const ts = settings.notifiedPlaces[placeId];
+    if (!ts) return false;
+    return Date.now() - ts < NOTIFICATION_COOLDOWN_MS;
+}
+
+export function resetNotifiedPlaces(): void {
+    const settings = getProximitySettings();
+    settings.notifiedPlaces = {};
+    saveSettings(settings);
+}
+
 export function enableAllCities(cityIds: string[]): void {
     const settings = getProximitySettings();
     settings.enabledCityIds = [...new Set([...settings.enabledCityIds, ...cityIds])];
     saveSettings(settings);
 }
 
-/**
- * Disable all cities
- */
 export function disableAllCities(): void {
     const settings = getProximitySettings();
     settings.enabledCityIds = [];
     saveSettings(settings);
 }
 
-/**
- * Get count of enabled cities
- */
 export function getEnabledCityCount(): number {
-    const settings = getProximitySettings();
-    return settings.enabledCityIds.length;
+    return getProximitySettings().enabledCityIds.length;
 }

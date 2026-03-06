@@ -5,37 +5,24 @@ import {
     setProximityEnabled,
     setProximityDistance,
     toggleCityProximity,
-    setCityProximity,
     isCityProximityEnabled,
-    getEnabledCityCount,
     enableAllCities,
     disableAllCities,
-    ProximitySettings
+    ProximitySettings,
 } from '@/utils/proximity/proximity-settings';
-import {
-    initializeProximity,
-    startProximityMonitoring,
-    stopProximityMonitoring
-} from '@/services/proximity';
+import { initializeProximity, stopProximityMonitoring } from '@/services/proximity';
 
 interface UseProximityReturn {
-    // Settings
     isEnabled: boolean;
     distanceMeters: number;
     enabledCityCount: number;
-
-    // Permission
     permissionStatus: 'granted' | 'denied' | 'prompt' | 'unknown';
-
-    // Actions
     toggleEnabled: () => Promise<boolean>;
     setDistance: (meters: number) => void;
     toggleCity: (cityId: string) => boolean;
     isCityEnabled: (cityId: string) => boolean;
     enableAll: (cityIds: string[]) => void;
     disableAll: () => void;
-
-    // Loading
     isLoading: boolean;
 }
 
@@ -44,19 +31,16 @@ export function useProximity(): UseProximityReturn {
     const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('unknown');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Check permission status on mount
     useEffect(() => {
         checkPermissions();
 
-        // Listen for settings changes
-        const handleSettingsChange = (e: CustomEvent<ProximitySettings>) => {
-            setSettings(e.detail);
+        const handleSettingsChange = (e: Event) => {
+            setSettings((e as CustomEvent<ProximitySettings>).detail);
         };
 
-        window.addEventListener('proximitySettingsChanged', handleSettingsChange as EventListener);
-
+        window.addEventListener('proximitySettingsChanged', handleSettingsChange);
         return () => {
-            window.removeEventListener('proximitySettingsChanged', handleSettingsChange as EventListener);
+            window.removeEventListener('proximitySettingsChanged', handleSettingsChange);
         };
     }, []);
 
@@ -64,50 +48,36 @@ export function useProximity(): UseProximityReturn {
         try {
             const permission = await Geolocation.checkPermissions();
             mapPermissionStatus(permission);
-        } catch (error) {
-            console.error('[useProximity] Error checking permissions:', error);
+        } catch {
             setPermissionStatus('unknown');
         }
     };
 
     const mapPermissionStatus = (permission: PermissionStatus) => {
         switch (permission.location) {
-            case 'granted':
-                setPermissionStatus('granted');
-                break;
-            case 'denied':
-                setPermissionStatus('denied');
-                break;
+            case 'granted': setPermissionStatus('granted'); break;
+            case 'denied': setPermissionStatus('denied'); break;
             case 'prompt':
-            case 'prompt-with-rationale':
-                setPermissionStatus('prompt');
-                break;
-            default:
-                setPermissionStatus('unknown');
+            case 'prompt-with-rationale': setPermissionStatus('prompt'); break;
+            default: setPermissionStatus('unknown');
         }
     };
 
     const toggleEnabled = useCallback(async (): Promise<boolean> => {
         setIsLoading(true);
-
         try {
             if (!settings.enabled) {
-                // Enabling - need to request permissions and initialize
+                // Request permissions — the monitor hook (useProximityMonitor in App.tsx)
+                // will automatically start monitoring via the 'proximitySettingsChanged' event.
                 const success = await initializeProximity();
+                if (!success) return false;
 
-                if (success) {
-                    setProximityEnabled(true);
-                    setSettings(prev => ({ ...prev, enabled: true }));
-                    await checkPermissions();
-                    return true;
-                } else {
-                    return false;
-                }
+                setProximityEnabled(true); // fires 'proximitySettingsChanged'
+                await checkPermissions();
+                return true;
             } else {
-                // Disabling
                 await stopProximityMonitoring();
-                setProximityEnabled(false);
-                setSettings(prev => ({ ...prev, enabled: false }));
+                setProximityEnabled(false); // fires 'proximitySettingsChanged'
                 return true;
             }
         } finally {
@@ -116,12 +86,11 @@ export function useProximity(): UseProximityReturn {
     }, [settings.enabled]);
 
     const setDistance = useCallback((meters: number) => {
-        setProximityDistance(meters);
-        setSettings(prev => ({ ...prev, distanceMeters: meters }));
+        setProximityDistance(meters); // fires 'proximitySettingsChanged' → monitor restarts
     }, []);
 
     const toggleCity = useCallback((cityId: string): boolean => {
-        const newState = toggleCityProximity(cityId);
+        const newState = toggleCityProximity(cityId); // fires 'proximitySettingsChanged' → monitor restarts
         setSettings(getProximitySettings());
         return newState;
     }, []);
@@ -151,6 +120,6 @@ export function useProximity(): UseProximityReturn {
         isCityEnabled,
         enableAll,
         disableAll,
-        isLoading
+        isLoading,
     };
 }

@@ -13,6 +13,7 @@ import { addInboxItem, parseInboxItem } from "@/utils/inbox/inbox-store";
 import { useToast } from "@/hooks/use-toast";
 import { importSharedInbox } from "@/utils/inbox/shared-import";
 import RecommendationDetailsDialog from "@/components/home/RecommendationDetailsDialog";
+import { useProximityMonitor } from "@/hooks/native/useProximityMonitor";
 
 // Pages
 import Index from "./pages/Index";
@@ -54,6 +55,9 @@ function AppContent() {
 
   // Automatically manage status bar based on theme
   useStatusBarTheme(theme === 'dark' ? 'dark' : 'light');
+
+  // Proximity monitoring — starts GPS watch if enabled in settings, geocodes places
+  useProximityMonitor();
 
   // One-time sync with Firestore when signed in
   useEffect(() => {

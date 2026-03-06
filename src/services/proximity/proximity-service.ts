@@ -1,18 +1,14 @@
-import { Geolocation, Position, WatchPositionCallback } from '@capacitor/geolocation';
+import { Geolocation, Position } from '@capacitor/geolocation';
 import { LocalNotifications, ScheduleOptions } from '@capacitor/local-notifications';
 import {
     getProximitySettings,
     markPlaceNotified,
-    hasPlaceBeenNotified
+    hasPlaceBeenNotified,
 } from '@/utils/proximity/proximity-settings';
-import {
-    getCurrentLocation,
-    calculateDistance
-} from './geocoding-service';
+import { calculateDistance } from './geocoding-service';
 import { logger } from '@/utils/logger';
 
-// Types
-interface ProximityPlace {
+export interface ProximityPlace {
     id: string;
     recId?: string;
     name: string;
@@ -30,36 +26,37 @@ let monitoredPlaces: ProximityPlace[] = [];
 let isInitialized = false;
 
 /**
- * Initialize the proximity service
+ * Request location + notification permissions and set up notification tap listener.
+ * Safe to call multiple times.
  */
 export async function initializeProximity(): Promise<boolean> {
     try {
-        // Check and request location permissions
         const permission = await Geolocation.checkPermissions();
 
         if (permission.location === 'denied') {
-            logger.debug('ProximityService', 'Location permission denied');
+            logger.warn('ProximityService', 'Location permission denied');
             return false;
         }
 
         if (permission.location === 'prompt' || permission.location === 'prompt-with-rationale') {
             const result = await Geolocation.requestPermissions();
             if (result.location === 'denied') {
-                logger.debug('ProximityService', 'Location permission denied after request');
+                logger.warn('ProximityService', 'Location permission denied after request');
                 return false;
             }
         }
 
         // Request notification permissions
-        const notifPermission = await LocalNotifications.checkPermissions();
-        if (notifPermission.display === 'prompt') {
+        const notifPerm = await LocalNotifications.checkPermissions();
+        if (notifPerm.display === 'prompt') {
             await LocalNotifications.requestPermissions();
         }
 
-        // Set up notification action handlers
-        await setupNotificationListeners();
+        if (!isInitialized) {
+            await setupNotificationListeners();
+            isInitialized = true;
+        }
 
-        isInitialized = true;
         logger.info('ProximityService', 'Initialized successfully');
         return true;
     } catch (error) {
@@ -69,93 +66,97 @@ export async function initializeProximity(): Promise<boolean> {
 }
 
 /**
- * Start monitoring for proximity to places
+ * Start (or restart) the GPS watch and proximity checks.
+ * Call this with the full list of places to monitor.
  */
-export async function startProximityMonitoring(
-    places: ProximityPlace[]
-): Promise<void> {
+export async function startProximityMonitoring(places: ProximityPlace[]): Promise<void> {
     const settings = getProximitySettings();
 
     if (!settings.enabled) {
-        logger.debug('ProximityService', 'Proximity disabled, not starting monitoring');
+        logger.debug('ProximityService', 'Proximity disabled — skipping start');
         return;
     }
 
     if (!isInitialized) {
-        const success = await initializeProximity();
-        if (!success) return;
+        const ok = await initializeProximity();
+        if (!ok) return;
     }
 
-    // Filter places to only those in enabled cities with valid coordinates
-    monitoredPlaces = places.filter(
-        place =>
-            settings.enabledCityIds.includes(place.cityId) &&
-            place.lat !== undefined &&
-            place.lng !== undefined
-    );
+    // Keep only places with valid coordinates
+    monitoredPlaces = places.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+    logger.info('ProximityService', `Monitoring ${monitoredPlaces.length} places`);
 
-    logger.info('ProximityService', `Monitoring ${monitoredPlaces.length} places from ${settings.enabledCityIds.length} cities`);
-
-    // Stop existing watch if any
-    if (watchId) {
+    // Clear any existing watch before starting a new one
+    if (watchId !== null) {
         await Geolocation.clearWatch({ id: watchId });
+        watchId = null;
     }
 
-    // Start watching position
     watchId = await Geolocation.watchPosition(
         {
-            enableHighAccuracy: false, // Battery efficient
+            enableHighAccuracy: true,  // GPS accuracy needed for sub-500m detection
             timeout: 30000,
-            maximumAge: 60000 // Accept 1-minute-old positions
+            maximumAge: 30000,         // Accept positions up to 30s old
         },
         (position, err) => {
             if (err) {
-                logger.error('ProximityService', 'Watch position error:', err);
+                logger.error('ProximityService', 'watchPosition error:', err);
                 return;
             }
-            if (position) {
-                checkProximity(position);
-            }
+            if (position) checkProximity(position);
         }
     );
+
+    logger.debug('ProximityService', `GPS watch started (watchId: ${watchId})`);
 }
 
 /**
- * Stop proximity monitoring
+ * Stop GPS watch and clear monitored places.
  */
 export async function stopProximityMonitoring(): Promise<void> {
-    if (watchId) {
+    if (watchId !== null) {
         await Geolocation.clearWatch({ id: watchId });
         watchId = null;
-        logger.debug('ProximityService', 'Stopped monitoring');
+        logger.debug('ProximityService', 'GPS watch stopped');
     }
+    monitoredPlaces = [];
 }
 
 /**
- * Check if user is near any monitored places
+ * Update the list of monitored places without restarting the GPS watch.
+ * Use this when new places are geocoded or places change.
+ */
+export async function updateMonitoredPlaces(places: ProximityPlace[]): Promise<void> {
+    monitoredPlaces = places.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+    logger.debug('ProximityService', `Updated to ${monitoredPlaces.length} monitored places`);
+}
+
+/**
+ * Check whether the user is within alert distance of any monitored place.
  */
 function checkProximity(position: Position): void {
     const settings = getProximitySettings();
+    const { latitude: userLat, longitude: userLng, accuracy } = position.coords;
 
-    // Skip check if GPS accuracy is too poor (accuracy radius > half the alert distance)
-    const accuracy = position.coords.accuracy;
-    if (accuracy !== null && accuracy > settings.distanceMeters * 0.5) {
-        logger.debug('ProximityService', `GPS accuracy too low (${Math.round(accuracy)}m), skipping check`);
+    // Skip updates where GPS error radius is larger than the alert distance.
+    // Cap threshold at 300m so we still work in areas with poor GPS lock.
+    const accuracyThreshold = Math.min(settings.distanceMeters, 300);
+    if (accuracy !== null && accuracy > accuracyThreshold) {
+        logger.debug(
+            'ProximityService',
+            `Low accuracy (${Math.round(accuracy)}m > ${Math.round(accuracyThreshold)}m threshold) — skipping`
+        );
         return;
     }
 
-    const userLat = position.coords.latitude;
-    const userLng = position.coords.longitude;
-
     for (const place of monitoredPlaces) {
-        // Skip if already notified
         const placeKey = place.recId || place.id;
         if (hasPlaceBeenNotified(placeKey)) continue;
 
         const distance = calculateDistance(userLat, userLng, place.lat, place.lng);
 
         if (distance <= settings.distanceMeters) {
-            logger.debug('ProximityService', `User is ${Math.round(distance)}m from "${place.name}"`);
+            logger.info('ProximityService', `"${place.name}" is ${Math.round(distance)}m away — sending notification`);
             sendProximityNotification(place, Math.round(distance));
             markPlaceNotified(placeKey);
         }
@@ -163,12 +164,9 @@ function checkProximity(position: Position): void {
 }
 
 /**
- * Send a local notification for a nearby place
+ * Fire an immediate local notification for a nearby place.
  */
-async function sendProximityNotification(
-    place: ProximityPlace,
-    distanceMeters: number
-): Promise<void> {
+async function sendProximityNotification(place: ProximityPlace, distanceMeters: number): Promise<void> {
     const distanceText = distanceMeters < 1000
         ? `${distanceMeters}m away`
         : `${(distanceMeters / 1000).toFixed(1)}km away`;
@@ -176,79 +174,63 @@ async function sendProximityNotification(
     const notification: ScheduleOptions = {
         notifications: [
             {
-                id: Math.floor(Math.random() * 100000),
+                id: Math.floor(Math.random() * 2_000_000),
                 title: `📍 ${place.name}`,
                 body: place.tip
-                    ? `${distanceText} • ${place.tip}`
+                    ? `${distanceText} · ${place.tip}`
                     : `${distanceText} in ${place.city}`,
                 extra: {
                     placeId: place.id,
                     recId: place.recId,
                     placeName: place.name,
                     cityId: place.cityId,
-                    action: 'proximity'
+                    action: 'proximity',
                 },
-                schedule: { at: new Date() }
-            }
-        ]
+                // Schedule 500ms in the future — scheduling at exactly "now" can fail
+                schedule: { at: new Date(Date.now() + 500) },
+            },
+        ],
     };
 
-    await LocalNotifications.schedule(notification);
-    logger.debug('ProximityService', `Sent notification for "${place.name}"`);
+    try {
+        await LocalNotifications.schedule(notification);
+        logger.debug('ProximityService', `Notification sent for "${place.name}"`);
+    } catch (error) {
+        logger.error('ProximityService', 'Failed to schedule notification:', error);
+    }
 }
 
 /**
- * Set up notification action handlers
+ * Set up listener for notification taps (fires even when app is backgrounded).
+ * Only registered once per session.
  */
 async function setupNotificationListeners(): Promise<void> {
-    // Listen for notification tap (no quick actions, just open the place card)
-    LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
-        const { notification: notif } = notification;
-        const extra = notif.extra as { placeId?: string; recId?: string; placeName?: string; cityId?: string };
+    LocalNotifications.addListener('localNotificationActionPerformed', (event) => {
+        const extra = event.notification.extra as {
+            placeId?: string;
+            recId?: string;
+            placeName?: string;
+            cityId?: string;
+        };
 
-        logger.debug('ProximityService', `Notification tapped for place: ${extra?.placeName}`);
+        logger.debug('ProximityService', `Notification tapped: ${extra?.placeName}`);
 
-        // Dispatch event for the app to open the place card
-        window.dispatchEvent(new CustomEvent('proximityPlaceTapped', {
-            detail: {
-                placeId: extra?.placeId,
-                recId: extra?.recId,
-                placeName: extra?.placeName,
-                cityId: extra?.cityId
-            }
-        }));
+        window.dispatchEvent(
+            new CustomEvent('proximityPlaceTapped', {
+                detail: {
+                    placeId: extra?.placeId,
+                    recId: extra?.recId,
+                    placeName: extra?.placeName,
+                    cityId: extra?.cityId,
+                },
+            })
+        );
     });
 }
 
-/**
- * Update monitored places (call when recommendations change)
- */
-export async function updateMonitoredPlaces(
-    places: ProximityPlace[]
-): Promise<void> {
-    const settings = getProximitySettings();
-
-    if (!settings.enabled || !isInitialized) return;
-
-    monitoredPlaces = places.filter(
-        place =>
-            settings.enabledCityIds.includes(place.cityId) &&
-            place.lat !== undefined &&
-            place.lng !== undefined
-    );
-
-    logger.debug('ProximityService', `Updated to monitor ${monitoredPlaces.length} places`);
-}
-
-/**
- * Get proximity monitoring status
- */
-export function getProximityStatus(): {
-    isMonitoring: boolean;
-    monitoredCount: number;
-} {
+export function getProximityStatus(): { isMonitoring: boolean; monitoredCount: number } {
     return {
         isMonitoring: watchId !== null,
-        monitoredCount: monitoredPlaces.length
+        monitoredCount: monitoredPlaces.length,
     };
 }
