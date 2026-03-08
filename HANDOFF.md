@@ -1,7 +1,7 @@
 # Travelist AI — Developer Handoff Document
-**Last updated:** March 4, 2026
-**Sessions:** App Store readiness + audit → Security hardening → Security hardening round 2 → New-user UX review + fixes → Settings redesign
-**Next steps:** Increment build number + submit next TestFlight build (see Action Plan)
+**Last updated:** March 8, 2026
+**Sessions:** App Store readiness + audit → Security hardening → Security hardening round 2 → New-user UX review + fixes → Settings redesign → Travel Story redesign → Proximity fix
+**Next steps:** Fix bugs found on TestFlight (physical device testing). See Notes for Next Session.
 
 ---
 
@@ -60,6 +60,45 @@ npm run ios:dev          # build + sync + open Xcode
    - `console.warn` calls now guarded with `if (import.meta.env.DEV)`
 
 3. **App Store listing content written** — ready to paste into App Store Connect (see section below)
+
+### Session 7 — Proximity alerts full rewrite (March 8, 2026)
+Proximity feature was completely non-functional. 8 bugs fixed across 6 files. New `useProximityMonitor` hook created.
+
+**Root causes fixed:**
+- `startProximityMonitoring` was imported but never called — GPS watch never started
+- Places had no coordinates; geocode functions were defined but never called from the app
+- `enabledCityIds: []` default → zero places ever monitored; auto-enable all cities on first start
+- `enableHighAccuracy: false` + 100m accuracy cap → most iOS positions silently dropped
+- `notifiedPlaceIds: string[]` stored permanently → users never re-notified after first visit; replaced with 24h timestamp cooldown
+- Notification `schedule: { at: new Date() }` fired in the past → changed to `+500ms`
+- City-center geocode fallback caused false notifications → removed; places not in OSM are skipped
+- Monitoring died on app relaunch; `useProximityMonitor` in App.tsx now restarts on mount
+
+**Key files changed:**
+- `src/hooks/native/useProximityMonitor.ts` — **NEW** — app-level lifecycle hook (mount → start, settings change → restart, data change → update places). Geocodes uncached places in background at 1/sec.
+- `src/services/proximity/proximity-service.ts` — `enableHighAccuracy: true`, accuracy threshold 300m, notification `+500ms`
+- `src/services/proximity/geocoding-service.ts` — persistent localStorage geocode cache (`travelist-geocode-cache`), exports `getCachedCoords`
+- `src/utils/proximity/proximity-settings.ts` — `notifiedPlaces: Record<string, number>` (timestamp-based 24h cooldown), migration from old format
+- `src/hooks/native/useProximity.ts` — removed dead `startProximityMonitoring` import; settings changes fire `proximitySettingsChanged` which `useProximityMonitor` listens to
+- `src/App.tsx` — added `useProximityMonitor()` call
+
+**iOS side confirmed correct:** `NSLocationAlwaysAndWhenInUseUsageDescription` + `UIBackgroundModes: location` both present in Info.plist. Background monitoring should work; iOS will auto-prompt for "Always" upgrade when app backgrounds.
+
+**Known limitation:** Nominatim only finds places listed in OpenStreetMap. Well-known restaurants/hotels/attractions → geocoded. Very local/obscure places → skipped silently.
+
+---
+
+### Session 6 — Travel Story redesign (March 8, 2026)
+Full visual redesign of the Travel Story page. All card components rewritten.
+
+**Changes:**
+- `StatsHeroCard`: 68px hero number as focal point, radial glow, clean stat trio with hairline dividers, large plain flag emoji, refined progress ring, bottom watermark strip
+- `SourceBreakdown`: unified card with relative bars per recommender, consistent small-caps label ("WHO INSPIRES YOU"), no emoji header
+- `CategoryChart`: ghost+solid dual-tone bars per category, legend in ruled footer, consistent label ("WHAT YOU LOVE")
+- `DiscoveryTimeline`: removed redundant month pills scroll, editorial month headers (`MARCH 2026 · 3 places`), minimal row entries inside card, integrated expand/collapse
+- `TravelStory.tsx`: tightened section spacing (`mb-3`), removed redundant page title (hero card owns it)
+
+---
 
 ### Session 5 — Settings tab redesign (March 4, 2026)
 Full redesign of the Settings tab. All changes in `src/pages/Settings.tsx` and `src/components/settings/`.
@@ -328,19 +367,18 @@ Download Travelist AI and start building the travel life you've always imagined.
 ## PRIORITIZED ACTION PLAN
 
 ### 🔜 Next session
-| # | Task | File(s) | Status |
-|---|------|---------|--------|
-| 0 | **Redesign Settings tab** | `src/pages/Settings.tsx` + sub-components in `src/components/settings/` | ✅ Done Mar 4 (Session 5) |
+| # | Task | Notes |
+|---|------|-------|
+| 0 | **Fix TestFlight bugs** | User tested on physical device — list of bugs to come |
 
-### Before next TestFlight build
+### Before App Store submission
 | # | Task | File(s) | Status |
 |---|------|---------|--------|
-| 1 | Request location permission in onboarding | ~~`ProximityAlertsScreen.tsx`~~ | ✅ Screen removed Mar 4 |
-| 2 | Disable submit button while saving | `RecommendationDrawer.tsx` | ✅ Already done |
-| 3 | Increment build number in Xcode | Xcode project settings | ❌ TODO |
+| 1 | Fix TestFlight bugs from physical device | TBD | ❌ Next session |
+| 2 | Increment build number in Xcode | Xcode project settings | ❌ TODO (still Build 1) |
+| 3 | Take App Store screenshots in Simulator | `xcrun simctl io booted screenshot <path>.png` | ❌ TODO |
 | 4 | Paste App Store listing content into App Store Connect | App Store Connect | ❌ TODO |
 | 5 | Complete age rating questionnaire (answer: 4+) | App Store Connect | ❌ TODO |
-| 6 | New-user UX fixes (onboarding, Shared tab, Profile, FAB hint) | Various — see Session 4 | ✅ Done Mar 4 |
 
 ### Before App Store submission
 | # | Task | File(s) | Status |
@@ -371,10 +409,18 @@ Download Travelist AI and start building the travel life you've always imagined.
 
 ## NOTES FOR NEXT SESSION
 
-### 🎯 Priority: Increment build + new TestFlight
-1. Bump build number in Xcode (currently Build 1)
-2. Take App Store screenshots in Simulator (`xcrun simctl io booted screenshot <path>.png`)
-3. Archive → Distribute via Xcode → upload to App Store Connect
+### 🎯 Priority: Fix bugs found on physical device (TestFlight)
+User tested on physical iPhone via TestFlight and found bugs to report. Start next session by asking the user to list them — fix each one, then rebuild and sync.
+
+**Build workflow reminder:** `npm run build:prod && npx cap sync ios` → Run/Archive in Xcode
+
+### Proximity — things to verify on device
+- Toggle proximity ON in Settings → should request location permission
+- App backgrounded → iOS should prompt to upgrade to "Always Allow"
+- Walk near a saved place (or simulate in Xcode: Debug → Simulate Location) → notification should fire
+- Notification tap → opens place card in app
+- Same place: no second notification until 24h later
+- Geocoding: check console logs (`[ProximityMonitor]`, `[ProximityService]`, `[Geocoding]`) for progress
 
 ### Settings tab — current state (as of Session 5)
 Fully redesigned. Key files:
